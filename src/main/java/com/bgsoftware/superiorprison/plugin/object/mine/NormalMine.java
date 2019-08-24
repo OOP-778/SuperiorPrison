@@ -33,6 +33,10 @@ public class NormalMine extends DatabaseObject implements INormalMine {
     @DatabaseValue(columnName = "generator")
     private MineGenerator generator;
 
+    public NormalMine() {
+        setWhenLoaded(() -> generator.attach(this));
+    }
+
     @Override
     public MineEnum getType() {
         return mineType;

@@ -3,6 +3,7 @@ package com.bgsoftware.superiorprison.plugin.object.mine;
 import com.bgsoftware.superiorprison.api.data.mine.IMineGenerator;
 import com.bgsoftware.superiorprison.api.data.mine.ISuperiorMine;
 import com.bgsoftware.superiorprison.api.util.SPLocation;
+import com.bgsoftware.superiorprison.plugin.util.Attachable;
 import com.bgsoftware.superiorprison.plugin.util.Cuboid;
 import com.oop.orangeengine.eventssubscription.SubscriptionFactory;
 import com.oop.orangeengine.eventssubscription.SubscriptionProperties;
@@ -26,9 +27,9 @@ import java.util.concurrent.TimeUnit;
 
 @Setter
 @Getter
-public class MineGenerator implements IMineGenerator, Serializable {
+public class MineGenerator implements IMineGenerator, Serializable, Attachable<ISuperiorMine> {
 
-    private ISuperiorMine mine;
+    private transient ISuperiorMine mine;
     private List<OPair<Double, Material>> generatorMaterials = new ArrayList<>();
     private transient Instant lastReset;
     private transient Instant nextReset;
@@ -38,9 +39,7 @@ public class MineGenerator implements IMineGenerator, Serializable {
     private transient boolean caching = false;
     private transient boolean worldLoadWait = false;
 
-    public MineGenerator() {
-
-    }
+    public MineGenerator() {}
 
     @Override
     public Instant getLastReset() {
@@ -52,8 +51,7 @@ public class MineGenerator implements IMineGenerator, Serializable {
         return nextReset;
     }
 
-    public void generate() {
-    }
+    public void generate() {}
 
     public void initCache() {
         if(isCaching() || isWorldLoadWait())
@@ -117,4 +115,8 @@ public class MineGenerator implements IMineGenerator, Serializable {
         });
     }
 
+    @Override
+    public void attach(ISuperiorMine obj) {
+        this.mine = obj;
+    }
 }

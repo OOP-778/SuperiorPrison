@@ -5,6 +5,7 @@ import com.oop.orangeengine.main.task.OTask;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 
 import java.util.concurrent.CompletableFuture;
@@ -119,7 +120,7 @@ public class Cuboid{
                 .sync(false)
                 .runnable(() -> {
 
-                    SPLocation[] blocks = new SPLocation[16 * 16];
+                    SPLocation[] blocks = new SPLocation[(16 * 16) * convertToChunkDistance(minimumPoint, maximumPoint)];
                     World world = this.getWorld();
                     int currentBlock = 0;
                     if (world != null) {
@@ -137,5 +138,15 @@ public class Cuboid{
                 }).execute();
 
         return future;
+    }
+
+    private int convertToChunkDistance(Vector first, Vector second) {
+
+        double distanceBetweenLocations = NumberConversions.square(first.getX() - second.getX()) + NumberConversions.square(first.getZ() - second.getZ());
+        if (distanceBetweenLocations < 16)
+            return 0;
+
+        else
+            return (int) Math.round(distanceBetweenLocations / 16);
     }
 }

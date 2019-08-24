@@ -1,6 +1,6 @@
 package com.bgsoftware.superiorprison.api.data.mine;
 
-import com.bgsoftware.superiorprison.api.data.IPrisoner;
+import com.bgsoftware.superiorprison.api.data.player.IPrisoner;
 import com.bgsoftware.superiorprison.api.util.SPLocation;
 
 import java.util.Set;

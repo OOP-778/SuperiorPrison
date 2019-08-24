@@ -2,7 +2,7 @@ package com.bgsoftware.superiorprison.plugin.controller;
 
 import com.bgsoftware.superiorprison.api.controller.IMineController;
 import com.bgsoftware.superiorprison.api.data.mine.ISuperiorMine;
-import com.bgsoftware.superiorprison.plugin.object.NormalMine;
+import com.bgsoftware.superiorprison.plugin.object.mine.NormalMine;
 import com.oop.orangeengine.database.ODatabase;
 import com.oop.orangeengine.database.object.DataController;
 

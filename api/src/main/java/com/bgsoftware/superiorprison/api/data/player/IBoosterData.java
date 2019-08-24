@@ -1,4 +1,4 @@
-package com.bgsoftware.superiorprison.api.data;
+package com.bgsoftware.superiorprison.api.data.player;
 
 import java.util.Set;
 

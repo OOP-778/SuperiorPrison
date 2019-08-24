@@ -1,17 +1,19 @@
-package com.bgsoftware.superiorprison.plugin.object;
+package com.bgsoftware.superiorprison.plugin.object.mine;
 
-import com.bgsoftware.superiorprison.api.data.IPrisoner;
-import com.bgsoftware.superiorprison.api.data.mine.IMineGenerator;
 import com.bgsoftware.superiorprison.api.data.mine.MineEnum;
 import com.bgsoftware.superiorprison.api.data.mine.type.INormalMine;
+import com.bgsoftware.superiorprison.api.data.player.IPrisoner;
 import com.bgsoftware.superiorprison.api.util.SPLocation;
 import com.oop.orangeengine.database.OColumn;
 import com.oop.orangeengine.database.annotations.DatabaseValue;
 import com.oop.orangeengine.database.object.DatabaseObject;
 
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class NormalMine extends DatabaseObject implements INormalMine {
+
+    private Set<IPrisoner> prisoners = ConcurrentHashMap.newKeySet();
 
     @DatabaseValue(columnName = "mineType")
     private MineEnum mineType;
@@ -29,7 +31,7 @@ public class NormalMine extends DatabaseObject implements INormalMine {
     private SPLocation spawnPoint;
 
     @DatabaseValue(columnName = "generator")
-    private IMineGenerator generator;
+    private MineGenerator generator;
 
     @Override
     public MineEnum getType() {
@@ -57,17 +59,17 @@ public class NormalMine extends DatabaseObject implements INormalMine {
     }
 
     @Override
-    public IMineGenerator getGenerator() {
+    public MineGenerator getGenerator() {
         return generator;
     }
 
     @Override
     public int getPlayerCount() {
-        return 0;
+        return prisoners.size();
     }
 
     @Override
     public Set<IPrisoner> getPrisoners() {
-        return null;
+        return prisoners;
     }
 }

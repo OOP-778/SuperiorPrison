@@ -8,6 +8,4 @@ public interface IMineGenerator {
 
     Instant getNextReset();
 
-    void generate();
-
 }

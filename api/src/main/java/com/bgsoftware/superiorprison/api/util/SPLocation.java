@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 
 import java.io.Serializable;
 
@@ -14,10 +15,16 @@ public class SPLocation implements Serializable {
     private int x;
     private int y;
     private int z;
-    private String world;
+    private String worldName;
 
     public Location toBukkit() {
-        return new Location(Bukkit.getWorld(world), x, y, z);
+        World world = getWorld();
+        if(world == null) return null;
+
+        return new Location(world, x, y, z);
     }
 
+    public World getWorld() {
+        return Bukkit.getWorld(worldName);
+    }
 }

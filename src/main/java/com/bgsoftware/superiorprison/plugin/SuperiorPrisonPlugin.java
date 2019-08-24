@@ -31,7 +31,6 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
         // Initialize controllers
         this.mineController = new MineController(database);
         this.prisonerController = new PrisonerController(database);
-
     }
 
     @Override

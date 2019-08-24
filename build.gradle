@@ -1,0 +1,49 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:5.1.0'
+    }
+}
+
+group 'SuperiorPrison'
+version '1.0-SNAPSHOT'
+
+allprojects {
+
+    apply plugin: 'java'
+    apply plugin: 'com.github.johnrengelman.shadow'
+
+    repositories {
+        jcenter()
+        mavenLocal()
+        maven { url 'https://repo.codemc.org/repository/nms/' }
+
+    }
+
+    dependencies {
+        compileOnly "org.spigotmc:spigot:1.12.2-R0.1-SNAPSHOT"
+        compileOnly 'org.projectlombok:lombok:1.18.8'
+        compile "com.oop.orangeengine:file:2.0"
+        compile "com.oop.orangeengine:item:2.0"
+        compile "com.oop.orangeengine:engine:2.0"
+        compile "com.oop.orangeengine:command:3.1"
+        compile "com.oop.orangeengine:database:3.1"
+        annotationProcessor 'org.projectlombok:lombok:1.18.8'
+
+        if(project.name.equalsIgnoreCase("SuperiorPrison"))
+            compile project(":api")
+
+    }
+
+    shadowJar {
+
+        minimize()
+        archiveName = "OrangeEngine-${project.name}.jar"
+
+        destinationDirectory = file('../target')
+    }
+
+
+}

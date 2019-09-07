@@ -2,8 +2,8 @@ package com.bgsoftware.superiorprison.plugin;
 
 import com.bgsoftware.superiorprison.api.SuperiorPrison;
 import com.bgsoftware.superiorprison.api.SuperiorPrisonAPI;
-import com.bgsoftware.superiorprison.plugin.controller.MineController;
-import com.bgsoftware.superiorprison.plugin.controller.PrisonerController;
+import com.bgsoftware.superiorprison.plugin.controller.DataController;
+import com.bgsoftware.superiorprison.plugin.controller.TaskController;
 import com.oop.orangeengine.database.ODatabase;
 import com.oop.orangeengine.main.plugin.EnginePlugin;
 
@@ -11,8 +11,8 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
 
     private static SuperiorPrisonPlugin instance;
 
-    private MineController mineController;
-    private PrisonerController prisonerController;
+    private TaskController taskController;
+    private DataController dataController;
     private ODatabase database;
 
     public SuperiorPrisonPlugin() {
@@ -29,8 +29,8 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
         // TODO
 
         // Initialize controllers
-        this.mineController = new MineController(database);
-        this.prisonerController = new PrisonerController(database);
+        //this.dataController = new DataController();
+        this.taskController = new TaskController();
     }
 
     @Override
@@ -39,12 +39,16 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
     }
 
     @Override
-    public MineController getMineController() {
-        return mineController;
+    public DataController getMineController() {
+        return dataController;
     }
 
     @Override
-    public PrisonerController getPrisonerController() {
-        return prisonerController;
+    public DataController getPrisonerController() {
+        return dataController;
+    }
+
+    public static SuperiorPrisonPlugin getInstance() {
+        return instance;
     }
 }

@@ -111,7 +111,6 @@ public class Cuboid{
         return world;
     }
 
-
     public CompletableFuture<SPLocation[]> getFutureArray() {
         CompletableFuture<SPLocation[]> future = new CompletableFuture<>();
 
@@ -135,7 +134,8 @@ public class Cuboid{
                     }
                     future.complete(blocks);
 
-                }).execute();
+                })
+                .execute();
 
         return future;
     }

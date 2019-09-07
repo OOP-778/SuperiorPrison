@@ -1,1 +1,13 @@
 database:
+  # There's two database types
+  # SQLITE
+  # MYSQL
+  type: SQLITE
+
+  # <<< If you're using SQLITE you should ignore under >>>
+  database: "data"
+  hostname: 127.0.0.1
+  port: 3306
+  username: "root"
+  password: "123"
+

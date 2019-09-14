@@ -1,3 +1,4 @@
 rootProject.name = 'SuperiorPrison'
 include 'api'
+include 'plugin'
 

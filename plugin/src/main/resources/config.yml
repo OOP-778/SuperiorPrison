@@ -10,4 +10,3 @@ database:
   port: 3306
   username: "root"
   password: "123"
-

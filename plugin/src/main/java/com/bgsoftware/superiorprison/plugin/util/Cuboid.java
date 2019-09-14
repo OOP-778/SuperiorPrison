@@ -8,6 +8,7 @@ import org.bukkit.World;
 import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 
+import java.util.LinkedList;
 import java.util.concurrent.CompletableFuture;
 
 public class Cuboid{
@@ -119,20 +120,18 @@ public class Cuboid{
                 .sync(false)
                 .runnable(() -> {
 
-                    SPLocation[] blocks = new SPLocation[(16 * 16) * convertToChunkDistance(minimumPoint, maximumPoint)];
+                    LinkedList<SPLocation> blocks = new LinkedList<>();
                     World world = this.getWorld();
-                    int currentBlock = 0;
                     if (world != null) {
                         for (int x = this.minimumPoint.getBlockX(); x <= this.maximumPoint.getBlockX(); x++) {
                             for (int y = this.minimumPoint.getBlockY(); y <= this.maximumPoint.getBlockY() && y <= world.getMaxHeight(); y++) {
                                 for (int z = this.minimumPoint.getBlockZ(); z <= this.maximumPoint.getBlockZ(); z++) {
-                                    blocks[currentBlock] = new SPLocation(x, y, z, worldName);
-                                    currentBlock++;
+                                    blocks.add(new SPLocation(x, y, z, worldName));
                                 }
                             }
                         }
                     }
-                    future.complete(blocks);
+                    future.complete(blocks.toArray(new SPLocation[0]));
 
                 })
                 .execute();
@@ -144,9 +143,9 @@ public class Cuboid{
 
         double distanceBetweenLocations = NumberConversions.square(first.getX() - second.getX()) + NumberConversions.square(first.getZ() - second.getZ());
         if (distanceBetweenLocations < 16)
-            return 0;
+            return 1;
 
         else
-            return (int) Math.round(distanceBetweenLocations / 16);
+            return (int) (distanceBetweenLocations / 16);
     }
 }

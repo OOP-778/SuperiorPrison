@@ -10,6 +10,7 @@ import com.oop.orangeengine.main.plugin.EnginePlugin;
 public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison {
 
     private static SuperiorPrisonPlugin instance;
+    public static boolean debug = true;
 
     private TaskController taskController;
     private DataController dataController;
@@ -31,6 +32,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
         // Initialize controllers
         //this.dataController = new DataController();
         this.taskController = new TaskController();
+        new com.bgsoftware.superiorprison.plugin.SuperiorListener();
     }
 
     @Override

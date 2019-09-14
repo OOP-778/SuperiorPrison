@@ -9,9 +9,9 @@ import com.bgsoftware.superiorprison.plugin.util.ReflectionUtils;
 import com.oop.orangeengine.eventssubscription.SubscriptionFactory;
 import com.oop.orangeengine.eventssubscription.SubscriptionProperties;
 import com.oop.orangeengine.main.task.OTask;
-import com.oop.orangeengine.main.task.StaticTask;
 import com.oop.orangeengine.main.util.OptionalConsumer;
 import com.oop.orangeengine.main.util.data.pair.OPair;
+import com.oop.orangeengine.material.OMaterial;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Location;
@@ -21,21 +21,18 @@ import org.bukkit.event.world.WorldLoadEvent;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
+
+import static com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin.debug;
 
 @Setter
 @Getter
 public class MineGenerator implements IMineGenerator, Serializable, Attachable<ISuperiorMine> {
 
     private transient ISuperiorMine mine;
-    private List<OPair<Double, Material>> generatorMaterials = new ArrayList<>();
+    private List<OPair<Double, OMaterial>> generatorMaterials = new ArrayList<>();
     private transient Instant lastReset;
     private transient Instant nextReset;
 
@@ -44,7 +41,7 @@ public class MineGenerator implements IMineGenerator, Serializable, Attachable<I
     private transient boolean caching = false;
     private transient boolean worldLoadWait = false;
 
-    private Material[] cachedMaterials = new Material[]{};
+    private OMaterial[] cachedMaterials = new OMaterial[]{};
     private transient boolean materialsChanged = false;
 
     public MineGenerator() {
@@ -64,57 +61,48 @@ public class MineGenerator implements IMineGenerator, Serializable, Attachable<I
         if (cachedMineArea.length == 0) return;
 
         int blocksInRegion = cachedMineArea.length;
+        if (debug)
+            System.out.println("blocks in region: " + blocksInRegion);
+
         if (cachedMaterials.length == 0 || materialsChanged) {
 
-            cachedMaterials = new Material[blocksInRegion];
-            for (OPair<Double, Material> generatorMaterial : generatorMaterials) {
-                int amount = (int) ((generatorMaterial.getFirst() / 100d) * blocksInRegion);
-                for (int i = 0; i < amount; i++)
-                    cachedMaterials[i] = generatorMaterial.getSecond();
+            cachedMaterials = new OMaterial[blocksInRegion];
+            int slot = 0;
+            for (OPair<Double, OMaterial> generatorMaterial : generatorMaterials) {
+                int amount =  (int) Math.round((generatorMaterial.getFirst() / 100d) * blocksInRegion);
+                for (int i = 0; i < amount; i++) {
+                    if ((slot - blocksInRegion) == 1)
+                        break;
 
+                    cachedMaterials[slot] = generatorMaterial.getSecond();
+                    slot++;
+                }
             }
         }
 
+        if (debug) {
+            System.out.println("materials amount: " + Arrays.stream(cachedMaterials).filter(Objects::nonNull).toArray().length);
+        }
+
         cachedMaterials = shuffleArray(cachedMaterials);
-
         for (int index = 0; index < blocksInRegion; index++) {
-
             Block block = cachedMineArea[index];
-            Material material = cachedMaterials[index];
+            OMaterial material = cachedMaterials[index];
+            if(material == null) continue;
 
-            StaticTask.getInstance().gatherFromSync(() -> block.getType() == Material.AIR).whenComplete((bool, thrw) -> {
-                if (bool) return;
-
-                ReflectionUtils.setBlock(block.getLocation(), material);
-
-            });
+            ReflectionUtils.setBlock(block.getLocation(), material.parseMaterial(), material.getData());
         }
-
-        for (Block block : cachedMineArea) {
-            AtomicBoolean set = new AtomicBoolean(false);
-
-            generatorMaterials.forEach(pair -> {
-                if (set.get()) return;
-
-                CompletableFuture<Boolean> isAir = StaticTask.getInstance().gatherFromSync(() -> block.getType() == Material.AIR);
-                isAir.whenComplete((bool, thrw) -> {
-                    if (!bool) return;
-
-                    double chance = ThreadLocalRandom.current().nextDouble(0, 1);
-                    double materialChance = pair.getFirst() / 100;
-
-                    if (chance <= materialChance) {
-                        ReflectionUtils.setBlock(block.getLocation(), pair.getSecond());
-                        set.set(true);
-                    }
-
-                });
-            });
-        }
-
     }
 
-    public void initCache() {
+    public void clearMine() {
+        for (Block block : cachedMineArea) {
+            if (block == null) continue;
+
+            ReflectionUtils.setBlock(block.getLocation(), Material.AIR, 0);
+        }
+    }
+
+    public void initCache(Runnable whenfinished) {
         if (isCaching() || isWorldLoadWait())
             return;
 
@@ -122,7 +110,7 @@ public class MineGenerator implements IMineGenerator, Serializable, Attachable<I
             worldLoadWait = true;
             SubscriptionFactory.getInstance().subscribeTo(WorldLoadEvent.class, event -> {
 
-                initCache();
+                initCache(whenfinished);
                 worldLoadWait = false;
 
             }, new SubscriptionProperties<WorldLoadEvent>().timeOut(TimeUnit.SECONDS, 3).filter(event -> event.getWorld().getName().equals(mine.getMinPoint().getWorldName())));
@@ -150,6 +138,8 @@ public class MineGenerator implements IMineGenerator, Serializable, Attachable<I
                         int currentBlock = 0;
 
                         for (SPLocation location : locations) {
+                            if (location == null) continue;
+
                             Location bukkitLocation = location.toBukkit();
                             int chunkX = bukkitLocation.getBlockX() >> 4;
                             int chunkZ = bukkitLocation.getBlockZ() >> 4;
@@ -171,8 +161,13 @@ public class MineGenerator implements IMineGenerator, Serializable, Attachable<I
                             currentBlock++;
                         }
 
-                        this.cachedMineArea = newBlocks;
+                        cachedMineArea = Arrays.stream(newBlocks).filter(Objects::nonNull).toArray(Block[]::new);
+                        if (debug)
+                            System.out.println("Region size: " + cachedMineArea.length + " blocks");
+
                         caching = false;
+                        if (whenfinished != null)
+                            whenfinished.run();
                     }).execute();
         });
     }
@@ -180,7 +175,7 @@ public class MineGenerator implements IMineGenerator, Serializable, Attachable<I
     @Override
     public void attach(ISuperiorMine obj) {
         this.mine = obj;
-        initCache();
+        initCache(null);
     }
 
     private <T> T[] shuffleArray(T[] array) {

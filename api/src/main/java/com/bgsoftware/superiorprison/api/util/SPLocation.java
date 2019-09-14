@@ -27,4 +27,12 @@ public class SPLocation implements Serializable {
     public World getWorld() {
         return Bukkit.getWorld(worldName);
     }
+
+    public SPLocation(Location location) {
+        this.x = location.getBlockX();
+        this.z = location.getBlockZ();
+        this.y = location.getBlockY();
+        worldName = location.getWorld().getName();
+    }
+
 }

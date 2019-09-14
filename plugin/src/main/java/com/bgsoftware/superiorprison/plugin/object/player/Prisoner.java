@@ -54,7 +54,7 @@ public class Prisoner extends DatabaseObject implements IPrisoner {
     }
 
     private void ensurePlayerNotNull() {
-        if(cachedOfflinePlayer == null)
+        if (cachedOfflinePlayer == null)
             cachedOfflinePlayer = Bukkit.getOfflinePlayer(uuid);
     }
 }

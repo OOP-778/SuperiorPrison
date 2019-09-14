@@ -17,14 +17,13 @@ allprojects {
 
     repositories {
         jcenter()
-        //mavenLocal()
+        mavenLocal()
         maven { url 'https://repo.codemc.org/repository/nms/' }
         maven { url 'https://repo.codemc.org/repository/maven-public/' }
-
     }
 
     dependencies {
-        compileOnly "org.spigotmc:spigot:1.14.2-R0.1-SNAPSHOT"
+        compileOnly "org.spigotmc:spigot:1.12.2-R0.1-SNAPSHOT"
         compileOnly 'org.projectlombok:lombok:1.18.8'
         compile "com.oop.orangeengine:file:3.3"
         compile "com.oop.orangeengine:item:3.3"
@@ -32,20 +31,17 @@ allprojects {
         compile "com.oop.orangeengine:command:3.3"
         compile "com.oop.orangeengine:database:3.3"
         compile "com.oop.orangeengine:eventssubscription:3.3"
+        compile "com.oop.orangeengine:message:3.3"
         annotationProcessor 'org.projectlombok:lombok:1.18.8'
-
-        if(project.name.equalsIgnoreCase("SuperiorPrison"))
+        if (project.name.equalsIgnoreCase("plugin"))
             compile project(":api")
-
     }
 
-    shadowJar {
-
-        minimize()
-        archiveName = "OrangeEngine-${project.name}.jar"
-
-        destinationDirectory = file('../target')
+    if(project.name.equalsIgnoreCase("plugin")) {
+        shadowJar {
+            archiveName = "SuperiorPrison.jar"
+            destinationDirectory = file('../target')
+        }
     }
-
 
 }

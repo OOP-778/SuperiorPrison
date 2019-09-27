@@ -69,7 +69,7 @@ public class MineGenerator implements IMineGenerator, Serializable, Attachable<I
             cachedMaterials = new OMaterial[blocksInRegion];
             int slot = 0;
             for (OPair<Double, OMaterial> generatorMaterial : generatorMaterials) {
-                int amount =  (int) Math.round((generatorMaterial.getFirst() / 100d) * blocksInRegion);
+                int amount = (int) Math.round((generatorMaterial.getFirst() / 100d) * blocksInRegion);
                 for (int i = 0; i < amount; i++) {
                     if ((slot - blocksInRegion) == 1)
                         break;
@@ -88,7 +88,7 @@ public class MineGenerator implements IMineGenerator, Serializable, Attachable<I
         for (int index = 0; index < blocksInRegion; index++) {
             Block block = cachedMineArea[index];
             OMaterial material = cachedMaterials[index];
-            if(material == null) continue;
+            if (material == null) continue;
 
             ReflectionUtils.setBlock(block.getLocation(), material.parseMaterial(), material.getData());
         }
@@ -162,10 +162,8 @@ public class MineGenerator implements IMineGenerator, Serializable, Attachable<I
                         }
 
                         cachedMineArea = Arrays.stream(newBlocks).filter(Objects::nonNull).toArray(Block[]::new);
-                        if (debug)
-                            System.out.println("Region size: " + cachedMineArea.length + " blocks");
-
                         caching = false;
+
                         if (whenfinished != null)
                             whenfinished.run();
                     }).execute();

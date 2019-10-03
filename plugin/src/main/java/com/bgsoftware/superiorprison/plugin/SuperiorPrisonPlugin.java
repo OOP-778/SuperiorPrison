@@ -4,8 +4,12 @@ import com.bgsoftware.superiorprison.api.SuperiorPrison;
 import com.bgsoftware.superiorprison.api.SuperiorPrisonAPI;
 import com.bgsoftware.superiorprison.plugin.controller.DataController;
 import com.bgsoftware.superiorprison.plugin.controller.TaskController;
+import com.bgsoftware.superiorprison.plugin.nms.ISuperiorNms;
 import com.oop.orangeengine.database.ODatabase;
 import com.oop.orangeengine.main.plugin.EnginePlugin;
+import org.bukkit.Bukkit;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.Inventory;
 
 public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison {
 
@@ -15,6 +19,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
     private TaskController taskController;
     private DataController dataController;
     private ODatabase database;
+    private ISuperiorNms nms;
 
     public SuperiorPrisonPlugin() {
         instance = this;
@@ -22,6 +27,12 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
 
     @Override
     public void enable() {
+
+        // Setup NMS
+        if(!setupNms()) {
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
+        }
 
         // Setup API
         new SuperiorPrisonAPI(this);
@@ -32,7 +43,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
         // Initialize controllers
         //this.dataController = new DataController();
         this.taskController = new TaskController();
-        new com.bgsoftware.superiorprison.plugin.SuperiorListener();
+        new SuperiorListener();
     }
 
     @Override
@@ -53,4 +64,23 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
     public static SuperiorPrisonPlugin getInstance() {
         return instance;
     }
+
+    public boolean setupNms() {
+        String version = getServer().getClass().getPackage().getName().split("\\.")[3];
+        try {
+            Object o = Class.forName("com.bgsoftware.superiorprison.plugin.nms.NmsHandler_" + version).newInstance();
+            this.nms = (ISuperiorNms) o;
+            return true;
+        } catch (ClassNotFoundException e) {
+            getOLogger().printError("Unsupported version " + version + ". Failed to find NmsHandler, contact author!");
+        } catch (InstantiationException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public ISuperiorNms getNmsHandler() {
+        return nms;
+    }
+
 }

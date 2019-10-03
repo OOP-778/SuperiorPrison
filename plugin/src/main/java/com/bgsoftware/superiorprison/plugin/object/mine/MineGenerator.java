@@ -3,6 +3,7 @@ package com.bgsoftware.superiorprison.plugin.object.mine;
 import com.bgsoftware.superiorprison.api.data.mine.IMineGenerator;
 import com.bgsoftware.superiorprison.api.data.mine.ISuperiorMine;
 import com.bgsoftware.superiorprison.api.util.SPLocation;
+import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.util.Attachable;
 import com.bgsoftware.superiorprison.plugin.util.Cuboid;
 import com.bgsoftware.superiorprison.plugin.util.ReflectionUtils;
@@ -14,6 +15,7 @@ import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.material.OMaterial;
 import lombok.Getter;
 import lombok.Setter;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -44,6 +46,8 @@ public class MineGenerator implements IMineGenerator, Serializable, Attachable<I
     private OMaterial[] cachedMaterials = new OMaterial[]{};
     private transient boolean materialsChanged = false;
 
+    private List<Chunk> cachedChunks = new ArrayList<>();
+
     public MineGenerator() {
     }
 
@@ -71,7 +75,7 @@ public class MineGenerator implements IMineGenerator, Serializable, Attachable<I
             for (OPair<Double, OMaterial> generatorMaterial : generatorMaterials) {
                 int amount = (int) Math.round((generatorMaterial.getFirst() / 100d) * blocksInRegion);
                 for (int i = 0; i < amount; i++) {
-                    if ((slot - blocksInRegion) == 1)
+                    if (Math.abs(blocksInRegion - slot) <= 1)
                         break;
 
                     cachedMaterials[slot] = generatorMaterial.getSecond();
@@ -90,19 +94,22 @@ public class MineGenerator implements IMineGenerator, Serializable, Attachable<I
             OMaterial material = cachedMaterials[index];
             if (material == null) continue;
 
-            ReflectionUtils.setBlock(block.getLocation(), material.parseMaterial(), material.getData());
+            SuperiorPrisonPlugin.getInstance().getNmsHandler().setBlock(block.getLocation(), material);
         }
+        SuperiorPrisonPlugin.getInstance().getNmsHandler().refreshChunks(mine.getMinPoint().getWorld(), cachedChunks);
     }
 
     public void clearMine() {
         for (Block block : cachedMineArea) {
             if (block == null) continue;
 
-            ReflectionUtils.setBlock(block.getLocation(), Material.AIR, 0);
+            SuperiorPrisonPlugin.getInstance().getNmsHandler().setBlock(block.getLocation(), OMaterial.AIR);
         }
+        System.out.println("Cached chunks: " + cachedChunks.size());
+        SuperiorPrisonPlugin.getInstance().getNmsHandler().refreshChunks(mine.getMinPoint().getWorld(), cachedChunks);
     }
 
-    public void initCache(Runnable whenfinished) {
+    public void initCache(Runnable whenFinished) {
         if (isCaching() || isWorldLoadWait())
             return;
 
@@ -110,7 +117,7 @@ public class MineGenerator implements IMineGenerator, Serializable, Attachable<I
             worldLoadWait = true;
             SubscriptionFactory.getInstance().subscribeTo(WorldLoadEvent.class, event -> {
 
-                initCache(whenfinished);
+                initCache(whenFinished);
                 worldLoadWait = false;
 
             }, new SubscriptionProperties<WorldLoadEvent>().timeOut(TimeUnit.SECONDS, 3).filter(event -> event.getWorld().getName().equals(mine.getMinPoint().getWorldName())));
@@ -131,6 +138,7 @@ public class MineGenerator implements IMineGenerator, Serializable, Attachable<I
             // Ensure that we're going in sync thread
             new OTask()
                     .runnable(() -> {
+                        cachedChunks.clear();
                         Set<OPair<Integer, Integer>> checkedChunks = new HashSet<>();
 
                         // Convert SPLocations to Blocks
@@ -155,6 +163,7 @@ public class MineGenerator implements IMineGenerator, Serializable, Attachable<I
                                             bukkitLocation.getWorld().loadChunk(chunkX, chunkZ);
 
                                         checkedChunks.add(new OPair<>(chunkX, chunkZ));
+                                        cachedChunks.add(bukkitLocation.getWorld().getChunkAt(chunkX, chunkZ));
                                     });
 
                             newBlocks[currentBlock] = location.toBukkit().getBlock();
@@ -164,8 +173,8 @@ public class MineGenerator implements IMineGenerator, Serializable, Attachable<I
                         cachedMineArea = Arrays.stream(newBlocks).filter(Objects::nonNull).toArray(Block[]::new);
                         caching = false;
 
-                        if (whenfinished != null)
-                            whenfinished.run();
+                        if (whenFinished != null)
+                            whenFinished.run();
                     }).execute();
         });
     }
@@ -187,5 +196,7 @@ public class MineGenerator implements IMineGenerator, Serializable, Attachable<I
 
         return array;
     }
+
+
 
 }

@@ -5,17 +5,17 @@ import com.oop.orangeengine.item.custom.OItem;
 import com.oop.orangeengine.main.task.StaticTask;
 import com.oop.orangeengine.main.util.OSimpleReflection;
 import com.oop.orangeengine.main.util.version.OVersion;
-import net.minecraft.server.v1_12_R1.Block;
-import net.minecraft.server.v1_12_R1.Chunk;
-import net.minecraft.server.v1_12_R1.IBlockData;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.oop.orangeengine.main.Engine.getEngine;
@@ -23,28 +23,6 @@ import static com.oop.orangeengine.main.Engine.getEngine;
 public class ReflectionUtils {
 
     private static Map<String, Object> materialToDataMap = new HashMap<>();
-
-    // << Classes >>
-    private static Class<?>
-
-            // Player
-            CRAFT_PLAYER,
-            ENTITY_PLAYER,
-            PLAYER_CONNECTION,
-            PACKET,
-
-    // Blocks
-    CRAFT_WORLD,
-            NMS_WORLD,
-            NMS_BLOCK_POS,
-            NMS_BLOCK,
-            NMS_BLOCKS,
-            NMS_CHUNK,
-            IBLOCK_DATA,
-            NMS_ITEM_BLOCK,
-
-    NMS_ITEM,
-            NMS_ITEM_STACK;
 
     // << Fields >>
     private static Field
@@ -58,37 +36,35 @@ public class ReflectionUtils {
             NMS_ITEM_STACK_GET_ITEM,
             NMS_CHUNK_SET_TYPE,
             NMS_WORLD_GET_CHUNK_AT,
+            CONNECTION_SEND_PACKET,
+            CRAFT_PLAYER_GET_HANDLE,
+            CRAFT_CHUNK_GET_HANDLE;
 
-    CONNECTION_SEND_PACKET,
-            CRAFT_PLAYER_GET_HANDLE;
 
     // << Constructors >>
     private static Constructor<?>
-            BLOCK_POSITION_CONSTRUCTOR;
+            BLOCK_POSITION_CONSTRUCTOR,
+            PACKET_PLAY_OUT_MAP_CHUNK_CONSTRUCTOR;
 
     static {
         try {
-
-            // Player Stuff
-            CRAFT_PLAYER = OSimpleReflection.Package.CB_ENTITY.getClass("CraftPlayer");
-            ENTITY_PLAYER = OSimpleReflection.Package.NMS.getClass("EntityPlayer");
-            PLAYER_CONNECTION = OSimpleReflection.Package.NMS.getClass("PlayerConnection");
-            PACKET = OSimpleReflection.Package.NMS.getClass("Packet");
-            NMS_ITEM_BLOCK = OSimpleReflection.Package.NMS.getClass("ItemBlock");
+            Class<?> CRAFT_PLAYER = OSimpleReflection.Package.CB_ENTITY.getClass("CraftPlayer");
+            Class<?> ENTITY_PLAYER = OSimpleReflection.Package.NMS.getClass("EntityPlayer");
+            Class<?> PLAYER_CONNECTION = OSimpleReflection.Package.NMS.getClass("PlayerConnection");
+            Class<?> PACKET = OSimpleReflection.Package.NMS.getClass("Packet");
+            Class<?> NMS_ITEM_BLOCK = OSimpleReflection.Package.NMS.getClass("ItemBlock");
 
             CRAFT_PLAYER_GET_HANDLE = OSimpleReflection.getMethod(CRAFT_PLAYER, "getHandle");
             PLAYER_CONNECTION_FIELD = OSimpleReflection.getField(ENTITY_PLAYER, false, "playerConnection");
             CONNECTION_SEND_PACKET = OSimpleReflection.getMethod(PLAYER_CONNECTION, "sendPacket", PACKET);
 
-            // Block Stuff
-            CRAFT_WORLD = OSimpleReflection.Package.CB.getClass("CraftWorld");
-            NMS_WORLD = OSimpleReflection.Package.NMS.getClass("World");
-            NMS_BLOCK_POS = OSimpleReflection.Package.NMS.getClass("BlockPosition");
-            NMS_BLOCK = OSimpleReflection.Package.NMS.getClass("Block");
-            NMS_BLOCKS = OSimpleReflection.Package.NMS.getClass("Blocks");
-            IBLOCK_DATA = OSimpleReflection.Package.NMS.getClass("IBlockData");
-            NMS_ITEM = OSimpleReflection.Package.NMS.getClass("Item");
-            NMS_ITEM_STACK = OSimpleReflection.Package.NMS.getClass("ItemStack");
+            Class<?> CRAFT_WORLD = OSimpleReflection.Package.CB.getClass("CraftWorld");
+            Class<?> NMS_WORLD = OSimpleReflection.Package.NMS.getClass("World");
+            Class<?> NMS_BLOCK_POS = OSimpleReflection.Package.NMS.getClass("BlockPosition");
+            Class<?> NMS_BLOCK = OSimpleReflection.Package.NMS.getClass("Block");
+            Class<?> NMS_BLOCKS = OSimpleReflection.Package.NMS.getClass("Blocks");
+            Class<?> IBLOCK_DATA = OSimpleReflection.Package.NMS.getClass("IBlockData");
+            Class<?> NMS_ITEM_STACK = OSimpleReflection.Package.NMS.getClass("ItemStack");
 
             CRAFT_WORLD_GET_HANDLE = OSimpleReflection.getMethod(CRAFT_WORLD, "getHandle");
             BLOCK_POSITION_CONSTRUCTOR = OSimpleReflection.getConstructor(NMS_BLOCK_POS, double.class, double.class, double.class);
@@ -96,17 +72,24 @@ public class ReflectionUtils {
             NMS_BLOCK_GET_DATA = OSimpleReflection.getMethod(NMS_BLOCK, "getBlockData");
             NMS_ITEM_BLOCK_GET_BLOCK = OSimpleReflection.getMethod(NMS_ITEM_BLOCK, "getBlock");
             NMS_ITEM_STACK_GET_ITEM = OSimpleReflection.getMethod(NMS_ITEM_STACK, "getItem");
-            NMS_CHUNK = OSimpleReflection.Package.NMS.getClass("Chunk");
+            Class<?> NMS_CHUNK = OSimpleReflection.Package.NMS.getClass("Chunk");
             NMS_WORLD_GET_CHUNK_AT = OSimpleReflection.getMethod(NMS_WORLD, "getChunkAt", int.class, int.class);
 
             if (OVersion.isBefore(13))
-                NMS_CHUNK_SET_TYPE = OSimpleReflection.getMethod(NMS_CHUNK, "a", NMS_BLOCK_POS, int.class);
+                NMS_CHUNK_SET_TYPE = OSimpleReflection.getMethod(NMS_CHUNK, "a", NMS_BLOCK_POS, IBLOCK_DATA);
 
             else
                 NMS_CHUNK_SET_TYPE = OSimpleReflection.getMethod(NMS_CHUNK, "setType", NMS_BLOCK_POS, IBLOCK_DATA);
 
             Field AIR_FIELD = OSimpleReflection.getField(NMS_BLOCKS, true, "AIR");
             materialToDataMap.put("AIR:0", NMS_BLOCK_GET_DATA.invoke(AIR_FIELD.get(null)));
+
+            // Chunk refresh
+            Class<?> CRAFT_CHUNK = OSimpleReflection.Package.CB.getClass("CraftChunk");
+            CRAFT_CHUNK_GET_HANDLE = OSimpleReflection.getMethod(CRAFT_CHUNK, "getHandle");
+
+            Class<?> PACKET_PLAY_OUT_MAP_CHUNK = OSimpleReflection.Package.NMS.getClass("PacketPlayOutMapChunk");
+            PACKET_PLAY_OUT_MAP_CHUNK_CONSTRUCTOR = OSimpleReflection.getConstructor(PACKET_PLAY_OUT_MAP_CHUNK, NMS_CHUNK, int.class);
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -142,10 +125,23 @@ public class ReflectionUtils {
                 Object blockPosition = BLOCK_POSITION_CONSTRUCTOR.newInstance(location.getX(), location.getY(), location.getZ());
                 Object chunk = NMS_WORLD_GET_CHUNK_AT.invoke(world, chunkX, chunkZ);
 
-                Chunk c;
-                c.a()
+                NMS_CHUNK_SET_TYPE.invoke(chunk, blockPosition, blockData);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
+    }
 
-                NMS_CHUNK_SET_TYPE.invoke(chunk, blockPosition, Block.getCombinedId((IBlockData) blockData));
+    public static void refreshChunks(World world, List<Chunk> chunkList) {
+        StaticTask.getInstance().sync(() -> {
+            try {
+                for (Chunk chunk : chunkList) {
+                    Object nmsChunk = CRAFT_CHUNK_GET_HANDLE.invoke(chunk);
+                    for (Player player : world.getPlayers()) {
+                        System.out.println("Updating chunk for " + player.getName());
+                        sendPacket(player, PACKET_PLAY_OUT_MAP_CHUNK_CONSTRUCTOR.newInstance(nmsChunk, 65535));
+                    }
+                }
             } catch (Exception ex) {
                 ex.printStackTrace();
             }

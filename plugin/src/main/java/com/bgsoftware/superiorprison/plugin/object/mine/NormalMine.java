@@ -52,12 +52,10 @@ public class NormalMine extends DatabaseObject implements INormalMine {
         mineGenerator.getGeneratorMaterials().add(new OPair<>(30d, OMaterial.DIAMOND_ORE));
 
         mineGenerator.setMine(this);
-        StaticTask.getInstance().async(() -> {
-            mineGenerator.initCache(() -> {
-                mineGenerator.clearMine();
-                mineGenerator.generate();
-            });
-        });
+        StaticTask.getInstance().async(() -> mineGenerator.initCache(() -> {
+            mineGenerator.clearMine();
+            mineGenerator.generate();
+        }));
     }
 
     @Override

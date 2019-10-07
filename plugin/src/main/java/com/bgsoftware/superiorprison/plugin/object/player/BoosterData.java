@@ -7,7 +7,6 @@ import java.io.Serializable;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-@RequiredArgsConstructor
 public class BoosterData implements IBoosterData, Serializable {
 
     private Set<Double> boosters = ConcurrentHashMap.newKeySet();

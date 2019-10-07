@@ -9,6 +9,7 @@ buildscript {
 
 group 'SuperiorPrison'
 version '1.0-SNAPSHOT'
+apply plugin: 'maven'
 
 allprojects {
 
@@ -23,7 +24,7 @@ allprojects {
     }
 
     dependencies {
-        if(!project.name.startsWith("nms"))
+        if (!project.name.startsWith("nms"))
             compileOnly "org.spigotmc:spigot:1.8.8-R0.1-SNAPSHOT"
         compileOnly 'org.projectlombok:lombok:1.18.8'
         compile "com.oop.orangeengine:file:3.3"
@@ -36,28 +37,22 @@ allprojects {
         annotationProcessor 'org.projectlombok:lombok:1.18.8'
         if (project.name.equalsIgnoreCase("plugin")) {
             compile project(":api")
-        } else if(!project.name.equalsIgnoreCase("api"))
+
+        } else if (!project.name.equalsIgnoreCase("api"))
             compileOnly project(":plugin")
     }
 
-    if(project.name.equalsIgnoreCase("plugin")) {
+    if (project.name.equalsIgnoreCase("plugin")) {
         shadowJar {
             archiveName = "SuperiorPrison.jar"
             destinationDirectory = file('../target')
         }
     }
-}
 
-dependencies {
-    compile project(":nms-1_8_R1")
-    compile project(":nms-1_8_R2")
-    compile project(":nms-1_8_R3")
-    compile project(":nms-1_9_R1")
-    compile project(":nms-1_9_R2")
-    compile project(":nms-1_10_R1")
-    compile project(":nms-1_11_R1")
-    compile project(":nms-1_12_R1")
-    compile project(":nms-1_13_R1")
-    compile project(":nms-1_13_R2")
-    compile project(":nms-1_14_R1")
+    if (project.name.startsWith("nms")) {
+        shadowJar {
+            archiveName = "nms-" + project.name + ".jar"
+            destinationDirectory = file('../target')
+        }
+    }
 }

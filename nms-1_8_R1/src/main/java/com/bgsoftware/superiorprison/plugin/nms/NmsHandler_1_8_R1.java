@@ -15,7 +15,7 @@ import org.bukkit.entity.Player;
 
 import java.util.List;
 
-public class NMS_1_8_R1 implements ISuperiorNms {
+public class NmsHandler_1_8_R1 implements ISuperiorNms {
     @Override
     public void setBlock(Location location, OMaterial material) {
 

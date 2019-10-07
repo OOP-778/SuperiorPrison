@@ -1,3 +1,5 @@
 name: SuperiorPrison
 main: com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin
 version: 1
+softdepend:
+  - Multiverse

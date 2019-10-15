@@ -4,13 +4,13 @@ import org.bukkit.OfflinePlayer;
 
 import java.util.UUID;
 
-public interface IPrisoner {
+public interface Prisoner {
 
     UUID getUUID();
 
     boolean isAutoSell();
 
-    IBoosterData getBoosterData();
+    BoosterData getBoosterData();
 
     boolean isOnline();
 

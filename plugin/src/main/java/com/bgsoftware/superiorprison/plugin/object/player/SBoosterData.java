@@ -1,13 +1,10 @@
 package com.bgsoftware.superiorprison.plugin.object.player;
 
-import com.bgsoftware.superiorprison.api.data.player.IBoosterData;
-import lombok.RequiredArgsConstructor;
-
 import java.io.Serializable;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class BoosterData implements IBoosterData, Serializable {
+public class SBoosterData implements com.bgsoftware.superiorprison.api.data.player.BoosterData, Serializable {
 
     private Set<Double> boosters = ConcurrentHashMap.newKeySet();
 

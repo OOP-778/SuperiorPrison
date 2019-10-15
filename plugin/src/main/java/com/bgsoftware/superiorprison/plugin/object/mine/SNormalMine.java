@@ -1,8 +1,7 @@
 package com.bgsoftware.superiorprison.plugin.object.mine;
 
 import com.bgsoftware.superiorprison.api.data.mine.MineEnum;
-import com.bgsoftware.superiorprison.api.data.mine.type.INormalMine;
-import com.bgsoftware.superiorprison.api.data.player.IPrisoner;
+import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 import com.bgsoftware.superiorprison.api.util.SPLocation;
 import com.oop.orangeengine.database.OColumn;
 import com.oop.orangeengine.database.annotations.DatabaseValue;
@@ -15,9 +14,9 @@ import org.bukkit.Location;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class NormalMine extends DatabaseObject implements INormalMine {
+public class SNormalMine extends DatabaseObject implements com.bgsoftware.superiorprison.api.data.mine.type.NormalMine {
 
-    private Set<IPrisoner> prisoners = ConcurrentHashMap.newKeySet();
+    private Set<Prisoner> prisoners = ConcurrentHashMap.newKeySet();
 
     @DatabaseValue(columnName = "mineType")
     private MineEnum mineType;
@@ -35,18 +34,18 @@ public class NormalMine extends DatabaseObject implements INormalMine {
     private SPLocation spawnPoint;
 
     @DatabaseValue(columnName = "generator")
-    private MineGenerator generator;
+    private SMineGenerator generator;
 
-    protected NormalMine() {
+    protected SNormalMine() {
         setWhenLoaded(() -> generator.attach(this));
     }
 
-    public NormalMine(String name, Location pos1, Location pos2) {
+    public SNormalMine(String name, Location pos1, Location pos2) {
         this.name = name;
         this.minPoint = new SPLocation(pos1);
         this.highPoint = new SPLocation(pos2);
 
-        MineGenerator mineGenerator = new MineGenerator();
+        SMineGenerator mineGenerator = new SMineGenerator();
         mineGenerator.getGeneratorMaterials().add(new OPair<>(50d, OMaterial.STONE));
         mineGenerator.getGeneratorMaterials().add(new OPair<>(20d, OMaterial.CYAN_TERRACOTTA));
         mineGenerator.getGeneratorMaterials().add(new OPair<>(30d, OMaterial.DIAMOND_ORE));
@@ -84,7 +83,7 @@ public class NormalMine extends DatabaseObject implements INormalMine {
     }
 
     @Override
-    public MineGenerator getGenerator() {
+    public SMineGenerator getGenerator() {
         return generator;
     }
 
@@ -94,7 +93,7 @@ public class NormalMine extends DatabaseObject implements INormalMine {
     }
 
     @Override
-    public Set<IPrisoner> getPrisoners() {
+    public Set<Prisoner> getPrisoners() {
         return prisoners;
     }
 }

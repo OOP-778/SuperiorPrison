@@ -1,4 +1,4 @@
 package com.bgsoftware.superiorprison.api.controller;
 
-public interface IPrisonerController {
+public interface PrisonerController {
 }

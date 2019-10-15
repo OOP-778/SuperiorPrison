@@ -1,7 +1,6 @@
 package com.bgsoftware.superiorprison.plugin.object.mine;
 
-import com.bgsoftware.superiorprison.api.data.mine.IMineGenerator;
-import com.bgsoftware.superiorprison.api.data.mine.ISuperiorMine;
+import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
 import com.bgsoftware.superiorprison.api.util.SPLocation;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.util.Attachable;
@@ -16,7 +15,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.event.world.WorldLoadEvent;
 
@@ -30,9 +28,9 @@ import static com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin.debug;
 
 @Setter
 @Getter
-public class MineGenerator implements IMineGenerator, Serializable, Attachable<ISuperiorMine> {
+public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mine.MineGenerator, Serializable, Attachable<SuperiorMine> {
 
-    private transient ISuperiorMine mine;
+    private transient SuperiorMine mine;
     private List<OPair<Double, OMaterial>> generatorMaterials = new ArrayList<>();
     private transient Instant lastReset;
     private transient Instant nextReset;
@@ -47,7 +45,7 @@ public class MineGenerator implements IMineGenerator, Serializable, Attachable<I
 
     private List<Chunk> cachedChunks = new ArrayList<>();
 
-    public MineGenerator() {
+    public SMineGenerator() {
     }
 
     @Override
@@ -179,7 +177,7 @@ public class MineGenerator implements IMineGenerator, Serializable, Attachable<I
     }
 
     @Override
-    public void attach(ISuperiorMine obj) {
+    public void attach(SuperiorMine obj) {
         this.mine = obj;
         initCache(null);
     }

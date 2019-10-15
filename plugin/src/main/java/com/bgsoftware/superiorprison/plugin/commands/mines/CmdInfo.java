@@ -1,6 +1,6 @@
 package com.bgsoftware.superiorprison.plugin.commands.mines;
 
-import com.bgsoftware.superiorprison.api.data.mine.ISuperiorMine;
+import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
 import com.oop.orangeengine.command.OCommand;
 import com.oop.orangeengine.command.WrappedCommand;
 import com.oop.orangeengine.command.arg.arguments.StringArg;
@@ -27,7 +27,7 @@ public class CmdInfo extends OCommand {
             String mineName = (String) command.getArg("name").get();
 
             //TODO: OOP, create that freaking database
-            OptionalConsumer<ISuperiorMine> mineOptional = /*SuperiorPrisonPlugin.getInstance().getMineController().getMineByName(mineName)*/ null;
+            OptionalConsumer<SuperiorMine> mineOptional = /*SuperiorPrisonPlugin.getInstance().getMineController().getMineByName(mineName)*/ null;
 
             if(!mineOptional.isPresent()){
                 //TODO: Configurable
@@ -35,7 +35,7 @@ public class CmdInfo extends OCommand {
                 return;
             }
 
-            ISuperiorMine superiorMine = mineOptional.get();
+            SuperiorMine superiorMine = mineOptional.get();
 
             player.sendMessage(ChatColor.YELLOW + "Mine Information:\n" +
                     "Name: " + superiorMine.getName() + "\n" +

@@ -1,7 +1,7 @@
 package com.bgsoftware.superiorprison.api;
 
-import com.bgsoftware.superiorprison.api.controller.IMineController;
-import com.bgsoftware.superiorprison.api.controller.IPrisonerController;
+import com.bgsoftware.superiorprison.api.controller.MineController;
+import com.bgsoftware.superiorprison.api.controller.PrisonerController;
 
 public class SuperiorPrisonAPI {
 
@@ -15,11 +15,11 @@ public class SuperiorPrisonAPI {
         return plugin != null;
     }
 
-    public IMineController getMineController() {
+    public MineController getMineController() {
         return plugin.getMineController();
     }
 
-    public IPrisonerController getPrisonerController() {
+    public PrisonerController getPrisonerController() {
         return plugin.getPrisonerController();
     }
 

@@ -1,6 +1,6 @@
 package com.bgsoftware.superiorprison.plugin;
 
-import com.bgsoftware.superiorprison.plugin.object.mine.NormalMine;
+import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.oop.orangeengine.eventssubscription.SubscriptionFactory;
 import com.oop.orangeengine.eventssubscription.SubscriptionProperties;
 import com.oop.orangeengine.main.events.SyncEvents;
@@ -44,7 +44,7 @@ public class SuperiorListener {
 
                             final Location pos2 = pos2Event.getClickedBlock().getLocation();
                             event.getPlayer().sendMessage(color("&cSuccessfully created a mine"));
-                            NormalMine normalMine = new NormalMine(prisonName, pos1, pos2);
+                            SNormalMine normalMine = new SNormalMine(prisonName, pos1, pos2);
                             event.getPlayer().sendMessage(color("Successfully created mine!"));
 
                         }, new SubscriptionProperties<PlayerInteractEvent>().timeOut(TimeUnit.SECONDS, 5).timesToRun(1).filter(filterEvent -> filterEvent.getClickedBlock() != null && filterEvent.getClickedBlock().getType() != Material.AIR).onTimeOut((se) -> event.getPlayer().sendMessage(color("&cFailed to provide pos 2 for mine!"))));

@@ -1,11 +1,11 @@
 package com.bgsoftware.superiorprison.api;
 
-import com.bgsoftware.superiorprison.api.controller.IMineController;
-import com.bgsoftware.superiorprison.api.controller.IPrisonerController;
+import com.bgsoftware.superiorprison.api.controller.MineController;
+import com.bgsoftware.superiorprison.api.controller.PrisonerController;
 
 public interface SuperiorPrison {
 
-    IMineController getMineController();
+    MineController getMineController();
 
-    IPrisonerController getPrisonerController();
+    PrisonerController getPrisonerController();
 }

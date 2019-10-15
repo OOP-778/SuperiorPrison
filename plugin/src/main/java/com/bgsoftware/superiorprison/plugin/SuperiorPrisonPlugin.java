@@ -5,6 +5,9 @@ import com.bgsoftware.superiorprison.api.SuperiorPrisonAPI;
 import com.bgsoftware.superiorprison.plugin.controller.DataController;
 import com.bgsoftware.superiorprison.plugin.controller.TaskController;
 import com.bgsoftware.superiorprison.plugin.nms.ISuperiorNms;
+import com.oop.orangeengine.command.CommandController;
+import com.oop.orangeengine.command.OCommand;
+import com.oop.orangeengine.command.arg.arguments.IntArg;
 import com.oop.orangeengine.database.ODatabase;
 import com.oop.orangeengine.main.plugin.EnginePlugin;
 import org.bukkit.Bukkit;
@@ -44,6 +47,18 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
         //this.dataController = new DataController();
         this.taskController = new TaskController();
         new SuperiorListener();
+
+        CommandController commandController = new CommandController(this);
+        OCommand cmd = new OCommand()
+                .label("helloword")
+                .argument(
+                        new IntArg()
+                        .setIdentity("id")
+                        .setIsRequired(true)
+                )
+                .listen(command -> command.getSender().sendMessage("Your hello word id is: " + command.getArg("id")));
+        commandController.register(cmd);
+
     }
 
     @Override

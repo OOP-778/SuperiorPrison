@@ -4,5 +4,4 @@ public enum FlagEnum {
 
     PVP,
 
-
 }

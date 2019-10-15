@@ -1,14 +1,18 @@
 package com.bgsoftware.superiorprison.plugin;
 
+import com.bgsoftware.superiorprison.api.data.mine.ISuperiorMine;
+import com.bgsoftware.superiorprison.api.data.mine.flags.FlagEnum;
 import com.bgsoftware.superiorprison.plugin.object.mine.NormalMine;
 import com.oop.orangeengine.eventssubscription.SubscriptionFactory;
 import com.oop.orangeengine.eventssubscription.SubscriptionProperties;
 import com.oop.orangeengine.main.events.SyncEvents;
 import com.oop.orangeengine.main.player.OPlayer;
 import com.oop.orangeengine.main.player.PlayerController;
+import com.oop.orangeengine.main.util.OptionalConsumer;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
@@ -53,6 +57,19 @@ public class SuperiorListener {
 
             }
         });
+
+        // Protection from PVP
+        SyncEvents.listen(EntityDamageEvent.class, event -> {
+            OptionalConsumer<ISuperiorMine> mineAtLocation = SuperiorPrisonPlugin.getInstance().getMineController().getMineAtLocation(event.getEntity().getLocation());
+            if (!mineAtLocation.isPresent()) return;
+
+            ISuperiorMine iSuperiorMine = mineAtLocation.get();
+            if (iSuperiorMine.isFlag(FlagEnum.PVP))
+                event.setCancelled(true);
+
+        });
+
+
 
     }
 

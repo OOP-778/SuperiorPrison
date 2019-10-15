@@ -48,17 +48,6 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
         this.taskController = new TaskController();
         new SuperiorListener();
 
-        CommandController commandController = new CommandController(this);
-        OCommand cmd = new OCommand()
-                .label("helloword")
-                .argument(
-                        new IntArg()
-                        .setIdentity("id")
-                        .setIsRequired(true)
-                )
-                .listen(command -> command.getSender().sendMessage("Your hello word id is: " + command.getArg("id")));
-        commandController.register(cmd);
-
     }
 
     @Override

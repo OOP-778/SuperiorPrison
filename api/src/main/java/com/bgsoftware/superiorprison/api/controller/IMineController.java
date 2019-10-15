@@ -2,6 +2,7 @@ package com.bgsoftware.superiorprison.api.controller;
 
 import com.bgsoftware.superiorprison.api.data.mine.ISuperiorMine;
 import com.oop.orangeengine.main.util.OptionalConsumer;
+import org.bukkit.Location;
 
 import java.util.Set;
 import java.util.function.Predicate;
@@ -25,5 +26,9 @@ public interface IMineController {
         return OptionalConsumer.of(getMines().stream()
                 .filter(mineFilter)
                 .findFirst());
+    }
+
+    default OptionalConsumer<ISuperiorMine> getMineAtLocation(Location location) {
+        return getMineByFilter(mine -> mine.isInside(location));
     }
 }

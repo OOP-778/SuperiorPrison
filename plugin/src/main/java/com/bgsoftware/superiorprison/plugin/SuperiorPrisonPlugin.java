@@ -2,17 +2,14 @@ package com.bgsoftware.superiorprison.plugin;
 
 import com.bgsoftware.superiorprison.api.SuperiorPrison;
 import com.bgsoftware.superiorprison.api.SuperiorPrisonAPI;
+import com.bgsoftware.superiorprison.plugin.commands.CommandsRegister;
 import com.bgsoftware.superiorprison.plugin.controller.DataController;
 import com.bgsoftware.superiorprison.plugin.controller.TaskController;
 import com.bgsoftware.superiorprison.plugin.nms.ISuperiorNms;
 import com.oop.orangeengine.command.CommandController;
-import com.oop.orangeengine.command.OCommand;
-import com.oop.orangeengine.command.arg.arguments.IntArg;
 import com.oop.orangeengine.database.ODatabase;
 import com.oop.orangeengine.main.plugin.EnginePlugin;
 import org.bukkit.Bukkit;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.Inventory;
 
 public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison {
 
@@ -49,16 +46,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
         new SuperiorListener();
 
         CommandController commandController = new CommandController(this);
-        OCommand cmd = new OCommand()
-                .label("helloword")
-                .argument(
-                        new IntArg()
-                        .setIdentity("id")
-                        .setIsRequired(true)
-                )
-                .listen(command -> command.getSender().sendMessage("Your hello word id is: " + command.getArg("id")));
-        commandController.register(cmd);
-
+        CommandsRegister.register(commandController);
     }
 
     @Override

@@ -12,6 +12,7 @@ import com.oop.orangeengine.main.util.OptionalConsumer;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -59,18 +60,16 @@ public class SuperiorListener {
         });
 
         // Protection from PVP
-        SyncEvents.listen(EntityDamageEvent.class, event -> {
-            OptionalConsumer<ISuperiorMine> mineAtLocation = SuperiorPrisonPlugin.getInstance().getMineController().getMineAtLocation(event.getEntity().getLocation());
+        SyncEvents.listen(EntityDamageByEntityEvent.class, event -> {
+            OptionalConsumer<ISuperiorMine> mineAtLocation = SuperiorPrisonPlugin.getInstance().getMineController().getMineAtLocation(event.getDamager().getLocation());
             if (!mineAtLocation.isPresent()) return;
+
 
             ISuperiorMine iSuperiorMine = mineAtLocation.get();
             if (iSuperiorMine.isFlag(FlagEnum.PVP))
                 event.setCancelled(true);
 
         });
-
-
-
     }
 
 }

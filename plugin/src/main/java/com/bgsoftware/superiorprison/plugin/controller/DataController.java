@@ -7,6 +7,7 @@ import com.bgsoftware.superiorprison.plugin.object.mine.NormalMine;
 import com.bgsoftware.superiorprison.plugin.object.player.Prisoner;
 import com.oop.orangeengine.database.ODatabase;
 
+import java.util.HashSet;
 import java.util.Set;
 
 public class DataController extends com.oop.orangeengine.database.object.DataController implements IPrisonerController, IMineController {
@@ -20,5 +21,15 @@ public class DataController extends com.oop.orangeengine.database.object.DataCon
     @Override
     public Set<ISuperiorMine> getMines() {
         return getData(ISuperiorMine.class);
+    }
+
+    public Set<String> getMinesWorlds() {
+        Set<String> worlds = new HashSet<>();
+        getMines().forEach(mine -> {
+            if (!worlds.contains(mine.getMinPoint().getWorldName()))
+                worlds.add(mine.getHighPoint().getWorldName());
+        });
+
+        return worlds;
     }
 }

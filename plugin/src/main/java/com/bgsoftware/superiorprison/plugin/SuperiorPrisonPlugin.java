@@ -5,6 +5,7 @@ import com.bgsoftware.superiorprison.api.SuperiorPrisonAPI;
 import com.bgsoftware.superiorprison.plugin.commands.CommandsRegister;
 import com.bgsoftware.superiorprison.plugin.controller.DataController;
 import com.bgsoftware.superiorprison.plugin.controller.TaskController;
+import com.bgsoftware.superiorprison.plugin.listeners.ProtectionListener;
 import com.bgsoftware.superiorprison.plugin.nms.ISuperiorNms;
 import com.oop.orangeengine.command.CommandController;
 import com.oop.orangeengine.database.ODatabase;
@@ -43,7 +44,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
         // Initialize controllers
         //this.dataController = new DataController();
         this.taskController = new TaskController();
-        new SuperiorListener();
+        new ProtectionListener(this);
 
         CommandController commandController = new CommandController(this);
         CommandsRegister.register(commandController);

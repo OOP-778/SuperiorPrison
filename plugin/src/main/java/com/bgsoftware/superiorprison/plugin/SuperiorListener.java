@@ -60,7 +60,7 @@ public class SuperiorListener {
 
         // Protection from PVP
         SyncEvents.listen(EntityDamageByEntityEvent.class, event -> {
-            OptionalConsumer<SuperiorMine> mineAtLocation = SuperiorPrisonPlugin.getInstance().getMineController().getMineAtLocation(event.getDamager().getLocation());
+            OptionalConsumer<SuperiorMine> mineAtLocation = SuperiorPrisonPlugin.getInstance().getMineController().getMineAt(event.getDamager().getLocation());
             if (!mineAtLocation.isPresent()) return;
 
 

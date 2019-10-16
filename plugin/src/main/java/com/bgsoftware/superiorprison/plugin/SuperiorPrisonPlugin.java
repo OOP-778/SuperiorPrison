@@ -44,7 +44,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
         //this.dataController = new DataController();
         this.taskController = new TaskController();
         new SuperiorListener();
-        
+
         CommandController commandController = new CommandController(this);
         CommandsRegister.register(commandController);
     }

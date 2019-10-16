@@ -12,23 +12,7 @@ public interface MineController {
 
     Set<SuperiorMine> getMines();
 
-    default Set<SuperiorMine> getMinesFiltered(Predicate<SuperiorMine> minesFilter) {
-        return getMines().stream()
-                .filter(minesFilter)
-                .collect(Collectors.toSet());
-    }
+    OptionalConsumer<SuperiorMine> getMine(String mineName);
 
-    default OptionalConsumer<SuperiorMine> getMineByName(String mineName) {
-        return getMineByFilter(mine -> mine.getName().equals(mineName));
-    }
-
-    default OptionalConsumer<SuperiorMine> getMineByFilter(Predicate<SuperiorMine> mineFilter) {
-        return OptionalConsumer.of(getMines().stream()
-                .filter(mineFilter)
-                .findFirst());
-    }
-
-    default OptionalConsumer<SuperiorMine> getMineAtLocation(Location location) {
-        return getMineByFilter(mine -> mine.isInside(location));
-    }
+    OptionalConsumer<SuperiorMine> getMineAt(Location location);
 }

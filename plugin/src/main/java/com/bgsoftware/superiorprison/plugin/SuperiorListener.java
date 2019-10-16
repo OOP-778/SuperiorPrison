@@ -8,7 +8,6 @@ import com.oop.orangeengine.eventssubscription.SubscriptionProperties;
 import com.oop.orangeengine.main.events.SyncEvents;
 import com.oop.orangeengine.main.player.OPlayer;
 import com.oop.orangeengine.main.player.PlayerController;
-import com.oop.orangeengine.main.util.OptionalConsumer;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -16,6 +15,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import static com.oop.orangeengine.main.Engine.getEngine;
@@ -60,7 +60,7 @@ public class SuperiorListener {
 
         // Protection from PVP
         SyncEvents.listen(EntityDamageByEntityEvent.class, event -> {
-            OptionalConsumer<SuperiorMine> mineAtLocation = SuperiorPrisonPlugin.getInstance().getMineController().getMineAt(event.getDamager().getLocation());
+            Optional<SuperiorMine> mineAtLocation = SuperiorPrisonPlugin.getInstance().getMineController().getMineAt(event.getDamager().getLocation());
             if (!mineAtLocation.isPresent()) return;
 
 

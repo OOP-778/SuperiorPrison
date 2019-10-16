@@ -6,12 +6,11 @@ import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.oop.orangeengine.database.ODatabase;
-import com.oop.orangeengine.main.util.OptionalConsumer;
 import org.bukkit.Location;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
-import java.util.function.Predicate;
 
 public class DataController extends com.oop.orangeengine.database.object.DataController implements PrisonerController, MineController {
     public DataController(ODatabase database) {
@@ -27,13 +26,13 @@ public class DataController extends com.oop.orangeengine.database.object.DataCon
     }
 
     @Override
-    public OptionalConsumer<SuperiorMine> getMine(String mineName) {
-        return OptionalConsumer.of(getMines().stream().filter(mine -> mine.getName().equalsIgnoreCase(mineName)).findFirst());
+    public Optional<SuperiorMine> getMine(String mineName) {
+        return getMines().stream().filter(mine -> mine.getName().equalsIgnoreCase(mineName)).findFirst();
     }
 
     @Override
-    public OptionalConsumer<SuperiorMine> getMineAt(Location location) {
-        return OptionalConsumer.of(getMines().stream().filter(mine -> mine.isInside(location)).findFirst());
+    public Optional<SuperiorMine> getMineAt(Location location) {
+        return getMines().stream().filter(mine -> mine.isInside(location)).findFirst();
     }
 
     public Set<String> getMinesWorlds() {

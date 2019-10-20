@@ -12,16 +12,16 @@ import java.util.function.Consumer;
 
 public class CmdInfo extends OCommand {
 
-    public CmdInfo(){
+    public CmdInfo() {
         label("info")
-        .argument(
-                new StringArg()
-                .setIdentity("name")
-                .setIsRequired(true)
-        ).listen(onCommand());
+                .argument(
+                        new StringArg()
+                                .setIdentity("name")
+                                .setIsRequired(true)
+                ).listen(onCommand());
     }
 
-    private Consumer<WrappedCommand> onCommand(){
+    private Consumer<WrappedCommand> onCommand() {
         return command -> {
             Player player = (Player) command.getSender();
             String mineName = (String) command.getArg("name").get();
@@ -29,7 +29,7 @@ public class CmdInfo extends OCommand {
             //TODO: OOP, create that freaking database
             OptionalConsumer<SuperiorMine> mineOptional = /*SuperiorPrisonPlugin.getInstance().getMineController().getMineByName(mineName)*/ null;
 
-            if(!mineOptional.isPresent()){
+            if (!mineOptional.isPresent()) {
                 //TODO: Configurable
                 player.sendMessage(ChatColor.RED + "Invalid mine " + mineName + ".");
                 return;

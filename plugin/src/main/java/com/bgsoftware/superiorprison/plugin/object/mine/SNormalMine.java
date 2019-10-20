@@ -1,8 +1,8 @@
 package com.bgsoftware.superiorprison.plugin.object.mine;
 
 import com.bgsoftware.superiorprison.api.data.mine.MineEnum;
-import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 import com.bgsoftware.superiorprison.api.data.mine.flags.FlagEnum;
+import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 import com.bgsoftware.superiorprison.api.util.SPLocation;
 import com.bgsoftware.superiorprison.plugin.util.Cuboid;
 import com.oop.orangeengine.database.OColumn;
@@ -21,7 +21,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SNormalMine extends DatabaseObject implements com.bgsoftware.superiorprison.api.data.mine.type.NormalMine {
 
     private Set<Prisoner> prisoners = ConcurrentHashMap.newKeySet();
-
     private Map<FlagEnum, Boolean> flags = new HashMap<>();
 
     @DatabaseValue(columnName = "mineType")
@@ -41,6 +40,9 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
 
     @DatabaseValue(columnName = "generator")
     private SMineGenerator generator;
+
+    @DatabaseValue(columnName = "shop")
+    private SMineShop shop;
 
     private Cuboid cuboid;
 
@@ -128,5 +130,10 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
     @Override
     public boolean isFlag(FlagEnum flag) {
         return flags.get(flag);
+    }
+
+    @Override
+    public SMineShop getShop() {
+        return shop;
     }
 }

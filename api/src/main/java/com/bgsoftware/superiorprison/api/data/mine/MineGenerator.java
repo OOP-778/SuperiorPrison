@@ -6,6 +6,4 @@ public interface MineGenerator {
 
     Instant getLastReset();
 
-    Instant getNextReset();
-
 }

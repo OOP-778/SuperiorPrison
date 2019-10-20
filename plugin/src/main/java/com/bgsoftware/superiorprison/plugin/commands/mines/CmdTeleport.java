@@ -12,18 +12,18 @@ import java.util.function.Consumer;
 
 public class CmdTeleport extends OCommand {
 
-    public CmdTeleport(){
+    public CmdTeleport() {
         label("teleport")
-        .alias("tp", "visit")
-        .ableToExecute(Player.class)
-        .argument(
-                new StringArg()
-                .setIdentity("name")
-                .setIsRequired(true)
-        ).listen(onCommand());
+                .alias("tp", "visit")
+                .ableToExecute(Player.class)
+                .argument(
+                        new StringArg()
+                                .setIdentity("name")
+                                .setIsRequired(true)
+                ).listen(onCommand());
     }
 
-    private Consumer<WrappedCommand> onCommand(){
+    private Consumer<WrappedCommand> onCommand() {
         return command -> {
             Player player = (Player) command.getSender();
             String mineName = (String) command.getArg("name").get();
@@ -31,7 +31,7 @@ public class CmdTeleport extends OCommand {
             //TODO: OOP, create that freaking database
             OptionalConsumer<SuperiorMine> mineOptional = /*SuperiorPrisonPlugin.getInstance().getMineController().getMineByName(mineName)*/ null;
 
-            if(!mineOptional.isPresent()){
+            if (!mineOptional.isPresent()) {
                 //TODO: Configurable
                 player.sendMessage(ChatColor.RED + "Invalid mine " + mineName + ".");
                 return;

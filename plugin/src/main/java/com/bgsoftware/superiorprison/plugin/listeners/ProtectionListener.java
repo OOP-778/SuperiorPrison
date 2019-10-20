@@ -10,17 +10,7 @@ import java.util.Optional;
 
 public class ProtectionListener {
 
-    public ProtectionListener(SuperiorPrisonPlugin plugin){
-        SyncEvents.listen(EntityDamageByEntityEvent.class, event -> {
-            Optional<SuperiorMine> mineAtLocation = plugin.getMineController().getMineAt(event.getDamager().getLocation());
-
-            if (!mineAtLocation.isPresent())
-                return;
-
-            SuperiorMine iSuperiorMine = mineAtLocation.get();
-            if (iSuperiorMine.isFlag(FlagEnum.PVP))
-                event.setCancelled(true);
-        });
+    public ProtectionListener(SuperiorPrisonPlugin plugin) {
     }
 
 }

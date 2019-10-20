@@ -9,14 +9,14 @@ import com.bgsoftware.superiorprison.plugin.listeners.ProtectionListener;
 import com.bgsoftware.superiorprison.plugin.nms.ISuperiorNms;
 import com.oop.orangeengine.command.CommandController;
 import com.oop.orangeengine.database.ODatabase;
+import com.oop.orangeengine.database.types.SqlLiteDatabase;
 import com.oop.orangeengine.main.plugin.EnginePlugin;
 import org.bukkit.Bukkit;
 
 public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison {
 
-    private static SuperiorPrisonPlugin instance;
     public static boolean debug = true;
-
+    private static SuperiorPrisonPlugin instance;
     private TaskController taskController;
     private DataController dataController;
     private ODatabase database;
@@ -26,11 +26,15 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
         instance = this;
     }
 
+    public static SuperiorPrisonPlugin getInstance() {
+        return instance;
+    }
+
     @Override
     public void enable() {
 
         // Setup NMS
-        if(!setupNms()) {
+        if (!setupNms()) {
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
@@ -38,11 +42,15 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
         // Setup API
         new SuperiorPrisonAPI(this);
 
+        // Make sure plugin data folder exists
+        if (!getDataFolder().exists())
+            getDataFolder().mkdirs();
+
         // Setup Database
-        // TODO
+        ODatabase database = new SqlLiteDatabase(getDataFolder(), "data");
+        this.dataController = new DataController(database);
 
         // Initialize controllers
-        //this.dataController = new DataController();
         this.taskController = new TaskController();
         new ProtectionListener(this);
 
@@ -63,10 +71,6 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
     @Override
     public DataController getPrisonerController() {
         return dataController;
-    }
-
-    public static SuperiorPrisonPlugin getInstance() {
-        return instance;
     }
 
     public boolean setupNms() {

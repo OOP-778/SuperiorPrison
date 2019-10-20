@@ -8,11 +8,11 @@ import com.oop.orangeengine.command.OCommand;
 
 public class CommandsRegister {
 
-    private CommandsRegister(){
+    private CommandsRegister() {
     }
 
-    public static void register(CommandController controller){
-        //Mines
+    public static void register(CommandController controller) {
+        // Mines
         controller.register(new OCommand().label("mines")
                 .subCommand(new CmdCreate())
                 .subCommand(new CmdInfo())

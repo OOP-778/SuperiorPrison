@@ -17,23 +17,23 @@ import java.util.function.Consumer;
 
 public class CmdCreate extends OCommand {
 
-    public CmdCreate(){
+    public CmdCreate() {
         label("create")
-        .ableToExecute(Player.class)
-        .argument(
-            new StringArg()
-            .setIdentity("name")
-            .setIsRequired(true)
-        ).listen(onCommand());
+                .ableToExecute(Player.class)
+                .argument(
+                        new StringArg()
+                                .setIdentity("name")
+                                .setIsRequired(true)
+                ).listen(onCommand());
     }
 
-    private Consumer<WrappedCommand> onCommand(){
+    private Consumer<WrappedCommand> onCommand() {
         return command -> {
             Player player = (Player) command.getSender();
             String mineName = (String) command.getArg("name").get();
 
             //TODO: OOP, create that freaking database
-            if(/*SuperiorPrisonPlugin.getInstance().getMineController().getMineByName(mineName).isPresent()*/ false){
+            if (/*SuperiorPrisonPlugin.getInstance().getMineController().getMineByName(mineName).isPresent()*/ false) {
                 //TODO: Configurable
                 player.sendMessage(ChatColor.RED + "Mine already exists.");
                 return;
@@ -52,8 +52,10 @@ public class CmdCreate extends OCommand {
                     Location pos2 = pos2Event.getClickedBlock().getLocation();
                     player.sendMessage(ChatColor.GREEN + "Successfully created a new mine! (" + mineName + ")");
                     new SNormalMine(mineName, pos1, pos2);
-                }, new SubscriptionProperties<PlayerInteractEvent>().timeOut(TimeUnit.SECONDS, 30).timesToRun(1).filter(filterEvent -> filterEvent.getClickedBlock() != null && filterEvent.hasItem() && filterEvent.getItem().getType() == OMaterial.GOLDEN_AXE.parseMaterial()).onTimeOut(event -> {}));
-            }, new SubscriptionProperties<PlayerInteractEvent>().timeOut(TimeUnit.SECONDS, 30).timesToRun(1).filter(filterEvent -> filterEvent.getClickedBlock() != null && filterEvent.hasItem() && filterEvent.getItem().getType() == OMaterial.GOLDEN_AXE.parseMaterial()).onTimeOut(event -> {}));
+                }, new SubscriptionProperties<PlayerInteractEvent>().timeOut(TimeUnit.SECONDS, 30).timesToRun(1).filter(filterEvent -> filterEvent.getClickedBlock() != null && filterEvent.hasItem() && filterEvent.getItem().getType() == OMaterial.GOLDEN_AXE.parseMaterial()).onTimeOut(event -> {
+                }));
+            }, new SubscriptionProperties<PlayerInteractEvent>().timeOut(TimeUnit.SECONDS, 30).timesToRun(1).filter(filterEvent -> filterEvent.getClickedBlock() != null && filterEvent.hasItem() && filterEvent.getItem().getType() == OMaterial.GOLDEN_AXE.parseMaterial()).onTimeOut(event -> {
+            }));
         };
     }
 

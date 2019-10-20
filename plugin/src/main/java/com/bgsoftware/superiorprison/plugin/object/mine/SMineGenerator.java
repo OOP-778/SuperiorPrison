@@ -193,7 +193,4 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
 
         return array;
     }
-
-
-
 }

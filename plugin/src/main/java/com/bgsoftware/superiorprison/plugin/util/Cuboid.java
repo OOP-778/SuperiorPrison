@@ -11,7 +11,7 @@ import org.bukkit.util.Vector;
 import java.util.LinkedList;
 import java.util.concurrent.CompletableFuture;
 
-public class Cuboid{
+public class Cuboid {
 
     private final Vector minimumPoint, maximumPoint;
     private String worldName;

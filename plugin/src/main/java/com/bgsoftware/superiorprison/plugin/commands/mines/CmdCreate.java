@@ -1,5 +1,7 @@
 package com.bgsoftware.superiorprison.plugin.commands.mines;
 
+import com.bgsoftware.superiorprison.api.SuperiorPrisonAPI;
+import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.oop.orangeengine.command.OCommand;
 import com.oop.orangeengine.command.WrappedCommand;
@@ -32,8 +34,7 @@ public class CmdCreate extends OCommand {
             Player player = (Player) command.getSender();
             String mineName = (String) command.getArg("name").get();
 
-            //TODO: OOP, create that freaking database
-            if (/*SuperiorPrisonPlugin.getInstance().getMineController().getMineByName(mineName).isPresent()*/ false) {
+            if (SuperiorPrisonPlugin.getInstance().getMineController().getMine(mineName).isPresent()) {
                 //TODO: Configurable
                 player.sendMessage(ChatColor.RED + "Mine already exists.");
                 return;
@@ -51,7 +52,9 @@ public class CmdCreate extends OCommand {
                 sf.subscribeTo(PlayerInteractEvent.class, pos2Event -> {
                     Location pos2 = pos2Event.getClickedBlock().getLocation();
                     player.sendMessage(ChatColor.GREEN + "Successfully created a new mine! (" + mineName + ")");
-                    new SNormalMine(mineName, pos1, pos2);
+
+                    SuperiorPrisonPlugin.getInstance().getMineController().getData().add(new SNormalMine(mineName, pos1, pos2));
+
                 }, new SubscriptionProperties<PlayerInteractEvent>().timeOut(TimeUnit.SECONDS, 30).timesToRun(1).filter(filterEvent -> filterEvent.getClickedBlock() != null && filterEvent.hasItem() && filterEvent.getItem().getType() == OMaterial.GOLDEN_AXE.parseMaterial()).onTimeOut(event -> {
                 }));
             }, new SubscriptionProperties<PlayerInteractEvent>().timeOut(TimeUnit.SECONDS, 30).timesToRun(1).filter(filterEvent -> filterEvent.getClickedBlock() != null && filterEvent.hasItem() && filterEvent.getItem().getType() == OMaterial.GOLDEN_AXE.parseMaterial()).onTimeOut(event -> {

@@ -11,24 +11,28 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
+import java.util.Optional;
 import java.util.UUID;
 
-@Getter
-@Setter
 @Accessors(chain = true)
 public class SPrisoner extends DatabaseObject implements com.bgsoftware.superiorprison.api.data.player.Prisoner {
 
     @DatabaseValue(columnName = "uuid")
+    @Setter
     private @NonNull UUID uuid;
 
     @DatabaseValue(columnName = "isAutoSell")
+    @Setter
     private boolean isAutoSell = false;
 
     @DatabaseValue(columnName = "data")
+    @Setter
     private SBoosterData boosterData = new SBoosterData();
 
     private transient OfflinePlayer cachedOfflinePlayer;
     private transient Player cachedPlayer;
+
+    @Setter
     private transient SuperiorMine currentMine;
 
     public SPrisoner(UUID uuid) {
@@ -76,6 +80,11 @@ public class SPrisoner extends DatabaseObject implements com.bgsoftware.superior
     private void ensurePlayerNotNull() {
         if (cachedOfflinePlayer == null)
             cachedOfflinePlayer = Bukkit.getOfflinePlayer(uuid);
+    }
+
+    @Override
+    public Optional<SuperiorMine> getCurrentMine() {
+        return Optional.of(currentMine);
     }
 
 }

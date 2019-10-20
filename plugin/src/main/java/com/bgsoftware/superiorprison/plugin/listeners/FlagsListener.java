@@ -43,6 +43,7 @@ public class FlagsListener {
                 event.getPrisoner().getPlayer().removePotionEffect(PotionEffectType.NIGHT_VISION);
 
         });
+
     }
 
 }

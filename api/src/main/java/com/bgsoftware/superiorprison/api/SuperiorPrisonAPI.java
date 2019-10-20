@@ -15,11 +15,11 @@ public class SuperiorPrisonAPI {
         return plugin != null;
     }
 
-    public MineController getMineController() {
+    public static MineController getMineController() {
         return plugin.getMineController();
     }
 
-    public PrisonerController getPrisonerController() {
+    public static PrisonerController getPrisonerController() {
         return plugin.getPrisonerController();
     }
 

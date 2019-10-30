@@ -60,7 +60,7 @@ public interface SuperiorMine {
     /*
     Check if specific flag is set to true
     */
-    boolean isFlag(FlagEnum flag);
+    boolean isFlagEnabled(FlagEnum flag);
 
     /*
     Get mine shop

@@ -5,7 +5,8 @@ import com.bgsoftware.superiorprison.api.SuperiorPrisonAPI;
 import com.bgsoftware.superiorprison.plugin.commands.CommandsRegister;
 import com.bgsoftware.superiorprison.plugin.controller.DataController;
 import com.bgsoftware.superiorprison.plugin.controller.TaskController;
-import com.bgsoftware.superiorprison.plugin.listeners.ProtectionListener;
+import com.bgsoftware.superiorprison.plugin.listeners.FlagsListener;
+import com.bgsoftware.superiorprison.plugin.listeners.MineListener;
 import com.bgsoftware.superiorprison.plugin.nms.ISuperiorNms;
 import com.oop.orangeengine.command.CommandController;
 import com.oop.orangeengine.database.ODatabase;
@@ -48,11 +49,14 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
 
         // Setup Database
         ODatabase database = new SqlLiteDatabase(getDataFolder(), "data");
-        this.dataController = new DataController(database);
 
         // Initialize controllers
+        this.dataController = new DataController(database);
         this.taskController = new TaskController();
-        new ProtectionListener(this);
+
+        // Initialize listeners
+        new FlagsListener();
+        new MineListener();
 
         CommandController commandController = new CommandController(this);
         CommandsRegister.register(commandController);

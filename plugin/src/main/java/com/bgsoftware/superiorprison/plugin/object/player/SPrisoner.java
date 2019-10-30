@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorprison.plugin.object.player;
 
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
+import com.oop.orangeengine.database.annotations.DatabaseTable;
 import com.oop.orangeengine.database.annotations.DatabaseValue;
 import com.oop.orangeengine.database.object.DatabaseObject;
 import lombok.Getter;
@@ -15,6 +16,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Accessors(chain = true)
+@DatabaseTable(tableName = "prisoners")
 public class SPrisoner extends DatabaseObject implements com.bgsoftware.superiorprison.api.data.player.Prisoner {
 
     @DatabaseValue(columnName = "uuid")
@@ -34,6 +36,10 @@ public class SPrisoner extends DatabaseObject implements com.bgsoftware.superior
 
     @Setter
     private transient SuperiorMine currentMine;
+
+    protected SPrisoner() {
+
+    }
 
     public SPrisoner(UUID uuid) {
         this.uuid = uuid;
@@ -84,7 +90,6 @@ public class SPrisoner extends DatabaseObject implements com.bgsoftware.superior
 
     @Override
     public Optional<SuperiorMine> getCurrentMine() {
-        return Optional.of(currentMine);
+        return Optional.ofNullable(currentMine);
     }
-
 }

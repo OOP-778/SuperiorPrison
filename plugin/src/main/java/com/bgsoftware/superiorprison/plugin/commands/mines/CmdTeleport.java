@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorprison.plugin.commands.mines;
 
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
+import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.oop.orangeengine.command.OCommand;
 import com.oop.orangeengine.command.WrappedCommand;
 import com.oop.orangeengine.command.arg.arguments.StringArg;
@@ -8,6 +9,7 @@ import com.oop.orangeengine.main.util.OptionalConsumer;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 
 public class CmdTeleport extends OCommand {
@@ -27,9 +29,7 @@ public class CmdTeleport extends OCommand {
         return command -> {
             Player player = (Player) command.getSender();
             String mineName = (String) command.getArg("name").get();
-
-            //TODO: OOP, create that freaking database
-            OptionalConsumer<SuperiorMine> mineOptional = /*SuperiorPrisonPlugin.getInstance().getMineController().getMineByName(mineName)*/ null;
+            Optional<SuperiorMine> mineOptional = SuperiorPrisonPlugin.getInstance().getMineController().getMine(mineName);
 
             if (!mineOptional.isPresent()) {
                 //TODO: Configurable
@@ -39,10 +39,13 @@ public class CmdTeleport extends OCommand {
 
             SuperiorMine superiorMine = mineOptional.get();
 
+            if (superiorMine.getSpawnPoint() == null) {
+                player.sendMessage(ChatColor.RED + "Mine " + mineName  + " doesn't have a spawn point!");
+                return;
+            }
+
             player.teleport(superiorMine.getSpawnPoint().toBukkit());
-
             player.sendMessage(ChatColor.GREEN + "Teleported to mine " + mineName);
-
         };
     }
 

@@ -41,7 +41,7 @@ public class CmdInfo extends OCommand {
 
             player.sendMessage(ChatColor.YELLOW + "Mine Information:\n" +
                     "Name: " + superiorMine.getName() + "\n" +
-                    "Spawn Point: " + superiorMine.getSpawnPoint() + "\n" +
+                    "Spawn Point: " + superiorMine.getSpawnPoint().toString() + "\n" +
                     "Minimum: " + superiorMine.getMinPoint() + "\n" +
                     "Maximum: " + superiorMine.getHighPoint()
             );

@@ -1,6 +1,6 @@
 package com.bgsoftware.superiorprison.plugin.commands.mines;
 
-import com.bgsoftware.superiorprison.api.SuperiorPrisonAPI;
+import com.bgsoftware.superiorprison.api.events.MineCreateEvent;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.oop.orangeengine.command.OCommand;
@@ -9,6 +9,7 @@ import com.oop.orangeengine.command.arg.arguments.StringArg;
 import com.oop.orangeengine.eventssubscription.SubscriptionFactory;
 import com.oop.orangeengine.eventssubscription.SubscriptionProperties;
 import com.oop.orangeengine.material.OMaterial;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -51,8 +52,14 @@ public class CmdCreate extends OCommand {
 
                 sf.subscribeTo(PlayerInteractEvent.class, pos2Event -> {
                     Location pos2 = pos2Event.getClickedBlock().getLocation();
-                    player.sendMessage(ChatColor.GREEN + "Successfully created a new mine! (" + mineName + ")");
 
+                    MineCreateEvent event = new MineCreateEvent(pos1, pos2, mineName, player);
+                    Bukkit.getPluginManager().callEvent(event);
+
+                    if (event.isCancelled())
+                        return;
+
+                    player.sendMessage(ChatColor.GREEN + "Successfully created a new mine! (" + mineName + ")");
                     SuperiorPrisonPlugin.getInstance().getMineController().getData().add(new SNormalMine(mineName, pos1, pos2));
 
                 }, new SubscriptionProperties<PlayerInteractEvent>().timeOut(TimeUnit.SECONDS, 30).timesToRun(1).filter(filterEvent -> filterEvent.getClickedBlock() != null && filterEvent.hasItem() && filterEvent.getItem().getType() == OMaterial.GOLDEN_AXE.parseMaterial()).onTimeOut(event -> {

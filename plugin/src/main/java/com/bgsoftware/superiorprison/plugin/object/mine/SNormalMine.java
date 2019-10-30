@@ -6,6 +6,7 @@ import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 import com.bgsoftware.superiorprison.api.util.SPLocation;
 import com.bgsoftware.superiorprison.plugin.util.Cuboid;
 import com.oop.orangeengine.database.OColumn;
+import com.oop.orangeengine.database.annotations.DatabaseTable;
 import com.oop.orangeengine.database.annotations.DatabaseValue;
 import com.oop.orangeengine.database.object.DatabaseObject;
 import com.oop.orangeengine.main.task.StaticTask;
@@ -13,18 +14,20 @@ import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.material.OMaterial;
 import org.bukkit.Location;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class SNormalMine extends DatabaseObject implements com.bgsoftware.superiorprison.api.data.mine.type.NormalMine {
+@DatabaseTable(tableName = "mines")
+public class SNormalMine extends DatabaseObject implements com.bgsoftware.superiorprison.api.data.mine.type.NormalMine, Serializable {
 
     private Set<Prisoner> prisoners = ConcurrentHashMap.newKeySet();
     private Map<FlagEnum, Boolean> flags = new HashMap<>();
 
     @DatabaseValue(columnName = "mineType")
-    private MineEnum mineType;
+    private MineEnum mineType = MineEnum.NORMAL_MINE;
 
     @DatabaseValue(columnName = "name", columnType = OColumn.VARCHAR)
     private String name;
@@ -36,7 +39,7 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
     private SPLocation highPoint;
 
     @DatabaseValue(columnName = "spawnPoint")
-    private SPLocation spawnPoint;
+    private SPLocation spawnPoint = null;
 
     @DatabaseValue(columnName = "generator")
     private SMineGenerator generator;
@@ -44,13 +47,14 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
     @DatabaseValue(columnName = "shop")
     private SMineShop shop;
 
-    private Cuboid cuboid;
-
     protected SNormalMine() {
         setWhenLoaded(() -> {
             generator.attach(this);
 
-            // Find missing flags and set them to false
+            // Find missing flags and set them to default value
+            for (FlagEnum flagEnum : FlagEnum.values())
+                if (!flags.containsKey(flagEnum))
+                    flags.put(flagEnum, flagEnum.getDefaultValue());
 
         });
     }
@@ -59,21 +63,23 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
         this.name = name;
         this.minPoint = new SPLocation(pos1);
         this.highPoint = new SPLocation(pos2);
+        this.shop = new SMineShop();
+        shop.attach(this);
 
-        SMineGenerator mineGenerator = new SMineGenerator();
-        mineGenerator.getGeneratorMaterials().add(new OPair<>(50d, OMaterial.STONE));
-        mineGenerator.getGeneratorMaterials().add(new OPair<>(20d, OMaterial.CYAN_TERRACOTTA));
-        mineGenerator.getGeneratorMaterials().add(new OPair<>(30d, OMaterial.DIAMOND_ORE));
+        generator = new SMineGenerator();
+        generator.getGeneratorMaterials().add(new OPair<>(50d, OMaterial.STONE));
+        generator.getGeneratorMaterials().add(new OPair<>(20d, OMaterial.CYAN_TERRACOTTA));
+        generator.getGeneratorMaterials().add(new OPair<>(30d, OMaterial.DIAMOND_ORE));
 
-        mineGenerator.setMine(this);
-        StaticTask.getInstance().async(() -> mineGenerator.initCache(() -> {
-            mineGenerator.clearMine();
-            mineGenerator.generate();
+        generator.setMine(this);
+        StaticTask.getInstance().async(() -> generator.initCache(() -> {
+            generator.clearMine();
+            generator.generate();
         }));
 
-        // Preset all the flags to false
+        // Preset all the flags to default values
         for (FlagEnum flagEnum : FlagEnum.values())
-            flags.put(flagEnum, false);
+            flags.put(flagEnum, flagEnum.getDefaultValue());
 
     }
 
@@ -119,21 +125,24 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
 
     @Override
     public boolean isInside(Location location) {
-        return (location.getX() > getMinPoint().getX()) &&
-                (location.getY() > getMinPoint().getY()) &&
-                (location.getZ() > getMinPoint().getZ()) &&
-                (location.getX() < getHighPoint().getX()) &&
-                (location.getY() < getHighPoint().getY()) &&
-                (location.getZ() < getHighPoint().getZ());
+        return location.getWorld().getName().contentEquals(getMinPoint().worldName()) &&
+                (location.getBlockX() > getMinPoint().x()) &&
+                (location.getBlockZ() > getMinPoint().z()) &&
+                (location.getBlockX() < getHighPoint().x()) &&
+                (location.getBlockZ() < getHighPoint().z());
     }
 
     @Override
-    public boolean isFlag(FlagEnum flag) {
+    public boolean isFlagEnabled(FlagEnum flag) {
         return flags.get(flag);
     }
 
     @Override
     public SMineShop getShop() {
         return shop;
+    }
+
+    public void preDelete() {
+        // TO DO
     }
 }

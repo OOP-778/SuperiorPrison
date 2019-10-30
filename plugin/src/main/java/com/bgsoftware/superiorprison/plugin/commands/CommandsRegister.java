@@ -1,8 +1,6 @@
 package com.bgsoftware.superiorprison.plugin.commands;
 
-import com.bgsoftware.superiorprison.plugin.commands.mines.CmdCreate;
-import com.bgsoftware.superiorprison.plugin.commands.mines.CmdInfo;
-import com.bgsoftware.superiorprison.plugin.commands.mines.CmdTeleport;
+import com.bgsoftware.superiorprison.plugin.commands.mines.*;
 import com.oop.orangeengine.command.CommandController;
 import com.oop.orangeengine.command.OCommand;
 
@@ -17,6 +15,8 @@ public class CommandsRegister {
                 .subCommand(new CmdCreate())
                 .subCommand(new CmdInfo())
                 .subCommand(new CmdTeleport())
+                .subCommand(new CmdList())
+                .subCommand(new CmdDelete())
         );
     }
 

@@ -43,10 +43,9 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
     private OMaterial[] cachedMaterials = new OMaterial[]{};
     private transient boolean materialsChanged = false;
 
-    private List<Chunk> cachedChunks = new ArrayList<>();
+    private transient List<Chunk> cachedChunks = new ArrayList<>();
 
-    public SMineGenerator() {
-    }
+    protected SMineGenerator() {}
 
     @Override
     public Instant getLastReset() {
@@ -112,7 +111,7 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
                 initCache(whenFinished);
                 worldLoadWait = false;
 
-            }, new SubscriptionProperties<WorldLoadEvent>().timeOut(TimeUnit.SECONDS, 3).filter(event -> event.getWorld().getName().equals(mine.getMinPoint().getWorldName())));
+            }, new SubscriptionProperties<WorldLoadEvent>().timeOut(TimeUnit.SECONDS, 3).filter(event -> event.getWorld().getName().equals(mine.getMinPoint().worldName())));
 
             return;
         }
@@ -174,6 +173,8 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
     @Override
     public void attach(SuperiorMine obj) {
         this.mine = obj;
+        cachedChunks = new ArrayList<>();
+        cachedMineArea = new Block[]{};
         initCache(null);
     }
 

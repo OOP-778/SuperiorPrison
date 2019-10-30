@@ -2,11 +2,14 @@ package com.bgsoftware.superiorprison.plugin.listeners;
 
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
 import com.bgsoftware.superiorprison.api.data.mine.flags.FlagEnum;
+import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 import com.bgsoftware.superiorprison.api.events.MineEnterEvent;
 import com.bgsoftware.superiorprison.api.events.MineLeaveEvent;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.oop.orangeengine.main.events.SyncEvents;
+import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -25,23 +28,36 @@ public class FlagsListener {
                 return;
 
             SuperiorMine iSuperiorMine = mineAtLocation.get();
-            if (!iSuperiorMine.isFlag(FlagEnum.PVP))
+            if (!iSuperiorMine.isFlagEnabled(FlagEnum.PVP))
                 event.setCancelled(true);
         });
 
         // Night Vision flag listeners
         SyncEvents.listen(MineEnterEvent.class, event -> {
 
-            if (event.getMine().isFlag(FlagEnum.NIGHT_VISION))
+            if (event.getMine().isFlagEnabled(FlagEnum.NIGHT_VISION))
                 event.getPrisoner().getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 9999999, 1, false, false));
 
         });
 
         SyncEvents.listen(MineLeaveEvent.class, event -> {
 
-            if (event.getMine().isFlag(FlagEnum.NIGHT_VISION))
+            if (event.getMine().isFlagEnabled(FlagEnum.NIGHT_VISION))
                 event.getPrisoner().getPlayer().removePotionEffect(PotionEffectType.NIGHT_VISION);
 
+        });
+
+        // Damage flag listener
+        SyncEvents.listen(EntityDamageEvent.class, event -> {
+            if (!(event.getEntity() instanceof Player)) return;
+            Player player = (Player) event.getEntity();
+
+            Prisoner prisoner = SuperiorPrisonPlugin.getInstance().getPrisonerController().insertOrGetPrisoner(player);
+            if (!prisoner.getCurrentMine().isPresent()) return;
+            if (prisoner.getCurrentMine().get().isFlagEnabled(FlagEnum.FALL_DAMAGE)) return;
+
+            if (event.getCause() == EntityDamageEvent.DamageCause.SUICIDE || event.getCause() == EntityDamageEvent.DamageCause.FALL)
+                event.setCancelled(true);
         });
 
     }

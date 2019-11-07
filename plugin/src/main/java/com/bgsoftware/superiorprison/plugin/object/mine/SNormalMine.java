@@ -12,6 +12,7 @@ import com.oop.orangeengine.database.object.DatabaseObject;
 import com.oop.orangeengine.main.task.StaticTask;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.material.OMaterial;
+import lombok.Setter;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 
@@ -32,14 +33,18 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
     private MineEnum mineType = MineEnum.NORMAL_MINE;
 
     @DatabaseValue(columnName = "name", columnType = OColumn.VARCHAR)
+    @Setter
     private String name;
 
+    @Setter
     @DatabaseValue(columnName = "minPoint")
     private SPLocation minPoint;
 
+    @Setter
     @DatabaseValue(columnName = "highPoint")
     private SPLocation highPoint;
 
+    @Setter
     @DatabaseValue(columnName = "spawnPoint")
     private SPLocation spawnPoint = null;
 
@@ -49,9 +54,11 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
     @DatabaseValue(columnName = "shop")
     private SMineShop shop;
 
+    @Setter
     @DatabaseValue(columnName = "permission")
     private String permission;
 
+    @Setter
     @DatabaseValue(columnName = "icon")
     private ItemStack icon;
 

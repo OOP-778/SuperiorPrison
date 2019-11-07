@@ -12,7 +12,7 @@ import com.oop.orangeengine.main.util.data.pair.OPair;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class MinesArg extends CommandArgument<SuperiorMine> {
+public class MinesArg extends CommandArgument<SNormalMine> {
 
     public MinesArg() {
         setDescription("A mine");

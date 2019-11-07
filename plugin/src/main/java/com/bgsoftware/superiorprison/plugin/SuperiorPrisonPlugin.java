@@ -5,6 +5,7 @@ import com.bgsoftware.superiorprison.api.SuperiorPrisonAPI;
 import com.bgsoftware.superiorprison.plugin.commands.CommandsRegister;
 import com.bgsoftware.superiorprison.plugin.controller.ConfigController;
 import com.bgsoftware.superiorprison.plugin.controller.DataController;
+import com.bgsoftware.superiorprison.plugin.controller.MenuController;
 import com.bgsoftware.superiorprison.plugin.controller.PlaceholderController;
 import com.bgsoftware.superiorprison.plugin.listeners.FlagsListener;
 import com.bgsoftware.superiorprison.plugin.listeners.MineListener;
@@ -26,6 +27,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
     private static SuperiorPrisonPlugin instance;
     private PlaceholderController placeholderController;
     private ConfigController configController;
+    private MenuController menuController;
     private DataController dataController;
     private ODatabase database;
     private ISuperiorNms nms;
@@ -61,6 +63,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
         this.dataController = new DataController(database);
         this.placeholderController = new PlaceholderController();
         this.configController = new ConfigController();
+        this.menuController = new MenuController();
 
         // Initialize listeners
         new FlagsListener();

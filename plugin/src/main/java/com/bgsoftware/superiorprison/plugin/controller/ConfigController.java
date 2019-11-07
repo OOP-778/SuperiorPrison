@@ -32,7 +32,6 @@ public class ConfigController {
         for (ConfigurationSection section : menusConfig.getSections().values())
             if (!section.getKey().contentEquals("buttons"))
                 loadedMenuTemplates.put(section.getKey(), new ConfigMenuTemplate(section));
-
     }
 
     private Map<String, ConfigMenuTemplate> loadedMenuTemplates = new HashMap<>();

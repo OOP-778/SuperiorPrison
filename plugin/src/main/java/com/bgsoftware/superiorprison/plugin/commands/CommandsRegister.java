@@ -18,6 +18,7 @@ public class CommandsRegister {
                 .subCommand(new CmdTeleport())
                 .subCommand(new CmdList())
                 .subCommand(new CmdDelete())
+                .subCommand(new CmdEdit())
         );
     }
 

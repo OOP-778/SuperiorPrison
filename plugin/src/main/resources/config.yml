@@ -19,3 +19,11 @@ mine defaults:
 
   # How much prisoners can a mine hold at a time? For no limit -1
   limit: -1
+
+area selection tool:
+  material: WOODEN_AXE
+  display name: "&eArea Selection"
+  lore:
+    - "&e&l* &7Pos1: &eLeft-Click"
+    - "&e&l* &7Pos2: &eRight-Click"
+    - "&e&l* &7Spawn: &eMiddle-Click"

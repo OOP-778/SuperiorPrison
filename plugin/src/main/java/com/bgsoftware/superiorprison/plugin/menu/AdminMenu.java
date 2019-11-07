@@ -1,4 +1,4 @@
 package com.bgsoftware.superiorprison.plugin.menu;
 
-public class EditMenu {
+public class AdminMenu {
 }

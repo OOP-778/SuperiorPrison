@@ -1,8 +1,11 @@
 package com.bgsoftware.superiorprison.plugin.controller;
 
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
+import com.bgsoftware.superiorprison.api.data.mine.type.NormalMine;
 import com.google.common.collect.Sets;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.function.BiFunction;
 
@@ -30,4 +33,23 @@ public class PlaceholderController {
         placeholders.add((mine, currentText) -> currentText.replace("%mine_spawnpoint_y%", mine.getSpawnPoint().isPresent() ? mine.getSpawnPoint().get().y() + "" : "Not set"));
         placeholders.add((mine, currentText) -> currentText.replace("%mine_spawnpoint_z%", mine.getSpawnPoint().isPresent() ? mine.getSpawnPoint().get().y() + "" : "Not set"));
     }
+
+    public String parse(String text, SuperiorMine mine) {
+        for (BiFunction<SuperiorMine, String, String> function : placeholders)
+            text = function.apply(mine, text);
+
+        return text;
+    }
+
+    public List<String> parse(List<String> multipleText, SuperiorMine mine) {
+        List<String> parsed = new ArrayList<>();
+        for (String text : multipleText) {
+            for (BiFunction<SuperiorMine, String, String> function : placeholders)
+                text = function.apply(mine, text);
+
+            parsed.add(text);
+        }
+        return parsed;
+    }
+
 }

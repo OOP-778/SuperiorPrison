@@ -11,7 +11,7 @@ public class CmdDelete extends OCommand {
 
     public CmdDelete() {
         label("delete");
-        argument(new MinesArg().setIsRequired(true));
+        argument(new MinesArg().setRequired(true));
         onCommand(command -> {
             SNormalMine mine = (SNormalMine) command.getArg("mine").get();
 

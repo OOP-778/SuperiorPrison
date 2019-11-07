@@ -3,22 +3,29 @@ package com.bgsoftware.superiorprison.plugin;
 import com.bgsoftware.superiorprison.api.SuperiorPrison;
 import com.bgsoftware.superiorprison.api.SuperiorPrisonAPI;
 import com.bgsoftware.superiorprison.plugin.commands.CommandsRegister;
+import com.bgsoftware.superiorprison.plugin.controller.ConfigController;
 import com.bgsoftware.superiorprison.plugin.controller.DataController;
-import com.bgsoftware.superiorprison.plugin.controller.TaskController;
+import com.bgsoftware.superiorprison.plugin.controller.PlaceholderController;
 import com.bgsoftware.superiorprison.plugin.listeners.FlagsListener;
 import com.bgsoftware.superiorprison.plugin.listeners.MineListener;
 import com.bgsoftware.superiorprison.plugin.nms.ISuperiorNms;
+import com.bgsoftware.superiorprison.plugin.tasks.MineShowTask;
 import com.oop.orangeengine.command.CommandController;
 import com.oop.orangeengine.database.ODatabase;
 import com.oop.orangeengine.database.types.SqlLiteDatabase;
 import com.oop.orangeengine.main.plugin.EnginePlugin;
+import com.oop.orangeengine.main.task.ITaskController;
+import com.oop.orangeengine.main.task.SpigotTaskController;
+import lombok.Getter;
 import org.bukkit.Bukkit;
 
+@Getter
 public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison {
 
     public static boolean debug = true;
     private static SuperiorPrisonPlugin instance;
-    private TaskController taskController;
+    private PlaceholderController placeholderController;
+    private ConfigController configController;
     private DataController dataController;
     private ODatabase database;
     private ISuperiorNms nms;
@@ -48,15 +55,19 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
             getDataFolder().mkdirs();
 
         // Setup Database
-        ODatabase database = new SqlLiteDatabase(getDataFolder(), "data");
+        database = new SqlLiteDatabase(getDataFolder(), "data");
 
         // Initialize controllers
         this.dataController = new DataController(database);
-        this.taskController = new TaskController();
+        this.placeholderController = new PlaceholderController();
+        this.configController = new ConfigController();
 
         // Initialize listeners
         new FlagsListener();
         new MineListener();
+
+        // Initialize tasks
+        new MineShowTask();
 
         CommandController commandController = new CommandController(this);
         CommandsRegister.register(commandController);
@@ -65,6 +76,11 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
     @Override
     public void disable() {
         instance = null;
+    }
+
+    @Override
+    public ITaskController provideTaskController() {
+        return new SpigotTaskController(this);
     }
 
     @Override
@@ -90,10 +106,6 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
             e.printStackTrace();
         }
         return false;
-    }
-
-    public ISuperiorNms getNmsHandler() {
-        return nms;
     }
 
 }

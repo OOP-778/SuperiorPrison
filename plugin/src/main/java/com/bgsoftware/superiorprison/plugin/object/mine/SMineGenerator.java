@@ -85,19 +85,19 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
             OMaterial material = cachedMaterials[index];
             if (material == null) continue;
 
-            SuperiorPrisonPlugin.getInstance().getNmsHandler().setBlock(block.getLocation(), material);
+            SuperiorPrisonPlugin.getInstance().getNms().setBlock(block.getLocation(), material);
         }
-        SuperiorPrisonPlugin.getInstance().getNmsHandler().refreshChunks(mine.getMinPoint().getWorld(), cachedChunks);
+        SuperiorPrisonPlugin.getInstance().getNms().refreshChunks(mine.getMinPoint().getWorld(), cachedChunks);
     }
 
     public void clearMine() {
         for (Block block : cachedMineArea) {
             if (block == null) continue;
 
-            SuperiorPrisonPlugin.getInstance().getNmsHandler().setBlock(block.getLocation(), OMaterial.AIR);
+            SuperiorPrisonPlugin.getInstance().getNms().setBlock(block.getLocation(), OMaterial.AIR);
         }
         System.out.println("Cached chunks: " + cachedChunks.size());
-        SuperiorPrisonPlugin.getInstance().getNmsHandler().refreshChunks(mine.getMinPoint().getWorld(), cachedChunks);
+        SuperiorPrisonPlugin.getInstance().getNms().refreshChunks(mine.getMinPoint().getWorld(), cachedChunks);
     }
 
     public void initCache(Runnable whenFinished) {

@@ -13,10 +13,12 @@ import com.oop.orangeengine.main.task.StaticTask;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.material.OMaterial;
 import org.bukkit.Location;
+import org.bukkit.inventory.ItemStack;
 
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -46,6 +48,12 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
 
     @DatabaseValue(columnName = "shop")
     private SMineShop shop;
+
+    @DatabaseValue(columnName = "permission")
+    private String permission;
+
+    @DatabaseValue(columnName = "icon")
+    private ItemStack icon;
 
     protected SNormalMine() {
         setWhenLoaded(() -> {
@@ -104,8 +112,8 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
     }
 
     @Override
-    public SPLocation getSpawnPoint() {
-        return spawnPoint;
+    public Optional<SPLocation> getSpawnPoint() {
+        return Optional.ofNullable(spawnPoint);
     }
 
     @Override
@@ -140,6 +148,16 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
     @Override
     public SMineShop getShop() {
         return shop;
+    }
+
+    @Override
+    public Optional<String> getPermission() {
+        return Optional.ofNullable(permission);
+    }
+
+    @Override
+    public ItemStack getIcon() {
+        return icon;
     }
 
     public void preDelete() {

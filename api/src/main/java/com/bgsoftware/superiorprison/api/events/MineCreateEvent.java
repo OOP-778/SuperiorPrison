@@ -24,7 +24,6 @@ public class MineCreateEvent extends Event implements Cancellable {
     @Setter
     private boolean cancelled;
 
-
     @Override
     public HandlerList getHandlers() {
         return handlerList;

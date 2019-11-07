@@ -21,7 +21,7 @@ public class CmdTeleport extends OCommand {
                 .argument(
                         new StringArg()
                                 .setIdentity("name")
-                                .setIsRequired(true)
+                                .setRequired(true)
                 ).listen(onCommand());
     }
 
@@ -39,12 +39,12 @@ public class CmdTeleport extends OCommand {
 
             SuperiorMine superiorMine = mineOptional.get();
 
-            if (superiorMine.getSpawnPoint() == null) {
+            if (!superiorMine.getSpawnPoint().isPresent()) {
                 player.sendMessage(ChatColor.RED + "Mine " + mineName  + " doesn't have a spawn point!");
                 return;
             }
 
-            player.teleport(superiorMine.getSpawnPoint().toBukkit());
+            player.teleport(superiorMine.getSpawnPoint().get().toBukkit());
             player.sendMessage(ChatColor.GREEN + "Teleported to mine " + mineName);
         };
     }

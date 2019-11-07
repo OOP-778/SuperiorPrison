@@ -5,8 +5,10 @@ import com.bgsoftware.superiorprison.api.data.mine.shop.MineShop;
 import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 import com.bgsoftware.superiorprison.api.util.SPLocation;
 import org.bukkit.Location;
+import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nullable;
+import java.util.Optional;
 import java.util.Set;
 
 public interface SuperiorMine {
@@ -35,7 +37,7 @@ public interface SuperiorMine {
     Get spawn point of mine
     Can return null
     */
-    SPLocation getSpawnPoint();
+    Optional<SPLocation> getSpawnPoint();
 
     /*
     Get generator of mine
@@ -66,5 +68,15 @@ public interface SuperiorMine {
     Get mine shop
     */
     MineShop getShop();
+
+    /*
+    Get permission of the mine
+    */
+    Optional<String> getPermission();
+
+    /*
+    Get icon of the mine
+    */
+    ItemStack getIcon();
 
 }

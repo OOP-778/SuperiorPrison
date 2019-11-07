@@ -18,7 +18,7 @@ allprojects {
 
     repositories {
         jcenter()
-        mavenLocal()
+        //mavenLocal()
         maven { url 'https://repo.codemc.org/repository/nms/' }
         maven { url 'https://repo.codemc.org/repository/maven-public/' }
     }
@@ -27,14 +27,15 @@ allprojects {
         if (!project.name.startsWith("nms"))
             compileOnly "org.spigotmc:spigot:1.8.8-R0.1-SNAPSHOT"
         compileOnly 'org.projectlombok:lombok:1.18.8'
-        compile "com.oop.orangeengine:file:3.7"
-        compile "com.oop.orangeengine:item:3.7"
-        compile "com.oop.orangeengine:engine:3.7"
-        compile "com.oop.orangeengine:particle:3.7"
-        compile "com.oop.orangeengine:command:3.7"
-        compile "com.oop.orangeengine:database:3.7"
-        compile "com.oop.orangeengine:eventssubscription:3.7"
-        compile "com.oop.orangeengine:message:3.7"
+        compile "com.oop.orangeengine:file:3.9"
+        compile "com.oop.orangeengine:item:3.9"
+        compile "com.oop.orangeengine:engine:3.9"
+        compile "com.oop.orangeengine:particle:3.9"
+        compile "com.oop.orangeengine:inventory:3.9"
+        compile "com.oop.orangeengine:command:3.9"
+        compile "com.oop.orangeengine:database:3.9"
+        compile "com.oop.orangeengine:eventssubscription:3.9"
+        compile "com.oop.orangeengine:message:3.9"
         annotationProcessor 'org.projectlombok:lombok:1.18.8'
         if (project.name.equalsIgnoreCase("plugin")) {
             compile project(":api")

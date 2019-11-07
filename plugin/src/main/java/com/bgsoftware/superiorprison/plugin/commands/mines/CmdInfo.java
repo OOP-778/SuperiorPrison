@@ -19,7 +19,7 @@ public class CmdInfo extends OCommand {
                 .argument(
                         new StringArg()
                                 .setIdentity("name")
-                                .setIsRequired(true)
+                                .setRequired(true)
                 ).listen(onCommand());
     }
 

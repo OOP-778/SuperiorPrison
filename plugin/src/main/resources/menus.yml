@@ -1,0 +1,76 @@
+"mine edit menu":
+  title: "&eEditing &6%mine_name% &7mine..."
+
+  layout:
+    - "AAAAAAAAA"
+    - "APAIPNAGA"
+    - "AAAAAAAAA"
+    - "AAEAFASAA"
+    - "AAAAAAAAA"
+
+  buttons:
+    "P":
+      type: normal
+      material: IRON_BARS
+      display name: "&ePermission"
+      lore:
+        - "&e&l* %mine_permission%"
+        - ""
+        - "&e&l(!)&7 Click to change!"
+
+      on click:
+        execute action: "edit permission"
+
+    "I":
+      type: normal
+      material: STONE
+      display name: "%mine_icon_displayname%"
+      lore:
+        - "&e&l* &7Click to customize icon!"
+
+      on click:
+        execute action: "edit icon"
+
+    "G":
+      type: normal
+      material: COMMAND_BLOCK
+      display name: "&eGenerator"
+      lore:
+        - "&e&l* &7Click to modify generator!"
+
+      on click:
+        execute action: "edit generator"
+
+    "E":
+      type: normal
+      material: WOODEN_AXE
+      display name: "&eArea"
+      lore:
+        - "&e&l* &7Min point: %mine_minpoint_x%, %mine_minpoint_y%, %mine_minpoint_z%"
+        - "&e&l* &7High point: %mine_highpoint_x%, %mine_highpoint_y%, %mine_highpoint_z%"
+        - "&e&l* &7Spawn point: %mine_spawnpoint_x%, %mine_spawnpoint_y%, %mine_spawnpoint_z%"
+        - ""
+        - "&e&l* &7Click to edit!"
+
+      on click:
+        execute action: "edit area"
+
+    "F":
+      type: normal
+      material: WHITE_WOOL
+      display name: "&eFlags"
+      lore:
+        - "&e&l* &7Click to modify flags!"
+
+      on click:
+        execute action: "edit flags"
+
+    "S":
+      type: normal
+      material: CHEST
+      display name: "&eShop"
+      lore:
+        - "&e&l* &7Click to customize shop!"
+
+      on click:
+        execute action: "edit shop"

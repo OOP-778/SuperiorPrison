@@ -10,3 +10,12 @@ database:
   port: 3306
   username: "root"
   password: "123"
+
+mine defaults:
+  # Icon that will be shown in /mines
+  icon:
+    material: STONE
+    display name: "&e%mine_name%"
+
+  # How much prisoners can a mine hold at a time? For no limit -1
+  limit: -1

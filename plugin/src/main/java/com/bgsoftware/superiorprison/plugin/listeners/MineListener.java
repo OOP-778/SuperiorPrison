@@ -19,9 +19,7 @@ public class MineListener {
 
         // Mine Leave & Enter events handling
         SyncEvents.listen(PlayerMoveEvent.class, event -> {
-            if (event.getTo() == event.getFrom() || (event.getTo() == event.getFrom() && (event.getFrom().getPitch() != event.getTo().getPitch() || event.getFrom().getYaw() != event.getTo().getY()))) return;
 
-            System.out.println("Called");
             // World check
             Set<String> worldNames = SuperiorPrisonPlugin.getInstance().getMineController().getMinesWorlds();
             if (!worldNames.contains(event.getPlayer().getWorld().getName()))

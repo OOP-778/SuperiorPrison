@@ -11,7 +11,8 @@ public class CommandsRegister {
 
     public static void register(CommandController controller) {
         // Mines
-        controller.register(new OCommand().label("mines")
+        controller.register(new OCommand()
+                .label("mines")
                 .subCommand(new CmdCreate())
                 .subCommand(new CmdInfo())
                 .subCommand(new CmdTeleport())

@@ -7,6 +7,7 @@ import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.oop.orangeengine.main.events.SyncEvents;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
@@ -19,9 +20,11 @@ public class MineListener {
 
         // Mine Leave & Enter events handling
         SyncEvents.listen(PlayerMoveEvent.class, event -> {
-            if (event.getTo() == event.getFrom() || (event.getTo() == event.getFrom() && (event.getFrom().getPitch() != event.getTo().getPitch() || event.getFrom().getYaw() != event.getTo().getY()))) return;
+            //Checks if the player actually moved a block.
+            Location from = event.getFrom(), to = event.getTo();
+            if(from.getBlockX() == to.getBlockX() && from.getBlockZ() == to.getBlockZ())
+                return;
 
-            System.out.println("Called");
             // World check
             Set<String> worldNames = SuperiorPrisonPlugin.getInstance().getMineController().getMinesWorlds();
             if (!worldNames.contains(event.getPlayer().getWorld().getName()))

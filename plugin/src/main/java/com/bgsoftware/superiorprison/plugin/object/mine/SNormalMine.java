@@ -4,11 +4,11 @@ import com.bgsoftware.superiorprison.api.data.mine.MineEnum;
 import com.bgsoftware.superiorprison.api.data.mine.flags.FlagEnum;
 import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 import com.bgsoftware.superiorprison.api.util.SPLocation;
-import com.bgsoftware.superiorprison.plugin.util.Cuboid;
 import com.oop.orangeengine.database.OColumn;
 import com.oop.orangeengine.database.annotations.DatabaseTable;
 import com.oop.orangeengine.database.annotations.DatabaseValue;
 import com.oop.orangeengine.database.object.DatabaseObject;
+import com.oop.orangeengine.item.custom.OItem;
 import com.oop.orangeengine.main.task.StaticTask;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.material.OMaterial;
@@ -30,7 +30,7 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
     private Map<FlagEnum, Boolean> flags = new HashMap<>();
 
     @DatabaseValue(columnName = "mineType")
-    private MineEnum mineType = MineEnum.NORMAL_MINE;
+    private MineEnum type = MineEnum.NORMAL_MINE;
 
     @DatabaseValue(columnName = "name", columnType = OColumn.VARCHAR)
     @Setter
@@ -96,11 +96,15 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
         for (FlagEnum flagEnum : FlagEnum.values())
             flags.put(flagEnum, flagEnum.getDefaultValue());
 
+        // TODO make configurable
+        this.icon = new OItem(OMaterial.IRON_BARS)
+                .setDisplayName("&e" + name)
+                .getItemStack();
     }
 
     @Override
     public MineEnum getType() {
-        return mineType;
+        return type;
     }
 
     @Override

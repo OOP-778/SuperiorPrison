@@ -29,7 +29,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
     private ConfigController configController;
     private MenuController menuController;
     private DataController dataController;
-    private ODatabase database;
+    private ODatabase dab;
     private ISuperiorNms nms;
 
     public SuperiorPrisonPlugin() {
@@ -57,10 +57,10 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
             getDataFolder().mkdirs();
 
         // Setup Database
-        database = new SqlLiteDatabase(getDataFolder(), "data");
+        dab = new SqlLiteDatabase(getDataFolder(), "data");
 
         // Initialize controllers
-        this.dataController = new DataController(database);
+        this.dataController = new DataController(dab);
         this.placeholderController = new PlaceholderController();
         this.configController = new ConfigController();
         this.menuController = new MenuController();

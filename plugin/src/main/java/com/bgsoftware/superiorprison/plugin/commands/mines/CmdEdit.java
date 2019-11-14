@@ -5,6 +5,8 @@ import com.bgsoftware.superiorprison.plugin.commands.args.MinesArg;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.oop.orangeengine.command.OCommand;
 import com.oop.orangeengine.main.task.StaticTask;
+import com.oop.orangeengine.menu.AMenu;
+import com.oop.orangeengine.menu.WrappedInventory;
 import org.bukkit.entity.Player;
 
 public class CmdEdit extends OCommand {
@@ -18,7 +20,11 @@ public class CmdEdit extends OCommand {
             Player player = (Player) command.getSender();
             SNormalMine mine = (SNormalMine) command.getArg("mine").get();
 
-            StaticTask.getInstance().async(() -> SuperiorPrisonPlugin.getInstance().getMenuController().getEditMenu().build(mine).getWrappedInventory().open(player));
+            StaticTask.getInstance().async(() ->{
+                AMenu menu =  SuperiorPrisonPlugin.getInstance().getMenuController().getEditMenu().build(mine);
+                WrappedInventory wrappedInventory = menu.getWrappedInventory();
+                wrappedInventory.open(player);
+            });
         });
     }
 

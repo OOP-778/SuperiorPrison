@@ -15,7 +15,10 @@ public class PlaceholderController {
 
     public PlaceholderController() {
         placeholders.add((mine, currentText) -> currentText.replace("%mine_name%", mine.getName()));
-        placeholders.add((mine, currentText) -> currentText.replace("%mine_permission%", mine.getPermission().isPresent() ? mine.getPermission().get() : "Not set"));
+        placeholders.add((mine, currentText) -> {
+            System.out.println("Trying parse permission for " + currentText);
+            return currentText.replace("%mine_permission%", mine.getPermission().orElse("Not set"));
+        });
         placeholders.add((mine, currentText) -> currentText.replace("%mine_icon_displayname%", mine.getIcon().getItemMeta().getDisplayName()));
 
         // Placeholders for min point
@@ -35,6 +38,7 @@ public class PlaceholderController {
     }
 
     public String parse(String text, SuperiorMine mine) {
+        System.out.println("Trying to parse text: " + text);
         for (BiFunction<SuperiorMine, String, String> function : placeholders)
             text = function.apply(mine, text);
 
@@ -42,6 +46,7 @@ public class PlaceholderController {
     }
 
     public List<String> parse(List<String> multipleText, SuperiorMine mine) {
+        System.out.println("Trying to parse multiple text: " + multipleText);
         List<String> parsed = new ArrayList<>();
         for (String text : multipleText) {
             for (BiFunction<SuperiorMine, String, String> function : placeholders)

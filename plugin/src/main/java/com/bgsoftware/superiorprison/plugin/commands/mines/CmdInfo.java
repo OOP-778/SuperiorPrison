@@ -1,7 +1,9 @@
 package com.bgsoftware.superiorprison.plugin.commands.mines;
 
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
+import com.bgsoftware.superiorprison.api.util.SPLocation;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
+import com.bgsoftware.superiorprison.plugin.commands.args.MinesArg;
 import com.oop.orangeengine.command.OCommand;
 import com.oop.orangeengine.command.WrappedCommand;
 import com.oop.orangeengine.command.arg.arguments.StringArg;
@@ -17,35 +19,28 @@ public class CmdInfo extends OCommand {
     public CmdInfo() {
         label("info")
                 .argument(
-                        new StringArg()
-                                .setIdentity("name")
-                                .setRequired(true)
+                        new MinesArg().setRequired(true)
                 ).listen(onCommand());
     }
 
     private Consumer<WrappedCommand> onCommand() {
         return command -> {
             Player player = (Player) command.getSender();
-            String mineName = (String) command.getArg("name").get();
-
-            //TODO: OOP, create that freaking database
-            Optional<SuperiorMine> mineOptional = SuperiorPrisonPlugin.getInstance().getMineController().getMine(mineName);
-
-            if (!mineOptional.isPresent()) {
-                //TODO: Configurable
-                player.sendMessage(ChatColor.RED + "Invalid mine " + mineName + ".");
-                return;
-            }
-
-            SuperiorMine superiorMine = mineOptional.get();
+            SuperiorMine superiorMine = command.getArgAsReq("mine");
 
             player.sendMessage(ChatColor.YELLOW + "Mine Information:\n" +
                     "Name: " + superiorMine.getName() + "\n" +
                     "Spawn Point: " + superiorMine.getSpawnPoint().toString() + "\n" +
                     "Minimum: " + superiorMine.getMinPoint() + "\n" +
-                    "Maximum: " + superiorMine.getHighPoint()
+                    "Maximum: " + superiorMine.getHighPoint() + "\n" +
+                    "Radius: " + calculateRadius(superiorMine.getMinPoint(), superiorMine.getHighPoint())
             );
         };
     }
 
+    private int calculateRadius(SPLocation minPoint, SPLocation highPoint) {
+        double diffX = Math.pow(2, (minPoint.x() - highPoint.x()));
+        double diffZ = Math.pow(2, (minPoint.z() - highPoint.z()));
+        return (int) Math.round(Math.sqrt(diffX + diffZ));
+    }
 }

@@ -1,9 +1,10 @@
 "mine edit menu":
-  title: "&eEditing &6%mine_name% &7mine..."
+  type: BASIC
+  title: "&eEditing &6%mine_name% &emine..."
 
   layout:
     - "AAAAAAAAA"
-    - "APAIPNAGA"
+    - "APAAIAAGA"
     - "AAAAAAAAA"
     - "AAEAFASAA"
     - "AAAAAAAAA"
@@ -14,7 +15,7 @@
       material: IRON_BARS
       display name: "&ePermission"
       lore:
-        - "&e&l* %mine_permission%"
+        - "&e&l*&7 %mine_permission%"
         - ""
         - "&e&l(!)&7 Click to change!"
 

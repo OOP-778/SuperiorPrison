@@ -3,6 +3,7 @@ package com.bgsoftware.superiorprison.plugin.menu.edit;
 import com.bgsoftware.superiorprison.api.data.mine.type.NormalMine;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
+import com.oop.orangeengine.database.data.DataHandlerController;
 import com.oop.orangeengine.eventssubscription.SubscriptionFactory;
 import com.oop.orangeengine.eventssubscription.SubscriptionProperties;
 import com.oop.orangeengine.item.custom.OItem;
@@ -26,6 +27,7 @@ public class EditMenu {
         ActionListenerController.getInstance().listen(
                 new ActionProperties<ButtonClickEvent>(ButtonClickEvent.class)
                 .actionId("edit permission")
+                .menuId("mine edit menu")
                 .buttonAction(event -> {
                     event.getPlayer().closeInventory();
 
@@ -35,8 +37,9 @@ public class EditMenu {
                     SubscriptionFactory.getInstance().subscribeTo(
                             AsyncPlayerChatEvent.class,
                             chatEvent -> {
-                                SNormalMine mine = (SNormalMine) event.getMenu().grab("mine").get();
+                                SNormalMine mine = event.getMenu().grab("mine", SNormalMine.class).get();
                                 mine.setPermission(chatEvent.getMessage());
+                                chatEvent.setCancelled(true);
                                 chatEvent.getPlayer().sendMessage(ChatColor.RED + "Mine permission has been set to " + chatEvent.getMessage());
 
                                 // Update button
@@ -44,7 +47,9 @@ public class EditMenu {
                                 event.getClickedButton().currentItem(parsed);
 
                                 event.getWrappedInventory().open(event.getPlayer());
-                            },
+
+                                SuperiorPrisonPlugin.getInstance().getDataController().save(mine, true);
+                                },
                             new SubscriptionProperties<AsyncPlayerChatEvent>()
                             .timesToRun(1)
                             .timeOut(TimeUnit.SECONDS, 30)
@@ -56,9 +61,10 @@ public class EditMenu {
 
     public AMenu build(SNormalMine mine) {
         AMenu menu = template.build();
+        menu.title(menu.title().replace("%mine_name%", mine.getName()));
 
         // Parse placeholders
-        menu.buttons().forEach(button -> {
+        menu.designer().getButtons().forEach(button -> {
             button.saveCurrentItem("placeholder");
             button.currentItem(parsePlaceholders(button.currentItem(), mine));
         });
@@ -69,7 +75,7 @@ public class EditMenu {
     }
 
     public ItemStack parsePlaceholders(ItemStack itemStack, SNormalMine mine) {
-        OItem item = new OItem(itemStack);
+        OItem item = new OItem(itemStack.clone());
 
         // Parse display name
         item.setDisplayName(SuperiorPrisonPlugin.getInstance().getPlaceholderController().parse(item.getDisplayName(),  mine));
@@ -79,5 +85,4 @@ public class EditMenu {
 
         return item.getItemStack();
     }
-
 }

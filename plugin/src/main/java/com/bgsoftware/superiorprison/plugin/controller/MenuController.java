@@ -14,7 +14,7 @@ public class MenuController {
     public MenuController() {
 
         ConfigController configController = SuperiorPrisonPlugin.getInstance().getConfigController();
-        Optional<ConfigMenuTemplate> editMineMenu = configController.findMenuTemplate("edit mine menu");
+        Optional<ConfigMenuTemplate> editMineMenu = configController.findMenuTemplate("mine edit menu");
         if (editMineMenu.isPresent())
             this.editMenu = new EditMenu(editMineMenu.get());
 

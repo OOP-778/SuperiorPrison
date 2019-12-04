@@ -15,10 +15,7 @@ public class PlaceholderController {
 
     public PlaceholderController() {
         placeholders.add((mine, currentText) -> currentText.replace("%mine_name%", mine.getName()));
-        placeholders.add((mine, currentText) -> {
-            System.out.println("Trying parse permission for " + currentText);
-            return currentText.replace("%mine_permission%", mine.getPermission().orElse("Not set"));
-        });
+        placeholders.add((mine, currentText) -> currentText.replace("%mine_permission%", mine.getPermission().orElse("Not set")));
         placeholders.add((mine, currentText) -> currentText.replace("%mine_icon_displayname%", mine.getIcon().getItemMeta().getDisplayName()));
 
         // Placeholders for min point

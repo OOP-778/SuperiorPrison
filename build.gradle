@@ -63,6 +63,8 @@ allprojects {
     shadowJar {
         destinationDir file('../archive')
         archiveName project.name + ".jar"
+
+        relocate("com.oop.orangeengine", "com.bgsoftware.superiorprison.engine")
     }
 
     tasks.build.dependsOn tasks.shadowJar

@@ -10,6 +10,7 @@ buildscript {
 group 'SuperiorPrison'
 version '1.0-SNAPSHOT'
 apply plugin: 'maven'
+apply plugin: 'base'
 
 allprojects {
 
@@ -30,26 +31,26 @@ allprojects {
         annotationProcessor 'org.projectlombok:lombok:1.18.8'
 
         if (project.name.equalsIgnoreCase("plugin")) {
-            compile "com.oop.orangeengine:file:3.9"
-            compile "com.oop.orangeengine:item:3.9"
-            compile "com.oop.orangeengine:engine:3.9"
-            compile "com.oop.orangeengine:particle:3.9"
-            compile "com.oop.orangeengine:inventory:3.9"
-            compile "com.oop.orangeengine:command:3.9"
-            compile "com.oop.orangeengine:database:3.9"
-            compile "com.oop.orangeengine:eventssubscription:3.9"
-            compile "com.oop.orangeengine:message:3.9"
+            compile "com.oop.orangeengine:file:3.10"
+            compile "com.oop.orangeengine:item:3.10"
+            compile "com.oop.orangeengine:engine:3.10"
+            compile "com.oop.orangeengine:particle:3.10"
+            compile "com.oop.orangeengine:inventory:3.10"
+            compile "com.oop.orangeengine:command:3.10"
+            compile "com.oop.orangeengine:database:3.10"
+            compile "com.oop.orangeengine:eventssubscription:3.10"
+            compile "com.oop.orangeengine:message:3.10"
 
         } else {
-            compileOnly "com.oop.orangeengine:file:3.9"
-            compileOnly "com.oop.orangeengine:item:3.9"
-            compileOnly "com.oop.orangeengine:engine:3.9"
-            compileOnly "com.oop.orangeengine:particle:3.9"
-            compileOnly "com.oop.orangeengine:inventory:3.9"
-            compileOnly "com.oop.orangeengine:command:3.9"
-            compileOnly "com.oop.orangeengine:database:3.9"
-            compileOnly "com.oop.orangeengine:eventssubscription:3.9"
-            compileOnly "com.oop.orangeengine:message:3.9"
+            compileOnly "com.oop.orangeengine:file:3.10"
+            compileOnly "com.oop.orangeengine:item:3.10"
+            compileOnly "com.oop.orangeengine:engine:3.10"
+            compileOnly "com.oop.orangeengine:particle:3.10"
+            compileOnly "com.oop.orangeengine:inventory:3.10"
+            compileOnly "com.oop.orangeengine:command:3.10"
+            compileOnly "com.oop.orangeengine:database:3.10"
+            compileOnly "com.oop.orangeengine:eventssubscription:3.10"
+            compileOnly "com.oop.orangeengine:message:3.10"
         }
 
         if (project.name.equalsIgnoreCase("plugin")) {
@@ -59,7 +60,10 @@ allprojects {
             compileOnly project(":plugin")
     }
 
-    shadowJar {}
+    shadowJar {
+        destinationDir file('../archive')
+        archiveName project.name + ".jar"
+    }
 
     tasks.build.dependsOn tasks.shadowJar
 }
@@ -71,10 +75,9 @@ shadowJar {
     destinationDir = file("./target")
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
-    subprojects.each { subproject ->
-        from subproject.configurations.archives.artifacts.files.collect {
-            zipTree(it)
-        }
-        from subproject.configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    from fileTree(dir: "archive").collect {
+        zipTree(it)
     }
+
 }
+shadowJar.dependsOn(subprojects.shadowJar)

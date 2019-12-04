@@ -7,3 +7,4 @@ out/
 .idea/
 gradle/
 target/
+archive/

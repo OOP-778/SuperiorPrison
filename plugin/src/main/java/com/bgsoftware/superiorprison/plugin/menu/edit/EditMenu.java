@@ -25,7 +25,7 @@ public class EditMenu {
         this.template = template;
 
         ActionListenerController.getInstance().listen(
-                new ActionProperties<ButtonClickEvent>(ButtonClickEvent.class)
+                new ActionProperties<>(ButtonClickEvent.class)
                 .actionId("edit permission")
                 .menuId("mine edit menu")
                 .buttonAction(event -> {

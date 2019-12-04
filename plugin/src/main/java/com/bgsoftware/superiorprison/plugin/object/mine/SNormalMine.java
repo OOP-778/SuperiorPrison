@@ -51,10 +51,10 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
     private SPLocation spawnPoint = null;
 
     @DatabaseValue(columnName = "generator")
-    private MineGenerator generator;
+    private SMineGenerator generator;
 
     @DatabaseValue(columnName = "shop")
-    private MineShop shop;
+    private SMineShop shop;
 
     @Setter
     @DatabaseValue(columnName = "permission")
@@ -66,7 +66,7 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
 
     protected SNormalMine() {
         setWhenLoaded(() -> {
-            ((SMineGenerator)generator).attach(this);
+            generator.attach(this);
 
             // Find missing flags and set them to default value
             for (FlagEnum flagEnum : FlagEnum.values())
@@ -81,7 +81,7 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
         this.minPoint = new SPLocation(pos1);
         this.highPoint = new SPLocation(pos2);
         this.shop = new SMineShop();
-        ((SMineShop)shop).attach(this);
+        shop.attach(this);
 
 
         generator = new SMineGenerator();
@@ -89,8 +89,8 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
         generator.getGeneratorMaterials().add(new OPair<>(20d, OMaterial.CYAN_TERRACOTTA));
         generator.getGeneratorMaterials().add(new OPair<>(30d, OMaterial.DIAMOND_ORE));
 
-        ((SMineGenerator)generator).setMine(this);
-        StaticTask.getInstance().async(() -> ((SMineGenerator)generator).initCache(() -> {
+        generator.setMine(this);
+        StaticTask.getInstance().async(() -> generator.initCache(() -> {
             generator.clearMine();
             generator.generate();
         }));
@@ -131,7 +131,7 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
     }
 
     @Override
-    public MineGenerator getGenerator() {
+    public SMineGenerator getGenerator() {
         return generator;
     }
 
@@ -160,7 +160,7 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
     }
 
     @Override
-    public MineShop getShop() {
+    public SMineShop getShop() {
         return shop;
     }
 

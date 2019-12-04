@@ -1,7 +1,9 @@
 package com.bgsoftware.superiorprison.plugin.object.mine;
 
 import com.bgsoftware.superiorprison.api.data.mine.MineEnum;
+import com.bgsoftware.superiorprison.api.data.mine.MineGenerator;
 import com.bgsoftware.superiorprison.api.data.mine.flags.FlagEnum;
+import com.bgsoftware.superiorprison.api.data.mine.shop.MineShop;
 import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 import com.bgsoftware.superiorprison.api.util.SPLocation;
 import com.oop.orangeengine.database.OColumn;
@@ -49,10 +51,10 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
     private SPLocation spawnPoint = null;
 
     @DatabaseValue(columnName = "generator")
-    private SMineGenerator generator;
+    private MineGenerator generator;
 
     @DatabaseValue(columnName = "shop")
-    private SMineShop shop;
+    private MineShop shop;
 
     @Setter
     @DatabaseValue(columnName = "permission")
@@ -64,7 +66,7 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
 
     protected SNormalMine() {
         setWhenLoaded(() -> {
-            generator.attach(this);
+            ((SMineGenerator)generator).attach(this);
 
             // Find missing flags and set them to default value
             for (FlagEnum flagEnum : FlagEnum.values())
@@ -79,15 +81,16 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
         this.minPoint = new SPLocation(pos1);
         this.highPoint = new SPLocation(pos2);
         this.shop = new SMineShop();
-        shop.attach(this);
+        ((SMineShop)shop).attach(this);
+
 
         generator = new SMineGenerator();
         generator.getGeneratorMaterials().add(new OPair<>(50d, OMaterial.STONE));
         generator.getGeneratorMaterials().add(new OPair<>(20d, OMaterial.CYAN_TERRACOTTA));
         generator.getGeneratorMaterials().add(new OPair<>(30d, OMaterial.DIAMOND_ORE));
 
-        generator.setMine(this);
-        StaticTask.getInstance().async(() -> generator.initCache(() -> {
+        ((SMineGenerator)generator).setMine(this);
+        StaticTask.getInstance().async(() -> ((SMineGenerator)generator).initCache(() -> {
             generator.clearMine();
             generator.generate();
         }));
@@ -128,7 +131,7 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
     }
 
     @Override
-    public SMineGenerator getGenerator() {
+    public MineGenerator getGenerator() {
         return generator;
     }
 
@@ -157,7 +160,7 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
     }
 
     @Override
-    public SMineShop getShop() {
+    public MineShop getShop() {
         return shop;
     }
 

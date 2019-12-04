@@ -47,11 +47,6 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
 
     protected SMineGenerator() {}
 
-    @Override
-    public Instant getLastReset() {
-        return lastReset;
-    }
-
     public void generate() {
         if (cachedMineArea.length == 0) return;
 

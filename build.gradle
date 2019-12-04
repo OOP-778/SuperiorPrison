@@ -3,7 +3,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.github.jengelman.gradle.plugins:shadow:5.1.0'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:5.2.0'
     }
 }
 
@@ -27,16 +27,31 @@ allprojects {
         if (!project.name.startsWith("nms"))
             compileOnly "org.spigotmc:spigot:1.8.8-R0.1-SNAPSHOT"
         compileOnly 'org.projectlombok:lombok:1.18.8'
-        compile "com.oop.orangeengine:file:3.9"
-        compile "com.oop.orangeengine:item:3.9"
-        compile "com.oop.orangeengine:engine:3.9"
-        compile "com.oop.orangeengine:particle:3.9"
-        compile "com.oop.orangeengine:inventory:3.9"
-        compile "com.oop.orangeengine:command:3.9"
-        compile "com.oop.orangeengine:database:3.9"
-        compile "com.oop.orangeengine:eventssubscription:3.9"
-        compile "com.oop.orangeengine:message:3.9"
         annotationProcessor 'org.projectlombok:lombok:1.18.8'
+
+        if (project.name.equalsIgnoreCase("plugin")) {
+            compile "com.oop.orangeengine:file:3.9"
+            compile "com.oop.orangeengine:item:3.9"
+            compile "com.oop.orangeengine:engine:3.9"
+            compile "com.oop.orangeengine:particle:3.9"
+            compile "com.oop.orangeengine:inventory:3.9"
+            compile "com.oop.orangeengine:command:3.9"
+            compile "com.oop.orangeengine:database:3.9"
+            compile "com.oop.orangeengine:eventssubscription:3.9"
+            compile "com.oop.orangeengine:message:3.9"
+
+        } else {
+            compileOnly "com.oop.orangeengine:file:3.9"
+            compileOnly "com.oop.orangeengine:item:3.9"
+            compileOnly "com.oop.orangeengine:engine:3.9"
+            compileOnly "com.oop.orangeengine:particle:3.9"
+            compileOnly "com.oop.orangeengine:inventory:3.9"
+            compileOnly "com.oop.orangeengine:command:3.9"
+            compileOnly "com.oop.orangeengine:database:3.9"
+            compileOnly "com.oop.orangeengine:eventssubscription:3.9"
+            compileOnly "com.oop.orangeengine:message:3.9"
+        }
+
         if (project.name.equalsIgnoreCase("plugin")) {
             compile project(":api")
 
@@ -44,17 +59,22 @@ allprojects {
             compileOnly project(":plugin")
     }
 
-    if (project.name.equalsIgnoreCase("plugin")) {
-        shadowJar {
-            archiveName = "SuperiorPrison.jar"
-            destinationDirectory = file('../target')
-        }
-    }
+    shadowJar {}
 
-    if (project.name.startsWith("nms")) {
-        shadowJar {
-            archiveName = "nms-" + project.name + ".jar"
-            destinationDirectory = file('../target')
+    tasks.build.dependsOn tasks.shadowJar
+}
+
+subprojects.each { subproject -> evaluationDependsOn(subproject.path)}
+
+shadowJar {
+    archiveName = 'SuperiorPrison.jar'
+    destinationDir = file("./target")
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    subprojects.each { subproject ->
+        from subproject.configurations.archives.artifacts.files.collect {
+            zipTree(it)
         }
+        from subproject.configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
     }
 }

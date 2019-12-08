@@ -1,20 +1,17 @@
 package com.bgsoftware.superiorprison.plugin.menu.edit;
 
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
-import com.bgsoftware.superiorprison.plugin.enums.MenuNames;
+import com.bgsoftware.superiorprison.plugin.constant.MenuNames;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.oop.orangeengine.eventssubscription.SubscriptionFactory;
 import com.oop.orangeengine.eventssubscription.SubscriptionProperties;
-import com.oop.orangeengine.item.custom.OItem;
 import com.oop.orangeengine.menu.AMenu;
-import com.oop.orangeengine.menu.button.AMenuButton;
 import com.oop.orangeengine.menu.config.ConfigMenuTemplate;
 import com.oop.orangeengine.menu.config.action.ActionListenerController;
 import com.oop.orangeengine.menu.config.action.ActionProperties;
 import com.oop.orangeengine.menu.events.ButtonClickEvent;
 import org.bukkit.ChatColor;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.concurrent.TimeUnit;
 

@@ -1,3 +1,6 @@
+# Locate default en-us
+locale: "en-us"
+
 database:
   # There's two database types
   # SQLITE

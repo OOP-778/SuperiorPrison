@@ -24,7 +24,7 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
-import static com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin.debug;
+import static com.oop.orangeengine.main.Helper.debug;
 
 @Setter
 @Getter
@@ -51,15 +51,14 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
         if (cachedMineArea.length == 0) return;
 
         int blocksInRegion = cachedMineArea.length;
-        if (debug)
-            System.out.println("blocks in region: " + blocksInRegion);
+        debug("blocks in region: " + blocksInRegion);
 
         if (cachedMaterials.length == 0 || materialsChanged) {
 
             cachedMaterials = new OMaterial[blocksInRegion];
             int slot = 0;
             for (OPair<Double, OMaterial> generatorMaterial : generatorMaterials) {
-                int amount = (int) Math.round((generatorMaterial.getFirst() / 100d) * blocksInRegion);
+                int amount = (int) Math.round((generatorMaterial.getFirst() / 100d) * blocksInRegion)+1;
                 for (int i = 0; i < amount; i++) {
                     if (Math.abs(blocksInRegion - slot) <= 1)
                         break;
@@ -70,9 +69,7 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
             }
         }
 
-        if (debug) {
-            System.out.println("materials amount: " + Arrays.stream(cachedMaterials).filter(Objects::nonNull).toArray().length);
-        }
+        debug("materials amount: " + Arrays.stream(cachedMaterials).filter(Objects::nonNull).toArray().length);
 
         cachedMaterials = shuffleArray(cachedMaterials);
         for (int index = 0; index < blocksInRegion; index++) {
@@ -91,7 +88,7 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
 
             SuperiorPrisonPlugin.getInstance().getNms().setBlock(block.getLocation(), OMaterial.AIR);
         }
-        System.out.println("Cached chunks: " + cachedChunks.size());
+        debug("Cached chunks: " + cachedChunks.size());
         SuperiorPrisonPlugin.getInstance().getNms().refreshChunks(mine.getMinPoint().getWorld(), cachedChunks);
     }
 

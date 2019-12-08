@@ -1,7 +1,7 @@
 global buttons:
   "R":
     type: normal
-    material: ENCHANTED_BOOK
+    material: red_stained_glass_pane
 
     display name: "&cReturn"
     lore:
@@ -19,7 +19,7 @@ global buttons:
       - "&cReturn to Previous-Page"
 
     on swap:
-      material: AIR
+      material: yellow_stained_glass_pane
 
     on click:
       execute action: "previous page"
@@ -33,10 +33,14 @@ global buttons:
       - "&aGo to Next-Page"
 
     on swap:
-      material: AIR
+      material: yellow_stained_glass_pane
 
     on click:
       execute action: "next page"
+
+  "Y":
+    type: filler
+    material: yellow_stained_glass_pane
 
 "mine edit menu":
   type: basic
@@ -44,15 +48,15 @@ global buttons:
 
   layout:
     - "AAAAAAAAA"
-    - "APAAIAAGA"
+    - "AJAAIAAGA"
     - "AAAAAAAAA"
     - "AAEAFASAA"
     - "AAAAAAAAA"
 
   buttons:
-    "P":
+    "J":
       type: normal
-      material: IRON_BARS
+      material: iron_bars
       display name: "&ePermission"
       lore:
         - "&e&l*&7 %mine_permission%"
@@ -64,7 +68,7 @@ global buttons:
 
     "I":
       type: normal
-      material: STONE
+      material: stone
       display name: "%mine_icon_displayname%"
       lore:
         - "&e&l* &7Click to customize icon!"
@@ -74,7 +78,7 @@ global buttons:
 
     "G":
       type: normal
-      material: COMMAND_BLOCK
+      material: command_block
       display name: "&eGenerator"
       lore:
         - "&e&l* &7Click to modify generator!"
@@ -84,7 +88,7 @@ global buttons:
 
     "E":
       type: normal
-      material: WOODEN_AXE
+      material: wooden_axe
       display name: "&eArea"
       lore:
         - "&e&l* &7Min point: %mine_minpoint_x%, %mine_minpoint_y%, %mine_minpoint_z%"
@@ -98,7 +102,7 @@ global buttons:
 
     "F":
       type: normal
-      material: WHITE_WOOL
+      material: white_wool
       display name: "&eFlags"
       lore:
         - "&e&l* &7Click to modify flags!"
@@ -108,7 +112,7 @@ global buttons:
 
     "S":
       type: normal
-      material: CHEST
+      material: chest
       display name: "&eShop"
       lore:
         - "&e&l* &7Click to customize shop!"
@@ -125,16 +129,16 @@ global buttons:
         - "FFFFFFFFF"
         - "FAAAAAAAF"
         - "FFFFFFFFF"
-        - "YYYLBNYYY"
+        - "RYYPBNYYY"
 
       buttons:
         "F":
           type: filler
-          material: AIR
+          material: air
 
         "B":
           type: filler
-          material: WRITABLE_BOOK
+          material: writable_book
 
           lore:
             - "&cHere you can set chances of specific materials"
@@ -144,7 +148,7 @@ global buttons:
 
         "materialTemplate":
           type: normal
-          material: STONE
+          material: stone
           template: true
 
           display name: "&e%material_name%"

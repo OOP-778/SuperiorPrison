@@ -1,13 +1,19 @@
 package com.bgsoftware.superiorprison.plugin.menu.edit;
 
-import com.bgsoftware.superiorprison.plugin.enums.MenuNames;
+import com.bgsoftware.superiorprison.plugin.constant.MenuNames;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.oop.orangeengine.item.custom.OItem;
+import com.oop.orangeengine.main.Helper;
+import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.material.OMaterial;
 import com.oop.orangeengine.menu.AMenu;
 import com.oop.orangeengine.menu.button.AMenuButton;
 import com.oop.orangeengine.menu.config.ConfigMenuTemplate;
 import org.apache.commons.lang3.StringUtils;
+import org.bukkit.event.inventory.InventoryAction;
+import org.bukkit.inventory.ItemStack;
+
+import static com.oop.orangeengine.main.Engine.getEngine;
 
 public class GeneratorMenu extends EditMenuHelper {
 
@@ -27,9 +33,23 @@ public class GeneratorMenu extends EditMenuHelper {
 
         fillMaterials(menu, mine);
 
+        menu.bottomInvClickHandler(event -> {
+            if (event.getAction() != InventoryAction.MOVE_TO_OTHER_INVENTORY) return;
+            ItemStack clone = event.getCurrentItem().clone();
+
+            //TODO: Add messages to locale
+            if (!clone.getType().isBlock()) {
+                event.getWhoClicked().sendMessage(Helper.color("&cFailed to add material cause it's not a block!"));
+                return;
+            }
+
+            mine.getGenerator().getGeneratorMaterials().add(new OPair<>(0.0, OMaterial.matchMaterial(clone)));
+            fillMaterials(menu, mine);
+            menu.update();
+        });
+
         menu.store("mine", mine);
         menu.getAllChildren().forEach(children -> children.store("mine", mine));
-
         return menu;
     }
 
@@ -41,11 +61,16 @@ public class GeneratorMenu extends EditMenuHelper {
 
         // Remove old buttons with mats
         menu.removeButtonIfMatched(button -> button.containsData("mineMaterial"));
+        
+        OItem itemTemplate = new OItem(templateButton.currentItem().clone());
 
         // Fill new materials
         mine.getGenerator().getGeneratorMaterials().forEach(pair -> {
             AMenuButton button = templateButton.clone();
-            OItem buttonItem = new OItem(button.currentItem().clone());
+            OItem buttonItem = new OItem(pair.getSecond());
+
+            buttonItem.setLore(itemTemplate.getLore());
+            buttonItem.setDisplayName(itemTemplate.getDisplayName());
 
             buttonItem.replaceDisplayName("%material_name%", beautify(pair.getSecond().name()));
             buttonItem.replaceInLore("%material_rate%", pair.getFirst() + "");

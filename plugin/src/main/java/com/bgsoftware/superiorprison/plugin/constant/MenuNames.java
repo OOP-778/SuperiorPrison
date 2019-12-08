@@ -1,4 +1,4 @@
-package com.bgsoftware.superiorprison.plugin.enums;
+package com.bgsoftware.superiorprison.plugin.constant;
 
 public enum MenuNames {
 

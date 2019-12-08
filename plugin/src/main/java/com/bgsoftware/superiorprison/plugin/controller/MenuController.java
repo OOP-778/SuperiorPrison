@@ -1,21 +1,21 @@
 package com.bgsoftware.superiorprison.plugin.controller;
 
-import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
-import com.bgsoftware.superiorprison.plugin.enums.MenuNames;
+import com.bgsoftware.superiorprison.plugin.constant.MenuNames;
 import com.bgsoftware.superiorprison.plugin.menu.edit.EditMenu;
+import com.oop.orangeengine.main.util.OptionalConsumer;
 import com.oop.orangeengine.menu.config.ConfigMenuTemplate;
+import com.oop.orangeengine.menu.config.MenuTemplatesController;
+import com.oop.orangeengine.yaml.OConfiguration;
 import lombok.Getter;
 
-import java.util.Optional;
-
 @Getter
-public class MenuController {
+public class MenuController extends MenuTemplatesController {
 
     private EditMenu editMenu;
-    public MenuController() {
+    public MenuController(OConfiguration configuration) {
+        super(configuration);
 
-        ConfigController configController = SuperiorPrisonPlugin.getInstance().getConfigController();
-        Optional<ConfigMenuTemplate> editMineMenu = configController.findMenuTemplate(MenuNames.MINE_EDIT.getId());
+        OptionalConsumer<ConfigMenuTemplate> editMineMenu = findTemplateById(MenuNames.MINE_EDIT.getId());
         if (editMineMenu.isPresent())
             this.editMenu = new EditMenu(editMineMenu.get());
 

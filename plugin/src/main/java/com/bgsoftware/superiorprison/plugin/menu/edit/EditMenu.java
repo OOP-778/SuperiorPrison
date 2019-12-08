@@ -1,13 +1,13 @@
 package com.bgsoftware.superiorprison.plugin.menu.edit;
 
-import com.bgsoftware.superiorprison.api.data.mine.type.NormalMine;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
+import com.bgsoftware.superiorprison.plugin.enums.MenuNames;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
-import com.oop.orangeengine.database.data.DataHandlerController;
 import com.oop.orangeengine.eventssubscription.SubscriptionFactory;
 import com.oop.orangeengine.eventssubscription.SubscriptionProperties;
 import com.oop.orangeengine.item.custom.OItem;
 import com.oop.orangeengine.menu.AMenu;
+import com.oop.orangeengine.menu.button.AMenuButton;
 import com.oop.orangeengine.menu.config.ConfigMenuTemplate;
 import com.oop.orangeengine.menu.config.action.ActionListenerController;
 import com.oop.orangeengine.menu.config.action.ActionProperties;
@@ -18,16 +18,20 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.concurrent.TimeUnit;
 
-public class EditMenu {
+public class EditMenu extends EditMenuHelper {
 
-    public ConfigMenuTemplate template;
+    private ConfigMenuTemplate template;
+    private GeneratorMenu generatorMenu;
+
     public EditMenu(ConfigMenuTemplate template) {
         this.template = template;
+        this.generatorMenu = new GeneratorMenu(template.getChildren().get(MenuNames.MINE_EDIT_GENERATOR.getId()));
 
+        final String menuId = MenuNames.MINE_EDIT.getId();
         ActionListenerController.getInstance().listen(
                 new ActionProperties<>(ButtonClickEvent.class)
                 .actionId("edit permission")
-                .menuId("mine edit menu")
+                .menuId(menuId)
                 .buttonAction(event -> {
                     event.getPlayer().closeInventory();
 
@@ -43,11 +47,9 @@ public class EditMenu {
                                 chatEvent.getPlayer().sendMessage(ChatColor.RED + "Mine permission has been set to " + chatEvent.getMessage());
 
                                 // Update button
-                                ItemStack parsed = parsePlaceholders(event.getClickedButton().grab("placeholder", ItemStack.class).get(), mine);
-                                event.getClickedButton().currentItem(parsed);
+                                updateButton(event.getClickedButton(), mine);
 
                                 event.getWrappedInventory().open(event.getPlayer());
-
                                 SuperiorPrisonPlugin.getInstance().getDataController().save(mine, true);
                                 },
                             new SubscriptionProperties<AsyncPlayerChatEvent>()
@@ -56,33 +58,17 @@ public class EditMenu {
                     );
                 })
         );
-
     }
 
     public AMenu build(SNormalMine mine) {
-        AMenu menu = template.build();
+        AMenu menu = template.build(false);
         menu.title(menu.title().replace("%mine_name%", mine.getName()));
 
-        // Parse placeholders
-        menu.designer().getButtons().forEach(button -> {
-            button.saveCurrentItem("placeholder");
-            button.currentItem(parsePlaceholders(button.currentItem(), mine));
-        });
+        menu.addChild(generatorMenu.build(mine));
+        parseButtons(menu, mine);
 
         menu.store("mine", mine);
         menu.getAllChildren().forEach(children -> children.store("mine", mine));
         return menu;
-    }
-
-    public ItemStack parsePlaceholders(ItemStack itemStack, SNormalMine mine) {
-        OItem item = new OItem(itemStack.clone());
-
-        // Parse display name
-        item.setDisplayName(SuperiorPrisonPlugin.getInstance().getPlaceholderController().parse(item.getDisplayName(),  mine));
-
-        // Parse lore
-        item.setLore(SuperiorPrisonPlugin.getInstance().getPlaceholderController().parse(item.getLore(), mine));
-
-        return item.getItemStack();
     }
 }

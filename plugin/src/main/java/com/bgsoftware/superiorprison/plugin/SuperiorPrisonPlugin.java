@@ -15,6 +15,7 @@ import com.oop.orangeengine.command.CommandController;
 import com.oop.orangeengine.database.ODatabase;
 import com.oop.orangeengine.database.types.SqlLiteDatabase;
 import com.oop.orangeengine.main.plugin.EnginePlugin;
+import com.oop.orangeengine.main.task.ClassicTaskController;
 import com.oop.orangeengine.main.task.ITaskController;
 import com.oop.orangeengine.main.task.SpigotTaskController;
 import lombok.Getter;
@@ -43,6 +44,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
     @Override
     public void enable() {
 
+        String v= "wgagw";
         // Setup NMS
         if (!setupNms()) {
             Bukkit.getPluginManager().disablePlugin(this);
@@ -83,7 +85,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
 
     @Override
     public ITaskController provideTaskController() {
-        return new SpigotTaskController(this);
+        return new ClassicTaskController(this);
     }
 
     @Override

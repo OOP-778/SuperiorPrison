@@ -30,7 +30,7 @@ public class ConfigController {
         menusConfig.save();
 
         for (ConfigurationSection section : menusConfig.getSections().values())
-            if (!section.getKey().contentEquals("buttons"))
+            if (!section.getKey().contentEquals("global buttons"))
                 loadedMenuTemplates.put(section.getKey(), new ConfigMenuTemplate(section));
     }
 

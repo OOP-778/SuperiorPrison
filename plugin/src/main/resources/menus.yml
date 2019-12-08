@@ -1,5 +1,45 @@
+global buttons:
+  "R":
+    type: normal
+    material: ENCHANTED_BOOK
+
+    display name: "&cReturn"
+    lore:
+      - "&cReturn to previous menu"
+
+    on click:
+      execute action: "return"
+
+  "P":
+    type: swappable
+    material: arrow
+
+    display name: "&cPrevious-Page"
+    lore:
+      - "&cReturn to Previous-Page"
+
+    on swap:
+      material: AIR
+
+    on click:
+      execute action: "previous page"
+
+  "N":
+    type: swappable
+    material: arrow
+
+    display name: "&aNext-Page"
+    lore:
+      - "&aGo to Next-Page"
+
+    on swap:
+      material: AIR
+
+    on click:
+      execute action: "next page"
+
 "mine edit menu":
-  type: BASIC
+  type: basic
   title: "&eEditing &6%mine_name% &emine..."
 
   layout:
@@ -30,7 +70,7 @@
         - "&e&l* &7Click to customize icon!"
 
       on click:
-        execute action: "edit icon"
+        open: "edit icon"
 
     "G":
       type: normal
@@ -40,7 +80,7 @@
         - "&e&l* &7Click to modify generator!"
 
       on click:
-        execute action: "edit generator"
+        open: "edit generator"
 
     "E":
       type: normal
@@ -64,7 +104,7 @@
         - "&e&l* &7Click to modify flags!"
 
       on click:
-        execute action: "edit flags"
+        open: "edit flags"
 
     "S":
       type: normal
@@ -75,3 +115,48 @@
 
       on click:
         execute action: "edit shop"
+
+  children:
+    "edit generator":
+      type: paged
+      title: "&eEditing &6%mine_name% &egenerator"
+
+      layout:
+        - "FFFFFFFFF"
+        - "FAAAAAAAF"
+        - "FFFFFFFFF"
+        - "YYYLBNYYY"
+
+      buttons:
+        "F":
+          type: filler
+          material: AIR
+
+        "B":
+          type: filler
+          material: WRITABLE_BOOK
+
+          lore:
+            - "&cHere you can set chances of specific materials"
+            - "&cRemember the chances cannot pass 100%"
+            - ""
+            - "&cTo insert an material, just click it in your inventory"
+
+        "materialTemplate":
+          type: normal
+          material: STONE
+          template: true
+
+          display name: "&e%material_name%"
+
+          on right click:
+            execute action: "remove"
+
+          on left click:
+            execute action: "edit"
+
+          lore:
+            - "&e&nRATE: &6%material_rate%"
+            - ""
+            - "&cRight-Click to remove"
+            - "&aLeft-Click to edit"

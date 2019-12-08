@@ -2,7 +2,8 @@ package com.bgsoftware.superiorprison.plugin.enums;
 
 public enum MenuNames {
 
-    MINE_EDIT("mine edit menu");
+    MINE_EDIT("mine edit menu"),
+    MINE_EDIT_GENERATOR("edit generator");
 
     private String id;
     MenuNames(String id) {

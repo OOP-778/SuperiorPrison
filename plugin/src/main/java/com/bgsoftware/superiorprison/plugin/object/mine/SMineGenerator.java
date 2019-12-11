@@ -11,6 +11,7 @@ import com.oop.orangeengine.main.task.OTask;
 import com.oop.orangeengine.main.util.OptionalConsumer;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.material.OMaterial;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Chunk;
@@ -28,6 +29,7 @@ import static com.oop.orangeengine.main.Helper.debug;
 
 @Setter
 @Getter
+@EqualsAndHashCode
 public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mine.MineGenerator, Serializable, Attachable<SuperiorMine> {
 
     private transient SuperiorMine mine;
@@ -181,4 +183,12 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
 
         return array;
     }
+
+    public double getCurrentUsedRate() {
+        double[] rate = new double[]{0};
+        generatorMaterials.forEach(pair -> rate[0] = rate[0] + pair.getFirst());
+
+        return rate[0];
+    }
+
 }

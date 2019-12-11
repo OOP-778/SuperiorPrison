@@ -23,6 +23,12 @@ mine defaults:
   # How much prisoners can a mine hold at a time? For no limit -1
   limit: -1
 
+  # Materials used to generate mine
+  # The rate cannot exceed 100!
+  materials:
+    - "STONE;50"
+    - "DIAMOND_ORE;50"
+
 area selection tool:
   material: WOODEN_AXE
   display name: "&eArea Selection"

@@ -160,7 +160,7 @@ global buttons:
             execute action: "edit"
 
           lore:
-            - "&e&nRATE: &6%material_rate%"
+            - "&e&nRATE:&6 %material_rate%"
             - ""
             - "&cRight-Click to remove"
             - "&aLeft-Click to edit"

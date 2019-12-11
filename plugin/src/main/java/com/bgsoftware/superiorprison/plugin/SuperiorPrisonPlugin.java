@@ -87,6 +87,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
 
     @Override
     public void disable() {
+        getDataController().saveAll();
         instance = null;
     }
 

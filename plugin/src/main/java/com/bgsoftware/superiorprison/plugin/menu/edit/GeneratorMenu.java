@@ -42,7 +42,7 @@ public class GeneratorMenu extends EditMenuHelper {
                         .actionId("edit")
                         .buttonAction(clickEvent -> {
                             clickEvent.getPlayer().closeInventory();
-                            LocaleEnum.GENERATOR_WRITE_RATE.getMessage().send(clickEvent.getPlayer());
+                            LocaleEnum.GENERATOR_WRITE_RATE.getWithPrefix().send(clickEvent.getPlayer());
 
                             SubscriptionFactory.getInstance().subscribeTo(
                                     AsyncPlayerChatEvent.class,
@@ -51,14 +51,14 @@ public class GeneratorMenu extends EditMenuHelper {
                                         OMaterial material = clickEvent.getClickedButton().grab("mineMaterial", OMaterial.class).get();
                                         SNormalMine mine = clickEvent.getMenu().grab("mine", SNormalMine.class).get();
 
-                                        double currentRate = mine.getGenerator().getCurrentUsedRate();
+                                        chatEvent.setCancelled(true);
+                                        double currentRate = mine.getGenerator().getCurrentUsedRate(material);
                                         if ((currentRate + rate) > 100) {
                                             LocaleEnum.GENERATOR_RATE_LIMIT_EXCEED.getWithErrorPrefix().send(chatEvent.getPlayer(), ImmutableMap.of("%material%", beautify(material.name())));
                                             clickEvent.getWrappedInventory().open(chatEvent.getPlayer());
                                             return;
                                         }
 
-                                        chatEvent.setCancelled(true);
                                         Optional<OPair<Double, OMaterial>> first = mine.getGenerator().getGeneratorMaterials().stream()
                                                 .filter(pair -> pair.getSecond() == material)
                                                 .findFirst();
@@ -76,8 +76,10 @@ public class GeneratorMenu extends EditMenuHelper {
                                     new SubscriptionProperties<AsyncPlayerChatEvent>()
                                             .filter(chatEvent -> {
                                                 double value = NumberUtils.toDouble(chatEvent.getMessage(), -0.0);
-                                                if (value == -0.0)
+                                                if (value == -0.0) {
                                                     LocaleEnum.GENERATOR_RATE_NOT_NUMBER.getWithErrorPrefix().send(chatEvent.getPlayer());
+                                                    chatEvent.setCancelled(true);
+                                                }
 
                                                 return value > -0.0;
                                             }).timesToRun(1)

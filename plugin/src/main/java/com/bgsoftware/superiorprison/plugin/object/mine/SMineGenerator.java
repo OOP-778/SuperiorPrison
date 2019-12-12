@@ -191,4 +191,14 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
         return rate[0];
     }
 
+    public double getCurrentUsedRate(OMaterial minus) {
+        double[] rate = new double[]{0};
+        generatorMaterials.forEach(pair -> {
+            if (pair.getSecond() == minus) return;
+            rate[0] = rate[0] + pair.getFirst();
+        });
+
+        return rate[0];
+    }
+
 }

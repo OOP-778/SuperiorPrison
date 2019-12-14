@@ -1,8 +1,7 @@
 package com.bgsoftware.superiorprison.plugin.nms;
 
 import com.oop.orangeengine.material.OMaterial;
-import net.minecraft.server.v1_13_R2.BlockPosition;
-import net.minecraft.server.v1_13_R2.PacketPlayOutMapChunk;
+import net.minecraft.server.v1_13_R2.*;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -17,18 +16,20 @@ import java.util.List;
 public class NmsHandler_v1_13_R2 implements ISuperiorNms {
     @Override
     public void setBlock(Location location, OMaterial material) {
+        int id = material.getId();
+        if (material.getData() > 0)
+            id = id + (material.getData() << 12);
 
-        int chunkX = location.getBlockX() >> 4;
-        int chunkZ = location.getBlockZ() >> 4;
-        if (!location.getWorld().isChunkLoaded(chunkX, chunkZ))
-            return;
+        IBlockData data = Block.getByCombinedId(id);
+        net.minecraft.server.v1_13_R2.Chunk chunk = ((CraftChunk) location.getChunk()).getHandle();
 
+        int indexY = location.getBlockY() >> 4;
+        ChunkSection chunkSection = chunk.getSections()[indexY];
 
-        net.minecraft.server.v1_13_R2.World world = ((CraftWorld) location.getWorld()).getHandle();
-        BlockPosition pos = new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ());
-        net.minecraft.server.v1_13_R2.Chunk chunk = world.getChunkAt(chunkX, chunkZ);
+        if(chunkSection == null)
+            chunkSection = chunk.getSections()[indexY] = new ChunkSection(indexY << 4, !chunk.world.worldProvider.g());
 
-        chunk.setType(pos, CraftMagicNumbers.getBlock(material.parseMaterial(), material.getData()), false);
+        chunkSection.setType(location.getBlockX() & 15, location.getBlockY() & 15, location.getBlockZ() & 15, data);
     }
 
     @Override

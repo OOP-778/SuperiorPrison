@@ -1,9 +1,7 @@
 package com.bgsoftware.superiorprison.plugin.object.mine;
 
 import com.bgsoftware.superiorprison.api.data.mine.MineEnum;
-import com.bgsoftware.superiorprison.api.data.mine.MineGenerator;
 import com.bgsoftware.superiorprison.api.data.mine.flags.FlagEnum;
-import com.bgsoftware.superiorprison.api.data.mine.shop.MineShop;
 import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 import com.bgsoftware.superiorprison.api.util.SPLocation;
 import com.oop.orangeengine.database.OColumn;
@@ -88,6 +86,7 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
         generator.getGeneratorMaterials().add(new OPair<>(50d, OMaterial.STONE));
         generator.getGeneratorMaterials().add(new OPair<>(20d, OMaterial.CYAN_TERRACOTTA));
         generator.getGeneratorMaterials().add(new OPair<>(30d, OMaterial.DIAMOND_ORE));
+        generator.initBlockChanger();
 
         generator.setMine(this);
         StaticTask.getInstance().async(() -> generator.initCache(() -> {

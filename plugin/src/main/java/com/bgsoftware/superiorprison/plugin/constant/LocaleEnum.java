@@ -18,7 +18,9 @@ public enum LocaleEnum {
     GENERATOR_REMOVED("Successfully removed %material% from mine generator!"),
     GENERATOR_RATE_LIMIT_EXCEED("Failed to set rate of %material% cause combined it exceeds the 100 rate limit!"),
     GENERATOR_MATERIAL_IS_NOT_BLOCK("Failed to add material cause it's not a block!"),
-    GENERATOR_MATERIAL_ALREADY_EXISTS("Failed to add material cause it's already exists!");
+    GENERATOR_MATERIAL_ALREADY_EXISTS("Failed to add material cause it's already exists!"),
+
+    MINE_RESET_SUCCESSFUL("Mine was successfully reset!");
 
     private OMessage[] cache = new OMessage[2];
 

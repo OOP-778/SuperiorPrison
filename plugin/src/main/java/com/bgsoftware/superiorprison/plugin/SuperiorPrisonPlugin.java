@@ -87,7 +87,11 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
 
     @Override
     public void disable() {
+
+        long then = System.currentTimeMillis();
         getDataController().saveAll();
+        getOLogger().print("Save done! Took " + (System.currentTimeMillis() - then) + "ms");
+
         instance = null;
     }
 

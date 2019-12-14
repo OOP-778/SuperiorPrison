@@ -19,6 +19,7 @@ public class CommandsRegister {
                 .subCommand(new CmdList())
                 .subCommand(new CmdDelete())
                 .subCommand(new CmdEdit())
+                .subCommand(new CmdReset())
         );
     }
 

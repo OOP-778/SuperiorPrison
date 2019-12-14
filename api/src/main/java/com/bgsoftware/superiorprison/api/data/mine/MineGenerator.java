@@ -13,4 +13,6 @@ public interface MineGenerator {
     void clearMine();
 
     void generate();
+
+    void reset();
 }

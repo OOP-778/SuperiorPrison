@@ -76,9 +76,9 @@ public class GeneratorMenu extends EditMenuHelper {
                                     new SubscriptionProperties<AsyncPlayerChatEvent>()
                                             .filter(chatEvent -> {
                                                 double value = NumberUtils.toDouble(chatEvent.getMessage(), -0.0);
+                                                chatEvent.setCancelled(true);
                                                 if (value == -0.0) {
                                                     LocaleEnum.GENERATOR_RATE_NOT_NUMBER.getWithErrorPrefix().send(chatEvent.getPlayer());
-                                                    chatEvent.setCancelled(true);
                                                 }
 
                                                 return value > -0.0;

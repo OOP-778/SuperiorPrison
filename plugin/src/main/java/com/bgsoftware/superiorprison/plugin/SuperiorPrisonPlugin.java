@@ -3,6 +3,7 @@ package com.bgsoftware.superiorprison.plugin;
 import com.bgsoftware.superiorprison.api.SuperiorPrison;
 import com.bgsoftware.superiorprison.api.SuperiorPrisonAPI;
 import com.bgsoftware.superiorprison.plugin.commands.CommandsRegister;
+import com.bgsoftware.superiorprison.plugin.config.MainConfig;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.controller.ConfigController;
 import com.bgsoftware.superiorprison.plugin.controller.DataController;
@@ -30,6 +31,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
     private static SuperiorPrisonPlugin instance;
     private PlaceholderController placeholderController;
     private ConfigController configController;
+    private MainConfig mainConfig;
     private MenuController menuController;
     private DataController dataController;
     private ODatabase dab;
@@ -45,7 +47,6 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
 
     @Override
     public void enable() {
-
         getOLogger().setDebugMode(true);
 
         // Setup NMS
@@ -61,17 +62,19 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
         if (!getDataFolder().exists())
             getDataFolder().mkdirs();
 
+        this.mainConfig = new MainConfig();
+
         // Setup Database
-        dab = new SqlLiteDatabase(getDataFolder(), "data");
+        dab = mainConfig.getDatabase().getDatabase();
 
         // Initialize controllers
         this.dataController = new DataController(dab);
-        this.placeholderController = new PlaceholderController();
         this.configController = new ConfigController();
+        this.placeholderController = new PlaceholderController();
         this.menuController = new MenuController(configController.getMenusConfig());
 
         // Load locale
-        Locale.load("en-us");
+        Locale.load(mainConfig.getLocale());
         LocaleEnum.load();
 
         // Initialize listeners

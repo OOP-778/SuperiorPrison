@@ -8,6 +8,7 @@ import com.bgsoftware.superiorprison.plugin.util.Cuboid;
 import com.google.common.collect.Maps;
 import com.oop.orangeengine.eventssubscription.SubscriptionFactory;
 import com.oop.orangeengine.eventssubscription.SubscriptionProperties;
+import com.oop.orangeengine.main.gson.GsonUpdateable;
 import com.oop.orangeengine.main.task.OTask;
 import com.oop.orangeengine.main.util.OptionalConsumer;
 import com.oop.orangeengine.main.util.data.pair.OPair;
@@ -36,7 +37,7 @@ import static com.oop.orangeengine.main.Helper.debug;
 @Setter
 @Getter
 @EqualsAndHashCode
-public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mine.MineGenerator, Serializable, Attachable<SuperiorMine> {
+public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mine.MineGenerator, GsonUpdateable, Attachable<SuperiorMine> {
 
     private transient SuperiorMine mine;
     private List<OPair<Double, OMaterial>> generatorMaterials = new ArrayList<>();
@@ -93,9 +94,9 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
             OMaterial material = cachedMaterials[index];
             if (material == null) continue;
 
-            blockChanger.setBlock(block.getLocation(), material);
+           // blockChanger.setBlock(block.getLocation(), material);
         }
-        blockChanger.submitUpdate();
+       // blockChanger.submitUpdate();
     }
 
     @Override
@@ -113,9 +114,9 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
 
         for (Block block : cachedMineArea) {
             if (block == null) continue;
-            blockChanger.setBlock(block.getLocation(), OMaterial.AIR);
+            //blockChanger.setBlock(block.getLocation(), OMaterial.AIR);
         }
-        blockChanger.submitUpdate();
+        //blockChanger.submitUpdate();
 
         debug("Cached chunks: " + cachedChunks.size());
         SuperiorPrisonPlugin.getInstance().getNms().refreshChunks(mine.getMinPoint().getWorld(), cachedChunks);

@@ -2,6 +2,7 @@ package com.bgsoftware.superiorprison.plugin.controller;
 
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
 import com.bgsoftware.superiorprison.api.data.mine.type.NormalMine;
+import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.google.common.collect.Sets;
 
 import java.util.ArrayList;
@@ -11,7 +12,7 @@ import java.util.function.BiFunction;
 
 public class PlaceholderController {
 
-    private Set<BiFunction<SuperiorMine, String, String>> placeholders = Sets.newHashSet();
+    private Set<BiFunction<SNormalMine, String, String>> placeholders = Sets.newHashSet();
 
     public PlaceholderController() {
         placeholders.add((mine, currentText) -> currentText.replace("%mine_name%", mine.getName()));
@@ -28,25 +29,28 @@ public class PlaceholderController {
         placeholders.add((mine, currentText) -> currentText.replace("%mine_highpoint_y%", mine.getHighPoint().y() + ""));
         placeholders.add((mine, currentText) -> currentText.replace("%mine_highpoint_z%", mine.getHighPoint().z() + ""));
 
-        // Placeholder for spawn
+        // Placeholders for spawn
         placeholders.add((mine, currentText) -> currentText.replace("%mine_spawnpoint_x%", mine.getSpawnPoint().isPresent() ? mine.getSpawnPoint().get().x() + "" : "Not set"));
         placeholders.add((mine, currentText) -> currentText.replace("%mine_spawnpoint_y%", mine.getSpawnPoint().isPresent() ? mine.getSpawnPoint().get().y() + "" : "Not set"));
         placeholders.add((mine, currentText) -> currentText.replace("%mine_spawnpoint_z%", mine.getSpawnPoint().isPresent() ? mine.getSpawnPoint().get().y() + "" : "Not set"));
+
+        // Placeholders for shop
+        placeholders.add((mine, currentText) -> currentText.replace("%mine_shop_title%", mine.getShop().getTitle()));
     }
 
-    public String parse(String text, SuperiorMine mine) {
+    public String parse(String text, SNormalMine mine) {
         System.out.println("Trying to parse text: " + text);
-        for (BiFunction<SuperiorMine, String, String> function : placeholders)
+        for (BiFunction<SNormalMine, String, String> function : placeholders)
             text = function.apply(mine, text);
 
         return text;
     }
 
-    public List<String> parse(List<String> multipleText, SuperiorMine mine) {
+    public List<String> parse(List<String> multipleText, SNormalMine mine) {
         System.out.println("Trying to parse multiple text: " + multipleText);
         List<String> parsed = new ArrayList<>();
         for (String text : multipleText) {
-            for (BiFunction<SuperiorMine, String, String> function : placeholders)
+            for (BiFunction<SNormalMine, String, String> function : placeholders)
                 text = function.apply(mine, text);
 
             parsed.add(text);

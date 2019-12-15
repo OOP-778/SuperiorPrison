@@ -11,6 +11,8 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.Set;
 
+import static com.oop.orangeengine.main.Helper.capitalizeAll;
+
 public abstract class EditMenuHelper {
 
     public abstract AMenu build(SNormalMine mine);
@@ -44,6 +46,10 @@ public abstract class EditMenuHelper {
         buttons.stream()
                 .filter(button -> !button.template() && button.currentItem().hasItemMeta())
                 .forEach(button -> updateButton(button, mine));
+    }
+
+    public String beautify(String text) {
+        return capitalizeAll(text.toLowerCase().replace("_", " "));
     }
 
 }

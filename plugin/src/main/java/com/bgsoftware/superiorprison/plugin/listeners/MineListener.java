@@ -20,7 +20,7 @@ public class MineListener {
 
         // Mine Leave & Enter events handling
         SyncEvents.listen(PlayerMoveEvent.class, event -> {
-            //Checks if the player actually moved a block.
+            // Checks if the player actually moved a block.
             Location from = event.getFrom(), to = event.getTo();
             if (from.getBlockX() == to.getBlockX() && from.getBlockZ() == to.getBlockZ())
                 return;
@@ -37,7 +37,6 @@ public class MineListener {
             if (mineOptional.isPresent()) {
                 SuperiorMine mine = mineOptional.get();
                 if (!mine.isInside(event.getTo())) {
-
                     Bukkit.broadcastMessage("Leaving mine");
                     MineLeaveEvent leaveEvent = new MineLeaveEvent(mine, prisoner);
                     Bukkit.getPluginManager().callEvent(leaveEvent);
@@ -45,8 +44,8 @@ public class MineListener {
                     mine.getPrisoners().remove(prisoner);
                     prisoner.setCurrentMine(null);
                 }
-            } else {
 
+            } else {
                 Optional<SuperiorMine> mineAt = SuperiorPrisonPlugin.getInstance().getMineController().getMineAt(event.getTo());
                 if (mineAt.isPresent()) {
                     SuperiorMine mine = mineAt.get();
@@ -81,7 +80,6 @@ public class MineListener {
                     return;
 
                 SuperiorMine mine = mineOptional.get();
-
                 MineLeaveEvent leaveEvent = new MineLeaveEvent(mine, prisoner);
                 Bukkit.getPluginManager().callEvent(leaveEvent);
 

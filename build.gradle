@@ -31,26 +31,26 @@ allprojects {
         annotationProcessor 'org.projectlombok:lombok:1.18.8'
 
         if (project.name.equalsIgnoreCase("plugin")) {
-            compile "com.oop.orangeengine:file:3.11"
-            compile "com.oop.orangeengine:item:3.11"
-            compile "com.oop.orangeengine:engine:3.11"
-            compile "com.oop.orangeengine:particle:3.11"
-            compile "com.oop.orangeengine:inventory:3.11"
-            compile "com.oop.orangeengine:command:3.11"
-            compile "com.oop.orangeengine:database:3.11"
-            compile "com.oop.orangeengine:eventssubscription:3.11"
-            compile "com.oop.orangeengine:message:3.11"
+            compile "com.oop.orangeengine:file:+"
+            compile "com.oop.orangeengine:item:+"
+            compile "com.oop.orangeengine:engine:+"
+            compile "com.oop.orangeengine:particle:+"
+            compile "com.oop.orangeengine:inventory:+"
+            compile "com.oop.orangeengine:command:+"
+            compile "com.oop.orangeengine:database:+"
+            compile "com.oop.orangeengine:eventssubscription:+"
+            compile "com.oop.orangeengine:message:+"
 
         } else {
-            compileOnly "com.oop.orangeengine:file:3.11"
-            compileOnly "com.oop.orangeengine:item:3.11"
-            compileOnly "com.oop.orangeengine:engine:3.11"
-            compileOnly "com.oop.orangeengine:particle:3.11"
-            compileOnly "com.oop.orangeengine:inventory:3.11"
-            compileOnly "com.oop.orangeengine:command:3.11"
-            compileOnly "com.oop.orangeengine:database:3.11"
-            compileOnly "com.oop.orangeengine:eventssubscription:3.11"
-            compileOnly "com.oop.orangeengine:message:3.11"
+            compileOnly "com.oop.orangeengine:file:+"
+            compileOnly "com.oop.orangeengine:item:+"
+            compileOnly "com.oop.orangeengine:engine:+"
+            compileOnly "com.oop.orangeengine:particle:+"
+            compileOnly "com.oop.orangeengine:inventory:+"
+            compileOnly "com.oop.orangeengine:command:+"
+            compileOnly "com.oop.orangeengine:database:+"
+            compileOnly "com.oop.orangeengine:eventssubscription:+"
+            compileOnly "com.oop.orangeengine:message:+"
         }
 
         if (project.name.equalsIgnoreCase("plugin")) {

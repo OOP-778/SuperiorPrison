@@ -31,13 +31,18 @@ public class SPrisoner extends DatabaseObject implements com.bgsoftware.superior
     @Setter
     private SBoosterData boosterData = new SBoosterData();
 
+    @DatabaseValue(columnName = "logoutInMine")
+    @Setter
+    private boolean logoutInMine = false;
+
     private transient OfflinePlayer cachedOfflinePlayer;
     private transient Player cachedPlayer;
 
     @Setter
     private transient SuperiorMine currentMine;
 
-    protected SPrisoner() {}
+    protected SPrisoner() {
+    }
 
     public SPrisoner(UUID uuid) {
         this.uuid = uuid;

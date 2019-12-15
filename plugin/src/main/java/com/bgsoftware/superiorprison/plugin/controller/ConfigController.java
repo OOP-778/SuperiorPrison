@@ -16,7 +16,6 @@ import static com.oop.orangeengine.main.Engine.getEngine;
 @Getter
 public class ConfigController {
 
-    private OConfiguration mainConfig;
     private OConfiguration menusConfig;
     private OConfiguration localeConfig;
 
@@ -25,11 +24,9 @@ public class ConfigController {
         if (!dataFolder.exists())
             dataFolder.mkdirs();
 
-        OFile configFile = new OFile(dataFolder, "config.yml").createIfNotExists(true);
         OFile menusFile = new OFile(dataFolder, "menus.yml").createIfNotExists(true);
         OFile localeFile = new OFile(dataFolder, "locale.yml").createIfNotExists();
 
-        this.mainConfig = new OConfiguration(configFile);
         this.menusConfig = new OConfiguration(menusFile);
         this.localeConfig = new OConfiguration(localeFile);
 

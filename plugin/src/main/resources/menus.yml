@@ -118,7 +118,7 @@ global buttons:
         - "&e&l* &7Click to customize shop!"
 
       on click:
-        execute action: "edit shop"
+        open: "edit shop"
 
   children:
     "edit generator":
@@ -164,3 +164,46 @@ global buttons:
             - ""
             - "&cRight-Click to remove"
             - "&aLeft-Click to edit"
+
+    "edit shop":
+      type: paged
+      title: "&eEditing &6%mine_name% &eshop"
+
+      layout:
+        - "YYYYYYYYY"
+        - "AAAAAAAAA"
+        - "AAAAAAAAA"
+        - "RYYPYNYYT"
+
+      buttons:
+        "T":
+          type: normal
+          material: sign
+
+          display name: "&eTitle"
+          lore:
+            - "&6Current Title"
+            - "&e- %mine_shop_title%"
+            - " "
+            - "&e&l(!)&7 Click to set new title!"
+
+          on click:
+            execute action: "set title"
+
+        "itemTemplate":
+          type: normal
+          material: stone
+          template: true
+
+          display name: "&e%material_name%"
+          lore:
+            - "&e&l* &7Price: %item_price%$"
+            - ""
+            - "&c&l(!)&7 Left-Click to remove!"
+            - "&e&l(!)&7 Right-Click to edit!"
+
+          on left click:
+            execute action: "remove"
+
+          on right click:
+            execute action: "edit item"

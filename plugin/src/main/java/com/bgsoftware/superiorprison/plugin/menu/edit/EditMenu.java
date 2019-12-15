@@ -13,16 +13,21 @@ import com.oop.orangeengine.menu.events.ButtonClickEvent;
 import org.bukkit.ChatColor;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class EditMenu extends EditMenuHelper {
 
     private ConfigMenuTemplate template;
     private GeneratorMenu generatorMenu;
+    private ShopMenu shopMenu;
 
     public EditMenu(ConfigMenuTemplate template) {
         this.template = template;
         this.generatorMenu = new GeneratorMenu(template.getChildren().get(MenuNames.MINE_EDIT_GENERATOR.getId()));
+        this.shopMenu = new ShopMenu(template.getChildren().get(MenuNames.MINE_EDIT_SHOP.getId()));
 
         final String menuId = MenuNames.MINE_EDIT.getId();
         ActionListenerController.getInstance().listen(
@@ -47,7 +52,7 @@ public class EditMenu extends EditMenuHelper {
                                 updateButton(event.getClickedButton(), mine);
 
                                 event.getWrappedInventory().open(event.getPlayer());
-                                SuperiorPrisonPlugin.getInstance().getDataController().save(mine, true);
+                                mine.save(true);
                                 },
                             new SubscriptionProperties<AsyncPlayerChatEvent>()
                             .timesToRun(1)
@@ -62,6 +67,7 @@ public class EditMenu extends EditMenuHelper {
         menu.title(menu.title().replace("%mine_name%", mine.getName()));
 
         menu.addChild(generatorMenu.build(mine));
+        menu.addChild(shopMenu.build(mine));
         parseButtons(menu, mine);
 
         menu.store("mine", mine);

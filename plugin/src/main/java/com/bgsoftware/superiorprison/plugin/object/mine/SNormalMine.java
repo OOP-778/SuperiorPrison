@@ -4,6 +4,8 @@ import com.bgsoftware.superiorprison.api.data.mine.MineEnum;
 import com.bgsoftware.superiorprison.api.data.mine.flags.FlagEnum;
 import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 import com.bgsoftware.superiorprison.api.util.SPLocation;
+import com.bgsoftware.superiorprison.plugin.object.mine.shop.SShop;
+import com.bgsoftware.superiorprison.plugin.object.mine.shop.SShopItem;
 import com.oop.orangeengine.database.OColumn;
 import com.oop.orangeengine.database.annotations.DatabaseTable;
 import com.oop.orangeengine.database.annotations.DatabaseValue;
@@ -14,6 +16,7 @@ import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.material.OMaterial;
 import lombok.Setter;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 import java.io.Serializable;
@@ -52,7 +55,7 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
     private SMineGenerator generator;
 
     @DatabaseValue(columnName = "shop")
-    private SMineShop shop;
+    private SShop shop;
 
     @Setter
     @DatabaseValue(columnName = "permission")
@@ -78,21 +81,21 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
         this.name = name;
         this.minPoint = new SPLocation(pos1);
         this.highPoint = new SPLocation(pos2);
-        this.shop = new SMineShop();
+        this.shop = new SShop();
         shop.attach(this);
-
 
         generator = new SMineGenerator();
         generator.getGeneratorMaterials().add(new OPair<>(50d, OMaterial.STONE));
         generator.getGeneratorMaterials().add(new OPair<>(20d, OMaterial.CYAN_TERRACOTTA));
         generator.getGeneratorMaterials().add(new OPair<>(30d, OMaterial.DIAMOND_ORE));
+        generator.setMine(this);
         generator.initBlockChanger();
 
-        generator.setMine(this);
-        StaticTask.getInstance().async(() -> generator.initCache(() -> {
-            generator.clearMine();
-            generator.generate();
-        }));
+        shop.getItems().add(new SShopItem(new OItem(Material.REDSTONE).getItemStack(), 20));
+
+        StaticTask.getInstance().async(() -> generator.initCache(() -> generator.generate()));
+
+        this.permission = "superiorprison." + name;
 
         // Preset all the flags to default values
         for (FlagEnum flagEnum : FlagEnum.values())
@@ -159,7 +162,7 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
     }
 
     @Override
-    public SMineShop getShop() {
+    public SShop getShop() {
         return shop;
     }
 

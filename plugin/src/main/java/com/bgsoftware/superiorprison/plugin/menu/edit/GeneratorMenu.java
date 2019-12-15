@@ -180,9 +180,4 @@ public class GeneratorMenu extends EditMenuHelper {
             menu.addButton(button.paged(true));
         });
     }
-
-
-    public String beautify(String text) {
-        return capitalizeAll(text.toLowerCase().replace("_", " "));
-    }
 }

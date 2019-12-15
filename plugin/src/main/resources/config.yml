@@ -5,14 +5,14 @@ database:
   # There's two database types
   # SQLITE
   # MYSQL
-  type: SQLITE
+  type: sqlite
 
   # <<< If you're using SQLITE you should ignore under >>>
   database: "data"
   hostname: 127.0.0.1
   port: 3306
   username: "root"
-  password: "123"
+  password: "ouf123"
 
 mine defaults:
   # Icon that will be shown in /mines
@@ -22,6 +22,18 @@ mine defaults:
 
   # How much prisoners can a mine hold at a time? For no limit -1
   limit: -1
+
+  # How resetting works?
+  resetting:
+
+    # There's two modes PERCENTAGE and TIMED
+    # Percentage will run when x rate of blocks left
+    # Timed will happen on mine load and when x time is passed after load
+    mode: PERCENTAGE
+
+    # If percentage the value should be a number between 0 and 100% of blocks left
+    # If timed the value should be xHxMxS where H stands for hours, M for minutes and S for seconds
+    value: 40%
 
   # Materials used to generate mine
   # The rate cannot exceed 100!

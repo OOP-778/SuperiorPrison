@@ -1,19 +1,23 @@
 package com.bgsoftware.superiorprison.plugin.object.player;
 
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.oop.orangeengine.database.annotations.DatabaseTable;
 import com.oop.orangeengine.database.annotations.DatabaseValue;
 import com.oop.orangeengine.database.object.DatabaseObject;
+import com.oop.orangeengine.main.util.data.map.OConcurrentMap;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Accessors(chain = true)
 @DatabaseTable(tableName = "prisoners")
@@ -35,7 +39,21 @@ public class SPrisoner extends DatabaseObject implements com.bgsoftware.superior
     @Setter
     private boolean logoutInMine = false;
 
+    @DatabaseValue(columnName = "autoPickup")
+    @Getter
+    @Setter
+    private boolean autoPickup = false;
+
+    @Getter
+    @DatabaseValue(columnName = "completedMineRewards")
+    private Set<Integer> completedMineRewards = Sets.newHashSet();
+
+    @Getter
+    @DatabaseValue(columnName = "minedBlocks")
+    private OConcurrentMap<Material, Long> minedBlocks = new OConcurrentMap<>();
+
     private transient OfflinePlayer cachedOfflinePlayer;
+
     private transient Player cachedPlayer;
 
     @Setter

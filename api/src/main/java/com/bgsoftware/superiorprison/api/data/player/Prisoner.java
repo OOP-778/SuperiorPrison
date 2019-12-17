@@ -23,4 +23,6 @@ public interface Prisoner {
 
     Optional<SuperiorMine> getCurrentMine();
 
+    boolean isAutoPickup();
+
 }

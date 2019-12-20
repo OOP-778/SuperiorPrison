@@ -18,6 +18,7 @@ public class ConfigController {
 
     private OConfiguration menusConfig;
     private OConfiguration localeConfig;
+    private OConfiguration minesRewardsConfig;
 
     public ConfigController() {
         File dataFolder = getEngine().getOwning().getDataFolder();
@@ -26,9 +27,11 @@ public class ConfigController {
 
         OFile menusFile = new OFile(dataFolder, "menus.yml").createIfNotExists(true);
         OFile localeFile = new OFile(dataFolder, "locale.yml").createIfNotExists();
+        OFile mineRewardsFile = new OFile(dataFolder, "mineRewards.yml").createIfNotExists(true);
 
         this.menusConfig = new OConfiguration(menusFile);
         this.localeConfig = new OConfiguration(localeFile);
+        this.minesRewardsConfig = new OConfiguration(mineRewardsFile);
 
         menusConfig.clearDefaultHeader();
         menusConfig.appendHeader("Here you can edit / create your menus!");

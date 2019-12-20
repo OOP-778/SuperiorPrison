@@ -1,4 +1,4 @@
-package com.bgsoftware.superiorprison.plugin.config;
+package com.bgsoftware.superiorprison.plugin.config.main;
 
 import com.oop.orangeengine.item.custom.OItem;
 import com.oop.orangeengine.main.util.data.pair.OPair;

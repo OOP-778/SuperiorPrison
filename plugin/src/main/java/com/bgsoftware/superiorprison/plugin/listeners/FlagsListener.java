@@ -23,7 +23,6 @@ public class FlagsListener {
         // PvP flag listener
         SyncEvents.listen(EntityDamageByEntityEvent.class, event -> {
             Optional<SuperiorMine> mineAtLocation = plugin.getMineController().getMineAt(event.getDamager().getLocation());
-
             if (!mineAtLocation.isPresent())
                 return;
 

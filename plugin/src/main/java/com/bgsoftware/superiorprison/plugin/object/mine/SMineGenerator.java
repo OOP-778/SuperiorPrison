@@ -6,6 +6,7 @@ import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.util.Attachable;
 import com.bgsoftware.superiorprison.plugin.util.Cuboid;
 import com.google.common.collect.Maps;
+import com.google.gson.annotations.SerializedName;
 import com.oop.orangeengine.eventssubscription.SubscriptionFactory;
 import com.oop.orangeengine.eventssubscription.SubscriptionProperties;
 import com.oop.orangeengine.main.gson.GsonUpdateable;
@@ -40,6 +41,8 @@ import static com.oop.orangeengine.main.Helper.debug;
 public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mine.MineGenerator, GsonUpdateable, Attachable<SuperiorMine> {
 
     private transient SuperiorMine mine;
+
+    @SerializedName(value = "generatorMaterials")
     private List<OPair<Double, OMaterial>> generatorMaterials = new ArrayList<>();
     private transient Instant lastReset;
     private transient Instant nextReset;
@@ -50,6 +53,7 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
     private transient boolean caching;
     private transient boolean worldLoadWait;
 
+    @SerializedName(value = "cachedMaterials")
     private OMaterial[] cachedMaterials = new OMaterial[]{};
     private transient boolean materialsChanged;
 

@@ -1,19 +1,29 @@
 package com.bgsoftware.superiorprison.plugin.menu.edit;
 
+import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
+import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
+import com.bgsoftware.superiorprison.plugin.object.mine.shop.SShopItem;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.oop.orangeengine.eventssubscription.SubscriptionFactory;
 import com.oop.orangeengine.eventssubscription.SubscriptionProperties;
 import com.oop.orangeengine.item.custom.OItem;
 import com.oop.orangeengine.main.Helper;
+import com.oop.orangeengine.main.util.data.pair.OPair;
+import com.oop.orangeengine.material.OMaterial;
 import com.oop.orangeengine.menu.AMenu;
 import com.oop.orangeengine.menu.button.AMenuButton;
 import com.oop.orangeengine.menu.config.ConfigMenuTemplate;
 import com.oop.orangeengine.menu.config.action.ActionListenerController;
 import com.oop.orangeengine.menu.config.action.ActionProperties;
 import com.oop.orangeengine.menu.events.ButtonClickEvent;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 public class ShopMenu extends EditMenuHelper {
@@ -28,7 +38,7 @@ public class ShopMenu extends EditMenuHelper {
                         .menuId(configMenuTemplate.getMenuIdentifier())
                         .actionId("set title")
                         .buttonAction(clickEvent -> {
-                            clickEvent.getPlayer().sendMessage("Write new title for shop!");
+                            LocaleEnum.EDIT_SHOP_WRITE_NEW_TITLE.getWithPrefix().send(clickEvent.getPlayer());
                             clickEvent.getPlayer().closeInventory();
 
                             SubscriptionFactory.getInstance().subscribeTo(
@@ -38,7 +48,8 @@ public class ShopMenu extends EditMenuHelper {
                                         SNormalMine mine = clickEvent.getMenu().grab("mine", SNormalMine.class).get();
                                         mine.getShop().setTitle(chatEvent.getMessage());
 
-                                        chatEvent.getPlayer().sendMessage("Shop title was set to: " + chatEvent.getMessage());
+                                        LocaleEnum.EDIT_SHOP_SET_TITLE.getWithPrefix().send(chatEvent.getPlayer(), ImmutableMap.of("%mine_shop_title%", mine.getShop().getTitle()));
+
                                         mine.save(true);
                                         updateButton(clickEvent.getClickedButton(), mine);
                                         clickEvent.getWrappedInventory().open(chatEvent.getPlayer());
@@ -49,12 +60,39 @@ public class ShopMenu extends EditMenuHelper {
                             );
                         })
         );
+        ActionListenerController.getInstance().listen(
+                new ActionProperties<>(ButtonClickEvent.class)
+                        .menuId(configMenuTemplate.getMenuIdentifier())
+                        .actionId("remove")
+                        .buttonAction(clickEvent -> {
+                            SShopItem item = clickEvent.getClickedButton().grab("shopItem", SShopItem.class).get();
+                            SNormalMine mine = clickEvent.getMenu().grab("mine", SNormalMine.class).get();
+
+                            mine.getShop().getItems().remove(item);
+                            LocaleEnum.EDIT_SHOP_REMOVED_ITEM.getWithPrefix().send(clickEvent.getPlayer());
+
+                            fillItems(clickEvent.getMenu(), mine);
+                            clickEvent.getMenu().update();
+                            SuperiorPrisonPlugin.getInstance().getDataController().save(mine, true);
+                        })
+        );
     }
 
     @Override
     public AMenu build(SNormalMine mine) {
         AMenu menu = configMenuTemplate.build();
         menu.title(menu.title().replace("%mine_name%", mine.getName()));
+
+        menu.bottomInvClickHandler(event -> {
+            if (event.getAction() != InventoryAction.MOVE_TO_OTHER_INVENTORY) return;
+            ItemStack clone = event.getCurrentItem().clone();
+
+            mine.getShop().getItems().add(new SShopItem(clone, 0, 0));
+
+            parseButtons(menu, mine);
+            fillItems(menu, mine);
+            menu.update();
+        });
 
         parseButtons(menu, mine);
         fillItems(menu, mine);
@@ -86,10 +124,11 @@ public class ShopMenu extends EditMenuHelper {
             buttonItem.setLore(lore);
             buttonItem.setDisplayName(displayName.replace("%item_name%", shopItem.getItem().getItemMeta().hasDisplayName() ? shopItem.getItem().getItemMeta().getDisplayName() : beautify(shopItem.getItem().getType().name())));
 
-            buttonItem.replaceInLore("%item_price%", "" + shopItem.getPrice());
+            buttonItem.replaceInLore("%item_buy_price%", "" + shopItem.getBuyPrice());
+            buttonItem.replaceInLore("%item_sell_price%", "" + shopItem.getSellPrice());
 
             button.currentItem(buttonItem.getItemStack());
-            button.store("shopItem", shopItem.getItem());
+            button.store("shopItem", shopItem);
 
             menu.addButton(button.paged(true));
         });

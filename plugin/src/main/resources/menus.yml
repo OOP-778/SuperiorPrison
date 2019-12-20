@@ -195,15 +195,65 @@ global buttons:
           material: stone
           template: true
 
-          display name: "&e%material_name%"
+          display name: "&e%item_name%"
           lore:
-            - "&e&l* &7Price: %item_price%$"
+            - "&e&l* &7Buy price: %item_buy_price%$"
+            - "&e&l* &7Sell price: %item_sell_price%$"
             - ""
-            - "&c&l(!)&7 Left-Click to remove!"
-            - "&e&l(!)&7 Right-Click to edit!"
-
-          on left click:
-            execute action: "remove"
+            - "&c&l(!)&7 Right-Click to remove!"
+            - "&e&l(!)&7 Left-Click to edit!"
 
           on right click:
+            execute action: "remove"
+
+          on left click:
             execute action: "edit item"
+
+      children:
+        "item edit menu":
+          type: basic
+          title: "&cEditing item: %item_name%"
+
+          layout:
+            - "AAAAAAAAA"
+            - "ASAAIAABA"
+            - "AAAAGAAAA"
+
+          buttons:
+            "B":
+               type: normal
+               material: yellow_stained_glass_pane
+               display name: "&eBuy Price"
+               lore:
+                 - "&eCurrent Price"
+                 - "&e- &6%item_buy_price%"
+                 - ""
+                 - "&e&l(!)&r &7Click to set buy price!"
+
+               on click:
+                 execute action: "set buy price"
+
+            "S":
+              type: normal
+              material: yellow_stained_glass_pane
+              display name: "&eSell Price"
+              lore:
+                - "&eCurrent Price"
+                - "&e- &6%item_sell_price%"
+                - ""
+                - "&e&l(!)&r &7Click to set sell price!"
+
+            on click:
+              execute action: "set buy price"
+
+
+
+"shop menu":
+  type: paged
+  title: "&e%mine_name% &8Shop"
+
+  layout:
+    - "YYYYYYYYY"
+    - "AAAAAAAAA"
+    - "AAAAAAAAA"
+    - "YYYPYNYYY"

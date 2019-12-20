@@ -26,8 +26,6 @@ import org.bukkit.inventory.ItemStack;
 import java.util.List;
 import java.util.Optional;
 
-import static com.oop.orangeengine.main.Helper.capitalizeAll;
-
 public class GeneratorMenu extends EditMenuHelper {
 
     private ConfigMenuTemplate template;
@@ -42,7 +40,7 @@ public class GeneratorMenu extends EditMenuHelper {
                         .actionId("edit")
                         .buttonAction(clickEvent -> {
                             clickEvent.getPlayer().closeInventory();
-                            LocaleEnum.GENERATOR_WRITE_RATE.getWithPrefix().send(clickEvent.getPlayer());
+                            LocaleEnum.EDIT_GENERATOR_WRITE_RATE.getWithPrefix().send(clickEvent.getPlayer());
 
                             SubscriptionFactory.getInstance().subscribeTo(
                                     AsyncPlayerChatEvent.class,
@@ -54,7 +52,7 @@ public class GeneratorMenu extends EditMenuHelper {
                                         chatEvent.setCancelled(true);
                                         double currentRate = mine.getGenerator().getCurrentUsedRate(material);
                                         if ((currentRate + rate) > 100) {
-                                            LocaleEnum.GENERATOR_RATE_LIMIT_EXCEED.getWithErrorPrefix().send(chatEvent.getPlayer(), ImmutableMap.of("%material%", beautify(material.name())));
+                                            LocaleEnum.EDIT_GENERATOR_RATE_LIMIT_EXCEED.getWithErrorPrefix().send(chatEvent.getPlayer(), ImmutableMap.of("%material%", beautify(material.name())));
                                             clickEvent.getWrappedInventory().open(chatEvent.getPlayer());
                                             return;
                                         }
@@ -64,7 +62,7 @@ public class GeneratorMenu extends EditMenuHelper {
                                                 .findFirst();
                                         if (first.isPresent()) {
                                             first.get().setFirst(rate);
-                                            LocaleEnum.GENERATOR_RATE_SET.getWithPrefix().send(chatEvent.getPlayer(), ImmutableMap.of("%material%", beautify(material.name()), "%rate%", rate + ""));
+                                            LocaleEnum.EDIT_GENERATOR_RATE_SET.getWithPrefix().send(chatEvent.getPlayer(), ImmutableMap.of("%material%", beautify(material.name()), "%rate%", rate + ""));
 
                                             // Update
                                             fillMaterials(clickEvent.getMenu(), mine);
@@ -78,7 +76,7 @@ public class GeneratorMenu extends EditMenuHelper {
                                                 double value = NumberUtils.toDouble(chatEvent.getMessage(), -0.0);
                                                 chatEvent.setCancelled(true);
                                                 if (value == -0.0) {
-                                                    LocaleEnum.GENERATOR_RATE_NOT_NUMBER.getWithErrorPrefix().send(chatEvent.getPlayer());
+                                                    LocaleEnum.EDIT_GENERATOR_RATE_NOT_NUMBER.getWithErrorPrefix().send(chatEvent.getPlayer());
                                                 }
 
                                                 return value > -0.0;
@@ -99,7 +97,7 @@ public class GeneratorMenu extends EditMenuHelper {
                                     .findFirst();
                             if (first.isPresent()) {
                                 mine.getGenerator().getGeneratorMaterials().remove(first.get());
-                                LocaleEnum.GENERATOR_REMOVED.getWithPrefix().send(clickEvent.getPlayer(), ImmutableMap.of("%material%", beautify(material.name())));
+                                LocaleEnum.EDIT_GENERATOR_REMOVED.getWithPrefix().send(clickEvent.getPlayer(), ImmutableMap.of("%material%", beautify(material.name())));
                             }
 
                             fillMaterials(clickEvent.getMenu(), mine);
@@ -123,7 +121,7 @@ public class GeneratorMenu extends EditMenuHelper {
 
             //TODO: Add messages to locale
             if (!clone.getType().isBlock()) {
-                LocaleEnum.GENERATOR_MATERIAL_IS_NOT_BLOCK.getWithErrorPrefix().send((Player) event.getWhoClicked());
+                LocaleEnum.EDIT_GENERATOR_MATERIAL_IS_NOT_BLOCK.getWithErrorPrefix().send((Player) event.getWhoClicked());
                 return;
             }
 
@@ -133,7 +131,7 @@ public class GeneratorMenu extends EditMenuHelper {
             }
 
             if (mine.getGenerator().getGeneratorMaterials().stream().anyMatch(pair -> pair.getSecond() == material)) {
-                LocaleEnum.GENERATOR_MATERIAL_ALREADY_EXISTS.getWithErrorPrefix().send((Player) event.getWhoClicked());
+                LocaleEnum.EDIT_GENERATOR_MATERIAL_ALREADY_EXISTS.getWithErrorPrefix().send((Player) event.getWhoClicked());
                 return;
             }
 

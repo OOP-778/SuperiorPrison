@@ -12,13 +12,17 @@ public enum LocaleEnum {
     PREFIX_ERROR("&8[&c&lSP&r&8]&7 "),
     NO_PERMISSION("&cYou don't have permission!"),
 
-    GENERATOR_RATE_NOT_NUMBER("Given value is not an number! ex: 5.5"),
-    GENERATOR_WRITE_RATE("Please write new rate! It must be higher than 0. Example: 5.0, 1.5, 0.1"),
-    GENERATOR_RATE_SET("Rate of %material% set to %rate%!"),
-    GENERATOR_REMOVED("Successfully removed %material% from mine generator!"),
-    GENERATOR_RATE_LIMIT_EXCEED("Failed to set rate of %material% cause combined it exceeds the 100 rate limit!"),
-    GENERATOR_MATERIAL_IS_NOT_BLOCK("Failed to add material cause it's not a block!"),
-    GENERATOR_MATERIAL_ALREADY_EXISTS("Failed to add material cause it's already exists!"),
+    EDIT_GENERATOR_RATE_NOT_NUMBER("Given value is not an number! ex: 5.5"),
+    EDIT_GENERATOR_WRITE_RATE("Please write new rate! It must be higher than 0. Example: 5.0, 1.5, 0.1"),
+    EDIT_GENERATOR_RATE_SET("Rate of %material% set to %rate%!"),
+    EDIT_GENERATOR_REMOVED("Successfully removed %material% from mine generator!"),
+    EDIT_GENERATOR_RATE_LIMIT_EXCEED("Failed to set rate of %material% cause combined it exceeds the 100 rate limit!"),
+    EDIT_GENERATOR_MATERIAL_IS_NOT_BLOCK("Failed to add material cause it's not a block!"),
+    EDIT_GENERATOR_MATERIAL_ALREADY_EXISTS("Failed to add material cause it's already exists!"),
+
+    EDIT_SHOP_WRITE_NEW_TITLE("Please write new title!"),
+    EDIT_SHOP_REMOVED_ITEM("Successfully removed shop item from generator!"),
+    EDIT_SHOP_SET_TITLE("Sucessfully set title to: %mine_shop_title%"),
 
     MINE_RESET_SUCCESSFUL("Mine was successfully reset!");
 

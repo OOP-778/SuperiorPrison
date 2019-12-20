@@ -6,7 +6,9 @@ import java.util.Optional;
 
 public interface ShopItem {
 
-    double getPrice();
+    double getSellPrice();
+
+    double getBuyPrice();
 
     ItemStack getItem();
 

@@ -243,5 +243,5 @@ global buttons:
                 - ""
                 - "&e&l(!)&r &7Click to set sell price!"
 
-            on click:
-              execute action: "set buy price"
+              on click:
+                execute action: "set buy price"

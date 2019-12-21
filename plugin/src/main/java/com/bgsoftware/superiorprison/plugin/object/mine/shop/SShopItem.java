@@ -3,6 +3,7 @@ package com.bgsoftware.superiorprison.plugin.object.mine.shop;
 import com.bgsoftware.superiorprison.api.data.mine.shop.ShopItem;
 import com.google.gson.annotations.SerializedName;
 import com.oop.orangeengine.main.gson.GsonUpdateable;
+import com.oop.orangeengine.menu.config.button.AConfigButton;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.inventory.ItemStack;

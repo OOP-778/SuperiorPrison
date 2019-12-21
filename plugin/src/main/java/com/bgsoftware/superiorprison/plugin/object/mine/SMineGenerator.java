@@ -118,9 +118,9 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
 
         for (Block block : cachedMineArea) {
             if (block == null) continue;
-            //blockChanger.setBlock(block.getLocation(), OMaterial.AIR);
+            blockChanger.setBlock(block.getLocation(), OMaterial.AIR);
         }
-        //blockChanger.submitUpdate();
+        blockChanger.submitUpdate();
 
         debug("Cached chunks: " + cachedChunks.size());
         SuperiorPrisonPlugin.getInstance().getNms().refreshChunks(mine.getMinPoint().getWorld(), cachedChunks);

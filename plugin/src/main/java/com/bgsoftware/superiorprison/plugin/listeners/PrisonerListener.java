@@ -43,7 +43,7 @@ public class PrisonerListener {
                     mine.getShop().getItems().forEach(shopItem -> {
                         for (ItemStack drop : new HashSet<>(drops)) {
                             if (shopItem.getItem().isSimilar(drop)) {
-                                double onePrice = shopItem.getPrice();
+                                double onePrice = shopItem.getSellPrice();
                                 double finalPrice = onePrice * drop.getAmount();
                                 // TODO: Add money
 

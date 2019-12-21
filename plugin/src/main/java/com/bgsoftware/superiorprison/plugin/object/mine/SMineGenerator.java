@@ -98,9 +98,9 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
             OMaterial material = cachedMaterials[index];
             if (material == null) continue;
 
-           // blockChanger.setBlock(block.getLocation(), material);
+           blockChanger.setBlock(block.getLocation(), material);
         }
-       // blockChanger.submitUpdate();
+       blockChanger.submitUpdate();
     }
 
     @Override

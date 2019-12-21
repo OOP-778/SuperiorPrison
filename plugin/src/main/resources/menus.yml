@@ -245,15 +245,3 @@ global buttons:
 
             on click:
               execute action: "set buy price"
-
-
-
-"shop menu":
-  type: paged
-  title: "&e%mine_name% &8Shop"
-
-  layout:
-    - "YYYYYYYYY"
-    - "AAAAAAAAA"
-    - "AAAAAAAAA"
-    - "YYYPYNYYY"

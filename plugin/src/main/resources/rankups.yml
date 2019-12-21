@@ -1,0 +1,22 @@
+# To set a default rank write default: true
+
+# Default permission
+default permission: "superiorprison.rank.%rank_name%"
+
+# Default prefix
+default prefix: "&8[&a%rank_name%&r&8]"
+
+"A":
+  prefix: "&8[&aA&r&8]"
+  default: true
+
+"B":
+  prefix: "&8[&cB&r&8]"
+
+  # Commands that are executed upon receiving rank
+  commands:
+    - "give %player% diamond"
+
+
+
+

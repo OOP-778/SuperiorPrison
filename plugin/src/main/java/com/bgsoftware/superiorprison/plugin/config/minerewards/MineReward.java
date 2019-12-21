@@ -28,5 +28,4 @@ public class MineReward {
 
         this.commands.addAll(section.getValueAsReq("commands"));
     }
-
 }

@@ -91,7 +91,7 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
         generator.setMine(this);
         generator.initBlockChanger();
 
-        shop.getItems().add(new SShopItem(new OItem(Material.REDSTONE).getItemStack(), 20));
+        shop.getItems().add(new SShopItem(new OItem(Material.REDSTONE).getItemStack(), 0, 0));
 
         StaticTask.getInstance().async(() -> generator.initCache(() -> generator.generate()));
 

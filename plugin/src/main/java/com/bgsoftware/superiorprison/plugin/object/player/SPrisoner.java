@@ -59,8 +59,7 @@ public class SPrisoner extends DatabaseObject implements com.bgsoftware.superior
     @Setter
     private transient SuperiorMine currentMine;
 
-    protected SPrisoner() {
-    }
+    protected SPrisoner() {}
 
     public SPrisoner(UUID uuid) {
         this.uuid = uuid;

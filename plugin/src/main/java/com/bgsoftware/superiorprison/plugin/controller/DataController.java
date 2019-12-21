@@ -24,7 +24,7 @@ public class DataController extends com.oop.orangeengine.database.object.DataCon
         registerClass(SPrisoner.class);
         registerClass(SNormalMine.class);
 
-        setAutoSave(true);
+        //setAutoSave(true);
         load();
     }
 

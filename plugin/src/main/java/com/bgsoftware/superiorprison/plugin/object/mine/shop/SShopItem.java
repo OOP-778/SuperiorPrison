@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorprison.plugin.object.mine.shop;
 
 import com.bgsoftware.superiorprison.api.data.mine.shop.ShopItem;
+import com.google.gson.annotations.SerializedName;
 import com.oop.orangeengine.main.gson.GsonUpdateable;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,16 +13,27 @@ import java.util.Optional;
 @Getter
 public class SShopItem implements ShopItem, GsonUpdateable {
 
+    @SerializedName(value = "item")
     private ItemStack item;
-    private double price;
 
+    @SerializedName(value = "sellPrice")
+    private double sellPrice;
+
+    @SerializedName(value = "buyPrice")
+    private double buyPrice;
+
+    @SerializedName(value = "command")
     private String command;
 
-    private SShopItem() {}
+    private SShopItem() {
+        registerFieldSupplier("sellPrice", int.class, () -> 0);
+        registerFieldSupplier("buyPrice", int.class, () -> 0);
+    }
 
-    public SShopItem(ItemStack item, double price) {
+    public SShopItem(ItemStack item, double sellPrice, double buyPrice) {
         this.item = item;
-        this.price = price;
+        this.sellPrice = sellPrice;
+        this.buyPrice = buyPrice;
     }
 
     @Override

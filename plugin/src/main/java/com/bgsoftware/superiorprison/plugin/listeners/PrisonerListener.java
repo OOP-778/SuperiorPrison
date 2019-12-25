@@ -6,8 +6,6 @@ import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.oop.orangeengine.main.events.SyncEvents;
 import com.oop.orangeengine.menu.InventoryUtil;
-import org.bukkit.Material;
-import org.bukkit.Statistic;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerQuitEvent;

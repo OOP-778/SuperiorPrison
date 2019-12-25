@@ -1,12 +1,10 @@
 package com.bgsoftware.superiorprison.plugin.commands.args;
 
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
-import com.bgsoftware.superiorprison.api.data.mine.type.NormalMine;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.oop.orangeengine.command.OCommand;
 import com.oop.orangeengine.command.arg.CommandArgument;
-import com.oop.orangeengine.command.arg.arguments.IntArg;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 
 import java.util.Optional;

@@ -2,7 +2,6 @@ package com.bgsoftware.superiorprison.plugin.object.player;
 
 import com.oop.orangeengine.main.gson.GsonUpdateable;
 
-import java.io.Serializable;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 

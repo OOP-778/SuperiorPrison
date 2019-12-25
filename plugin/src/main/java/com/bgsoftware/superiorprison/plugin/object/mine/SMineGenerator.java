@@ -24,7 +24,6 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.event.world.WorldLoadEvent;
 
-import java.io.Serializable;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -53,8 +52,7 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
     private transient boolean caching;
     private transient boolean worldLoadWait;
 
-    @SerializedName(value = "cachedMaterials")
-    private OMaterial[] cachedMaterials = new OMaterial[]{};
+    private transient OMaterial[] cachedMaterials;
     private transient boolean materialsChanged;
 
     private transient List<Chunk> cachedChunks;
@@ -65,6 +63,7 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
         worldLoadWait = false;
         materialsChanged = false;
         cachedChunks = new ArrayList<>();
+        cachedMaterials = new OMaterial[]{};
     }
 
     public void generate() {
@@ -80,7 +79,7 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
             cachedMaterials = new OMaterial[blocksInRegion];
             int slot = 0;
             for (OPair<Double, OMaterial> generatorMaterial : generatorMaterials) {
-                int amount = (int) Math.round((generatorMaterial.getFirst() / 100d) * blocksInRegion)+1;
+                int amount = (int) Math.round((generatorMaterial.getFirst() / 100d) * blocksInRegion) + 1;
                 for (int i = 0; i < amount; i++) {
                     if (Math.abs(blocksInRegion - slot) <= 0)
                         break;
@@ -89,8 +88,8 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
                     slot++;
                 }
             }
-        } else
-            cachedMaterials = shuffleArray(cachedMaterials);
+        }
+        cachedMaterials = shuffleArray(cachedMaterials);
 
         debug("materials amount: " + Arrays.stream(cachedMaterials).filter(Objects::nonNull).toArray().length);
         for (int index = 0; index < blocksInRegion; index++) {
@@ -98,9 +97,9 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
             OMaterial material = cachedMaterials[index];
             if (material == null) continue;
 
-           blockChanger.setBlock(block.getLocation(), material);
+            blockChanger.setBlock(block.getLocation(), material);
         }
-       blockChanger.submitUpdate();
+        blockChanger.submitUpdate();
     }
 
     @Override
@@ -276,7 +275,6 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
                     blocksCache.clear();
                 });
             });
-
         }
 
         private class ChunkPosition {

@@ -17,18 +17,17 @@ import java.util.LinkedList;
 public class SShop implements MineShop, Attachable<SNormalMine>, GsonUpdateable {
 
     private transient SNormalMine mine;
-
-    public SShop() {}
-
     private LinkedList<SShopItem> items = new OLinkedList<>();
+    @Setter
+    private String title = "Undefined Title";
+
+    public SShop() {
+    }
 
     @Override
     public <T extends ShopItem> LinkedList<T> getItems() {
         return (LinkedList<T>) items;
     }
-
-    @Setter
-    private String title = "Undefined Title";
 
     @Override
     public void attach(SNormalMine obj) {

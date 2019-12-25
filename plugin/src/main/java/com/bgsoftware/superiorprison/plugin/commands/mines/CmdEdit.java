@@ -22,13 +22,13 @@ public class CmdEdit extends OCommand {
             SNormalMine mine = (SNormalMine) command.getArg("mine").get();
 
             if (OVersion.isAfter(13)) {
-                AMenu menu =  SuperiorPrisonPlugin.getInstance().getMenuController().getEditMenu().build(mine);
+                AMenu menu = SuperiorPrisonPlugin.getInstance().getMenuController().getEditMenu().build(mine);
                 WrappedInventory wrappedInventory = menu.getWrappedInventory();
                 wrappedInventory.open(player);
 
             } else
                 StaticTask.getInstance().async(() -> {
-                    AMenu menu =  SuperiorPrisonPlugin.getInstance().getMenuController().getEditMenu().build(mine);
+                    AMenu menu = SuperiorPrisonPlugin.getInstance().getMenuController().getEditMenu().build(mine);
                     WrappedInventory wrappedInventory = menu.getWrappedInventory();
                     wrappedInventory.open(player);
                 });

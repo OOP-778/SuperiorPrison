@@ -30,6 +30,7 @@ public enum LocaleEnum {
 
     @Getter
     private OMessage message;
+
     LocaleEnum(String text) {
         message = new OMessage();
         message.appendLine(text);

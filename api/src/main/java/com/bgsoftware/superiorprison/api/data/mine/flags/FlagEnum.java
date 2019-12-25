@@ -9,6 +9,7 @@ public enum FlagEnum {
     FALL_DAMAGE(false);
 
     private boolean defaultValue;
+
     FlagEnum(boolean defaultValue) {
         this.defaultValue = defaultValue;
     }

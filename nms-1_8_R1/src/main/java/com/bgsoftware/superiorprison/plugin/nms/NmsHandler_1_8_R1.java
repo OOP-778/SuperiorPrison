@@ -37,6 +37,8 @@ public class NmsHandler_1_8_R1 implements ISuperiorNms {
     public void refreshChunks(World world, List<Chunk> chunkList) {
         for (Chunk chunk : chunkList) {
             net.minecraft.server.v1_8_R1.Chunk nmsChunk = ((CraftChunk) chunk).getHandle();
+            nmsChunk.initLighting();
+
             for (Player player : world.getPlayers()) {
                 ((CraftPlayer) player).getHandle().playerConnection.sendPacket(new PacketPlayOutMapChunk(nmsChunk, false, 65535));
             }

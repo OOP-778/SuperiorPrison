@@ -217,21 +217,21 @@ global buttons:
           layout:
             - "AAAAAAAAA"
             - "ASAAIAABA"
-            - "AAAAGAAAA"
+            - "RAAAGAAAA"
 
           buttons:
             "B":
-               type: normal
-               material: yellow_stained_glass_pane
-               display name: "&eBuy Price"
-               lore:
-                 - "&eCurrent Price"
-                 - "&e- &6%item_buy_price%"
-                 - ""
-                 - "&e&l(!)&r &7Click to set buy price!"
+              type: normal
+              material: yellow_stained_glass_pane
+              display name: "&eBuy Price"
+              lore:
+                - "&eCurrent Price"
+                - "&e- &6%item_buy_price%"
+                - ""
+                - "&e&l(!)&r &7Click to set buy price!"
 
-               on click:
-                 execute action: "set buy price"
+              on click:
+                execute action: "set buy price"
 
             "S":
               type: normal
@@ -244,4 +244,12 @@ global buttons:
                 - "&e&l(!)&r &7Click to set sell price!"
 
               on click:
-                execute action: "set buy price"
+                execute action: "set sell price"
+
+            "I":
+              type: normal
+              material: red_stained_glass_pane
+              display name: "&e%item_name%"
+
+              data:
+                placeholder: "shop_item"

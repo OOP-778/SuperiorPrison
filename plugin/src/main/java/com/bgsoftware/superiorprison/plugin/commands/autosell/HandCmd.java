@@ -10,7 +10,6 @@ public class HandCmd extends OCommand {
         onCommand(command -> {
 
 
-
         });
     }
 

@@ -1,7 +1,5 @@
 package com.bgsoftware.superiorprison.plugin.controller;
 
-import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
-import com.bgsoftware.superiorprison.api.data.mine.type.NormalMine;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.google.common.collect.Sets;
 

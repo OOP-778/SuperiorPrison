@@ -28,7 +28,7 @@ public class CommandsRegister {
         // Auto Sell
         controller.register(
                 new AutoSellCmd()
-                    .subCommand(new HandCmd())
+                        .subCommand(new HandCmd())
         );
     }
 

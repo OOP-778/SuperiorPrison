@@ -18,12 +18,12 @@ public class MineEvent extends Event implements Cancellable {
         this.mine = mine;
     }
 
-    @Override
-    public HandlerList getHandlers() {
+    public static HandlerList getHandlerList() {
         return handlerList;
     }
 
-    public static HandlerList getHandlerList() {
+    @Override
+    public HandlerList getHandlers() {
         return handlerList;
     }
 

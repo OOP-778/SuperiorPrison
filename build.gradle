@@ -1,9 +1,12 @@
 buildscript {
     repositories {
         jcenter()
+        maven { url "https://plugins.gradle.org/m2/" }
     }
     dependencies {
         classpath 'com.github.jengelman.gradle.plugins:shadow:5.2.0'
+        classpath "se.patrikerdes:gradle-use-latest-versions-plugin:0.2.13"
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.21.0'
     }
 }
 
@@ -17,8 +20,12 @@ allprojects {
     apply plugin: 'java'
     apply plugin: 'com.github.johnrengelman.shadow'
 
+    apply plugin: 'com.github.ben-manes.versions'
+    apply plugin: 'se.patrikerdes.use-latest-versions'
+
     repositories {
         jcenter()
+        mavenLocal()
         maven { url 'https://repo.codemc.org/repository/nms/' }
         maven { url 'https://repo.codemc.org/repository/maven-public/' }
     }
@@ -30,26 +37,26 @@ allprojects {
         annotationProcessor 'org.projectlombok:lombok:1.18.8'
 
         if (project.name.equalsIgnoreCase("plugin")) {
-            compile "com.oop.orangeengine:file:3.18"
-            compile "com.oop.orangeengine:item:3.18"
-            compile "com.oop.orangeengine:engine:3.18"
-            compile "com.oop.orangeengine:particle:3.18"
-            compile "com.oop.orangeengine:inventory:3.18"
-            compile "com.oop.orangeengine:command:3.18"
-            compile "com.oop.orangeengine:database:3.18"
-            compile "com.oop.orangeengine:eventssubscription:3.18"
-            compile "com.oop.orangeengine:message:3.18"
+            compile "com.oop.orangeengine:file:3.24"
+            compile "com.oop.orangeengine:item:3.24"
+            compile "com.oop.orangeengine:engine:3.24"
+            compile "com.oop.orangeengine:particle:3.24"
+            compile "com.oop.orangeengine:inventory:3.24"
+            compile "com.oop.orangeengine:command:3.24"
+            compile "com.oop.orangeengine:database:3.24"
+            compile "com.oop.orangeengine:eventssubscription:3.24"
+            compile "com.oop.orangeengine:message:3.24"
 
         } else {
-            compileOnly "com.oop.orangeengine:file:3.18"
-            compileOnly "com.oop.orangeengine:item:3.18"
-            compileOnly "com.oop.orangeengine:engine:3.18"
-            compileOnly "com.oop.orangeengine:particle:3.18"
-            compileOnly "com.oop.orangeengine:inventory:3.18"
-            compileOnly "com.oop.orangeengine:command:3.18"
-            compileOnly "com.oop.orangeengine:database:3.18"
-            compileOnly "com.oop.orangeengine:eventssubscription:3.18"
-            compileOnly "com.oop.orangeengine:message:3.18"
+            compileOnly "com.oop.orangeengine:file:3.24"
+            compileOnly "com.oop.orangeengine:item:3.24"
+            compileOnly "com.oop.orangeengine:engine:3.24"
+            compileOnly "com.oop.orangeengine:particle:3.24"
+            compileOnly "com.oop.orangeengine:inventory:3.24"
+            compileOnly "com.oop.orangeengine:command:3.24"
+            compileOnly "com.oop.orangeengine:database:3.24"
+            compileOnly "com.oop.orangeengine:eventssubscription:3.24"
+            compileOnly "com.oop.orangeengine:message:3.24"
         }
 
         if (project.name.equalsIgnoreCase("plugin")) {
@@ -69,7 +76,7 @@ allprojects {
     tasks.build.dependsOn tasks.shadowJar
 }
 
-subprojects.each { subproject -> evaluationDependsOn(subproject.path)}
+subprojects.each { subproject -> evaluationDependsOn(subproject.path) }
 
 shadowJar {
     archiveName = 'SuperiorPrison.jar'

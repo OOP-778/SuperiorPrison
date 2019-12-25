@@ -8,6 +8,7 @@ public enum MenuNames {
     MINE_EDIT_SHOP_ITEM_EDIT("item edit");
 
     private String id;
+
     MenuNames(String id) {
         this.id = id;
     }

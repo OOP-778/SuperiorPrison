@@ -4,13 +4,17 @@ import com.bgsoftware.superiorprison.api.controller.MineController;
 import com.bgsoftware.superiorprison.api.controller.PrisonerController;
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
 import com.bgsoftware.superiorprison.api.data.player.Prisoner;
+import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.oop.orangeengine.database.ODatabase;
+import com.oop.orangeengine.main.Helper;
 import com.oop.orangeengine.main.util.OptionalConsumer;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -24,8 +28,11 @@ public class DataController extends com.oop.orangeengine.database.object.DataCon
         registerClass(SPrisoner.class);
         registerClass(SNormalMine.class);
 
-        //setAutoSave(true);
+        setAutoSave(true);
+
+        Instant then = Instant.now();
         load();
+        SuperiorPrisonPlugin.getInstance().getOLogger().print("Loaded (" + getMines().size() + ") mines and (" + getData(Prisoner.class).size() + ") prisoners. Took (" + Duration.between(then, Instant.now()).toMillis() + "ms)");
     }
 
     @Override

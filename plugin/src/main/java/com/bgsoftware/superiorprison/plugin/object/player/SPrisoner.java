@@ -1,13 +1,11 @@
 package com.bgsoftware.superiorprison.plugin.object.player;
 
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.oop.orangeengine.database.annotations.DatabaseTable;
 import com.oop.orangeengine.database.annotations.DatabaseValue;
 import com.oop.orangeengine.database.object.DatabaseObject;
 import com.oop.orangeengine.main.util.data.map.OConcurrentMap;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -17,7 +15,9 @@ import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
-import java.util.*;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
 @Accessors(chain = true)
 @DatabaseTable(tableName = "prisoners")
@@ -59,7 +59,8 @@ public class SPrisoner extends DatabaseObject implements com.bgsoftware.superior
     @Setter
     private transient SuperiorMine currentMine;
 
-    protected SPrisoner() {}
+    protected SPrisoner() {
+    }
 
     public SPrisoner(UUID uuid) {
         this.uuid = uuid;
@@ -94,13 +95,13 @@ public class SPrisoner extends DatabaseObject implements com.bgsoftware.superior
 
     @Override
     public Player getPlayer() {
-       if (!isOnline())
-           throw new IllegalStateException("Failed to get online player cause it's offline! (" + getOfflinePlayer().getName() + ")");
+        if (!isOnline())
+            throw new IllegalStateException("Failed to get online player cause it's offline! (" + getOfflinePlayer().getName() + ")");
 
-       if (cachedPlayer == null)
-           cachedPlayer = Bukkit.getPlayer(uuid);
+        if (cachedPlayer == null)
+            cachedPlayer = Bukkit.getPlayer(uuid);
 
-       return cachedPlayer;
+        return cachedPlayer;
     }
 
     private void ensurePlayerNotNull() {

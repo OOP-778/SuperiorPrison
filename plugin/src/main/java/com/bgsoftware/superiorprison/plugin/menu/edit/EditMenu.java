@@ -1,6 +1,5 @@
 package com.bgsoftware.superiorprison.plugin.menu.edit;
 
-import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.constant.MenuNames;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.oop.orangeengine.eventssubscription.SubscriptionFactory;
@@ -13,9 +12,6 @@ import com.oop.orangeengine.menu.events.ButtonClickEvent;
 import org.bukkit.ChatColor;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class EditMenu extends EditMenuHelper {
@@ -32,33 +28,33 @@ public class EditMenu extends EditMenuHelper {
         final String menuId = MenuNames.MINE_EDIT.getId();
         ActionListenerController.getInstance().listen(
                 new ActionProperties<>(ButtonClickEvent.class)
-                .actionId("edit permission")
-                .menuId(menuId)
-                .buttonAction(event -> {
-                    event.getPlayer().closeInventory();
+                        .actionId("edit permission")
+                        .menuId(menuId)
+                        .buttonAction(event -> {
+                            event.getPlayer().closeInventory();
 
-                    //TODO: Configurable
-                    event.getPlayer().sendMessage(ChatColor.RED + "Write new permission!");
+                            //TODO: Configurable
+                            event.getPlayer().sendMessage(ChatColor.RED + "Write new permission!");
 
-                    SubscriptionFactory.getInstance().subscribeTo(
-                            AsyncPlayerChatEvent.class,
-                            chatEvent -> {
-                                SNormalMine mine = event.getMenu().grab("mine", SNormalMine.class).get();
-                                mine.setPermission(chatEvent.getMessage());
-                                chatEvent.setCancelled(true);
-                                chatEvent.getPlayer().sendMessage(ChatColor.RED + "Mine permission has been set to " + chatEvent.getMessage());
+                            SubscriptionFactory.getInstance().subscribeTo(
+                                    AsyncPlayerChatEvent.class,
+                                    chatEvent -> {
+                                        SNormalMine mine = event.getMenu().grab("mine", SNormalMine.class).get();
+                                        mine.setPermission(chatEvent.getMessage());
+                                        chatEvent.setCancelled(true);
+                                        chatEvent.getPlayer().sendMessage(ChatColor.RED + "Mine permission has been set to " + chatEvent.getMessage());
 
-                                // Update button
-                                updateButton(event.getClickedButton(), mine);
+                                        // Update button
+                                        updateButton(event.getClickedButton(), mine);
 
-                                event.getWrappedInventory().open(event.getPlayer());
-                                mine.save(true);
-                                },
-                            new SubscriptionProperties<AsyncPlayerChatEvent>()
-                            .timesToRun(1)
-                            .timeOut(TimeUnit.SECONDS, 30)
-                    );
-                })
+                                        event.getWrappedInventory().open(event.getPlayer());
+                                        mine.save(true);
+                                    },
+                                    new SubscriptionProperties<AsyncPlayerChatEvent>()
+                                            .timesToRun(1)
+                                            .timeOut(TimeUnit.SECONDS, 30)
+                            );
+                        })
         );
     }
 

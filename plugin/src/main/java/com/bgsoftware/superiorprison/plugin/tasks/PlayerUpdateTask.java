@@ -3,7 +3,6 @@ package com.bgsoftware.superiorprison.plugin.tasks;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.LoadingCache;
 import com.oop.orangeengine.main.task.OTask;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;

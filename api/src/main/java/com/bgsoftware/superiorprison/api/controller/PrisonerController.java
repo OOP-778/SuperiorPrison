@@ -1,7 +1,6 @@
 package com.bgsoftware.superiorprison.api.controller;
 
 import com.bgsoftware.superiorprison.api.data.player.Prisoner;
-import com.oop.orangeengine.main.util.OptionalConsumer;
 
 import java.util.Optional;
 import java.util.UUID;

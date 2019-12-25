@@ -6,7 +6,6 @@ import com.oop.orangeengine.material.OMaterial;
 import com.oop.orangeengine.yaml.ConfigurationSection;
 import lombok.Getter;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,7 +25,7 @@ public class MineDefaultsSection {
         ConfigurationSection resettingSection = section.getSection("resetting");
         this.resetting.set(resettingSection.getValueAsReq("mode"), resettingSection.getValueAsReq("value"));
 
-        this.materials = ((List<String>)section.getValueAsReq("materials")).stream()
+        this.materials = ((List<String>) section.getValueAsReq("materials")).stream()
                 .map(string -> string.split(";"))
                 .map(array -> new OPair<OMaterial, Double>(OMaterial.matchMaterial(array[0]), Double.valueOf(array[1])))
                 .collect(Collectors.toList());

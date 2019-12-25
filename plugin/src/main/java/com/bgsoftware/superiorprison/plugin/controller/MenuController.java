@@ -12,6 +12,7 @@ import lombok.Getter;
 public class MenuController extends MenuTemplatesController {
 
     private EditMenu editMenu;
+
     public MenuController(OConfiguration configuration) {
         super(configuration);
 

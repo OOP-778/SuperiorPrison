@@ -1,12 +1,14 @@
 package com.bgsoftware.superiorprison.plugin.nms;
 
 import com.oop.orangeengine.material.OMaterial;
-import net.minecraft.server.v1_8_R2.*;
+import net.minecraft.server.v1_8_R2.Block;
+import net.minecraft.server.v1_8_R2.ChunkSection;
+import net.minecraft.server.v1_8_R2.IBlockData;
+import net.minecraft.server.v1_8_R2.PacketPlayOutMapChunk;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_8_R2.CraftChunk;
-import org.bukkit.craftbukkit.v1_8_R2.CraftWorld;
 import org.bukkit.craftbukkit.v1_8_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
@@ -25,7 +27,7 @@ public class NmsHandler_1_8_R2 implements ISuperiorNms {
         int indexY = location.getBlockY() >> 4;
         ChunkSection chunkSection = chunk.getSections()[indexY];
 
-        if(chunkSection == null)
+        if (chunkSection == null)
             chunkSection = chunk.getSections()[indexY] = new ChunkSection(indexY << 4, !chunk.world.worldProvider.o());
 
         chunkSection.setType(location.getBlockX() & 15, location.getBlockY() & 15, location.getBlockZ() & 15, data);
@@ -35,8 +37,10 @@ public class NmsHandler_1_8_R2 implements ISuperiorNms {
     public void refreshChunks(World world, List<Chunk> chunkList) {
         for (Chunk chunk : chunkList) {
             net.minecraft.server.v1_8_R2.Chunk nmsChunk = ((CraftChunk) chunk).getHandle();
+            nmsChunk.initLighting();
+
             for (Player player : world.getPlayers()) {
-                ((CraftPlayer) player).getHandle().playerConnection.sendPacket(new PacketPlayOutMapChunk(nmsChunk,false, 65535));
+                ((CraftPlayer) player).getHandle().playerConnection.sendPacket(new PacketPlayOutMapChunk(nmsChunk, false, 65535));
             }
         }
     }

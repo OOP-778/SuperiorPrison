@@ -1,6 +1,5 @@
 package com.bgsoftware.superiorprison.api.events;
 
-import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -24,18 +23,17 @@ public class MineCreateEvent extends Event implements Cancellable {
     @Setter
     private boolean cancelled;
 
+    public static HandlerList getHandlerList() {
+        return handlerList;
+    }
+
     @Override
     public HandlerList getHandlers() {
         return handlerList;
     }
 
-
     @Override
     public void setCancelled(boolean b) {
         this.cancelled = b;
-    }
-
-    public static HandlerList getHandlerList() {
-        return handlerList;
     }
 }

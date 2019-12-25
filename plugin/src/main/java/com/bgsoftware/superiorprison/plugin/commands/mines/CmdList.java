@@ -1,6 +1,5 @@
 package com.bgsoftware.superiorprison.plugin.commands.mines;
 
-import com.bgsoftware.superiorprison.api.SuperiorPrisonAPI;
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.oop.orangeengine.command.OCommand;

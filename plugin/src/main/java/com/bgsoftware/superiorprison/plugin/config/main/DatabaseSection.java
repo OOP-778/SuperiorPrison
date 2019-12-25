@@ -35,11 +35,11 @@ public class DatabaseSection {
     public ODatabase getDatabase() {
         return isMySql() ? new MySqlDatabase(
                 new MySqlDatabase.MySqlProperties()
-                .database(database)
-                .password(password)
-                .port(port)
-                .user(username)
-                .url(hostname)
+                        .database(database)
+                        .password(password)
+                        .port(port)
+                        .user(username)
+                        .url(hostname)
         ) : new SqlLiteDatabase(SuperiorPrisonPlugin.getInstance().getDataFolder(), database);
     }
 }

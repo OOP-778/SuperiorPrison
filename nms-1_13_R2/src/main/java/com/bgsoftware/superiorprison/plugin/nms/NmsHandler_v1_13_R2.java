@@ -1,27 +1,28 @@
 package com.bgsoftware.superiorprison.plugin.nms;
 
 import com.oop.orangeengine.material.OMaterial;
-import net.minecraft.server.v1_13_R2.Block;
-import net.minecraft.server.v1_13_R2.ChunkSection;
-import net.minecraft.server.v1_13_R2.IBlockData;
-import net.minecraft.server.v1_13_R2.PacketPlayOutMapChunk;
+import net.minecraft.server.v1_13_R2.*;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_13_R2.CraftChunk;
-import org.bukkit.craftbukkit.v1_13_R2.entity.CraftPlayer;
-import org.bukkit.entity.Player;
+import org.bukkit.craftbukkit.v1_13_R2.CraftWorld;
+import org.bukkit.craftbukkit.v1_13_R2.util.CraftMagicNumbers;
 
 import java.util.List;
+
+import static com.oop.orangeengine.main.Engine.getEngine;
 
 public class NmsHandler_v1_13_R2 implements ISuperiorNms {
     @Override
     public void setBlock(Location location, OMaterial material) {
-        int id = material.getId();
-        if (material.getData() > 0)
-            id = id + (material.getData() << 12);
+        org.bukkit.Material parsed = material.parseMaterial();
+        if (parsed == null) {
+            getEngine().getLogger().printError("Failed to find block data for material " + material.name());
+            return;
+        }
 
-        IBlockData data = Block.getByCombinedId(id);
+        IBlockData data = CraftMagicNumbers.getBlock(parsed).getBlockData();
         net.minecraft.server.v1_13_R2.Chunk chunk = ((CraftChunk) location.getChunk()).getHandle();
 
         int indexY = location.getBlockY() >> 4;
@@ -35,13 +36,13 @@ public class NmsHandler_v1_13_R2 implements ISuperiorNms {
 
     @Override
     public void refreshChunks(World world, List<Chunk> chunkList) {
+        ChunkProviderServer cps = ((CraftWorld) world).getHandle().getChunkProvider();
         for (Chunk chunk : chunkList) {
             net.minecraft.server.v1_13_R2.Chunk nmsChunk = ((CraftChunk) chunk).getHandle();
             nmsChunk.initLighting();
 
-            for (Player player : world.getPlayers()) {
-                ((CraftPlayer) player).getHandle().playerConnection.sendPacket(new PacketPlayOutMapChunk(nmsChunk, 65535));
-            }
+            Packet packet = new PacketPlayOutMapChunk(nmsChunk, 65535);
+            //cps.playerChunkMap.a(nmsChunk.getPos(), false).forEach(player -> player.playerConnection.sendPacket(packet));
         }
     }
 }

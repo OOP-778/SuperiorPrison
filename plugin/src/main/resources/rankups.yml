@@ -1,9 +1,9 @@
 # To set a default rank write default: true
 
-# Default permission
+# Default permission for a rank
 default permission: "superiorprison.rank.%rank_name%"
 
-# Default prefix
+# Default prefix for a rank
 default prefix: "&8[&a%rank_name%&r&8]"
 
 "A":
@@ -12,6 +12,12 @@ default prefix: "&8[&a%rank_name%&r&8]"
 
 "B":
   prefix: "&8[&cB&r&8]"
+
+  requirements:
+    - "{MONEY} 1000"
+    - "{XP_LEVEL, take=false} 10"
+    - "{BLOCKS_MINED, material=STONE} 599"
+    - "{PAPI, placeholder=%player_name%} CrazyBrian"
 
   # Commands that are executed upon receiving rank
   commands:

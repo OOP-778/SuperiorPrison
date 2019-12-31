@@ -1,10 +1,7 @@
 package com.bgsoftware.superiorprison.plugin.nms;
 
 import com.oop.orangeengine.material.OMaterial;
-import net.minecraft.server.v1_13_R1.Block;
-import net.minecraft.server.v1_13_R1.ChunkSection;
-import net.minecraft.server.v1_13_R1.IBlockData;
-import net.minecraft.server.v1_13_R1.PacketPlayOutMapChunk;
+import net.minecraft.server.v1_13_R1.*;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -37,6 +34,8 @@ public class NmsHandler_v1_13_R1 implements ISuperiorNms {
     public void refreshChunks(World world, List<Chunk> chunkList) {
         for (Chunk chunk : chunkList) {
             net.minecraft.server.v1_13_R1.Chunk nmsChunk = ((CraftChunk) chunk).getHandle();
+            nmsChunk.initLighting();
+
             for (Player player : world.getPlayers()) {
                 ((CraftPlayer) player).getHandle().playerConnection.sendPacket(new PacketPlayOutMapChunk(nmsChunk, 65535));
             }

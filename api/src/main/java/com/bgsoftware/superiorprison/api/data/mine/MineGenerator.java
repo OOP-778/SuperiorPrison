@@ -7,11 +7,24 @@ import java.util.List;
 
 public interface MineGenerator {
 
+    /*
+    Get Generator Materials
+    Pair contains Percentage and material
+    */
     List<OPair<Double, OMaterial>> getGeneratorMaterials();
 
-    void clearMine();
+    /*
+    Generates AIR between pos1 and pos2
+    */
+    void generateAir();
 
+    /*
+    Generates shuffled materials between pos1 and pos2
+    */
     void generate();
 
+    /*
+    Resets the mine
+    */
     void reset();
 }

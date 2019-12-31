@@ -5,10 +5,8 @@ import com.bgsoftware.superiorprison.api.SuperiorPrisonAPI;
 import com.bgsoftware.superiorprison.plugin.commands.CommandsRegister;
 import com.bgsoftware.superiorprison.plugin.config.main.MainConfig;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
-import com.bgsoftware.superiorprison.plugin.controller.ConfigController;
-import com.bgsoftware.superiorprison.plugin.controller.DataController;
-import com.bgsoftware.superiorprison.plugin.controller.MenuController;
-import com.bgsoftware.superiorprison.plugin.controller.PlaceholderController;
+import com.bgsoftware.superiorprison.plugin.controller.*;
+import com.bgsoftware.superiorprison.plugin.hook.impl.VaultHook;
 import com.bgsoftware.superiorprison.plugin.listeners.FlagsListener;
 import com.bgsoftware.superiorprison.plugin.listeners.MineListener;
 import com.bgsoftware.superiorprison.plugin.nms.ISuperiorNms;
@@ -30,6 +28,9 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
     private ConfigController configController;
     private MainConfig mainConfig;
     private MenuController menuController;
+    private RequirementController requirementController;
+    private RankController rankController;
+    private HookController hookController;
     private DataController dataController;
     private ODatabase dab;
     private ISuperiorNms nms;
@@ -51,6 +52,9 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
+
+        this.hookController = new HookController();
+        hookController.registerHooks(VaultHook.class);
 
         // Setup API
         new SuperiorPrisonAPI(this);

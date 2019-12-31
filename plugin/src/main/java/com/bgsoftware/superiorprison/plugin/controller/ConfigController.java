@@ -1,7 +1,9 @@
 package com.bgsoftware.superiorprison.plugin.controller;
 
+import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.oop.orangeengine.file.OFile;
 import com.oop.orangeengine.yaml.OConfiguration;
+import com.oop.orangeengine.yaml.updater.ConfigurationUpdater;
 import lombok.Getter;
 
 import java.io.File;
@@ -28,6 +30,13 @@ public class ConfigController {
         OFile ranksFile = new OFile(dataFolder, "rankups.yml").createIfNotExists(true);
 
         this.menusConfig = new OConfiguration(menusFile);
+        ConfigurationUpdater updater = menusConfig.updater();
+        int updated = updater.update();
+
+        if (updated > 0) {
+            getEngine().getLogger().print("Updated menus.yml (" + updated + ") values!");
+        }
+
         this.localeConfig = new OConfiguration(localeFile);
         this.minesRewardsConfig = new OConfiguration(mineRewardsFile);
         this.ranksConfig = new OConfiguration(ranksFile);

@@ -34,7 +34,7 @@ public interface SuperiorMine {
 
     /*
     Get spawn point of mine
-    Can return null
+    Can return null inside Optional
     */
     Optional<SPLocation> getSpawnPoint();
 

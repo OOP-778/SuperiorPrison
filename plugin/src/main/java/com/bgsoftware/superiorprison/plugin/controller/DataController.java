@@ -67,7 +67,7 @@ public class DataController extends com.oop.orangeengine.database.object.DataCon
     @Override
     public Optional<Prisoner> getPrisoner(UUID uuid) {
         return getData(Prisoner.class).stream()
-                .filter(prisoner -> prisoner.getUUID() == uuid)
+                .filter(prisoner -> prisoner.getUUID().equals(uuid))
                 .findFirst();
     }
 
@@ -79,7 +79,6 @@ public class DataController extends com.oop.orangeengine.database.object.DataCon
     }
 
     public SPrisoner insertOrGetPrisoner(Player player) {
-
         Optional<Prisoner> optionalPrisoner = getPrisoner(player.getUniqueId());
         if (optionalPrisoner.isPresent())
             return (SPrisoner) optionalPrisoner.get();

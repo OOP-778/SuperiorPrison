@@ -11,6 +11,7 @@ import com.oop.orangeengine.eventssubscription.SubscriptionFactory;
 import com.oop.orangeengine.eventssubscription.SubscriptionProperties;
 import com.oop.orangeengine.main.gson.GsonUpdateable;
 import com.oop.orangeengine.main.task.OTask;
+import com.oop.orangeengine.main.task.StaticTask;
 import com.oop.orangeengine.main.util.OptionalConsumer;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.material.OMaterial;
@@ -105,14 +106,16 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
     @Override
     public void reset() {
         // Check for cache
-        if (cachedMineArea.length == 0)
-            initCache(this::reset);
+        StaticTask.getInstance().async(() -> {
+            if (cachedMineArea.length == 0)
+                initCache(this::reset);
 
-        else
-            generate();
+            else
+                generate();
+        });
     }
 
-    public void clearMine() {
+    public void generateAir() {
         initBlockChanger();
 
         for (Block block : cachedMineArea) {

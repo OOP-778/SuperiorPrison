@@ -6,10 +6,13 @@ import com.bgsoftware.superiorprison.plugin.commands.CommandsRegister;
 import com.bgsoftware.superiorprison.plugin.config.main.MainConfig;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.controller.*;
+import com.bgsoftware.superiorprison.plugin.hook.impl.PapiHook;
+import com.bgsoftware.superiorprison.plugin.hook.impl.ShopGuiPlusHook;
 import com.bgsoftware.superiorprison.plugin.hook.impl.VaultHook;
 import com.bgsoftware.superiorprison.plugin.listeners.FlagsListener;
 import com.bgsoftware.superiorprison.plugin.listeners.MineListener;
 import com.bgsoftware.superiorprison.plugin.nms.ISuperiorNms;
+import com.bgsoftware.superiorprison.plugin.requirement.RequirementRegisterer;
 import com.bgsoftware.superiorprison.plugin.tasks.MineShowTask;
 import com.oop.orangeengine.command.CommandController;
 import com.oop.orangeengine.database.ODatabase;
@@ -53,8 +56,13 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
             return;
         }
 
+        getPluginComponentController()
+                .add(configController, true)
+                .load();
+
+
         this.hookController = new HookController();
-        hookController.registerHooks(VaultHook.class);
+        hookController.registerHooks(VaultHook.class, PapiHook.class, ShopGuiPlusHook.class);
 
         // Setup API
         new SuperiorPrisonAPI(this);
@@ -69,10 +77,13 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
         dab = mainConfig.getDatabase().getDatabase();
 
         // Initialize controllers
-        this.dataController = new DataController(dab);
         this.configController = new ConfigController();
+        this.rankController = new RankController(true);
+        this.dataController = new DataController(dab);
         this.placeholderController = new PlaceholderController();
         this.menuController = new MenuController(configController.getMenusConfig());
+        this.requirementController = new RequirementController();
+        new RequirementRegisterer();
 
         // Load locale
         Locale.load(mainConfig.getLocale());
@@ -87,6 +98,8 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
 
         CommandController commandController = new CommandController(this);
         CommandsRegister.register(commandController);
+
+
     }
 
     @Override

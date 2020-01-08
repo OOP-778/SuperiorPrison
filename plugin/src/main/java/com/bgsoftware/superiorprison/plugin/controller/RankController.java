@@ -1,61 +1,81 @@
 package com.bgsoftware.superiorprison.plugin.controller;
 
-import com.bgsoftware.superiorprison.api.requirement.Requirement;
 import com.bgsoftware.superiorprison.api.requirement.RequirementData;
-import com.bgsoftware.superiorprison.api.requirement.RequirementHandler;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
-import com.bgsoftware.superiorprison.plugin.rank.SRank;
+import com.bgsoftware.superiorprison.plugin.object.player.SRank;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.oop.orangeengine.main.plugin.OComponent;
 import com.oop.orangeengine.main.task.OTask;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.yaml.ConfigurationSection;
 import com.oop.orangeengine.yaml.OConfiguration;
 import lombok.Getter;
+import org.bukkit.Bukkit;
+import org.bukkit.plugin.Plugin;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-public class RankController implements com.bgsoftware.superiorprison.api.controller.RankController {
+@Getter
+public class RankController implements com.bgsoftware.superiorprison.api.controller.RankController, OComponent<SuperiorPrisonPlugin> {
 
-    @Getter
     private boolean loaded = false;
 
-    @Getter
     private Map<String, SRank> ranks = Maps.newConcurrentMap();
 
-    public RankController() {
+    private SRank defaultRank;
+
+    public RankController(boolean first) {
         // We have to load delayed so other plugins can register requirements
-        new OTask()
-                .delay(TimeUnit.SECONDS, 3)
-                .runnable(this::load)
-                .execute();
+        if (first) {
+            System.out.println(
+                    Arrays.stream(Bukkit.getPluginManager().getPlugins()).filter(Plugin::isEnabled).count() + "Disabled plugins!"
+            );
+            new OTask()
+                    .delay(TimeUnit.SECONDS, 3)
+                    .runnable(this::load)
+                    .execute();
+        } else
+            load();
     }
 
-    public void load() {
-        OConfiguration ranksConfig = SuperiorPrisonPlugin.getInstance().getConfigController().getRanksConfig();
-        String defaultPerm = ranksConfig.getValueAsReq("default permission");
-        String defaultPrefix = ranksConfig.getValueAsReq("default prefix");
-        RequirementController rc = SuperiorPrisonPlugin.getInstance().getRequirementController();
+    @Override
+    public boolean load() {
+        try {
+            OConfiguration ranksConfig = SuperiorPrisonPlugin.getInstance().getConfigController().getRanksConfig();
+            String defaultPerm = ranksConfig.getValueAsReq("default permission");
+            String defaultPrefix = ranksConfig.getValueAsReq("default prefix");
+            RequirementController rc = SuperiorPrisonPlugin.getInstance().getRequirementController();
 
-        for (ConfigurationSection section : ranksConfig.getSections().values()) {
-            Set<RequirementData> reqs = Sets.newHashSet();
+            for (ConfigurationSection section : ranksConfig.getSections().values()) {
+                Set<RequirementData> reqs = Sets.newHashSet();
 
-            section.ifValuePresent("requirements", List.class, list -> {
-                for (Object o : list) {
-                    OPair<String, Optional<RequirementData>> data = rc.parse(o.toString());
-                    if (data.getSecond().isPresent())
-                        reqs.add(data.getSecond().get());
+                section.ifValuePresent("requirements", List.class, list -> {
+                    for (Object o : list) {
+                        OPair<String, Optional<RequirementData>> data = rc.parse(o.toString());
+                        if (data.getSecond().isPresent())
+                            reqs.add(data.getSecond().get());
 
-                    else
-                        SuperiorPrisonPlugin.getInstance().getOLogger().printWarning("Failed to find rankup requirement by id: " + data.getFirst() + " in " + section.getKey() + " rank!");
-                }
-            });
-            ranks.put(section.getKey(), new SRank(defaultPrefix, defaultPerm, section, reqs));
+                        else
+                            SuperiorPrisonPlugin.getInstance().getOLogger().printWarning("Failed to find rankup requirement by id: " + data.getFirst() + " in " + section.getKey() + " rank!");
+                    }
+                });
+                ranks.put(section.getKey(), new SRank(defaultPrefix, defaultPerm, section, reqs));
+            }
+            defaultRank = ranks.values().stream()
+                    .filter(SRank::isDefaultRank)
+                    .findFirst()
+                    .orElse(null);
+        } catch (Throwable thrw) {
+            getPlugin().getOLogger().error(thrw);
+            return false;
         }
+
+        return true;
     }
 
+    public Optional<SRank> findRankById(String id) {
+        return Optional.ofNullable(ranks.get(id));
+    }
 }

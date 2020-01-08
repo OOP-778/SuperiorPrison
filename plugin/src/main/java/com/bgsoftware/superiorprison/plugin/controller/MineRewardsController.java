@@ -5,6 +5,7 @@ import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.config.minerewards.MineReward;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.google.common.collect.Maps;
+import com.oop.orangeengine.main.plugin.OComponent;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.material.OMaterial;
 import com.oop.orangeengine.yaml.OConfiguration;
@@ -13,14 +14,9 @@ import org.bukkit.entity.Player;
 import java.util.Map;
 import java.util.Optional;
 
-public class MineRewardsController {
+public class MineRewardsController implements OComponent<SuperiorPrisonPlugin> {
 
     private Map<Integer, MineReward> rewardMap = Maps.newHashMap();
-
-    public MineRewardsController() {
-        OConfiguration config = SuperiorPrisonPlugin.getInstance().getConfigController().getMinesRewardsConfig();
-        config.getSections().values().forEach(section -> rewardMap.put(Integer.valueOf(section.getKey()), new MineReward(section)));
-    }
 
     public int getProcentageCompleted(int rewardPlace, Player player) {
         MineReward mineReward = rewardMap.get(rewardPlace);
@@ -52,5 +48,22 @@ public class MineRewardsController {
                 .stream()
                 .skip(prisoner.getCompletedMineRewards().size() - 1)
                 .findFirst().get() + 1;
+    }
+
+    @Override
+    public boolean load() {
+        try {
+            rewardMap.clear();
+
+            OConfiguration config = SuperiorPrisonPlugin.getInstance().getConfigController().getMinesRewardsConfig();
+            config.getSections().values().forEach(section -> rewardMap.put(Integer.valueOf(section.getKey()), new MineReward(section)));
+
+
+        } catch (Throwable thrw) {
+            getPlugin().getOLogger().error(thrw);
+            return false;
+        }
+
+        return true;
     }
 }

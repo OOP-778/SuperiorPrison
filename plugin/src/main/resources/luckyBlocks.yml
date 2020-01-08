@@ -1,0 +1,9 @@
+# Which blocks can be lucky?
+lucky blocks:
+  - "*"
+
+# Commands with chances
+# Format: Chance;Command
+commands:
+  - "50;heal %player%"
+  - "80;eco give %player% 5000"

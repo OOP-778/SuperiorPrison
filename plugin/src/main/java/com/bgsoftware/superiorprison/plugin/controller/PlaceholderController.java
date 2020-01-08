@@ -1,59 +1,70 @@
 package com.bgsoftware.superiorprison.plugin.controller;
 
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
+import com.bgsoftware.superiorprison.plugin.util.ReplacerUtils;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.oop.orangeengine.main.util.data.pair.OPair;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 public class PlaceholderController {
 
-    private Set<BiFunction<SNormalMine, String, String>> placeholders = Sets.newHashSet();
+    private Map<Class<?>, Set<OPair<String, BiFunction<String, ?, String>>>> placeholders = Maps.newHashMap();
 
     public PlaceholderController() {
-        placeholders.add((mine, currentText) -> currentText.replace("%mine_name%", mine.getName()));
-        placeholders.add((mine, currentText) -> currentText.replace("%mine_permission%", mine.getPermission().orElse("Not set")));
-        placeholders.add((mine, currentText) -> currentText.replace("%mine_icon_displayname%", mine.getIcon().getItemMeta().getDisplayName()));
+        add(SNormalMine.class, "{mine_name}", (text, mine) -> text.replace("{mine_name}", mine.getName()));
+        add(SNormalMine.class, "{mine_permission}", (text, mine) -> text.replace("{mine_permission}", mine.getPermission().orElse("None")));
+        add(SNormalMine.class, "{mine_permission}", (text, mine) -> text.replace("{mine_icon_displayname}", Objects.requireNonNull(mine.getIcon().getItemMeta()).getDisplayName()));
 
-        // Placeholders for min point
-        placeholders.add((mine, currentText) -> currentText.replace("%mine_minpoint_x%", mine.getMinPoint().x() + ""));
-        placeholders.add((mine, currentText) -> currentText.replace("%mine_minpoint_y%", mine.getMinPoint().y() + ""));
-        placeholders.add((mine, currentText) -> currentText.replace("%mine_minpoint_z%", mine.getMinPoint().z() + ""));
+        add(SNormalMine.class, "{mine_minpoint_x}", (text, mine) -> text.replace("{mine_minpoint_x}", mine.getMinPoint().x() + ""));
+        add(SNormalMine.class, "{mine_minpoint_y}", (text, mine) -> text.replace("{mine_minpoint_y}", mine.getMinPoint().y() + ""));
+        add(SNormalMine.class, "{mine_minpoint_z}", (text, mine) -> text.replace("{mine_minpoint_z}", mine.getMinPoint().z() + ""));
 
-        // Placeholders for highpoint
-        placeholders.add((mine, currentText) -> currentText.replace("%mine_highpoint_x%", mine.getHighPoint().x() + ""));
-        placeholders.add((mine, currentText) -> currentText.replace("%mine_highpoint_y%", mine.getHighPoint().y() + ""));
-        placeholders.add((mine, currentText) -> currentText.replace("%mine_highpoint_z%", mine.getHighPoint().z() + ""));
+        add(SNormalMine.class, "{mine_highpoint_x}", (text, mine) -> text.replace("{mine_highpoint_x}", mine.getHighPoint().x() + ""));
+        add(SNormalMine.class, "{mine_highpoint_y}", (text, mine) -> text.replace("{mine_highpoint_y}", mine.getHighPoint().y() + ""));
+        add(SNormalMine.class, "{mine_highpoint_z}", (text, mine) -> text.replace("{mine_highpoint_z}", mine.getHighPoint().z() + ""));
 
-        // Placeholders for spawn
-        placeholders.add((mine, currentText) -> currentText.replace("%mine_spawnpoint_x%", mine.getSpawnPoint().isPresent() ? mine.getSpawnPoint().get().x() + "" : "Not set"));
-        placeholders.add((mine, currentText) -> currentText.replace("%mine_spawnpoint_y%", mine.getSpawnPoint().isPresent() ? mine.getSpawnPoint().get().y() + "" : "Not set"));
-        placeholders.add((mine, currentText) -> currentText.replace("%mine_spawnpoint_z%", mine.getSpawnPoint().isPresent() ? mine.getSpawnPoint().get().y() + "" : "Not set"));
+        add(SNormalMine.class, "{mine_spawnpoint_x}", (text, mine) -> text.replace("{mine_spawnpoint_x}", mine.getSpawnPoint().isPresent() ? mine.getSpawnPoint().get().x() + "" : "None"));
+        add(SNormalMine.class, "{mine_spawnpoint_y}", (text, mine) -> text.replace("{mine_spawnpoint_y}", mine.getSpawnPoint().isPresent() ? mine.getSpawnPoint().get().y() + "" : "None"));
+        add(SNormalMine.class, "{mine_spawnpoint_z}", (text, mine) -> text.replace("{mine_spawnpoint_z}", mine.getSpawnPoint().isPresent() ? mine.getSpawnPoint().get().z() + "" : "None"));
 
         // Placeholders for shop
-        placeholders.add((mine, currentText) -> currentText.replace("%mine_shop_title%", mine.getShop().getTitle()));
+        add(SNormalMine.class, "{mine_shop_title}", (text, mine) -> text.replace("{mine_shop_title}", mine.getShop().getTitle()));
     }
 
-    public String parse(String text, SNormalMine mine) {
-        System.out.println("Trying to parse text: " + text);
-        for (BiFunction<SNormalMine, String, String> function : placeholders)
-            text = function.apply(mine, text);
-
-        return text;
+    private <T> void add(Class<T> type, String placeholder, BiFunction<String, T, String> handler) {
+        Set<OPair<String, BiFunction<String, ?, String>>> oPairs = placeholders.computeIfAbsent(type, (clazz) -> Sets.newHashSet());
+        oPairs.add(new OPair<>(placeholder, handler));
     }
 
-    public List<String> parse(List<String> multipleText, SNormalMine mine) {
-        System.out.println("Trying to parse multiple text: " + multipleText);
-        List<String> parsed = new ArrayList<>();
-        for (String text : multipleText) {
-            for (BiFunction<SNormalMine, String, String> function : placeholders)
-                text = function.apply(mine, text);
-
-            parsed.add(text);
-        }
-        return parsed;
+    public String parse(String text, Object object) {
+        return ReplacerUtils.replaceText(object, text, findPlaceholdersFor(object), Optional.empty());
     }
+
+    public List<String> parse(List<String> multipleText, Object object) {
+        return ReplacerUtils.replaceList(object, multipleText, findPlaceholdersFor(object), Optional.empty());
+    }
+
+    public <T> Set<BiFunction<String, T, String>> findPlaceholdersFor(T object) {
+        Set<BiFunction<String, T, String>> found = Sets.newHashSet();
+        placeholders.forEach((k, v) -> {
+            if (k.isAssignableFrom(object.getClass()))
+                found.addAll(v.stream().map(pair -> (BiFunction<String, T, String>) pair.getSecond()).collect(Collectors.toSet()));
+
+        });
+        return found;
+    }
+
+    public Set<BiFunction<String, Object, String>> findPlaceholdersFor(Object ...objects) {
+        Set<BiFunction<String, Object, String>> found = Sets.newHashSet();
+        for (Object object : objects)
+            found.addAll(findPlaceholdersFor(object));
+
+        return found;
+    }
+
 
 }

@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorprison.plugin.object.player;
 
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
+import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.google.common.collect.Sets;
 import com.oop.orangeengine.database.annotations.DatabaseTable;
 import com.oop.orangeengine.database.annotations.DatabaseValue;
@@ -27,9 +28,10 @@ public class SPrisoner extends DatabaseObject implements com.bgsoftware.superior
     @Setter
     private @NonNull UUID uuid;
 
+    @Getter
     @DatabaseValue(columnName = "isAutoSell")
     @Setter
-    private boolean isAutoSell = false;
+    private boolean autoSell = false;
 
     @DatabaseValue(columnName = "data")
     @Setter
@@ -52,6 +54,13 @@ public class SPrisoner extends DatabaseObject implements com.bgsoftware.superior
     @DatabaseValue(columnName = "minedBlocks")
     private OConcurrentMap<Material, Long> minedBlocks = new OConcurrentMap<>();
 
+    @DatabaseValue(columnName = "rank")
+    private String rank;
+
+    @Getter
+    @DatabaseValue(columnName = "fortuneBlocks")
+    private boolean fortuneBlocks = false;
+
     private transient OfflinePlayer cachedOfflinePlayer;
 
     private transient Player cachedPlayer;
@@ -64,16 +73,14 @@ public class SPrisoner extends DatabaseObject implements com.bgsoftware.superior
 
     public SPrisoner(UUID uuid) {
         this.uuid = uuid;
+        SRank defaultRank = SuperiorPrisonPlugin.getInstance().getRankController().getDefaultRank();
+        if (defaultRank != null)
+            rank = defaultRank.getName();
     }
 
     @Override
     public UUID getUUID() {
         return uuid;
-    }
-
-    @Override
-    public boolean isAutoSell() {
-        return isAutoSell;
     }
 
     @Override
@@ -107,6 +114,25 @@ public class SPrisoner extends DatabaseObject implements com.bgsoftware.superior
     private void ensurePlayerNotNull() {
         if (cachedOfflinePlayer == null)
             cachedOfflinePlayer = Bukkit.getOfflinePlayer(uuid);
+    }
+
+    @Override
+    public SRank getRank() {
+        if (rank == null) {
+            SuperiorPrisonPlugin.getInstance().getOLogger().printWarning("Prisoner: " + getOfflinePlayer().getName() + " doesn't seem to have a rank!");
+            return null;
+        }
+
+        if (!SuperiorPrisonPlugin.getInstance().getRankController().isLoaded()) {
+            SuperiorPrisonPlugin.getInstance().getOLogger().printWarning("Trying to get prisoner rank before ranks are loaded!");
+            return null;
+        }
+
+        SRank rankObj = SuperiorPrisonPlugin.getInstance().getRankController().findRankById(rank).orElse(null);
+        if (rankObj == null)
+            SuperiorPrisonPlugin.getInstance().getOLogger().printWarning("Failed to find rank by id: " + rank + " for prisoner: " + getOfflinePlayer().getName());
+
+        return rankObj;
     }
 
     @Override

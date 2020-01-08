@@ -2,6 +2,7 @@ package com.bgsoftware.superiorprison.plugin.controller;
 
 import com.bgsoftware.superiorprison.api.requirement.Requirement;
 import com.bgsoftware.superiorprison.api.requirement.RequirementData;
+import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.requirement.DefaultParsedData;
 import com.google.common.collect.Maps;
 import com.oop.orangeengine.main.util.data.pair.OPair;
@@ -24,6 +25,7 @@ public class RequirementController implements com.bgsoftware.superiorprison.api.
     @Override
     public void registerRequirement(Requirement req) {
         this.requirements.put(req.getId().toUpperCase(), req);
+        SuperiorPrisonPlugin.getInstance().getOLogger().print("Requirement (" + req.getId() + ") handler registered!");
     }
 
     public OPair<String, Optional<RequirementData>> parse(String toParse) {

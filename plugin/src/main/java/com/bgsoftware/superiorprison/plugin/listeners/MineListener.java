@@ -1,13 +1,16 @@
 package com.bgsoftware.superiorprison.plugin.listeners;
 
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
+import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 import com.bgsoftware.superiorprison.api.events.MineEnterEvent;
 import com.bgsoftware.superiorprison.api.events.MineLeaveEvent;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
+import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.oop.orangeengine.main.events.SyncEvents;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
@@ -17,6 +20,23 @@ import java.util.Set;
 public class MineListener {
 
     public MineListener() {
+
+        // Disallow block place event if no perm
+        SyncEvents.listen(BlockBreakEvent.class, event -> {
+            if (!event.isCancelled()) return;
+
+            // World check if should make it a bit lighter
+            if (!SuperiorPrisonPlugin.getInstance().getDataController().getMinesWorlds().contains(event.getPlayer().getLocation().getWorld().getName())) return;
+
+            // If prisoner isn't in a mine return
+            Prisoner prisoner = SuperiorPrisonPlugin.getInstance().getDataController().insertOrGetPrisoner(event.getPlayer());
+            if (!prisoner.getCurrentMine().isPresent()) return;
+
+            SNormalMine superiorMine = (SNormalMine) prisoner.getCurrentMine().get();
+            superiorMine.getGenerator().setNonEmptyBlocks(superiorMine.getGenerator().getNonEmptyBlocks()-1);
+
+            superiorMine.checkForReset();
+        });
 
         // Mine Leave & Enter events handling
         SyncEvents.listen(PlayerMoveEvent.class, event -> {

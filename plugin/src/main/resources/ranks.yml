@@ -14,9 +14,8 @@ default prefix: "&8[&a%rank_name%&r&8]"
   prefix: "&8[&cB&r&8]"
 
   requirements:
-    - "{MONEY} 1000"
+    - "{ECO} 1000"
     - "{XP_LEVEL, take=false} 10"
-    - "{BLOCKS_MINED, material=STONE} 599"
     - "{PAPI, placeholder=%player_name%} CrazyBrian"
 
   # Commands that are executed upon receiving rank

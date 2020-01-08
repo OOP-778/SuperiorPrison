@@ -61,9 +61,8 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
     @DatabaseValue(columnName = "permission")
     private String permission;
 
-    @Setter
-    @DatabaseValue(columnName = "icon")
-    private ItemStack icon;
+    @DatabaseValue(columnName = "options")
+    private MineOptions options;
 
     protected SNormalMine() {
         setWhenLoaded(() -> {
@@ -102,9 +101,9 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
             flags.put(flagEnum, flagEnum.getDefaultValue());
 
         // TODO make configurable
-        this.icon = new OItem(OMaterial.IRON_BARS)
-                .setDisplayName("&e" + name)
-                .getItemStack();
+//        this.options= new OItem(OMaterial.IRON_BARS)
+//                .setDisplayName("&e" + name)
+//                .getItemStack();
     }
 
     @Override
@@ -173,10 +172,14 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
 
     @Override
     public ItemStack getIcon() {
-        return icon;
+        return options.getIcon();
     }
 
     public void preDelete() {
         // TO DO
+    }
+
+    public void checkForReset() {
+
     }
 }

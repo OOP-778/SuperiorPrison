@@ -253,3 +253,18 @@ global buttons:
 
               data:
                 placeholder: "shop_item"
+
+    "edit options":
+      type: paged
+      title: "&cEditing %mine_name% options!"
+
+      layout:
+        - "FFAFAFAFF"
+        - "FAFAFAFAF"
+        - "FFAFAFAFF"
+        - "RYYPYNYYY"
+
+      buttons:
+        "F":
+          type: filler
+          material: air

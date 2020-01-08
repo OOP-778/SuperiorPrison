@@ -26,6 +26,9 @@ import org.bukkit.block.Block;
 import org.bukkit.event.world.WorldLoadEvent;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -44,6 +47,10 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
 
     @SerializedName(value = "generatorMaterials")
     private List<OPair<Double, OMaterial>> generatorMaterials = new ArrayList<>();
+
+    @SerializedName(value = "nonEmptyBlocks")
+    private int nonEmptyBlocks = 0;
+
     private transient Instant lastReset;
     private transient Instant nextReset;
     private transient BlockChanger blockChanger;
@@ -90,7 +97,8 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
                 }
             }
         }
-        cachedMaterials = shuffleArray(cachedMaterials);
+        shuffleArray(cachedMaterials);
+        nonEmptyBlocks = cachedMaterials.length;
 
         debug("materials amount: " + Arrays.stream(cachedMaterials).filter(Objects::nonNull).toArray().length);
         for (int index = 0; index < blocksInRegion; index++) {
@@ -113,6 +121,18 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
             else
                 generate();
         });
+        lastReset = ZonedDateTime.now().toInstant();
+    }
+
+    @Override
+    public int getPercentageOfFullBlocks() {
+        if (cachedMineArea.length == 0) return 0;
+        return (int) Math.round(nonEmptyBlocks * 100.0 / cachedMineArea.length);
+    }
+
+    @Override
+    public Instant getWhenNextReset() {
+        return ZonedDateTime.now().toInstant();
     }
 
     public void generateAir() {

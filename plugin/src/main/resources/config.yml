@@ -27,7 +27,7 @@ mine defaults:
   resetting:
 
     # There's two modes PERCENTAGE and TIMED
-    # Percentage will run when x rate of blocks left
+    # Percentage will run when x rate of blocks are left
     # Timed will happen on mine load and when x time is passed after load
     mode: PERCENTAGE
 

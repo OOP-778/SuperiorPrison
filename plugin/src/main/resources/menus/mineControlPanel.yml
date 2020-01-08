@@ -1,0 +1,27 @@
+title: "&eEditing &6{mine_name}"
+
+actions:
+  next page: "^"
+  previous page: "%"
+  set permission: "P"
+  edit generator: "G"
+
+layout:
+  - "$ $ $ $ $ $ $ $ $"
+  - "$ P $ $ $ $ $ $ $"
+  - "$ $ $ $ $ $ $ $ $"
+  - "$ $ $ $ $ $ $ $ $"
+
+buttons:
+  "$":
+    material: yellow_stained_glass_pane
+    display name: " "
+
+  "&":
+    hidden:
+      material: yellow_stained_glass_pane
+      display name: " "
+
+    shown:
+      material: arrow
+      display name: "&ePrevious Page"

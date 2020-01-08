@@ -25,4 +25,6 @@ public interface Prisoner {
 
     boolean isAutoPickup();
 
+    PrisonerRank getRank();
+
 }

@@ -1,8 +1,7 @@
-package com.bgsoftware.superiorprison.plugin.rank;
+package com.bgsoftware.superiorprison.plugin.object.player;
 
+import com.bgsoftware.superiorprison.api.data.player.PrisonerRank;
 import com.bgsoftware.superiorprison.api.requirement.RequirementData;
-import com.bgsoftware.superiorprison.api.requirement.RequirementHandler;
-import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.yaml.ConfigurationSection;
 import lombok.Getter;
 
@@ -11,7 +10,7 @@ import java.util.List;
 import java.util.Set;
 
 @Getter
-public class SRank {
+public class SRank implements PrisonerRank {
 
     private String name;
     private String permission;

@@ -2,6 +2,7 @@ package com.bgsoftware.superiorprison.plugin.util.menu;
 
 import com.google.common.collect.Sets;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -16,6 +17,9 @@ public class ClickHandler {
 
     private String action;
     private Set<ClickType> acceptsTypes = Sets.newHashSet(ClickType.values());
+
+    @Getter @Setter
+    private boolean ignoreCancel = true;
 
     private Consumer<InventoryClickEvent> consumer;
 
@@ -36,7 +40,7 @@ public class ClickHandler {
     }
 
     public void apply(OMenu menu) {
-        menu.getClickHandlers().put(Objects.requireNonNull(action, "Cannot put action as null"), this);
+        menu.getClickHandlers().put(Objects.requireNonNull(action.toLowerCase(), "Cannot put action as null"), this);
     }
 
     public ClickHandler clearClickTypes() {
@@ -53,6 +57,9 @@ public class ClickHandler {
         if (!acceptsTypes.contains(event.getClick()))
             return false;
 
+        if (!ignoreCancel && event.isCancelled())
+            return false;
+
         return true;
     }
 
@@ -61,4 +68,8 @@ public class ClickHandler {
         return this;
     }
 
+    public void handle(InventoryClickEvent event) {
+        if (consumer != null)
+            consumer.accept(event);
+    }
 }

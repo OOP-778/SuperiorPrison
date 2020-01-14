@@ -50,4 +50,4 @@ area selection tool:
     - "&e&l* &7Spawn: &eMiddle-Click"
 
 # When item is not found inside mine shop, it can use a fallback!
-sell fallback: shopgui+
+sell fallback: 'shopgui+'

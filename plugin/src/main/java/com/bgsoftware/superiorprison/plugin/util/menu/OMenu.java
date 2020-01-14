@@ -5,26 +5,28 @@ import com.bgsoftware.superiorprison.plugin.controller.ConfigController;
 import com.bgsoftware.superiorprison.plugin.hook.impl.PapiHook;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.util.ReplacerUtils;
+import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.oop.orangeengine.main.task.StaticTask;
 import com.oop.orangeengine.yaml.OConfiguration;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryMoveItemEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
 @Getter
 public abstract class OMenu implements InventoryHolder {
+
+    private Map<String, Object> data = Maps.newConcurrentMap();
 
     private OMenu previousMenu;
     private final SPrisoner viewer;
@@ -35,6 +37,8 @@ public abstract class OMenu implements InventoryHolder {
 
     @Getter
     private Map<Integer, OMenuButton> fillerItems = Maps.newHashMap();
+
+    private Set<OMenuButton> miscButtons = Sets.newHashSet();
 
     private Map<String, ClickHandler> clickHandlers = Maps.newHashMap();
 
@@ -47,10 +51,21 @@ public abstract class OMenu implements InventoryHolder {
     public OMenu(String identifier, SPrisoner viewer) {
         this.identifier = identifier;
         this.viewer = viewer;
-        init();
+        _init();
+
+        ClickHandler
+                .of("return")
+                .handle(event -> {
+                    if (previousMenu == null)
+                        return;
+
+                    previousMove = false;
+                    open(previousMenu);
+                })
+                .apply(this);
     }
 
-    private void init() {
+    private void _init() {
         ConfigController cc = SuperiorPrisonPlugin.getInstance().getConfigController();
         OConfiguration configuration = cc.getMenus().get(identifier.toLowerCase());
 
@@ -62,15 +77,23 @@ public abstract class OMenu implements InventoryHolder {
         return buildInventory(viewer);
     }
 
-    protected static <T extends OMenu> void refreshMenus(Class<T> menuClazz) {
+    public static <T extends OMenu> void refreshMenus(Class<T> menuClazz) {
         runActionOnMenus(menuClazz, menu -> true, ((player, menu) -> {
             menu.previousMove = false;
-            menu.open(menu.previousMenu);
+            menu.open(menu);
         }));
     }
 
-    protected static <T extends OMenu> void destroyMenus(Class<T> menuClazz) {
-        destroyMenus(menuClazz, OMenu -> true);
+    public static <T extends OMenu> void refreshMenus(Class<T> menuClazz, Predicate<T> filter) {
+        runActionOnMenus(menuClazz, menu -> true, ((player, menu) -> {
+            if (!filter.test((T) menu)) return;
+            menu.previousMove = false;
+            menu.open(menu);
+        }));
+    }
+
+    public static <T extends OMenu> void closeMenus(Class<T> menuClazz) {
+        closeMenus(menuClazz, OMenu -> true);
     }
 
     protected Inventory buildInventory(Object object) {
@@ -83,7 +106,7 @@ public abstract class OMenu implements InventoryHolder {
         return inventory;
     }
 
-    protected static <T extends OMenu> void destroyMenus(Class<T> menuClazz, Predicate<T> predicate) {
+    public static <T extends OMenu> void closeMenus(Class<T> menuClazz, Predicate<T> predicate) {
         runActionOnMenus(menuClazz, predicate, ((player, OMenu) -> player.closeInventory()));
     }
 
@@ -102,9 +125,9 @@ public abstract class OMenu implements InventoryHolder {
         void run(Player player, OMenu OMenu);
     }
 
-    public void open(OMenu previousMenu) {
+    public void open(OMenu menu) {
         if (Bukkit.isPrimaryThread()) {
-            StaticTask.getInstance().async(() -> open(previousMenu));
+            StaticTask.getInstance().async(() -> open(menu));
             return;
         }
 
@@ -126,7 +149,7 @@ public abstract class OMenu implements InventoryHolder {
             player.openInventory(inventory);
 
             refreshing = false;
-            this.previousMenu = previousMenu != null ? previousMenu : previousMove ? currentMenu : null;
+            this.previousMenu = menu != null ? menu : previousMove ? currentMenu : null;
         });
     }
 
@@ -135,18 +158,31 @@ public abstract class OMenu implements InventoryHolder {
             StaticTask.getInstance().sync(() -> {
                 if (previousMove)
                     previousMenu.open(previousMenu.previousMenu);
+
                 else
                     previousMove = true;
             });
         }
     }
 
-    public void handleDragItem(InventoryMoveItemEvent event) {}
+    public void handleDrag(InventoryClickEvent event) {
+        event.setCancelled(true);
+    }
 
-    public void handleClick() {}
+    public void handleClick(InventoryClickEvent event) {
+        if (event.getCurrentItem() != null) {
+            OMenuButton button = getButtons().get(event.getRawSlot());
+            if (button == null) return;
+
+            ClickHandler clickHandler = clickHandlerFor(button);
+            if (clickHandler == null || !clickHandler.doesAcceptEvent(event)) return;
+
+            clickHandler.handle(event);
+        }
+    }
 
     public int slotOf(Predicate<OMenuButton> predicate) {
-        return fillerItems.values()
+        return getButtons()
                 .stream()
                 .filter(predicate)
                 .mapToInt(OMenuButton::getSlot)
@@ -158,4 +194,105 @@ public abstract class OMenu implements InventoryHolder {
         return slotOf(button -> button.getAction() != null && button.getAction().equalsIgnoreCase(action));
     }
 
+    public Optional<OMenuButton> buttonOf(Predicate<OMenuButton> predicate) {
+        return getButtons()
+                .stream()
+                .filter(predicate)
+                .findFirst();
+    }
+
+    public Optional<OMenuButton> buttonOfChar(char ch) {
+        return buttonOf(button -> button.getIdentifier() == ch);
+    }
+
+    public List<OMenuButton> getButtons() {
+        return new ArrayList<>(fillerItems.values());
+    }
+
+    private ClickHandler clickHandlerFor(OMenuButton button) {
+        return clickHandlers.get(button.getAction().toLowerCase());
+    }
+
+    /*
+    For different types menu loadings
+    */
+    public static interface Mappable {
+        Map<String, Object> getMap();
+    }
+
+    public static interface Placeholderable extends Mappable {
+
+        // Placeholders are stored like so: placeholder=button char / action
+        default HashBiMap<String, String> getPlaceholderMap() {
+            return (HashBiMap<String, String>) getMap().computeIfAbsent("placeholders", (key) -> HashBiMap.create(new HashMap<String, String>()));
+        }
+
+        default boolean containsPlaceholder(String buttonId) {
+            return getPlaceholderMap().containsKey(buttonId);
+        }
+
+        default Optional<String> getPlaceholderFromIdentifier(String identifier) {
+            return Optional.ofNullable(getPlaceholderMap().inverse().get(identifier));
+        }
+
+        default Optional<String> getIdentifierFromPlaceholder(String placeholder) {
+            return Optional.ofNullable(getPlaceholderMap().get(placeholder));
+        }
+
+        default void initPlaceholderable(OConfiguration configuration) {
+            List<String> stringPlaceholders = (List<String>) configuration.getValueAsReq("placeholders", List.class);
+            HashBiMap<String, String> placeholders = HashBiMap.create();
+
+            for (String placeholder : stringPlaceholders) {
+                String[] split = placeholder.split(":");
+                placeholders.put(split[0], split[1]);
+            }
+
+            getPlaceholderMap().putAll(placeholders);
+        }
+    }
+
+    public static interface Templateable extends Mappable {
+
+        // Placeholders are stored like so: template=button char / action
+        default HashBiMap<String, String> getTemplateMap() {
+            return (HashBiMap<String, String>) getMap().computeIfAbsent("templates", (key) -> HashBiMap.create(new HashMap<String, String>()));
+        }
+
+        default HashMap<String, OMenuButton> getTemplateButtonMap() {
+            return (HashMap<String, OMenuButton>) getMap().computeIfAbsent("templateButtons", (key) -> new HashMap<String, OMenuButton>());
+        }
+
+        default boolean containsTemplate(String buttonId) {
+            return getTemplateMap().containsKey(buttonId);
+        }
+
+        default Optional<String> getTemplateFromIdentifier(String identifier) {
+            return Optional.ofNullable(getTemplateMap().inverse().get(identifier));
+        }
+
+        default Optional<String> getIdentifierFromTemplate(String template) {
+            return Optional.ofNullable(getTemplateMap().get(template));
+        }
+
+        default Optional<OMenuButton> getTemplateButtonFromIdentifier(String identifier) {
+            return Optional.ofNullable(getTemplateButtonMap().get(identifier));
+        }
+
+        default Optional<OMenuButton> getTemplateButtonFromTemplate(String template) {
+            return getTemplateButtonFromIdentifier(getIdentifierFromTemplate(template).orElse("nothing"));
+        }
+
+        default void initTemplateable(OConfiguration configuration) {
+            List<String> stringPlaceholders = (List<String>) configuration.getValueAsReq("templates", List.class);
+            HashBiMap<String, String> placeholders = HashBiMap.create();
+
+            for (String placeholder : stringPlaceholders) {
+                String[] split = placeholder.split(":");
+                placeholders.put(split[0], split[1]);
+            }
+
+            getTemplateMap().putAll(placeholders);
+        }
+    }
 }

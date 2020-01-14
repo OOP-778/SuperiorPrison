@@ -12,9 +12,9 @@ public class OptionsMenu extends EditMenuHelper {
         this.template = template;
     }
 
+
     @Override
     public AMenu build(SNormalMine mine) {
-
+        return null;
     }
-
 }

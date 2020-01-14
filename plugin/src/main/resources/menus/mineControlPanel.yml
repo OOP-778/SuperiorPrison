@@ -6,6 +6,9 @@ actions:
   set permission: "P"
   edit generator: "G"
 
+placeholders:
+  - "P:permission button"
+
 layout:
   - "$ $ $ $ $ $ $ $ $"
   - "$ P $ $ $ $ $ $ $"

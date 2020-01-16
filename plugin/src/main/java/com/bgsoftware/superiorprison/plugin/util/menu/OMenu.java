@@ -17,9 +17,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemStack;
 
+import javax.swing.plaf.nimbus.State;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
@@ -48,6 +49,8 @@ public abstract class OMenu implements InventoryHolder {
     @Setter
     private int menuRows;
 
+    private StateRequester stateRequester = new StateRequester();
+
     public OMenu(String identifier, SPrisoner viewer) {
         this.identifier = identifier;
         this.viewer = viewer;
@@ -74,7 +77,7 @@ public abstract class OMenu implements InventoryHolder {
 
     @Override
     public Inventory getInventory() {
-        return buildInventory(viewer);
+        return buildInventory(getTitle(), viewer);
     }
 
     public static <T extends OMenu> void refreshMenus(Class<T> menuClazz) {
@@ -96,12 +99,28 @@ public abstract class OMenu implements InventoryHolder {
         closeMenus(menuClazz, OMenu -> true);
     }
 
-    protected Inventory buildInventory(Object object) {
-        Set<BiFunction<String, Object, String>> placeholders = SuperiorPrisonPlugin.getInstance().getPlaceholderController().findPlaceholdersFor(object);
-        String title = ReplacerUtils.replaceText(object, getTitle(), placeholders, SuperiorPrisonPlugin.getInstance().getHookController().findHook(PapiHook.class));
+    protected Inventory buildInventory(String title, Object... objects) {
+        for (Object object : objects) {
+            Set<BiFunction<String, Object, String>> placeholders = SuperiorPrisonPlugin.getInstance().getPlaceholderController().findPlaceholdersFor(object);
+            title = ReplacerUtils.replaceText(object, title, placeholders, SuperiorPrisonPlugin.getInstance().getHookController().findHook(PapiHook.class));
+        }
 
         Inventory inventory = Bukkit.createInventory(this, menuRows * 9, title);
-        fillerItems.forEach((slot, button) -> inventory.setItem(slot, button.getDefaultStateItem().getItemStackWithPlaceholders(object, placeholders)));
+        fillerItems.forEach((slot, button) -> {
+            if (button.requiredPermission().trim().length() == 0)
+                inventory.setItem(slot, button.currentItem(stateRequester.request(button).getItemStackWithPlaceholdersMulti(objects)).currentItem());
+
+            else if (getViewer().getPlayer().hasPermission(button.requiredPermission()))
+                inventory.setItem(slot, button.currentItem(stateRequester.request(button).getItemStackWithPlaceholdersMulti(objects)).currentItem());
+
+            else {
+                OMenuButton.ButtonItemBuilder no_permission = button.getStateItem("no permission");
+                if (no_permission == null) return;
+                no_permission.itemBuilder().replaceInLore("{permission}", button.requiredPermission());
+
+                inventory.setItem(slot, button.currentItem(no_permission.getItemStackWithPlaceholders(getViewer())).currentItem());
+            }
+        });
 
         return inventory;
     }
@@ -143,9 +162,6 @@ public abstract class OMenu implements InventoryHolder {
             if (inventoryHolder instanceof OMenu)
                 currentMenu = (OMenu) inventoryHolder;
 
-            if (Arrays.equals(player.getOpenInventory().getTopInventory().getContents(), inventory.getContents()))
-                return;
-
             player.openInventory(inventory);
 
             refreshing = false;
@@ -171,13 +187,14 @@ public abstract class OMenu implements InventoryHolder {
 
     public void handleClick(InventoryClickEvent event) {
         if (event.getCurrentItem() != null) {
-            OMenuButton button = getButtons().get(event.getRawSlot());
-            if (button == null) return;
+            Optional<OMenuButton> menuButton = buttonOf(button -> button.slot() == event.getRawSlot());
+            if (!menuButton.isPresent()) return;
 
-            ClickHandler clickHandler = clickHandlerFor(button);
-            if (clickHandler == null || !clickHandler.doesAcceptEvent(event)) return;
+            ButtonClickEvent buttonClickEvent = new ButtonClickEvent(event, menuButton.get());
+            Optional<ClickHandler> clickHandler = clickHandlerFor(buttonClickEvent);
+            if (!clickHandler.isPresent()) return;
 
-            clickHandler.handle(event);
+            clickHandler.get().handle(buttonClickEvent);
         }
     }
 
@@ -185,13 +202,13 @@ public abstract class OMenu implements InventoryHolder {
         return getButtons()
                 .stream()
                 .filter(predicate)
-                .mapToInt(OMenuButton::getSlot)
+                .mapToInt(OMenuButton::slot)
                 .findFirst()
                 .orElse(-1);
     }
 
     public int slotOfAction(String action) {
-        return slotOf(button -> button.getAction() != null && button.getAction().equalsIgnoreCase(action));
+        return slotOf(button -> button.action() != null && button.action().equalsIgnoreCase(action));
     }
 
     public Optional<OMenuButton> buttonOf(Predicate<OMenuButton> predicate) {
@@ -202,22 +219,30 @@ public abstract class OMenu implements InventoryHolder {
     }
 
     public Optional<OMenuButton> buttonOfChar(char ch) {
-        return buttonOf(button -> button.getIdentifier() == ch);
+        return buttonOf(button -> button.identifier() == ch);
     }
 
     public List<OMenuButton> getButtons() {
         return new ArrayList<>(fillerItems.values());
     }
 
-    private ClickHandler clickHandlerFor(OMenuButton button) {
-        return clickHandlers.get(button.getAction().toLowerCase());
+    private Optional<ClickHandler> clickHandlerFor(ButtonClickEvent event) {
+        return clickHandlers.values()
+                .stream()
+                .filter(ch -> ch.doesAcceptEvent(event))
+                .findFirst();
     }
 
     /*
     For different types menu loadings
     */
     public static interface Mappable {
-        Map<String, Object> getMap();
+
+        OMenu getMenu();
+
+        default Map<String, Object> getMap() {
+            return getMenu().getData();
+        }
     }
 
     public static interface Placeholderable extends Mappable {
@@ -237,6 +262,21 @@ public abstract class OMenu implements InventoryHolder {
 
         default Optional<String> getIdentifierFromPlaceholder(String placeholder) {
             return Optional.ofNullable(getPlaceholderMap().get(placeholder));
+        }
+
+        default Optional<OMenuButton> getTemplatePlaceholderFromIdentifier(String identifier) {
+            return getMenu().buttonOfChar(Optional.ofNullable(getPlaceholderMap().get(identifier)).orElse("%").charAt(0));
+        }
+
+        default Optional<OMenuButton> getPlaceholderButtonFromTemplate(String template) {
+            return getTemplatePlaceholderFromIdentifier(getIdentifierFromPlaceholder(template).orElse("nothing"));
+        }
+
+        default OMenuButton parsePlaceholders(OMenuButton button, Object ...objects) {
+            ItemStack itemStackWithPlaceholdersMulti = button.getDefaultStateItem().getItemStackWithPlaceholdersMulti(objects);
+            button = button.clone();
+            button.currentItem(itemStackWithPlaceholdersMulti);
+            return button;
         }
 
         default void initPlaceholderable(OConfiguration configuration) {
@@ -264,7 +304,7 @@ public abstract class OMenu implements InventoryHolder {
         }
 
         default boolean containsTemplate(String buttonId) {
-            return getTemplateMap().containsKey(buttonId);
+            return getTemplateMap().inverse().containsKey(buttonId);
         }
 
         default Optional<String> getTemplateFromIdentifier(String identifier) {
@@ -295,4 +335,32 @@ public abstract class OMenu implements InventoryHolder {
             getTemplateMap().putAll(placeholders);
         }
     }
+
+    public final static class StateRequester {
+
+        private Map<String, StateRequest> requestMap = Maps.newConcurrentMap();
+
+        public StateRequester registerRequest(String identifier, StateRequest request) {
+            requestMap.put(identifier, request);
+            return this;
+        }
+
+        public OMenuButton.ButtonItemBuilder request(OMenuButton button) {
+            StateRequest request = requestMap.get(button.action());
+            if (request == null)
+                request = requestMap.get(button.identifier() + "");
+
+            if (request == null) {
+                return button.getDefaultStateItem();
+
+            } else
+                return request.request(button);
+        }
+
+        public interface StateRequest {
+            OMenuButton.ButtonItemBuilder request(OMenuButton button);
+        }
+
+    }
+
 }

@@ -14,6 +14,7 @@ import com.bgsoftware.superiorprison.plugin.listeners.MineListener;
 import com.bgsoftware.superiorprison.plugin.nms.ISuperiorNms;
 import com.bgsoftware.superiorprison.plugin.requirement.RequirementRegisterer;
 import com.bgsoftware.superiorprison.plugin.tasks.MineShowTask;
+import com.bgsoftware.superiorprison.plugin.util.menu.MenuListener;
 import com.oop.orangeengine.command.CommandController;
 import com.oop.orangeengine.database.ODatabase;
 import com.oop.orangeengine.main.plugin.EnginePlugin;
@@ -56,6 +57,8 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
             return;
         }
 
+        new MenuListener();
+        this.configController = new ConfigController();
         getPluginComponentController()
                 .add(configController, true)
                 .load();
@@ -77,7 +80,6 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
         dab = mainConfig.getDatabase().getDatabase();
 
         // Initialize controllers
-        this.configController = new ConfigController();
         this.rankController = new RankController(true);
         this.dataController = new DataController(dab);
         this.placeholderController = new PlaceholderController();

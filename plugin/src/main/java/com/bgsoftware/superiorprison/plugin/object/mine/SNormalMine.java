@@ -65,8 +65,12 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
     private MineOptions options;
 
     protected SNormalMine() {
+        super();
+        registerFieldSupplier("options", MineOptions.class, MineOptions::new);
+
         setWhenLoaded(() -> {
             generator.attach(this);
+            options.attach(this);
 
             // Find missing flags and set them to default value
             for (FlagEnum flagEnum : FlagEnum.values())
@@ -81,7 +85,9 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
         this.minPoint = new SPLocation(pos1);
         this.highPoint = new SPLocation(pos2);
         this.shop = new SShop();
+        this.options = new MineOptions();
         shop.attach(this);
+        options.attach(this);
 
         generator = new SMineGenerator();
         generator.getGeneratorMaterials().add(new OPair<>(50d, OMaterial.STONE));

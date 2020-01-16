@@ -17,7 +17,6 @@ public class PlaceholderController {
     public PlaceholderController() {
         add(SNormalMine.class, "{mine_name}", (text, mine) -> text.replace("{mine_name}", mine.getName()));
         add(SNormalMine.class, "{mine_permission}", (text, mine) -> text.replace("{mine_permission}", mine.getPermission().orElse("None")));
-        add(SNormalMine.class, "{mine_permission}", (text, mine) -> text.replace("{mine_icon_displayname}", Objects.requireNonNull(mine.getIcon().getItemMeta()).getDisplayName()));
 
         add(SNormalMine.class, "{mine_minpoint_x}", (text, mine) -> text.replace("{mine_minpoint_x}", mine.getMinPoint().x() + ""));
         add(SNormalMine.class, "{mine_minpoint_y}", (text, mine) -> text.replace("{mine_minpoint_y}", mine.getMinPoint().y() + ""));
@@ -48,7 +47,7 @@ public class PlaceholderController {
         return ReplacerUtils.replaceList(object, multipleText, findPlaceholdersFor(object), Optional.empty());
     }
 
-    public <T> Set<BiFunction<String, T, String>> findPlaceholdersFor(T object) {
+    public <T extends Object> Set<BiFunction<String, T, String>> findPlaceholdersFor(T object) {
         Set<BiFunction<String, T, String>> found = Sets.newHashSet();
         placeholders.forEach((k, v) -> {
             if (k.isAssignableFrom(object.getClass()))

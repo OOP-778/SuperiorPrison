@@ -1,17 +1,20 @@
 title: "&eEditing &6{mine_name}"
 
 actions:
-  next page: "^"
-  previous page: "%"
-  set permission: "P"
-  edit generator: "G"
+  - "set permission:P"
+  - "edit mine options:O"
+  - "edit generator:G"
+  - "edit area:A"
 
 placeholders:
-  - "P:permission button"
+  - "P:permission"
+  - "O:mine options"
+  - "G:generator"
+  - "A:area"
 
 layout:
   - "$ $ $ $ $ $ $ $ $"
-  - "$ P $ $ $ $ $ $ $"
+  - "$ P $ $ O $ $ G $"
   - "$ $ $ $ $ $ $ $ $"
   - "$ $ $ $ $ $ $ $ $"
 

@@ -1,12 +1,14 @@
 package com.bgsoftware.superiorprison.plugin.util.menu;
 
 import com.google.common.collect.Sets;
+import com.oop.orangeengine.menu.events.ButtonEvent;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 
+import java.awt.*;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Set;
@@ -18,16 +20,13 @@ public class ClickHandler {
     private String action;
     private Set<ClickType> acceptsTypes = Sets.newHashSet(ClickType.values());
 
-    @Getter @Setter
-    private boolean ignoreCancel = true;
-
-    private Consumer<InventoryClickEvent> consumer;
+    private Consumer<ButtonClickEvent> consumer;
 
     private ClickHandler() {}
 
     public static ClickHandler of(OMenuButton button) {
         ClickHandler clickHandler = new ClickHandler();
-        clickHandler.action = button.getAction();
+        clickHandler.action = button.action();
 
         return clickHandler;
     }
@@ -53,22 +52,26 @@ public class ClickHandler {
         return this;
     }
 
-    public boolean doesAcceptEvent(InventoryClickEvent event) {
+    public boolean doesAcceptEvent(ButtonClickEvent event) {
         if (!acceptsTypes.contains(event.getClick()))
             return false;
+        System.out.println("Accepts types");
 
-        if (!ignoreCancel && event.isCancelled())
+        System.out.println("Button action: " + event.getButton().action());
+        System.out.println("ItemStack: " + event.getButton().currentItem());
+        if (action != null && !event.getButton().action().equalsIgnoreCase(action))
             return false;
 
+        System.out.println("Accepts action");
         return true;
     }
 
-    public ClickHandler handle(Consumer<InventoryClickEvent> consumer) {
+    public ClickHandler handle(Consumer<ButtonClickEvent> consumer) {
         this.consumer = consumer;
         return this;
     }
 
-    public void handle(InventoryClickEvent event) {
+    public void handle(ButtonClickEvent event) {
         if (consumer != null)
             consumer.accept(event);
     }

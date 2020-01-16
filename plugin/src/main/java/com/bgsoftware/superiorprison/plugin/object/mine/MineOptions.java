@@ -2,7 +2,9 @@ package com.bgsoftware.superiorprison.plugin.object.mine;
 
 import com.bgsoftware.superiorprison.plugin.util.Attachable;
 import com.google.gson.annotations.SerializedName;
+import com.oop.orangeengine.item.custom.OItem;
 import com.oop.orangeengine.main.util.data.pair.OPair;
+import com.oop.orangeengine.material.OMaterial;
 import com.oop.orangeengine.menu.AMenu;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,5 +30,10 @@ public class MineOptions implements Attachable<SNormalMine> {
     @Override
     public void attach(SNormalMine obj) {
         this.owner = obj;
+
+        if (icon == null)
+            icon = new OItem(OMaterial.STONE)
+                    .setDisplayName("&cDefault Name")
+                    .getItemStack();
     }
 }

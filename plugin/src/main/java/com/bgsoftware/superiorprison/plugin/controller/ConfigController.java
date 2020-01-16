@@ -55,9 +55,13 @@ public class ConfigController implements OComponent<SuperiorPrisonPlugin> {
             menusConfig.appendHeader("Make sure you don't change default names of menus otherwise menus might not work as!");
             menusConfig.save();
 
-            JarUtil.copyFolderFromJar("menus", new File(dataFolder + "/menus"), JarUtil.CopyOption.COPY_IF_NOT_EXIST, SuperiorPrisonPlugin.class);
-            for (File menuFile : Objects.requireNonNull(new File(dataFolder + "/menus").listFiles(File::isDirectory)))
+            JarUtil.copyFolderFromJar("menus", dataFolder, JarUtil.CopyOption.COPY_IF_NOT_EXIST, SuperiorPrisonPlugin.class);
+            for (File menuFile : Objects.requireNonNull(new File(dataFolder + "/menus").listFiles(File::isFile)))
                 menus.put(menuFile.getName().replace(".yml", "").toLowerCase(), new OConfiguration(menuFile));
+
+            for (String s : menus.keySet()) {
+                System.out.println(s);
+            }
 
         } catch (Throwable thrw) {
             getPlugin().getOLogger().error(thrw);

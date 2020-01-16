@@ -1,0 +1,53 @@
+title: "&6Mines List &8(&e{current_page}&7/&e{pages_available}&8)"
+
+layout:
+  - "$ $ $ $ $ $ $ $ $"
+  - "$ $ $ $ $ $ $ $ $"
+  - "$ $ $ $ $ $ $ $ $"
+  - "& & & P & N & & &"
+
+actions:
+  - "previous page:P"
+  - "next page:N"
+  - "mine click:T"
+
+templates:
+  - "mine template:T"
+
+buttons:
+  "&":
+    material: yellow_stained_glass_pane
+    display name: " "
+
+  "P":
+    shown:
+      material: arrow
+      display name: "&e<<"
+      lore:
+        - "&7Click to go to"
+        - "&7The previous page!"
+
+    hidden:
+      material: yellow_stained_glass_pane
+      display name: " "
+
+  "N":
+    shown:
+      material: arrow
+      display name: "&e>>"
+      lore:
+        - "&7Click to go to"
+        - "&7The next page!"
+
+    hidden:
+      material: yellow_stained_glass_pane
+      display name: " "
+
+  "T":
+      material: stone
+      display name: "&e{mine_name}"
+      lore:
+        - "<hp=superior.admin>"
+        - "&e&l* Shift-Click to edit mine!"
+        - "</hp>"
+

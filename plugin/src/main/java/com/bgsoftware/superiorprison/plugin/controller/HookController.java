@@ -11,11 +11,12 @@ import java.util.function.Consumer;
 public class HookController {
 
     private Map<Class<?>, SHook> hooks = new HashMap<>();
+
     public HookController() {
 
     }
 
-    public void registerHooks(Class<? extends SHook> ...hooks) {
+    public void registerHooks(Class<? extends SHook>... hooks) {
         for (Class<? extends SHook> hookClazz : hooks) {
             try {
                 SHook hook = hookClazz.newInstance();
@@ -23,7 +24,8 @@ public class HookController {
 
                 this.hooks.put(hookClazz, hook);
                 SuperiorPrisonPlugin.getInstance().getOLogger().print("Hooked into (" + hook.getPlugin().getName() + ") " + hook.getPlugin().getDescription().getVersion());
-            } catch (Throwable ignored) {}
+            } catch (Throwable ignored) {
+            }
         }
     }
 

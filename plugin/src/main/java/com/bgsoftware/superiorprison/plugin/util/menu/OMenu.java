@@ -4,7 +4,7 @@ import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.controller.ConfigController;
 import com.bgsoftware.superiorprison.plugin.hook.impl.PapiHook;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
-import com.bgsoftware.superiorprison.plugin.util.ReplacerUtils;
+import com.bgsoftware.superiorprison.plugin.util.TextUtil;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -15,11 +15,11 @@ import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
-import javax.swing.plaf.nimbus.State;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
@@ -27,13 +27,11 @@ import java.util.function.Predicate;
 @Getter
 public abstract class OMenu implements InventoryHolder {
 
-    private Map<String, Object> data = Maps.newConcurrentMap();
-
-    private OMenu previousMenu;
     private final SPrisoner viewer;
     private final String identifier;
-
     protected boolean previousMove = true;
+    private Map<String, Object> data = Maps.newConcurrentMap();
+    private OMenu previousMenu;
     private boolean refreshing = false;
 
     @Getter
@@ -68,18 +66,6 @@ public abstract class OMenu implements InventoryHolder {
                 .apply(this);
     }
 
-    private void _init() {
-        ConfigController cc = SuperiorPrisonPlugin.getInstance().getConfigController();
-        OConfiguration configuration = cc.getMenus().get(identifier.toLowerCase());
-
-        MenuLoader.loadMenu(this, Objects.requireNonNull(configuration, "Failed to find configuration for menu " + identifier));
-    }
-
-    @Override
-    public Inventory getInventory() {
-        return buildInventory(getTitle(), viewer);
-    }
-
     public static <T extends OMenu> void refreshMenus(Class<T> menuClazz) {
         runActionOnMenus(menuClazz, menu -> true, ((player, menu) -> {
             menu.previousMove = false;
@@ -99,10 +85,37 @@ public abstract class OMenu implements InventoryHolder {
         closeMenus(menuClazz, OMenu -> true);
     }
 
+    public static <T extends OMenu> void closeMenus(Class<T> menuClazz, Predicate<T> predicate) {
+        runActionOnMenus(menuClazz, predicate, ((player, OMenu) -> player.closeInventory()));
+    }
+
+    private static <T extends OMenu> void runActionOnMenus(Class<T> menuClazz, Predicate<T> predicate, MenuCallback callback) {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            InventoryHolder inventoryHolder = player.getOpenInventory().getTopInventory().getHolder();
+
+            if (menuClazz.isInstance(inventoryHolder) && predicate.test((T) inventoryHolder)) {
+                OMenu OMenu = (OMenu) inventoryHolder;
+                callback.run(player, OMenu);
+            }
+        }
+    }
+
+    private void _init() {
+        ConfigController cc = SuperiorPrisonPlugin.getInstance().getConfigController();
+        OConfiguration configuration = cc.getMenus().get(identifier.toLowerCase());
+
+        MenuLoader.loadMenu(this, Objects.requireNonNull(configuration, "Failed to find configuration for menu " + identifier));
+    }
+
+    @Override
+    public Inventory getInventory() {
+        return buildInventory(getTitle(), viewer);
+    }
+
     protected Inventory buildInventory(String title, Object... objects) {
         for (Object object : objects) {
             Set<BiFunction<String, Object, String>> placeholders = SuperiorPrisonPlugin.getInstance().getPlaceholderController().findPlaceholdersFor(object);
-            title = ReplacerUtils.replaceText(object, title, placeholders, SuperiorPrisonPlugin.getInstance().getHookController().findHook(PapiHook.class));
+            title = TextUtil.replaceText(object, title, placeholders, SuperiorPrisonPlugin.getInstance().getHookController().findHook(PapiHook.class));
         }
 
         Inventory inventory = Bukkit.createInventory(this, menuRows * 9, title);
@@ -123,25 +136,6 @@ public abstract class OMenu implements InventoryHolder {
         });
 
         return inventory;
-    }
-
-    public static <T extends OMenu> void closeMenus(Class<T> menuClazz, Predicate<T> predicate) {
-        runActionOnMenus(menuClazz, predicate, ((player, OMenu) -> player.closeInventory()));
-    }
-
-    private static <T extends OMenu> void runActionOnMenus(Class<T> menuClazz, Predicate<T> predicate, MenuCallback callback) {
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            InventoryHolder inventoryHolder = player.getOpenInventory().getTopInventory().getHolder();
-
-            if (menuClazz.isInstance(inventoryHolder) && predicate.test((T) inventoryHolder)) {
-                OMenu OMenu = (OMenu) inventoryHolder;
-                callback.run(player, OMenu);
-            }
-        }
-    }
-
-    private interface MenuCallback {
-        void run(Player player, OMenu OMenu);
     }
 
     public void open(OMenu menu) {
@@ -181,7 +175,7 @@ public abstract class OMenu implements InventoryHolder {
         }
     }
 
-    public void handleDrag(InventoryClickEvent event) {
+    public void handleDrag(InventoryDragEvent event) {
         event.setCancelled(true);
     }
 
@@ -233,6 +227,10 @@ public abstract class OMenu implements InventoryHolder {
                 .findFirst();
     }
 
+    private interface MenuCallback {
+        void run(Player player, OMenu OMenu);
+    }
+
     /*
     For different types menu loadings
     */
@@ -272,7 +270,7 @@ public abstract class OMenu implements InventoryHolder {
             return getTemplatePlaceholderFromIdentifier(getIdentifierFromPlaceholder(template).orElse("nothing"));
         }
 
-        default OMenuButton parsePlaceholders(OMenuButton button, Object ...objects) {
+        default OMenuButton parsePlaceholders(OMenuButton button, Object... objects) {
             ItemStack itemStackWithPlaceholdersMulti = button.getDefaultStateItem().getItemStackWithPlaceholdersMulti(objects);
             button = button.clone();
             button.currentItem(itemStackWithPlaceholdersMulti);

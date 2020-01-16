@@ -14,7 +14,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import java.util.concurrent.TimeUnit;
 
 @Getter
-public class MineControlPanel extends OMenu implements OMenu.Placeholderable {
+public class MineControlPanel extends OMenu {
 
     private SNormalMine mine;
 
@@ -48,15 +48,13 @@ public class MineControlPanel extends OMenu implements OMenu.Placeholderable {
                                     .timeOut(TimeUnit.SECONDS, 30)
                     );
                 });
-    }
 
-    @Override
-    public OMenu getMenu() {
-        return this;
-    }
-
-    @Override
-    public OMenuButton parsePlaceholders(OMenuButton button, Object... objects) {
-        return ((Placeholderable)this).parsePlaceholders(button, objects);
+        ClickHandler
+                .of("edit generator")
+                .handle(event -> {
+                    previousMove = false;
+                    new GeneratorEditMenu(getViewer(), getMine()).open(this);
+                })
+                .apply(this);
     }
 }

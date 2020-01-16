@@ -7,9 +7,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_15_R1.CraftChunk;
 import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_15_R1.util.CraftMagicNumbers;
-import org.bukkit.entity.Player;
 
 import java.util.List;
 
@@ -45,7 +43,7 @@ public class NmsHandler_v1_15_R1 implements ISuperiorNms {
 
     @Override
     public void refreshChunks(World world, List<Chunk> chunkList) {
-        ChunkProviderServer cps = ((CraftWorld)world).getHandle().getChunkProvider();
+        ChunkProviderServer cps = ((CraftWorld) world).getHandle().getChunkProvider();
         for (Chunk chunk : chunkList) {
             net.minecraft.server.v1_15_R1.Chunk nmsChunk = ((CraftChunk) chunk).getHandle();
             Packet packet = new PacketPlayOutMapChunk(nmsChunk, 65535);

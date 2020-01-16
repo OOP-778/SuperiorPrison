@@ -26,14 +26,15 @@ public class MineListener {
             if (!event.isCancelled()) return;
 
             // World check if should make it a bit lighter
-            if (!SuperiorPrisonPlugin.getInstance().getDataController().getMinesWorlds().contains(event.getPlayer().getLocation().getWorld().getName())) return;
+            if (!SuperiorPrisonPlugin.getInstance().getDataController().getMinesWorlds().contains(event.getPlayer().getLocation().getWorld().getName()))
+                return;
 
             // If prisoner isn't in a mine return
             Prisoner prisoner = SuperiorPrisonPlugin.getInstance().getDataController().insertOrGetPrisoner(event.getPlayer());
             if (!prisoner.getCurrentMine().isPresent()) return;
 
             SNormalMine superiorMine = (SNormalMine) prisoner.getCurrentMine().get();
-            superiorMine.getGenerator().setNonEmptyBlocks(superiorMine.getGenerator().getNonEmptyBlocks()-1);
+            superiorMine.getGenerator().setNonEmptyBlocks(superiorMine.getGenerator().getNonEmptyBlocks() - 1);
 
             superiorMine.checkForReset();
         });

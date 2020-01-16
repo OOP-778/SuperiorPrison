@@ -1,0 +1,62 @@
+title: "&eEditing {mine_name} generator!"
+
+actions:
+  - "return:R"
+  - "next page:N"
+  - "previous page:P"
+  - "material click:M"
+
+templates:
+  - "material:M"
+
+layout:
+  - "* * * * * * * * *"
+  - "* $ $ $ $ $ $ $ *"
+  - "* * * * * * * * *"
+  - "R & & P I N & & &"
+
+buttons:
+  "*":
+    material: air
+
+  "I":
+    material: book
+    display name: "&eInformation"
+    lore:
+      - "&cHere you can set chances of specific materials"
+      - "&cRemember the chances cannot pass 100%"
+      - ""
+      - "&cTo insert an material, just click it in your inventory"
+
+  "P":
+    shown:
+      material: arrow
+      display name: "&e<<"
+      lore:
+        - "&7Click to go to"
+        - "&7The previous page!"
+
+      hidden:
+        material: yellow_stained_glass_pane
+        display name: " "
+
+  "N":
+    shown:
+      material: arrow
+      display name: "&e>>"
+      lore:
+        - "&7Click to go to"
+        - "&7The next page!"
+
+    hidden:
+      material: yellow_stained_glass_pane
+      display name: " "
+
+  "M":
+    material: stone
+    display name: "&e{material_name}"
+    lore:
+      - "&e&nRATE:&6 {material_rate}"
+      - ""
+      - "&cRight-Click to remove"
+      - "&aLeft-Click to edit"

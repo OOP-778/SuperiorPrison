@@ -6,7 +6,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.oop.orangeengine.item.custom.OItem;
 import com.oop.orangeengine.material.OMaterial;
-import com.oop.orangeengine.menu.button.AMenuButton;
 import org.bukkit.inventory.Inventory;
 
 import java.util.*;
@@ -57,7 +56,7 @@ public abstract class OPagedMenu<T> extends OMenu {
         items.clear();
         emptySlots = getEmptySlots();
         for (int i = 0; i < emptySlots.size(); i++) {
-            int objectIndex = i + (emptySlots.size() * (currentPage-1));
+            int objectIndex = i + (emptySlots.size() * (currentPage - 1));
             if (objectIndex >= allItems.size()) break;
 
             Optional<OMenuButton> pagedButton = Optional.ofNullable(toButton(allItems.get(objectIndex)));
@@ -125,7 +124,7 @@ public abstract class OPagedMenu<T> extends OMenu {
         Set<Integer> usedSlots = Sets.newHashSet();
         if (this instanceof Placeholderable)
             getFillerItems().forEach((slot, button) -> {
-                if (((Placeholderable)this).containsPlaceholder(button.identifier() + ""))
+                if (((Placeholderable) this).containsPlaceholder(button.identifier() + ""))
                     return;
 
                 usedSlots.add(slot);

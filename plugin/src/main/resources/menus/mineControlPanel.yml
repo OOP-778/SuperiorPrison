@@ -5,29 +5,40 @@ actions:
   - "edit mine options:O"
   - "edit generator:G"
   - "edit area:A"
-
-placeholders:
-  - "P:permission"
-  - "O:mine options"
-  - "G:generator"
-  - "A:area"
+  - "edit shop:S"
 
 layout:
   - "$ $ $ $ $ $ $ $ $"
   - "$ P $ $ O $ $ G $"
-  - "$ $ $ $ $ $ $ $ $"
+  - "$ $ A $ $ $ S $ $"
   - "$ $ $ $ $ $ $ $ $"
 
 buttons:
-  "$":
-    material: yellow_stained_glass_pane
-    display name: " "
+  "P":
+    material: iron_bars
+    display name: "&ePermission"
+    lore:
+      - "&e&l*&7 {mine_permission}"
+      - ""
+      - "&e&l(!)&7 Click to change!"
 
-  "&":
-    hidden:
-      material: yellow_stained_glass_pane
-      display name: " "
+  "O":
+    material: redstone_torch
+    display name: "&eOptions"
+    lore:
+      - "&e&l> &7Edit mine options!"
 
-    shown:
-      material: arrow
-      display name: "&ePrevious Page"
+  "G":
+    material: command_block
+    display name: "&eGenerator"
+    lore:
+      - "&e&l* &7Click to modify generator!"
+
+  "A":
+    display name: "&eArea"
+    lore:
+      - "&e&l* &7Min point: {mine_minpoint_x}, {mine_minpoint_y}, {mine_minpoint_z}"
+      - "&e&l* &7High point: {mine_highpoint_x}, {mine_highpoint_y}, {mine_highpoint_z}"
+      - "&e&l* &7Spawn point: {mine_spawnpoint_x}, {mine_spawnpoint_y}, {mine_spawnpoint_z}"
+      - ""
+      - "&e&l* &7Click to edit!"

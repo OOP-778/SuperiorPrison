@@ -8,7 +8,6 @@ import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.oop.orangeengine.database.ODatabase;
-import com.oop.orangeengine.main.Helper;
 import com.oop.orangeengine.main.util.OptionalConsumer;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;

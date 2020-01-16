@@ -13,8 +13,6 @@ import java.io.File;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.oop.orangeengine.main.Engine.getEngine;
-
 @Getter
 public class ConfigController implements OComponent<SuperiorPrisonPlugin> {
 
@@ -25,7 +23,8 @@ public class ConfigController implements OComponent<SuperiorPrisonPlugin> {
     private OConfiguration prestigesConfig;
     private Map<String, OConfiguration> menus = Maps.newHashMap();
 
-    public ConfigController() {}
+    public ConfigController() {
+    }
 
     @Override
     public boolean load() {

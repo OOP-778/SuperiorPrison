@@ -6,6 +6,7 @@ public interface RequirementHandler<O extends RequirementData> {
 
     boolean test(Prisoner prisoner, O o);
 
-    default void take(Prisoner prisoner, O o) {}
+    default void take(Prisoner prisoner, O o) {
+    }
 
 }

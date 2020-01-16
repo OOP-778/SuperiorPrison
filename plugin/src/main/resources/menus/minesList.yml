@@ -44,10 +44,12 @@ buttons:
       display name: " "
 
   "T":
-      material: stone
-      display name: "&e{mine_name}"
-      lore:
-        - "<hp=superior.admin>"
-        - "&e&l* Shift-Click to edit mine!"
-        - "</hp>"
+    material: stone
+    display name: "&e{mine_name}"
+    lore:
+      - "&e&l* &7Click to teleport!"
+      - "<hp=superior.admin>"
+      - ""
+      - "&c&l* &7Shift-Click to edit mine!"
+      - "</hp>"
 

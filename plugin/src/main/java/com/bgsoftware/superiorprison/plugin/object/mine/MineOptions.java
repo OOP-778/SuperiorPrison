@@ -3,16 +3,16 @@ package com.bgsoftware.superiorprison.plugin.object.mine;
 import com.bgsoftware.superiorprison.plugin.util.Attachable;
 import com.google.gson.annotations.SerializedName;
 import com.oop.orangeengine.item.custom.OItem;
+import com.oop.orangeengine.main.gson.GsonUpdateable;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.material.OMaterial;
-import com.oop.orangeengine.menu.AMenu;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.bukkit.inventory.ItemStack;
 
 @Getter
 @AllArgsConstructor
-public class MineOptions implements Attachable<SNormalMine> {
+public class MineOptions implements Attachable<SNormalMine>, GsonUpdateable {
 
     @SerializedName(value = "icon")
     private ItemStack icon;
@@ -25,7 +25,8 @@ public class MineOptions implements Attachable<SNormalMine> {
 
     private transient SNormalMine owner;
 
-    public MineOptions() {}
+    MineOptions() {
+    }
 
     @Override
     public void attach(SNormalMine obj) {

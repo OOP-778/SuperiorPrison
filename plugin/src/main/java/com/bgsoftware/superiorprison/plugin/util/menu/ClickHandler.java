@@ -1,14 +1,9 @@
 package com.bgsoftware.superiorprison.plugin.util.menu;
 
 import com.google.common.collect.Sets;
-import com.oop.orangeengine.menu.events.ButtonEvent;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryClickEvent;
 
-import java.awt.*;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Set;
@@ -22,7 +17,8 @@ public class ClickHandler {
 
     private Consumer<ButtonClickEvent> consumer;
 
-    private ClickHandler() {}
+    private ClickHandler() {
+    }
 
     public static ClickHandler of(OMenuButton button) {
         ClickHandler clickHandler = new ClickHandler();
@@ -47,7 +43,7 @@ public class ClickHandler {
         return this;
     }
 
-    public ClickHandler acceptsClickType(ClickType ...type) {
+    public ClickHandler acceptsClickType(ClickType... type) {
         acceptsTypes.addAll(Arrays.asList(type));
         return this;
     }

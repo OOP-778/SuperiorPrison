@@ -3,6 +3,7 @@ package com.bgsoftware.superiorprison.plugin.util.menu;
 import com.oop.orangeengine.main.events.SyncEvents;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 
 public class MenuListener {
 
@@ -14,19 +15,23 @@ public class MenuListener {
             if (!(event.getWhoClicked().getOpenInventory().getTopInventory().getHolder() instanceof OMenu)) return;
 
             OMenu menu = (OMenu) event.getWhoClicked().getOpenInventory().getTopInventory().getHolder();
-
-            // Look for drag
-            if (event.getInventory().getHolder() != menu)
-                menu.handleDrag(event);
-            if (event.isCancelled()) return;
-
             event.setCancelled(true);
-            menu.handleClick(event);
+
+            if (event.getClickedInventory().getHolder() == menu)
+                menu.handleClick(event);
         });
 
         SyncEvents.listen(InventoryCloseEvent.class, event -> {
-           if (!(event.getInventory().getHolder() instanceof OMenu)) return;
-            ((OMenu)event.getInventory().getHolder()).closeInventory();
+            if (!(event.getInventory().getHolder() instanceof OMenu)) return;
+            ((OMenu) event.getInventory().getHolder()).closeInventory();
+        });
+
+        SyncEvents.listen(InventoryDragEvent.class, event -> {
+            if (event.getWhoClicked().getOpenInventory().getTopInventory() == null) return;
+            if (!(event.getWhoClicked().getOpenInventory().getTopInventory().getHolder() instanceof OMenu)) return;
+
+            OMenu menu = (OMenu) event.getWhoClicked().getOpenInventory().getTopInventory().getHolder();
+            menu.handleDrag(event);
         });
     }
 

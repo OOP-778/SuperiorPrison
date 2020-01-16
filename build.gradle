@@ -27,7 +27,7 @@ allprojects {
         jcenter()
         mavenLocal()
         maven { url 'https://repo.codemc.org/repository/nms/' }
-       // maven { url 'https://repo.codemc.org/repository/maven-public/' }
+        maven { url 'https://repo.codemc.org/repository/maven-public/' }
         maven { url 'https://jitpack.io' }
         maven { url 'http://repo.extendedclip.com/content/repositories/placeholderapi/' }
     }
@@ -39,30 +39,30 @@ allprojects {
         annotationProcessor 'org.projectlombok:lombok:1.18.8'
 
         if (project.name.equalsIgnoreCase("plugin")) {
-            compile "com.oop.orangeengine:file:3.28"
-            compile "com.oop.orangeengine:item:3.28"
-            compile "com.oop.orangeengine:engine:3.28"
-            compile "com.oop.orangeengine:particle:3.28"
-            compile "com.oop.orangeengine:inventory:3.28"
-            compile "com.oop.orangeengine:command:3.28"
-            compile "com.oop.orangeengine:database:3.28"
-            compile "com.oop.orangeengine:eventssubscription:3.28"
-            compile "com.oop.orangeengine:message:3.28"
+            compile "com.oop.orangeengine:file:3.29"
+            compile "com.oop.orangeengine:item:3.29"
+            compile "com.oop.orangeengine:engine:3.29"
+            compile "com.oop.orangeengine:particle:3.29"
+            compile "com.oop.orangeengine:inventory:3.29"
+            compile "com.oop.orangeengine:command:3.29"
+            compile "com.oop.orangeengine:database:3.29"
+            compile "com.oop.orangeengine:eventssubscription:3.29"
+            compile "com.oop.orangeengine:message:3.29"
 
             // Depdendecies
             compileOnly "com.github.MilkBowl:VaultAPI:1.7"
             compileOnly 'me.clip:placeholderapi:2.10.4'
 
         } else {
-            compileOnly "com.oop.orangeengine:file:3.28"
-            compileOnly "com.oop.orangeengine:item:3.28"
-            compileOnly "com.oop.orangeengine:engine:3.28"
-            compileOnly "com.oop.orangeengine:particle:3.28"
-            compileOnly "com.oop.orangeengine:inventory:3.28"
-            compileOnly "com.oop.orangeengine:command:3.28"
-            compileOnly "com.oop.orangeengine:database:3.28"
-            compileOnly "com.oop.orangeengine:eventssubscription:3.28"
-            compileOnly "com.oop.orangeengine:message:3.28"
+            compileOnly "com.oop.orangeengine:file:3.29"
+            compileOnly "com.oop.orangeengine:item:3.29"
+            compileOnly "com.oop.orangeengine:engine:3.29"
+            compileOnly "com.oop.orangeengine:particle:3.29"
+            compileOnly "com.oop.orangeengine:inventory:3.29"
+            compileOnly "com.oop.orangeengine:command:3.29"
+            compileOnly "com.oop.orangeengine:database:3.29"
+            compileOnly "com.oop.orangeengine:eventssubscription:3.29"
+            compileOnly "com.oop.orangeengine:message:3.29"
         }
 
         if (project.name.equalsIgnoreCase("plugin")) {

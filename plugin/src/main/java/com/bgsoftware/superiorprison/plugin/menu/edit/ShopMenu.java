@@ -17,7 +17,6 @@ import com.oop.orangeengine.menu.button.AMenuButton;
 import com.oop.orangeengine.menu.config.ConfigMenuTemplate;
 import com.oop.orangeengine.menu.config.action.ActionListenerController;
 import com.oop.orangeengine.menu.config.action.ActionProperties;
-import com.oop.orangeengine.menu.config.button.types.ConfigNormalButton;
 import com.oop.orangeengine.menu.events.ButtonClickEvent;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.player.AsyncPlayerChatEvent;

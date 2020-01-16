@@ -1,0 +1,66 @@
+title: "&cPrisoner Control Panel"
+
+layout:
+  - "$ $ $ $ $ $ $ $ $"
+  - "$ S $ $ I $ $ F $"
+  - "$ $ P $ $ $ M $ $"
+  - "$ $ $ $ $ $ $ $ $"
+
+buttons:
+  "S":
+    required permission: "superiorprison.autosell"
+
+    enabled:
+      material: diamond
+      glow: true
+      display name: "&eAuto Sell &8(&aActive&8)"
+      lore:
+        - "&7Instead of picking up an item"
+        - "&7It will be automatically sold!"
+        - ""
+        - "&a&l(!)&7 Click to toggle!"
+
+    disabled:
+      material: diamond
+      display name: "&eAuto Sell &8(&cDisabled&8)"
+      lore:
+        - "&7Instead of picking up an item"
+        - "&7It will be automatically sold!"
+        - ""
+        - "&a&l(!)&7 Click to toggle!"
+
+    no permission:
+      material: red_stained_glass_pane
+      display name: "&cAccess denied!"
+      lore:
+        - "&cYou don't have the permission:"
+        - "&c&l* &7{permission}"
+
+  "F":
+    required permission: "superiorprison.fortuneBlocks"
+
+    enabled:
+      material: diamond
+      glow: true
+      display name: "&eFortune Blocks &8(&aActive&8)"
+      lore:
+        - "&7It will multiply any broken block"
+        - "&7Even when silk touch is used!"
+        - ""
+        - "&a&l(!)&7 Click to toggle!"
+
+    disabled:
+      material: diamond
+      display name: "&eFortune Blocks &8(&cDisabled&8)"
+      lore:
+        - "&7It will multiply any broken block"
+        - "&7Even when silk touch is used!"
+        - ""
+        - "&a&l(!)&7 Click to toggle!"
+
+    no permission:
+      material: red_stained_glass_pane
+      display name: "&cAccess denied!"
+      lore:
+        - "&cYou don't have the permission:"
+        - "&c&l* &7{permission}"

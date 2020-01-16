@@ -6,8 +6,6 @@ import com.bgsoftware.superiorprison.api.requirement.RequirementData;
 import com.bgsoftware.superiorprison.api.requirement.RequirementHandler;
 import com.bgsoftware.superiorprison.plugin.util.XPUtil;
 
-import javax.annotation.Nullable;
-
 public class XpRequirement implements Requirement {
 
     private final RequirementHandler<RequirementData> handlder = new RequirementHandler<RequirementData>() {

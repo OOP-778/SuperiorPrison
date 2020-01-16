@@ -4,10 +4,8 @@ import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.hook.impl.PapiHook;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.oop.orangeengine.item.ItemBuilder;
 import com.oop.orangeengine.item.custom.OItem;
-import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.material.OMaterial;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -19,10 +17,9 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
 import java.util.function.BiFunction;
-import java.util.stream.Collectors;
 
-import static com.bgsoftware.superiorprison.plugin.util.ReplacerUtils.replaceList;
-import static com.bgsoftware.superiorprison.plugin.util.ReplacerUtils.replaceText;
+import static com.bgsoftware.superiorprison.plugin.util.TextUtil.replaceList;
+import static com.bgsoftware.superiorprison.plugin.util.TextUtil.replaceText;
 
 @Getter
 @Accessors(fluent = true, chain = true)
@@ -46,6 +43,42 @@ public class OMenuButton implements Cloneable {
 
     public OMenuButton(char identifier) {
         this.identifier = identifier;
+    }
+
+    public ButtonItemBuilder getDefaultStateItem() {
+        return getStateItem("default");
+    }
+
+    public boolean containsState(String state) {
+        return itemStates.containsKey(state);
+    }
+
+    public ButtonItemBuilder getStateItem(String state) {
+        ButtonItemBuilder aDefault = itemStates.get(state);
+        if (aDefault == null)
+            return new ButtonItemBuilder(new OItem(OMaterial.RED_STAINED_GLASS_PANE).setDisplayName("&cFailed to find a button state by id '" + state + "'"));
+
+        else
+            return aDefault;
+    }
+
+    protected void addState(String state, ButtonItemBuilder itemBuilder) {
+        itemStates.remove(state);
+        itemStates.put(state, itemBuilder);
+    }
+
+    public OMenuButton clone() {
+        try {
+            OMenuButton button = (OMenuButton) super.clone();
+            button.itemStates = Maps.newHashMap();
+            itemStates.forEach((state, item) -> button.itemStates.put(state, item.clone()));
+            button.currentItem = currentItem != null ? currentItem.clone() : null;
+
+            return button;
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public static class ButtonItemBuilder {
@@ -139,42 +172,6 @@ public class OMenuButton implements Cloneable {
 
         public ItemStack getItemStack() {
             return itemBuilder.getItemStack();
-        }
-    }
-
-    public ButtonItemBuilder getDefaultStateItem() {
-        return getStateItem("default");
-    }
-
-    public boolean containsState(String state) {
-        return itemStates.containsKey(state);
-    }
-
-    public ButtonItemBuilder getStateItem(String state) {
-        ButtonItemBuilder aDefault = itemStates.get(state);
-        if (aDefault == null)
-            return new ButtonItemBuilder(new OItem(OMaterial.RED_STAINED_GLASS_PANE).setDisplayName("&cFailed to find a button state by id '" + state + "'"));
-
-        else
-            return aDefault;
-    }
-
-    protected void addState(String state, ButtonItemBuilder itemBuilder) {
-        itemStates.remove(state);
-        itemStates.put(state, itemBuilder);
-    }
-
-    public OMenuButton clone() {
-        try {
-            OMenuButton button = (OMenuButton) super.clone();
-            button.itemStates = Maps.newHashMap();
-            itemStates.forEach((state, item) -> button.itemStates.put(state, item.clone()));
-            button.currentItem = currentItem != null ? currentItem.clone() : null;
-
-            return button;
-        } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
-            return null;
         }
     }
 

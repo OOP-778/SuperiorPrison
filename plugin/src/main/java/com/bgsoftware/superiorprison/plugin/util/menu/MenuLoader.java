@@ -1,16 +1,13 @@
 package com.bgsoftware.superiorprison.plugin.util.menu;
 
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.oop.orangeengine.item.ItemBuilder;
 import com.oop.orangeengine.yaml.ConfigurationSection;
 import com.oop.orangeengine.yaml.OConfiguration;
-import com.sun.org.apache.xalan.internal.xsltc.compiler.Template;
 import org.bukkit.ChatColor;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class MenuLoader {
 
@@ -22,7 +19,7 @@ public class MenuLoader {
 
         Map<Character, String> charToActionMap = Maps.newHashMap();
         if (configuration.hasValue("actions")) {
-            for (String action : (List<String>)configuration.getValueAsReq("actions")) {
+            for (String action : (List<String>) configuration.getValueAsReq("actions")) {
                 String[] split = action.split(":");
                 charToActionMap.put(split[1].charAt(0), split[0]);
             }

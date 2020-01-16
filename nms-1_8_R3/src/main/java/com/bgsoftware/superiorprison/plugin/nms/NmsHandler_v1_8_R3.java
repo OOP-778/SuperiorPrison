@@ -1,7 +1,10 @@
 package com.bgsoftware.superiorprison.plugin.nms;
 
 import com.oop.orangeengine.material.OMaterial;
-import net.minecraft.server.v1_8_R3.*;
+import net.minecraft.server.v1_8_R3.Block;
+import net.minecraft.server.v1_8_R3.ChunkSection;
+import net.minecraft.server.v1_8_R3.IBlockData;
+import net.minecraft.server.v1_8_R3.PacketPlayOutMapChunk;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;

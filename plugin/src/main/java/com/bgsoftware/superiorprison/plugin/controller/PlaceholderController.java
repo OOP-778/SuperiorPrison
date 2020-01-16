@@ -1,12 +1,15 @@
 package com.bgsoftware.superiorprison.plugin.controller;
 
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
-import com.bgsoftware.superiorprison.plugin.util.ReplacerUtils;
+import com.bgsoftware.superiorprison.plugin.util.TextUtil;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
@@ -17,6 +20,7 @@ public class PlaceholderController {
     public PlaceholderController() {
         add(SNormalMine.class, "{mine_name}", (text, mine) -> text.replace("{mine_name}", mine.getName()));
         add(SNormalMine.class, "{mine_permission}", (text, mine) -> text.replace("{mine_permission}", mine.getPermission().orElse("None")));
+        add(SNormalMine.class, "{mine_prisoners_count}", (text, mine) -> text.replace("{mine_prisoners_count}", mine.getPrisoners().size() + ""));
 
         add(SNormalMine.class, "{mine_minpoint_x}", (text, mine) -> text.replace("{mine_minpoint_x}", mine.getMinPoint().x() + ""));
         add(SNormalMine.class, "{mine_minpoint_y}", (text, mine) -> text.replace("{mine_minpoint_y}", mine.getMinPoint().y() + ""));
@@ -32,6 +36,7 @@ public class PlaceholderController {
 
         // Placeholders for shop
         add(SNormalMine.class, "{mine_shop_title}", (text, mine) -> text.replace("{mine_shop_title}", mine.getShop().getTitle()));
+        add(SNormalMine.class, "{mine_shop_items_count}", (text, mine) -> text.replace("{mine_shop_items_count}", mine.getShop().getItems().size() + ""));
     }
 
     private <T> void add(Class<T> type, String placeholder, BiFunction<String, T, String> handler) {
@@ -40,11 +45,11 @@ public class PlaceholderController {
     }
 
     public String parse(String text, Object object) {
-        return ReplacerUtils.replaceText(object, text, findPlaceholdersFor(object), Optional.empty());
+        return TextUtil.replaceText(object, text, findPlaceholdersFor(object), Optional.empty());
     }
 
     public List<String> parse(List<String> multipleText, Object object) {
-        return ReplacerUtils.replaceList(object, multipleText, findPlaceholdersFor(object), Optional.empty());
+        return TextUtil.replaceList(object, multipleText, findPlaceholdersFor(object), Optional.empty());
     }
 
     public <T extends Object> Set<BiFunction<String, T, String>> findPlaceholdersFor(T object) {
@@ -57,7 +62,7 @@ public class PlaceholderController {
         return found;
     }
 
-    public Set<BiFunction<String, Object, String>> findPlaceholdersFor(Object ...objects) {
+    public Set<BiFunction<String, Object, String>> findPlaceholdersFor(Object... objects) {
         Set<BiFunction<String, Object, String>> found = Sets.newHashSet();
         for (Object object : objects)
             found.addAll(findPlaceholdersFor(object));

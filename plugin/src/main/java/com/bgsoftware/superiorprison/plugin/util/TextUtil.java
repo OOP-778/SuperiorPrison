@@ -9,7 +9,9 @@ import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
-public class ReplacerUtils {
+import static com.oop.orangeengine.main.Helper.capitalizeAll;
+
+public class TextUtil {
 
     public static <T> List<String> replaceList(T object, Collection<String> multiLine, Set<BiFunction<String, T, String>> placeholders, Optional<PapiHook> papi) {
         return multiLine
@@ -31,4 +33,7 @@ public class ReplacerUtils {
         return array[0];
     }
 
+    public static String beautify(String text) {
+        return capitalizeAll(text.toLowerCase().replace("_", " "));
+    }
 }

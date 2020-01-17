@@ -30,7 +30,7 @@ public class MineListener {
                 return;
 
             // If prisoner isn't in a mine return
-            Prisoner prisoner = SuperiorPrisonPlugin.getInstance().getDataController().insertOrGetPrisoner(event.getPlayer());
+            Prisoner prisoner = SuperiorPrisonPlugin.getInstance().getDataController().insertIfAbsent(event.getPlayer());
             if (!prisoner.getCurrentMine().isPresent()) return;
 
             SNormalMine superiorMine = (SNormalMine) prisoner.getCurrentMine().get();
@@ -52,7 +52,7 @@ public class MineListener {
                 return;
 
             // Get prisoner
-            SPrisoner prisoner = SuperiorPrisonPlugin.getInstance().getPrisonerController().insertOrGetPrisoner(event.getPlayer());
+            SPrisoner prisoner = SuperiorPrisonPlugin.getInstance().getPrisonerController().insertIfAbsent(event.getPlayer());
             Optional<SuperiorMine> mineOptional = prisoner.getCurrentMine();
 
             if (mineOptional.isPresent()) {
@@ -89,7 +89,7 @@ public class MineListener {
                 return;
 
             // Get prisoner
-            SPrisoner prisoner = SuperiorPrisonPlugin.getInstance().getPrisonerController().insertOrGetPrisoner(event.getPlayer());
+            SPrisoner prisoner = SuperiorPrisonPlugin.getInstance().getPrisonerController().insertIfAbsent(event.getPlayer());
 
             // Get mine
             Optional<SuperiorMine> mineOptional = prisoner.getCurrentMine();

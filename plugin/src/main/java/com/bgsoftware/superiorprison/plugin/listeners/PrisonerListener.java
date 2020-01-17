@@ -24,7 +24,7 @@ public class PrisonerListener {
 
     public PrisonerListener() {
         SyncEvents.listen(PlayerQuitEvent.class, event -> {
-            SPrisoner prisoner = SuperiorPrisonPlugin.getInstance().getPrisonerController().insertOrGetPrisoner(event.getPlayer());
+            SPrisoner prisoner = SuperiorPrisonPlugin.getInstance().getPrisonerController().insertIfAbsent(event.getPlayer());
             if (prisoner.getCurrentMine().isPresent()) {
                 prisoner.setLogoutInMine(true);
                 prisoner.save(true);
@@ -54,11 +54,10 @@ public class PrisonerListener {
                 // Handle Fortune Blocks
                 if (prisoner.isFortuneBlocks() && tool != null && tool.getType() != Material.AIR) {
                     if (tool.hasItemMeta() && tool.getItemMeta().hasEnchant(Enchantment.LOOT_BONUS_BLOCKS)) {
-                        Set<ItemStack> collect = drops.stream().map(itemStack -> {
-                            ItemStack clone = itemStack.clone();
-                            clone.setAmount(getItemCountWithFortune(tool.getItemMeta().getEnchantLevel(Enchantment.LOOT_BONUS_BLOCKS)));
-                            return clone;
-                        }).collect(Collectors.toSet());
+                        Set<ItemStack> collect = drops
+                                .stream()
+                                .peek(itemStack -> itemStack.setAmount(getItemCountWithFortune(tool.getItemMeta().getEnchantLevel(Enchantment.LOOT_BONUS_BLOCKS))))
+                                .collect(Collectors.toSet());
 
                         drops.clear();
                         drops.addAll(collect);

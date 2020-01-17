@@ -219,7 +219,6 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
     }
 
     private <T> T[] shuffleArray(T[] array) {
-
         for (int i = 0; i < array.length; i++) {
             int randomPosition = ThreadLocalRandom.current().nextInt(array.length);
             T temp = array[i];

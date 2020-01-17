@@ -25,8 +25,7 @@ public class MineOptions implements Attachable<SNormalMine>, GsonUpdateable {
 
     private transient SNormalMine owner;
 
-    MineOptions() {
-    }
+    MineOptions() {}
 
     @Override
     public void attach(SNormalMine obj) {

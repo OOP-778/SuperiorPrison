@@ -77,7 +77,7 @@ public class DataController extends com.oop.orangeengine.database.object.DataCon
                 .findFirst();
     }
 
-    public SPrisoner insertOrGetPrisoner(Player player) {
+    public SPrisoner insertIfAbsent(Player player) {
         Optional<Prisoner> optionalPrisoner = getPrisoner(player.getUniqueId());
         if (optionalPrisoner.isPresent())
             return (SPrisoner) optionalPrisoner.get();

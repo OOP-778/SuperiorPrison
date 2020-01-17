@@ -11,7 +11,7 @@ public class CmdMines extends OCommand {
         label("mines");
         ableToExecute(Player.class);
         onCommand(command -> {
-            MinesListMenu minesListMenu = new MinesListMenu(SuperiorPrisonPlugin.getInstance().getDataController().insertOrGetPrisoner(command.getSenderAsPlayer()));
+            MinesListMenu minesListMenu = new MinesListMenu(SuperiorPrisonPlugin.getInstance().getDataController().insertIfAbsent(command.getSenderAsPlayer()));
             command.getSenderAsPlayer().openInventory(minesListMenu.getInventory());
         });
     }

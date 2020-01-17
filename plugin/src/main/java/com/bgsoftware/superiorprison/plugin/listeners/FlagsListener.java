@@ -51,7 +51,7 @@ public class FlagsListener {
             if (!(event.getEntity() instanceof Player)) return;
             Player player = (Player) event.getEntity();
 
-            Prisoner prisoner = SuperiorPrisonPlugin.getInstance().getPrisonerController().insertOrGetPrisoner(player);
+            Prisoner prisoner = SuperiorPrisonPlugin.getInstance().getPrisonerController().insertIfAbsent(player);
             if (!prisoner.getCurrentMine().isPresent()) return;
             if (prisoner.getCurrentMine().get().isFlagEnabled(FlagEnum.FALL_DAMAGE)) return;
 

@@ -74,7 +74,6 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
 
     public void generate() {
         initBlockChanger();
-
         if (cachedMineArea.length == 0) return;
 
         int blocksInRegion = cachedMineArea.length;

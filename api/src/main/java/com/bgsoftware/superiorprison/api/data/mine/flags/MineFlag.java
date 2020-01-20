@@ -1,6 +1,6 @@
 package com.bgsoftware.superiorprison.api.data.mine.flags;
 
-public enum FlagEnum {
+public enum MineFlag {
 
     PVP(false),
     NIGHT_VISION(true),
@@ -10,7 +10,7 @@ public enum FlagEnum {
 
     private boolean defaultValue;
 
-    FlagEnum(boolean defaultValue) {
+    MineFlag(boolean defaultValue) {
         this.defaultValue = defaultValue;
     }
 

@@ -1,36 +1,32 @@
 package com.bgsoftware.superiorprison.plugin.object.mine;
 
 import com.bgsoftware.superiorprison.api.data.mine.MineEnum;
-import com.bgsoftware.superiorprison.api.data.mine.flags.FlagEnum;
 import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 import com.bgsoftware.superiorprison.api.util.SPLocation;
+import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
+import com.bgsoftware.superiorprison.plugin.config.main.MineDefaultsSection;
 import com.bgsoftware.superiorprison.plugin.object.mine.shop.SShop;
-import com.bgsoftware.superiorprison.plugin.object.mine.shop.SShopItem;
 import com.oop.orangeengine.database.OColumn;
 import com.oop.orangeengine.database.annotations.DatabaseTable;
 import com.oop.orangeengine.database.annotations.DatabaseValue;
 import com.oop.orangeengine.database.object.DatabaseObject;
+import com.oop.orangeengine.item.ItemBuilder;
 import com.oop.orangeengine.item.custom.OItem;
 import com.oop.orangeengine.main.task.StaticTask;
-import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.material.OMaterial;
+import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @DatabaseTable(tableName = "mines")
 public class SNormalMine extends DatabaseObject implements com.bgsoftware.superiorprison.api.data.mine.type.NormalMine, Serializable {
 
     private Set<Prisoner> prisoners = ConcurrentHashMap.newKeySet();
-    private Map<FlagEnum, Boolean> flags = new HashMap<>();
 
     @DatabaseValue(columnName = "mineType")
     private MineEnum type = MineEnum.NORMAL_MINE;
@@ -61,22 +57,28 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
     @DatabaseValue(columnName = "permission")
     private String permission;
 
-    @DatabaseValue(columnName = "options")
-    private MineOptions options;
+    @Getter
+    @DatabaseValue(columnName = "settings")
+    private MineSettings settings;
+
+    @Setter
+    @DatabaseValue(columnName = "icon")
+    private ItemStack icon;
 
     protected SNormalMine() {
         super();
-        registerFieldSupplier("options", MineOptions.class, MineOptions::new);
+        MineDefaultsSection defaults = SuperiorPrisonPlugin.getInstance().getMainConfig().getMineDefaults();
+
+        registerFieldSupplier("options", MineSettings.class, MineSettings::new);
+        registerFieldSupplier("icon", ItemStack.class, () -> icon = new OItem(OMaterial.STONE)
+                .setDisplayName("&c" + name)
+                .replaceDisplayName("{mine_name}", name)
+                .appendLore("&cYikes Yupppie!")
+                .getItemStack());
 
         setWhenLoaded(() -> {
             generator.attach(this);
-            options.attach(this);
-
-            // Find missing flags and set them to default value
-            for (FlagEnum flagEnum : FlagEnum.values())
-                if (!flags.containsKey(flagEnum))
-                    flags.put(flagEnum, flagEnum.getDefaultValue());
-
+            settings.attach(this);
         });
     }
 
@@ -85,31 +87,27 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
         this.minPoint = new SPLocation(pos1);
         this.highPoint = new SPLocation(pos2);
         this.shop = new SShop();
-        this.options = new MineOptions();
+        this.settings = new MineSettings();
         shop.attach(this);
-        options.attach(this);
+        settings.attach(this);
+
+        MineDefaultsSection defaults = SuperiorPrisonPlugin.getInstance().getMainConfig().getMineDefaults();
+        this.icon = ItemBuilder.fromItem(defaults.getIcon().getItemStack().clone())
+                .replaceDisplayName("{mine_name}", name)
+                .getItemStack();
 
         generator = new SMineGenerator();
-        generator.getGeneratorMaterials().add(new OPair<>(50d, OMaterial.STONE));
-        generator.getGeneratorMaterials().add(new OPair<>(20d, OMaterial.CYAN_TERRACOTTA));
-        generator.getGeneratorMaterials().add(new OPair<>(30d, OMaterial.DIAMOND_ORE));
+        defaults.getMaterials().forEach(material -> generator.getGeneratorMaterials().add(material));
         generator.setMine(this);
         generator.initBlockChanger();
 
-        shop.getItems().add(new SShopItem(new OItem(Material.REDSTONE).getItemStack(), 0, 0));
-
+        defaults.getShopPrices().forEach(item -> shop.addItem(item.getFirst().parseItem(), item.getSecond()));
         StaticTask.getInstance().async(() -> generator.initCache(() -> generator.generate()));
 
         this.permission = "superiorprison." + name;
 
-        // Preset all the flags to default values
-        for (FlagEnum flagEnum : FlagEnum.values())
-            flags.put(flagEnum, flagEnum.getDefaultValue());
+        settings.setPlayerLimit(defaults.getLimit());
 
-        // TODO make configurable
-//        this.options= new OItem(OMaterial.IRON_BARS)
-//                .setDisplayName("&e" + name)
-//                .getItemStack();
     }
 
     @Override
@@ -162,11 +160,6 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
     }
 
     @Override
-    public boolean isFlagEnabled(FlagEnum flag) {
-        return flags.get(flag);
-    }
-
-    @Override
     public SShop getShop() {
         return shop;
     }
@@ -178,7 +171,7 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
 
     @Override
     public ItemStack getIcon() {
-        return options.getIcon();
+        return icon;
     }
 
     public void preDelete() {
@@ -186,6 +179,6 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
     }
 
     public void checkForReset() {
-
     }
+
 }

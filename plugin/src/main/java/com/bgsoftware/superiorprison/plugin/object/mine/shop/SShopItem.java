@@ -4,40 +4,42 @@ import com.bgsoftware.superiorprison.api.data.mine.shop.ShopItem;
 import com.google.gson.annotations.SerializedName;
 import com.oop.orangeengine.main.gson.GsonUpdateable;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Optional;
-
 @Setter
-@Getter
 public class SShopItem implements ShopItem, GsonUpdateable {
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
+        SShopItem shopItem = (SShopItem) o;
+        return item.equals(shopItem.item);
+    }
+
+    @Override
+    public int hashCode() {
+        return item.hashCode();
+    }
+
+    @Getter
     @SerializedName(value = "item")
     private ItemStack item;
 
     @SerializedName(value = "sellPrice")
-    private double sellPrice;
+    private double price;
 
-    @SerializedName(value = "buyPrice")
-    private double buyPrice;
+    private SShopItem() {}
 
-    @SerializedName(value = "command")
-    private String command;
-
-    private SShopItem() {
-        registerFieldSupplier("sellPrice", int.class, () -> 0);
-        registerFieldSupplier("buyPrice", int.class, () -> 0);
-    }
-
-    public SShopItem(ItemStack item, double sellPrice, double buyPrice) {
+    protected SShopItem(@NonNull ItemStack item, double price) {
         this.item = item;
-        this.sellPrice = sellPrice;
-        this.buyPrice = buyPrice;
+        this.price = price;
     }
 
     @Override
-    public Optional<String> getCommand() {
-        return Optional.ofNullable(command);
+    public double getPrice() {
+        return price;
     }
 }

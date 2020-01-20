@@ -6,12 +6,8 @@ import java.util.Optional;
 
 public interface ShopItem {
 
-    double getSellPrice();
-
-    double getBuyPrice();
+    double getPrice();
 
     ItemStack getItem();
-
-    Optional<String> getCommand();
 
 }

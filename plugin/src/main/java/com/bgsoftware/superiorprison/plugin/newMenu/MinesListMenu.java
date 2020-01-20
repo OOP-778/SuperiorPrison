@@ -1,17 +1,22 @@
 package com.bgsoftware.superiorprison.plugin.newMenu;
 
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
+import com.bgsoftware.superiorprison.api.util.SPLocation;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
+import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.util.menu.ClickHandler;
 import com.bgsoftware.superiorprison.plugin.util.menu.OMenu;
 import com.bgsoftware.superiorprison.plugin.util.menu.OMenuButton;
 import com.bgsoftware.superiorprison.plugin.util.menu.OPagedMenu;
+import com.oop.orangeengine.material.OMaterial;
+import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class MinesListMenu extends OPagedMenu<SNormalMine> implements OMenu.Templateable {
@@ -25,7 +30,12 @@ public class MinesListMenu extends OPagedMenu<SNormalMine> implements OMenu.Temp
                     if (event.getClick() == ClickType.RIGHT || event.getClick() == ClickType.LEFT) {
                         //TODO: Add teleport timer and move check
                         SNormalMine mine = requestObject(event.getRawSlot());
-                        mine.getSpawnPoint().ifPresent(location -> event.getWhoClicked().teleport(location.toBukkit()));
+                        Optional<SPLocation> spawnPoint = mine.getSpawnPoint();
+                        if (spawnPoint.isPresent())
+                            event.getWhoClicked().teleport(spawnPoint.get().toBukkit());
+
+                        else
+                            LocaleEnum.MINE_TELEPORT_FAILED_SPAWN_NOT_SET.getWithErrorPrefix().send((Player) event.getWhoClicked());
 
                     } else if (event.getClick().name().contains("SHIFT") && event.getWhoClicked().hasPermission("superiorprison.admin"))
                         new MineControlPanel(getViewer(), requestObject(event.getRawSlot())).open(this);
@@ -47,11 +57,22 @@ public class MinesListMenu extends OPagedMenu<SNormalMine> implements OMenu.Temp
     public OMenuButton toButton(SNormalMine obj) {
         OMenuButton buttonTemplate = getTemplateButtonFromTemplate("mine template").orElse(null);
         if (buttonTemplate == null) return null;
+        buttonTemplate = buttonTemplate.clone();
 
         OMenuButton.ButtonItemBuilder parsedItem = buttonTemplate
                 .getDefaultStateItem().clone();
-        parsedItem.itemBuilder().setItemStack(obj.getIcon());
-        parsedItem.itemBuilder().mergeLore(buttonTemplate.getDefaultStateItem().getItemStack());
+
+        if (obj.getIcon().hasItemMeta()) {
+            if (obj.getIcon().getItemMeta().hasDisplayName())
+                parsedItem.itemBuilder().setDisplayName(obj.getIcon().getItemMeta().getDisplayName());
+
+            if (obj.getIcon().getItemMeta().hasLore()) {
+                parsedItem.itemBuilder().setLore(obj.getIcon().getItemMeta().getLore());
+                parsedItem.itemBuilder().mergeLore(buttonTemplate.getDefaultStateItem().getItemStack());
+            }
+        }
+
+        parsedItem.itemBuilder().setMaterial(OMaterial.matchMaterial(obj.getIcon()));
 
         buttonTemplate.currentItem(parsedItem.getItemStackWithPlaceholdersMulti(getViewer(), obj));
         return buttonTemplate;

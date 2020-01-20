@@ -2,15 +2,16 @@ title: "&eEditing &6{mine_name}"
 
 actions:
   - "set permission:P"
-  - "edit mine options:O"
+  - "edit icon:I"
   - "edit generator:G"
   - "edit area:A"
   - "edit shop:S"
 
 layout:
   - "$ $ $ $ $ $ $ $ $"
-  - "$ P $ $ O $ $ G $"
-  - "$ $ A $ $ $ S $ $"
+  - "$ P $ $ I $ $ G $"
+  - "$ $ $ $ $ $ $ $ $"
+  - "$ $ A $ O $ S $ $"
   - "$ $ $ $ $ $ $ $ $"
 
 buttons:
@@ -22,11 +23,11 @@ buttons:
       - ""
       - "&e&l(!)&7 Click to change!"
 
-  "O":
-    material: redstone_torch
-    display name: "&eOptions"
+  "I":
+    material: sign
+    display name: "&eIcon"
     lore:
-      - "&e&l> &7Edit mine options!"
+      - "&e&l* &7Click to edit the icon!"
 
   "G":
     material: command_block
@@ -35,6 +36,7 @@ buttons:
       - "&e&l* &7Click to modify generator!"
 
   "A":
+    material: wooden_axe
     display name: "&eArea"
     lore:
       - "&e&l* &7Min point: {mine_minpoint_x}, {mine_minpoint_y}, {mine_minpoint_z}"
@@ -42,3 +44,15 @@ buttons:
       - "&e&l* &7Spawn point: {mine_spawnpoint_x}, {mine_spawnpoint_y}, {mine_spawnpoint_z}"
       - ""
       - "&e&l* &7Click to edit!"
+
+  "S":
+    material: chest
+    display name: "&eShop"
+    lore:
+      - "&e&l* &7Click to edit the shop!"
+
+  "O":
+    material: redstone_torch
+    display name: "&eSettings"
+    lore:
+      - "&e&l* &7Click to edit settings!"

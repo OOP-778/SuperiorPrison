@@ -1,6 +1,9 @@
 package com.bgsoftware.superiorprison.plugin.util;
 
 import com.bgsoftware.superiorprison.plugin.hook.impl.PapiHook;
+import com.oop.orangeengine.material.OMaterial;
+import lombok.NonNull;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.Collection;
 import java.util.List;
@@ -33,7 +36,39 @@ public class TextUtil {
         return array[0];
     }
 
+    public static String mergeText(String[] text) {
+        boolean first = true;
+        StringBuilder stringBuilder = new StringBuilder();
+        for (String s : text) {
+            if (first) {
+                stringBuilder.append(s);
+                first = false;
+
+            } else
+                stringBuilder.append(" ").append(s);
+        }
+        return stringBuilder.toString();
+    }
+
     public static String beautify(String text) {
         return capitalizeAll(text.toLowerCase().replace("_", " "));
     }
+
+    public static String beautifyName(@NonNull ItemStack item) {
+        return beautify((item.hasItemMeta() && item.getItemMeta().hasDisplayName()) ? item.getItemMeta().getDisplayName() : OMaterial.matchMaterial(item).name());
+    }
+
+    public static String beautifyDouble(Double d) {
+        String stringD = String.valueOf(d);
+        if (stringD.contains(".")) {
+            String split[] = stringD.split("\\.");
+            if (split[1].contentEquals("0") && split[1].length() == 1)
+                return split[0];
+
+            else
+                return stringD;
+        }
+        return stringD;
+    }
+
 }

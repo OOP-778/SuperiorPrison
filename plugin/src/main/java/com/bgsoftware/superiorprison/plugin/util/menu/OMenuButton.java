@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -63,6 +64,7 @@ public class OMenuButton implements Cloneable {
     }
 
     protected void addState(String state, ButtonItemBuilder itemBuilder) {
+        System.out.println("Adding state for" + identifier + ", " + state + ", " + itemBuilder.getItemStack());
         itemStates.remove(state);
         itemStates.put(state, itemBuilder);
     }
@@ -90,10 +92,10 @@ public class OMenuButton implements Cloneable {
             this.itemBuilder = itemBuilder;
         }
 
-        protected ButtonItemBuilder() {
-        }
+        protected ButtonItemBuilder() {}
 
         public <T> ItemStack getItemStackWithPlaceholders(T object) {
+            if (getItemStack().getType() == Material.AIR) return getItemStack();
             Optional<PapiHook> papiOptional = SuperiorPrisonPlugin.getInstance().getHookController().findHook(PapiHook.class);
             if (!papiOptional.isPresent()) return itemBuilder.getItemStack();
             PapiHook papi = papiOptional.get();
@@ -106,6 +108,7 @@ public class OMenuButton implements Cloneable {
         }
 
         public <T> ItemStack getItemStackWithPlaceholders(T object, Set<BiFunction<String, T, String>> placeholders) {
+            if (getItemStack().getType() == Material.AIR) return getItemStack();
             ItemBuilder clone = itemBuilder.clone();
 
             Optional<PapiHook> hook = SuperiorPrisonPlugin.getInstance().getHookController().findHook(PapiHook.class);
@@ -116,7 +119,10 @@ public class OMenuButton implements Cloneable {
         }
 
         public <T> ItemStack getItemStackWithPlaceholdersMulti(Object... objs) {
+            if (getItemStack().getType() == Material.AIR) return getItemStack();
+
             ItemBuilder clone = itemBuilder.clone();
+            System.out.println("Building " + clone.getItemStack());
 
             Optional<PapiHook> papi = SuperiorPrisonPlugin.getInstance().getHookController().findHook(PapiHook.class);
             for (Object object : objs) {

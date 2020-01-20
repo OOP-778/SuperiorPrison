@@ -1,10 +1,10 @@
 title: "&eEditing {mine_name} generator!"
 
 actions:
-  - "return:R"
   - "next page:N"
   - "previous page:P"
-  - "material click:M"
+  - "material:M"
+  - "reset:R"
 
 templates:
   - "material:M"
@@ -13,9 +13,13 @@ layout:
   - "* * * * * * * * *"
   - "* $ $ $ $ $ $ $ *"
   - "* * * * * * * * *"
-  - "R & & P I N & & &"
+  - "& & & P I N & & &"
 
 buttons:
+  "&":
+    material: yellow_stained_glass_pane
+    display name: "&r"
+
   "*":
     material: air
 
@@ -38,7 +42,7 @@ buttons:
 
       hidden:
         material: yellow_stained_glass_pane
-        display name: " "
+        display name: "&r"
 
   "N":
     shown:
@@ -50,13 +54,20 @@ buttons:
 
     hidden:
       material: yellow_stained_glass_pane
-      display name: " "
+      display name: "&r"
 
   "M":
     material: stone
     display name: "&e{material_name}"
     lore:
-      - "&e&nRATE:&6 {material_rate}"
+      - "&e&nRATE:&6 {material_rate}%"
       - ""
-      - "&cRight-Click to remove"
       - "&aLeft-Click to edit"
+      - "&cRight-Click to remove"
+
+  "R":
+    material: BOOK
+    display name: "&eReset"
+    lore:
+      - "&e> &7Click to reset"
+      - "The materials to default!"

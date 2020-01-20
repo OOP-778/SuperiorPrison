@@ -20,7 +20,6 @@ public class PlayerUpdateTask extends OTask {
             .build();
 
     public PlayerUpdateTask() {
-
         delay(TimeUnit.MILLISECONDS, 500);
         repeat(true);
         sync(false);

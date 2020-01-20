@@ -10,6 +10,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_8_R3.CraftChunk;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftInventory;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.List;
 public class NmsHandler_v1_8_R3 implements ISuperiorNms {
     @Override
     public void setBlock(Location location, OMaterial material) {
+
         int id = material.getId();
         if (material.getData() > 0)
             id = id + (material.getData() << 12);

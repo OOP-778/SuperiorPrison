@@ -106,7 +106,7 @@ public abstract class OPagedMenu<T> extends OMenu {
             return 1;
 
         return pages;
-    }
+}
 
     public abstract List<T> requestObjects();
 

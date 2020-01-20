@@ -1,6 +1,8 @@
 package com.bgsoftware.superiorprison.plugin.controller;
 
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
+import com.bgsoftware.superiorprison.plugin.object.mine.shop.SShop;
+import com.bgsoftware.superiorprison.plugin.object.mine.shop.SShopItem;
 import com.bgsoftware.superiorprison.plugin.util.TextUtil;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -12,6 +14,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
+
+import static com.bgsoftware.superiorprison.plugin.util.TextUtil.beautifyDouble;
 
 public class PlaceholderController {
 
@@ -35,8 +39,10 @@ public class PlaceholderController {
         add(SNormalMine.class, "{mine_spawnpoint_z}", (text, mine) -> text.replace("{mine_spawnpoint_z}", mine.getSpawnPoint().isPresent() ? mine.getSpawnPoint().get().z() + "" : "None"));
 
         // Placeholders for shop
-        add(SNormalMine.class, "{mine_shop_title}", (text, mine) -> text.replace("{mine_shop_title}", mine.getShop().getTitle()));
         add(SNormalMine.class, "{mine_shop_items_count}", (text, mine) -> text.replace("{mine_shop_items_count}", mine.getShop().getItems().size() + ""));
+        add(SShopItem.class, "{item_price}", (text, item) -> text.replace("{item_price}", beautifyDouble(item.getPrice())));
+        add(SShopItem.class, "{item_name}", (text, item) -> text.replace("{item_name}", TextUtil.beautifyName(item.getItem())));
+
     }
 
     private <T> void add(Class<T> type, String placeholder, BiFunction<String, T, String> handler) {

@@ -1,18 +1,18 @@
-title: "&6Mines List &8(&e{current_page}&7/&e{pages_available}&8)"
+title: "&eEditing {mine_name}&6 shop!"
 
-layout:
-  - "$ $ $ $ $ $ $ $ $"
-  - "$ $ $ $ $ $ $ $ $"
-  - "$ $ $ $ $ $ $ $ $"
-  - "& & & P & N & & &"
+templates:
+  - "shop item:S"
 
 actions:
   - "previous page:P"
   - "next page:N"
-  - "mine click:T"
+  - "shop item:S"
 
-templates:
-  - "mine template:T"
+layout:
+  - "* * * * * * * * *"
+  - "* $ $ $ $ $ $ $ *"
+  - "* * * * * * * * *"
+  - "& & & P & N & & &"
 
 buttons:
   "&":
@@ -43,13 +43,11 @@ buttons:
       material: yellow_stained_glass_pane
       display name: "&r"
 
-  "T":
-    material: stone
-    display name: "&e{mine_name}"
+  "S":
+    material: red_stained_glass_pane
+    display name: "&e{item_name}"
     lore:
-      - "&e&l* &7Click to teleport!"
-      - "<hp=superior.admin>"
+      - "&e&l* &7Price: &e{item_price}$"
       - ""
-      - "&c&l* &7Shift-Click to edit mine!"
-      - "</hp>"
-
+      - "&aLeft-Click to edit"
+      - "&cRight-Click to remove"

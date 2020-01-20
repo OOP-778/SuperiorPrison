@@ -18,7 +18,7 @@ mine defaults:
   # Icon that will be shown in /mines
   icon:
     material: STONE
-    display name: "&e%mine_name%"
+    display name: "&e{mine_name}"
 
   # How much prisoners can a mine hold at a time? For no limit -1
   limit: -1
@@ -38,8 +38,14 @@ mine defaults:
   # Materials used to generate mine
   # The rate cannot exceed 100!
   materials:
-    - "STONE;50"
-    - "DIAMOND_ORE;50"
+    - "STONE:50"
+    - "DIAMOND_ORE:50"
+
+  # Default shop items, the format is: "material:price"
+  shop items:
+    - "DIAMOND_ORE:50"
+    - "IRON_ORE:25"
+    - "GOLD_ORE:15"
 
 area selection tool:
   material: WOODEN_AXE
@@ -50,4 +56,4 @@ area selection tool:
     - "&e&l* &7Spawn: &eMiddle-Click"
 
 # When item is not found inside mine shop, it can use a fallback!
-sell fallback: 'shopgui+'
+sell fallback: "shopGuiPlus"

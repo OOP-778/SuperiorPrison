@@ -1,4 +1,4 @@
-package com.bgsoftware.superiorprison.plugin.commands.autosell;
+package com.bgsoftware.superiorprison.plugin.commands.sell;
 
 import com.oop.orangeengine.command.OCommand;
 

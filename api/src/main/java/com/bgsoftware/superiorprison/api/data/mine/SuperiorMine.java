@@ -1,6 +1,5 @@
 package com.bgsoftware.superiorprison.api.data.mine;
 
-import com.bgsoftware.superiorprison.api.data.mine.flags.FlagEnum;
 import com.bgsoftware.superiorprison.api.data.mine.shop.MineShop;
 import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 import com.bgsoftware.superiorprison.api.util.SPLocation;
@@ -59,11 +58,6 @@ public interface SuperiorMine {
     boolean isInside(Location location);
 
     /*
-    Check if specific flag is set to true
-    */
-    boolean isFlagEnabled(FlagEnum flag);
-
-    /*
     Get mine shop
     */
     MineShop getShop();
@@ -77,5 +71,6 @@ public interface SuperiorMine {
     Get icon of the mine
     */
     ItemStack getIcon();
+
 
 }

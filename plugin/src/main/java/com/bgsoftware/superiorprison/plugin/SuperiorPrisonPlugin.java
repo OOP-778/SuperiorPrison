@@ -23,6 +23,7 @@ import com.oop.orangeengine.main.task.ITaskController;
 import com.oop.orangeengine.message.locale.Locale;
 import lombok.Getter;
 import org.bukkit.Bukkit;
+import org.bukkit.scheduler.BukkitRunnable;
 
 @Getter
 public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison {
@@ -31,7 +32,6 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
     private PlaceholderController placeholderController;
     private ConfigController configController;
     private MainConfig mainConfig;
-    private MenuController menuController;
     private RequirementController requirementController;
     private RankController rankController;
     private HookController hookController;
@@ -83,7 +83,6 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
         this.rankController = new RankController(true);
         this.dataController = new DataController(dab);
         this.placeholderController = new PlaceholderController();
-        this.menuController = new MenuController(configController.getMenusConfig());
         this.requirementController = new RequirementController();
         new RequirementRegisterer();
 
@@ -100,13 +99,10 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
 
         CommandController commandController = new CommandController(this);
         CommandsRegister.register(commandController);
-
-
     }
 
     @Override
     public void disable() {
-
         long then = System.currentTimeMillis();
         getDataController().saveAll();
         getOLogger().print("Save done! Took " + (System.currentTimeMillis() - then) + "ms");
@@ -143,5 +139,4 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
         }
         return false;
     }
-
 }

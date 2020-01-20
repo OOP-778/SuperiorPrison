@@ -8,6 +8,7 @@ import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_14_R1.CraftChunk;
 import org.bukkit.craftbukkit.v1_14_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_14_R1.util.CraftMagicNumbers;
+import org.bukkit.event.inventory.InventoryClickEvent;
 
 import java.util.List;
 

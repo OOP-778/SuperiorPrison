@@ -70,7 +70,7 @@ public class PrisonerListener {
                     mine.getShop().getItems().forEach(shopItem -> {
                         for (ItemStack drop : new HashSet<>(drops)) {
                             if (shopItem.getItem().isSimilar(drop)) {
-                                double onePrice = shopItem.getSellPrice();
+                                double onePrice = shopItem.getPrice();
                                 double finalPrice = onePrice * drop.getAmount();
                                 SuperiorPrisonPlugin.getInstance().getHookController().findHook(VaultHook.class).ifPresent(vault -> vault.getEcoProvider().depositPlayer(event.getPlayer(), finalPrice));
                                 drops.remove(drop);

@@ -5,6 +5,7 @@ import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 import com.bgsoftware.superiorprison.api.util.SPLocation;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.config.main.MineDefaultsSection;
+import com.bgsoftware.superiorprison.plugin.object.mine.settings.SMineSettings;
 import com.bgsoftware.superiorprison.plugin.object.mine.shop.SShop;
 import com.oop.orangeengine.database.OColumn;
 import com.oop.orangeengine.database.annotations.DatabaseTable;
@@ -59,7 +60,7 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
 
     @Getter
     @DatabaseValue(columnName = "settings")
-    private MineSettings settings;
+    private SMineSettings settings;
 
     @Setter
     @DatabaseValue(columnName = "icon")
@@ -69,7 +70,7 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
         super();
         MineDefaultsSection defaults = SuperiorPrisonPlugin.getInstance().getMainConfig().getMineDefaults();
 
-        registerFieldSupplier("options", MineSettings.class, MineSettings::new);
+        registerFieldSupplier("options", SMineSettings.class, SMineSettings::new);
         registerFieldSupplier("icon", ItemStack.class, () -> icon = new OItem(OMaterial.STONE)
                 .setDisplayName("&c" + name)
                 .replaceDisplayName("{mine_name}", name)
@@ -87,7 +88,7 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
         this.minPoint = new SPLocation(pos1);
         this.highPoint = new SPLocation(pos2);
         this.shop = new SShop();
-        this.settings = new MineSettings();
+        this.settings = new SMineSettings();
         shop.attach(this);
         settings.attach(this);
 

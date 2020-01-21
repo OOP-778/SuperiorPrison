@@ -29,9 +29,6 @@ public class RankController implements com.bgsoftware.superiorprison.api.control
     public RankController(boolean first) {
         // We have to load delayed so other plugins can register requirements
         if (first) {
-            System.out.println(
-                    Arrays.stream(Bukkit.getPluginManager().getPlugins()).filter(Plugin::isEnabled).count() + "Disabled plugins!"
-            );
             new OTask()
                     .delay(TimeUnit.SECONDS, 3)
                     .runnable(this::load)

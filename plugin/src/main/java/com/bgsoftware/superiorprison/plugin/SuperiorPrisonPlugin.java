@@ -14,6 +14,7 @@ import com.bgsoftware.superiorprison.plugin.listeners.MineListener;
 import com.bgsoftware.superiorprison.plugin.nms.ISuperiorNms;
 import com.bgsoftware.superiorprison.plugin.requirement.RequirementRegisterer;
 import com.bgsoftware.superiorprison.plugin.tasks.MineShowTask;
+import com.bgsoftware.superiorprison.plugin.tasks.TasksStarter;
 import com.bgsoftware.superiorprison.plugin.util.menu.MenuListener;
 import com.oop.orangeengine.command.CommandController;
 import com.oop.orangeengine.database.ODatabase;
@@ -95,7 +96,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
         new MineListener();
 
         // Initialize tasks
-        new MineShowTask();
+        new TasksStarter();
 
         CommandController commandController = new CommandController(this);
         CommandsRegister.register(commandController);

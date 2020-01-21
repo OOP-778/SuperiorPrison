@@ -1,5 +1,9 @@
 title: "&cPrisoner Control Panel"
 
+actions:
+  - "auto sell:S"
+  - "fortune blocks:F"
+
 layout:
   - "$ $ $ $ $ $ $ $ $"
   - "$ S $ $ I $ $ F $"
@@ -8,7 +12,7 @@ layout:
 
 buttons:
   "S":
-    required permission: "superiorprison.autosell"
+    required permission: "superiorprison.sell"
 
     enabled:
       material: diamond

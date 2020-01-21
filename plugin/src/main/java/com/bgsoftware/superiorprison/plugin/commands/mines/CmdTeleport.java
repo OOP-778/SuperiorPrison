@@ -2,6 +2,8 @@ package com.bgsoftware.superiorprison.plugin.commands.mines;
 
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
+import com.bgsoftware.superiorprison.plugin.commands.args.MinesArg;
+import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.oop.orangeengine.command.OCommand;
 import com.oop.orangeengine.command.WrappedCommand;
 import com.oop.orangeengine.command.arg.arguments.StringArg;
@@ -17,34 +19,22 @@ public class CmdTeleport extends OCommand {
         label("teleport")
                 .alias("tp", "visit")
                 .ableToExecute(Player.class)
-                .argument(
-                        new StringArg()
-                                .setIdentity("name")
-                                .setRequired(true)
-                ).listen(onCommand());
+                .argument(new MinesArg().setRequired(true))
+                .listen(onCommand());
     }
 
     private Consumer<WrappedCommand> onCommand() {
         return command -> {
             Player player = (Player) command.getSender();
-            String mineName = (String) command.getArg("name").get();
-            Optional<SuperiorMine> mineOptional = SuperiorPrisonPlugin.getInstance().getMineController().getMine(mineName);
-
-            if (!mineOptional.isPresent()) {
-                //TODO: Configurable
-                player.sendMessage(ChatColor.RED + "Invalid mine " + mineName + ".");
-                return;
-            }
-
-            SuperiorMine superiorMine = mineOptional.get();
+            SNormalMine superiorMine = command.getArgAsReq("mine");
 
             if (!superiorMine.getSpawnPoint().isPresent()) {
-                player.sendMessage(ChatColor.RED + "Mine " + mineName + " doesn't have a spawn point!");
+                player.sendMessage(ChatColor.RED + "Mine " + superiorMine.getName() + " doesn't have a spawn point!");
                 return;
             }
 
             player.teleport(superiorMine.getSpawnPoint().get().toBukkit());
-            player.sendMessage(ChatColor.GREEN + "Teleported to mine " + mineName);
+            player.sendMessage(ChatColor.GREEN + "Teleported to mine " + superiorMine.getName());
         };
     }
 

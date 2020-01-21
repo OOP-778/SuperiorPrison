@@ -16,15 +16,13 @@ import java.util.Objects;
 @Getter
 public class ConfigController implements OComponent<SuperiorPrisonPlugin> {
 
-    private OConfiguration menusConfig;
     private OConfiguration localeConfig;
     private OConfiguration minesRewardsConfig;
     private OConfiguration ranksConfig;
     private OConfiguration prestigesConfig;
     private Map<String, OConfiguration> menus = Maps.newHashMap();
 
-    public ConfigController() {
-    }
+    public ConfigController() {}
 
     @Override
     public boolean load() {
@@ -32,27 +30,13 @@ public class ConfigController implements OComponent<SuperiorPrisonPlugin> {
         try {
             File dataFolder = getPlugin().getDataFolder();
 
-            OFile menusFile = new OFile(dataFolder, "menus.yml").createIfNotExists(true);
             OFile localeFile = new OFile(dataFolder, "locale.yml").createIfNotExists();
             OFile mineRewardsFile = new OFile(dataFolder, "mineRewards.yml").createIfNotExists(true);
             OFile ranksFile = new OFile(dataFolder, "ranks.yml").createIfNotExists(true);
 
-            this.menusConfig = new OConfiguration(menusFile);
-            ConfigurationUpdater updater = menusConfig.updater();
-            int updated = updater.update();
-
-            if (updated > 0) {
-                getEngine().getLogger().print("Updated menus.yml (" + updated + ") values!");
-            }
-
             this.localeConfig = new OConfiguration(localeFile);
             this.minesRewardsConfig = new OConfiguration(mineRewardsFile);
             this.ranksConfig = new OConfiguration(ranksFile);
-
-            menusConfig.clearDefaultHeader();
-            menusConfig.appendHeader("Here you can edit / create your menus!");
-            menusConfig.appendHeader("Make sure you don't change default names of menus otherwise menus might not work as!");
-            menusConfig.save();
 
             JarUtil.copyFolderFromJar("menus", dataFolder, JarUtil.CopyOption.COPY_IF_NOT_EXIST, SuperiorPrisonPlugin.class);
             for (File menuFile : Objects.requireNonNull(new File(dataFolder + "/menus").listFiles(File::isFile)))

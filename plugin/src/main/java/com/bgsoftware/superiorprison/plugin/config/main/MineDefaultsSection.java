@@ -27,7 +27,7 @@ public class MineDefaultsSection {
         this.limit = section.getValueAsReq("limit");
 
         ConfigurationSection resettingSection = section.getSection("resetting");
-        this.resetting.set(ResetSettings.Type.valueOf(resettingSection.getValueAsReq("mode")), resettingSection.getValueAsReq("value"));
+        this.resetting.set(ResetSettings.Type.valueOf(resettingSection.getValueAsReq("mode", String.class).toUpperCase()), resettingSection.getValueAsReq("value"));
 
         this.materials = ((List<String>) section.getValueAsReq("materials"))
                 .stream()

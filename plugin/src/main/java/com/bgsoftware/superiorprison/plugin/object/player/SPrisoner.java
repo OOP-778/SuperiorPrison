@@ -57,6 +57,7 @@ public class SPrisoner extends DatabaseObject implements com.bgsoftware.superior
     @DatabaseValue(columnName = "rank")
     private String rank;
 
+    @Setter
     @Getter
     @DatabaseValue(columnName = "fortuneBlocks")
     private boolean fortuneBlocks = false;

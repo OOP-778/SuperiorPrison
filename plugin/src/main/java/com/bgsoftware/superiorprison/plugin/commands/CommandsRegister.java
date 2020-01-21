@@ -19,7 +19,6 @@ public class CommandsRegister {
                 .subCommand(new CmdDelete())
                 .subCommand(new CmdEdit())
                 .subCommand(new CmdReset())
-                .subCommand(new CmdBenchmark())
                 .subCommand(new CmdMines())
         );
 

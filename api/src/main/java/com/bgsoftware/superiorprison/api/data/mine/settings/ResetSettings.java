@@ -1,5 +1,7 @@
 package com.bgsoftware.superiorprison.api.data.mine.settings;
 
+import com.sun.org.glassfish.external.statistics.annotations.Reset;
+
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -7,6 +9,10 @@ public interface ResetSettings {
 
     default boolean isTimed() {
         return getClass().isAssignableFrom(Timed.class);
+    }
+
+    default <T extends ResetSettings> T as(Class<T> type) {
+        return getClass().isAssignableFrom(type) ? (T) this : Objects.requireNonNull(null, "Tried to get reset settings as " + type.getSimpleName() +", but it's not instance of " + type.getSimpleName() + ".");
     }
 
     default Timed asTimed() {
@@ -24,27 +30,18 @@ public interface ResetSettings {
 
     }
 
-    public static class Timed {
+    public static interface Timed extends ResetSettings {
 
-        private int interval = -1;
-        private TimeUnit unit = TimeUnit.SECONDS;
+        int getInterval();
 
-        public int getInterval() {
-            return interval;
-        }
+        void setInterval(long interval, TimeUnit unit);
 
-        public TimeUnit getUnit() {
-            return unit;
-        }
     }
 
-    public static class Percentage {
+    public static interface Percentage extends ResetSettings {
+        int getRequiredPercentage();
 
-        private int requiredPercentage = -1;
-
-        public int getRequiredPercentage() {
-            return requiredPercentage;
-        }
+        void setRequiredPercentage(int percentage);
     }
 
 }

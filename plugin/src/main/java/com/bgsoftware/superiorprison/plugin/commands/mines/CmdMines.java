@@ -1,7 +1,7 @@
 package com.bgsoftware.superiorprison.plugin.commands.mines;
 
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
-import com.bgsoftware.superiorprison.plugin.newMenu.MinesListMenu;
+import com.bgsoftware.superiorprison.plugin.menu.MinesListMenu;
 import com.oop.orangeengine.command.OCommand;
 import org.bukkit.entity.Player;
 

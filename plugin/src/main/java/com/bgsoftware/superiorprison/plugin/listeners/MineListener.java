@@ -38,10 +38,11 @@ public class MineListener {
             SNormalMine superiorMine = (SNormalMine) prisoner.getCurrentMine().get();
             superiorMine.getGenerator().setNonEmptyBlocks(superiorMine.getGenerator().getNonEmptyBlocks() - 1);
 
+            if (superiorMine.getSettings().getResetSettings().isTimed()) return;
             async(() -> {
                 int percentageOfFullBlocks = superiorMine.getGenerator().getPercentageOfFullBlocks();
-                String first = superiorMine.getSettings().getResetting().getFirst();
-                if (first.equalsIgnoreCase("Percentage") && percentageOfFullBlocks <= Integer.parseInt(superiorMine.getSettings().getResetting().getSecond())) {
+                int percentageRequired = superiorMine.getSettings().getResetSettings().asPercentage().getRequiredPercentage();
+                if (percentageOfFullBlocks <= percentageRequired) {
                     superiorMine.getGenerator().setNonEmptyBlocks(superiorMine.getGenerator().getCachedMaterials().length);
                     superiorMine.getGenerator().reset();
                 }

@@ -1,7 +1,8 @@
-package com.bgsoftware.superiorprison.plugin.object.mine;
+package com.bgsoftware.superiorprison.plugin.object.mine.settings;
 
 import com.bgsoftware.superiorprison.api.data.mine.flags.MineFlag;
 import com.bgsoftware.superiorprison.api.data.mine.settings.ResetSettings;
+import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.util.Attachable;
 import com.google.common.collect.Maps;
 import com.google.gson.annotations.SerializedName;
@@ -16,7 +17,7 @@ import java.util.Map;
 @Getter
 @Setter
 @AllArgsConstructor
-public class MineSettings implements Attachable<SNormalMine>, GsonUpdateable, com.bgsoftware.superiorprison.api.data.mine.settings.MineSettings {
+public class SMineSettings implements Attachable<SNormalMine>, GsonUpdateable, com.bgsoftware.superiorprison.api.data.mine.settings.MineSettings {
 
     @SerializedName(value = "playerLimit")
     private int playerLimit;
@@ -29,7 +30,7 @@ public class MineSettings implements Attachable<SNormalMine>, GsonUpdateable, co
 
     private transient SNormalMine mine;
 
-    MineSettings() {}
+    SMineSettings() {}
 
     @Override
     public void attach(SNormalMine obj) {

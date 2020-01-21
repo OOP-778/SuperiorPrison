@@ -1,4 +1,4 @@
-package com.bgsoftware.superiorprison.plugin.newMenu;
+package com.bgsoftware.superiorprison.plugin.menu;
 
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
 import com.bgsoftware.superiorprison.api.util.SPLocation;

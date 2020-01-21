@@ -6,6 +6,7 @@ import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.util.Attachable;
 import com.bgsoftware.superiorprison.plugin.util.Cuboid;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.gson.annotations.SerializedName;
 import com.oop.orangeengine.eventssubscription.SubscriptionFactory;
 import com.oop.orangeengine.eventssubscription.SubscriptionProperties;
@@ -17,6 +18,7 @@ import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.material.OMaterial;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -252,34 +254,30 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
 
     private class BlockChanger {
 
-        private final Map<ChunkPosition, List<OPair<Location, OMaterial>>> blocksCache = Maps.newConcurrentMap();
+        private final Set<ChunkPosition> chunkPositions = Sets.newConcurrentHashSet();
         private final SuperiorPrisonPlugin plugin;
 
         private World world;
         private SMineGenerator generator;
 
-        public BlockChanger(SMineGenerator generator, World world) {
+        ExecutorService executor;
+
+        public BlockChanger(@NonNull SMineGenerator generator, @NonNull World world) {
             this.plugin = SuperiorPrisonPlugin.getInstance();
             this.world = world;
             this.generator = generator;
         }
 
-        public void setBlock(Location location, OMaterial material) {
+        public void setBlock(@NonNull Location location, @NonNull OMaterial material) {
+            if (executor.isTerminated() || executor.isShutdown())
+                executor = Executors.newCachedThreadPool();
+
             ChunkPosition chunkPosition = new ChunkPosition(location.getBlockX() >> 4, location.getBlockZ() >> 4);
-            blocksCache.computeIfAbsent(chunkPosition, pairs -> new ArrayList<>()).add(new OPair<>(location, material));
+            chunkPositions.add(chunkPosition);
+            executor.execute(() -> plugin.getNms().setBlock(location, material));
         }
 
         public void submitUpdate() {
-            ExecutorService executor = Executors.newCachedThreadPool();
-
-            for (Map.Entry<ChunkPosition, List<OPair<Location, OMaterial>>> entry : blocksCache.entrySet()) {
-                executor.execute(() -> {
-                    for (OPair<Location, OMaterial> pair : entry.getValue()) {
-                        plugin.getNms().setBlock(pair.getKey(), pair.getValue());
-                    }
-                });
-            }
-
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
                 try {
                     executor.shutdown();
@@ -290,8 +288,8 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
                 }
 
                 Bukkit.getScheduler().runTask(plugin, () -> {
-                    plugin.getNms().refreshChunks(world, blocksCache.keySet().stream().map(chunkPos -> generator.mine.getHighPoint().getWorld().getChunkAt(chunkPos.x, chunkPos.z)).filter(Objects::nonNull).collect(Collectors.toList()));
-                    blocksCache.clear();
+                    plugin.getNms().refreshChunks(world, chunkPositions.stream().map(chunkPos -> generator.mine.getHighPoint().getWorld().getChunkAt(chunkPos.x, chunkPos.z)).filter(Objects::nonNull).collect(Collectors.toList()));
+                    chunkPositions.clear();
                 });
             });
         }

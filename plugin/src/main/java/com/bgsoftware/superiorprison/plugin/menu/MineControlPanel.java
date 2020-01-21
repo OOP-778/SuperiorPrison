@@ -1,4 +1,4 @@
-package com.bgsoftware.superiorprison.plugin.newMenu;
+package com.bgsoftware.superiorprison.plugin.menu;
 
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;

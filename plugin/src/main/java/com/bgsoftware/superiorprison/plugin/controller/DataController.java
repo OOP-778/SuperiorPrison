@@ -19,6 +19,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class DataController extends com.oop.orangeengine.database.object.DataController implements PrisonerController, MineController {
     public DataController(ODatabase database) {
@@ -44,8 +45,12 @@ public class DataController extends com.oop.orangeengine.database.object.DataCon
         return getMines().stream().filter(mine -> mine.getName().equalsIgnoreCase(mineName)).findFirst();
     }
 
-    public OptionalConsumer<SuperiorMine> getMineFiltered(Predicate<SuperiorMine> predicate) {
-        return OptionalConsumer.of(getMines().stream().filter(predicate).findFirst());
+    public Set<SNormalMine> getMinesFiltered(Predicate<SNormalMine> predicate) {
+        return getMines().stream().map(mine -> (SNormalMine) mine).filter(predicate).collect(Collectors.toSet());
+    }
+
+    public Optional<SNormalMine> getMineFiltered(Predicate<SNormalMine> predicate) {
+        return getMines().stream().filter(mine -> predicate.test((SNormalMine)mine)).map(mine -> (SNormalMine) mine).findFirst();
     }
 
     @Override

@@ -25,7 +25,7 @@ public class MineListener {
 
         // Disallow block place event if no perm
         SyncEvents.listen(BlockBreakEvent.class, event -> {
-            if (!event.isCancelled()) return;
+            if (event.isCancelled()) return;
 
             // World check if should make it a bit lighter
             if (!SuperiorPrisonPlugin.getInstance().getDataController().getMinesWorlds().contains(event.getPlayer().getLocation().getWorld().getName()))
@@ -42,6 +42,7 @@ public class MineListener {
             async(() -> {
                 int percentageOfFullBlocks = superiorMine.getGenerator().getPercentageOfFullBlocks();
                 int percentageRequired = superiorMine.getSettings().getResetSettings().asPercentage().getRequiredPercentage();
+
                 if (percentageOfFullBlocks <= percentageRequired) {
                     superiorMine.getGenerator().setNonEmptyBlocks(superiorMine.getGenerator().getCachedMaterials().length);
                     superiorMine.getGenerator().reset();

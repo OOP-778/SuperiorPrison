@@ -21,7 +21,8 @@ import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @DatabaseTable(tableName = "mines")
@@ -69,8 +70,7 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
     protected SNormalMine() {
         super();
         MineDefaultsSection defaults = SuperiorPrisonPlugin.getInstance().getMainConfig().getMineDefaults();
-
-        registerFieldSupplier("options", SMineSettings.class, SMineSettings::new);
+        registerFieldSupplier("settings", SMineSettings.class, () -> new SMineSettings(defaults));
         registerFieldSupplier("icon", ItemStack.class, () -> icon = new OItem(OMaterial.STONE)
                 .setDisplayName("&c" + name)
                 .replaceDisplayName("{mine_name}", name)
@@ -85,17 +85,24 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
 
     public SNormalMine(String name, Location pos1, Location pos2) {
         this.name = name;
-        this.minPoint = new SPLocation(pos1);
-        this.highPoint = new SPLocation(pos2);
+        if (pos1.getBlockY() > pos2.getBlockY()) {
+            this.highPoint = new SPLocation(pos1);
+            this.minPoint = new SPLocation(pos2);
+
+        } else {
+            this.minPoint = new SPLocation(pos1);
+            this.highPoint = new SPLocation(pos2);
+        }
+
         this.shop = new SShop();
-        this.settings = new SMineSettings();
         shop.attach(this);
-        settings.attach(this);
 
         MineDefaultsSection defaults = SuperiorPrisonPlugin.getInstance().getMainConfig().getMineDefaults();
         this.icon = ItemBuilder.fromItem(defaults.getIcon().getItemStack().clone())
                 .replaceDisplayName("{mine_name}", name)
                 .getItemStack();
+
+        this.settings = new SMineSettings(defaults);
 
         generator = new SMineGenerator();
         defaults.getMaterials().forEach(material -> generator.getGeneratorMaterials().add(material));
@@ -108,7 +115,6 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
         this.permission = "superiorprison." + name;
 
         settings.setPlayerLimit(defaults.getLimit());
-
     }
 
     @Override

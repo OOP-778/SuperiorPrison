@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorprison.plugin.controller;
 
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
+import com.bgsoftware.superiorprison.plugin.hook.HookClassSupplier;
 import com.bgsoftware.superiorprison.plugin.hook.SHook;
 
 import java.util.HashMap;
@@ -29,16 +30,16 @@ public class HookController {
         }
     }
 
-    public <T extends SHook> void executeIfFound(Class<T> hookClazz, Consumer<T> consumer) {
+    public <T extends SHook> void executeIfFound(HookClassSupplier<T> supplier, Consumer<T> consumer) {
         findHook(hookClazz).ifPresent(consumer);
     }
 
-    public <T extends SHook> void executeIfFound(Class<T> hookClazz, Runnable runnable) {
+    public <T extends SHook> void executeIfFound(HookClassSupplier<T> supplier, Runnable runnable) {
         executeIfFound(hookClazz, (hook) -> runnable.run());
     }
 
-    public <T extends SHook> Optional<T> findHook(Class<T> hookClazz) {
-        return (Optional<T>) Optional.ofNullable(hooks.get(hookClazz));
+    public <T extends SHook> Optional<T> findHook(HookClassSupplier<T> supplier) {
+
     }
 
     public void disableIf(SHook sHook, boolean b, String s) {
@@ -47,4 +48,16 @@ public class HookController {
             SuperiorPrisonPlugin.getInstance().getOLogger().printWarning(sHook.getPluginName() + " failed to hook, cause: " + s);
         }
     }
+
+    public <T extends SHook> Class<T> getClazz(HookClassSupplier<T> supplier) {
+        try {
+            return supplier.getWithIO();
+        } catch (Throwable ex) {
+            if (!(ex instanceof ClassNotFoundException))
+                ex.printStackTrace();
+
+            return null;
+        }
+    }
+
 }

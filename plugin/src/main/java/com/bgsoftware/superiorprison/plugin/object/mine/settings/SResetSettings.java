@@ -2,6 +2,7 @@ package com.bgsoftware.superiorprison.plugin.object.mine.settings;
 
 import com.bgsoftware.superiorprison.api.data.mine.settings.ResetSettings;
 import com.bgsoftware.superiorprison.plugin.util.TimeUtil;
+import com.oop.orangeengine.main.gson.GsonUpdateable;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,20 +17,21 @@ public class SResetSettings {
             return new STimed(TimeUtil.toSeconds(data.getSecond()));
 
         else
-            return new SPercentage(Integer.parseInt(data.getSecond()));
+            return new SPercentage(Integer.parseInt(data.getSecond().replace("%", "")));
     }
 
     @Getter
-    public static class STimed implements ResetSettings.Timed {
+    public static class STimed implements ResetSettings.Timed, GsonUpdateable {
 
         private long interval;
 
         @Setter
         private long tillReset;
 
+        private STimed() {}
+
         public STimed(long interval) {
             this.interval = interval;
-
             tillReset = interval;
         }
 
@@ -43,7 +45,10 @@ public class SResetSettings {
     @AllArgsConstructor
     @Getter
     @Setter
-    public static class SPercentage implements ResetSettings.Percentage {
+    public static class SPercentage implements ResetSettings.Percentage, GsonUpdateable {
         private int requiredPercentage;
+
+        private SPercentage() {}
+
     }
 }

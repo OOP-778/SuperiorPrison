@@ -11,6 +11,7 @@ import com.bgsoftware.superiorprison.plugin.hook.impl.ShopGuiPlusHook;
 import com.bgsoftware.superiorprison.plugin.hook.impl.VaultHook;
 import com.bgsoftware.superiorprison.plugin.listeners.FlagsListener;
 import com.bgsoftware.superiorprison.plugin.listeners.MineListener;
+import com.bgsoftware.superiorprison.plugin.listeners.PrisonerListener;
 import com.bgsoftware.superiorprison.plugin.nms.ISuperiorNms;
 import com.bgsoftware.superiorprison.plugin.requirement.RequirementRegisterer;
 import com.bgsoftware.superiorprison.plugin.tasks.MineShowTask;
@@ -21,6 +22,7 @@ import com.oop.orangeengine.database.ODatabase;
 import com.oop.orangeengine.main.plugin.EnginePlugin;
 import com.oop.orangeengine.main.task.ClassicTaskController;
 import com.oop.orangeengine.main.task.ITaskController;
+import com.oop.orangeengine.material.OMaterial;
 import com.oop.orangeengine.message.locale.Locale;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -64,7 +66,6 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
                 .add(configController, true)
                 .load();
 
-
         this.hookController = new HookController();
         hookController.registerHooks(VaultHook.class, PapiHook.class, ShopGuiPlusHook.class);
 
@@ -94,6 +95,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
         // Initialize listeners
         new FlagsListener();
         new MineListener();
+        new PrisonerListener();
 
         // Initialize tasks
         new TasksStarter();

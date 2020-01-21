@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorprison.plugin.commands;
 
 import com.bgsoftware.superiorprison.plugin.commands.mines.*;
+import com.bgsoftware.superiorprison.plugin.commands.pcp.CmdPrisonerCP;
 import com.oop.orangeengine.command.CommandController;
 import com.oop.orangeengine.command.OCommand;
 
@@ -21,6 +22,8 @@ public class CommandsRegister {
                 .subCommand(new CmdReset())
                 .subCommand(new CmdMines())
         );
+
+        controller.register(new CmdPrisonerCP());
 
         // Auto Sell
     }

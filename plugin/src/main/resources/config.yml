@@ -33,13 +33,14 @@ mine defaults:
 
     # If percentage the value should be a number between 0 and 100% of blocks left
     # If timed the value should be xHxMxS where H stands for hours, M for minutes and S for seconds
-    value: 40%
+    value: 99%
 
   # Materials used to generate mine
   # The rate cannot exceed 100!
   materials:
     - "STONE:50"
-    - "DIAMOND_ORE:50"
+    - "DIAMOND_ORE:35"
+    - "CYAN_TERRACOTTA:15"
 
   # Default shop items, the format is: "material:price"
   shop items:
@@ -57,3 +58,7 @@ area selection tool:
 
 # When item is not found inside mine shop, it can use a fallback!
 sell fallback: "shopGuiPlus"
+
+# Edit the settings of disposal
+disposal:
+  title: "&6&l> &7Disposal"

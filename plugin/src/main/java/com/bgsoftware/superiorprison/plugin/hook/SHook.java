@@ -25,5 +25,4 @@ public abstract class SHook {
         if (b)
             loaded = false;
     }
-
 }

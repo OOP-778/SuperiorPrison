@@ -27,21 +27,21 @@ public class FlagsListener {
                 return;
 
             SuperiorMine iSuperiorMine = mineAtLocation.get();
-            if (!iSuperiorMine.isFlagEnabled(MineFlag.PVP))
+            if (!iSuperiorMine.getSettings().isFlagToggled(MineFlag.PVP))
                 event.setCancelled(true);
         });
 
         // Night Vision flag listeners
         SyncEvents.listen(MineEnterEvent.class, event -> {
 
-            if (event.getMine().isFlagEnabled(MineFlag.NIGHT_VISION))
+            if (event.getMine().getSettings().isFlagToggled(MineFlag.NIGHT_VISION))
                 event.getPrisoner().getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 9999999, 1, false, false));
 
         });
 
         SyncEvents.listen(MineLeaveEvent.class, event -> {
 
-            if (event.getMine().isFlagEnabled(MineFlag.NIGHT_VISION))
+            if (event.getMine().getSettings().isFlagToggled(MineFlag.NIGHT_VISION))
                 event.getPrisoner().getPlayer().removePotionEffect(PotionEffectType.NIGHT_VISION);
 
         });
@@ -53,7 +53,7 @@ public class FlagsListener {
 
             Prisoner prisoner = SuperiorPrisonPlugin.getInstance().getPrisonerController().insertIfAbsent(player);
             if (!prisoner.getCurrentMine().isPresent()) return;
-            if (prisoner.getCurrentMine().get().isFlagEnabled(MineFlag.FALL_DAMAGE)) return;
+            if (prisoner.getCurrentMine().get().getSettings().isFlagToggled(MineFlag.FALL_DAMAGE)) return;
 
             if (event.getCause() == EntityDamageEvent.DamageCause.SUICIDE || event.getCause() == EntityDamageEvent.DamageCause.FALL)
                 event.setCancelled(true);

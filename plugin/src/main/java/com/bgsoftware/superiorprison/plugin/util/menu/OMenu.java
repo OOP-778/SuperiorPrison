@@ -384,6 +384,7 @@ public abstract class OMenu implements InventoryHolder {
     }
 
     public void refresh() {
+        previousMove = false;
         open(previousMenu);
     }
 }

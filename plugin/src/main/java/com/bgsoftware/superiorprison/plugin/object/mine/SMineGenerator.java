@@ -269,7 +269,7 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
         }
 
         public void setBlock(@NonNull Location location, @NonNull OMaterial material) {
-            if (executor.isTerminated() || executor.isShutdown())
+            if (executor == null || executor.isTerminated() || executor.isShutdown())
                 executor = Executors.newCachedThreadPool();
 
             ChunkPosition chunkPosition = new ChunkPosition(location.getBlockX() >> 4, location.getBlockZ() >> 4);

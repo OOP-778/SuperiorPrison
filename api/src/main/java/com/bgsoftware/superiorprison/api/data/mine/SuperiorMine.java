@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorprison.api.data.mine;
 
+import com.bgsoftware.superiorprison.api.data.mine.settings.MineSettings;
 import com.bgsoftware.superiorprison.api.data.mine.shop.MineShop;
 import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 import com.bgsoftware.superiorprison.api.util.SPLocation;
@@ -71,6 +72,11 @@ public interface SuperiorMine {
     Get icon of the mine
     */
     ItemStack getIcon();
+
+    /*
+    Get settings of the mine
+    */
+    MineSettings getSettings();
 
 
 }

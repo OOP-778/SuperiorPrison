@@ -13,7 +13,7 @@ layout:
   - "* * * * * * * * *"
   - "* $ $ $ $ $ $ $ *"
   - "* * * * * * * * *"
-  - "& & & P I N & & &"
+  - "R & & P I N & & &"
 
 buttons:
   "&":
@@ -40,9 +40,9 @@ buttons:
         - "&7Click to go to"
         - "&7The previous page!"
 
-      hidden:
-        material: yellow_stained_glass_pane
-        display name: "&r"
+    hidden:
+      material: yellow_stained_glass_pane
+      display name: "&r"
 
   "N":
     shown:

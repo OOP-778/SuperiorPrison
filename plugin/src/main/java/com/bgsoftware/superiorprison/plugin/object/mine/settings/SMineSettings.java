@@ -2,6 +2,7 @@ package com.bgsoftware.superiorprison.plugin.object.mine.settings;
 
 import com.bgsoftware.superiorprison.api.data.mine.flags.MineFlag;
 import com.bgsoftware.superiorprison.api.data.mine.settings.ResetSettings;
+import com.bgsoftware.superiorprison.plugin.config.main.MineDefaultsSection;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.util.Attachable;
 import com.google.common.collect.Maps;
@@ -31,6 +32,16 @@ public class SMineSettings implements Attachable<SNormalMine>, GsonUpdateable, c
     private transient SNormalMine mine;
 
     SMineSettings() {}
+
+    public SMineSettings(MineDefaultsSection defaults) {
+        this.playerLimit = defaults.getLimit();
+
+        Arrays.stream(MineFlag.values())
+                .filter(flag -> !flags.containsKey(flag))
+                .forEach(flag -> flags.put(flag, true));
+
+        this.resetSettings = SResetSettings.of(defaults.getResetting());
+    }
 
     @Override
     public void attach(SNormalMine obj) {

@@ -1,7 +1,5 @@
 package com.bgsoftware.superiorprison.api.data.mine.settings;
 
-import com.sun.org.glassfish.external.statistics.annotations.Reset;
-
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -12,7 +10,7 @@ public interface ResetSettings {
     }
 
     default <T extends ResetSettings> T as(Class<T> type) {
-        return getClass().isAssignableFrom(type) ? (T) this : Objects.requireNonNull(null, "Tried to get reset settings as " + type.getSimpleName() +", but it's not instance of " + type.getSimpleName() + ".");
+        return getClass().isAssignableFrom(type) ? (T) this : Objects.requireNonNull(null, "Tried to get reset settings as " + type.getSimpleName() + ", but it's not instance of " + type.getSimpleName() + ".");
     }
 
     default Timed asTimed() {
@@ -32,7 +30,7 @@ public interface ResetSettings {
 
     public static interface Timed extends ResetSettings {
 
-        int getInterval();
+        long getInterval();
 
         void setInterval(long interval, TimeUnit unit);
 

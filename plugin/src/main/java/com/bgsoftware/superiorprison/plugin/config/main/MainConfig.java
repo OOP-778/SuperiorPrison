@@ -28,6 +28,10 @@ public class MainConfig {
     private void load() {
         this.configuration = new OConfiguration(new OFile(SuperiorPrisonPlugin.getInstance().getDataFolder(), "config.yml").createIfNotExists(true));
 
+        int update = configuration.updater().update();
+        if (update > 1)
+            SuperiorPrisonPlugin.getInstance().getOLogger().print("Updated config.yml (" + update + ") values!");
+
         // Set Locale
         configuration.ifValuePresent("locale", String.class, locale -> this.locale = locale);
 

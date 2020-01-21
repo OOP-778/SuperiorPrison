@@ -1,0 +1,23 @@
+title: "&6Sell your items!"
+
+actions:
+  - "sell:S"
+
+layout:
+  - "& & & & & & & & &"
+  - "$ $ $ $ $ $ $ $ $"
+  - "$ $ $ $ $ $ $ $ $"
+  - "& & & & S & & & &"
+
+buttons:
+  "&":
+    material: yellow_stained_glass
+    display name: "&r"
+
+  "S":
+    material: book
+    display name: "&eSell"
+    lore:
+      - "&7Click to sell"
+      - "&7All the items!"
+

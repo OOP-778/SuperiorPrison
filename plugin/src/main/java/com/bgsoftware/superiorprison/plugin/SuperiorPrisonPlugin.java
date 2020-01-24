@@ -67,7 +67,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
                 .load();
 
         this.hookController = new HookController();
-        hookController.registerHooks(VaultHook.class, PapiHook.class, ShopGuiPlusHook.class);
+        hookController.registerHooks(() -> VaultHook.class, () -> ShopGuiPlusHook.class, () -> PapiHook.class);
 
         // Setup API
         new SuperiorPrisonAPI(this);

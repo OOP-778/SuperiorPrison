@@ -2,6 +2,7 @@ package com.bgsoftware.superiorprison.plugin.hook;
 
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -10,6 +11,9 @@ public abstract class SHook {
 
     private JavaPlugin plugin;
     private boolean loaded;
+
+    @Setter
+    private boolean required;
 
     public SHook(JavaPlugin plugin) {
         this.plugin = plugin;

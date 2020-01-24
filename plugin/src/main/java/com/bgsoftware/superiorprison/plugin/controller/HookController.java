@@ -17,29 +17,34 @@ public class HookController {
 
     }
 
-    public void registerHooks(Class<? extends SHook>... hooks) {
-        for (Class<? extends SHook> hookClazz : hooks) {
+    public void registerHooks(HookClassSupplier... hooks) {
+        for (HookClassSupplier<?> clazzSupplier : hooks) {
+            Class<? extends SHook> clazz = getClazz(clazzSupplier);
+            if (clazz == null) continue;
+
             try {
-                SHook hook = hookClazz.newInstance();
+                SHook hook = clazz.newInstance();
                 if (!hook.isLoaded()) continue;
 
-                this.hooks.put(hookClazz, hook);
+                this.hooks.put(clazz, hook);
                 SuperiorPrisonPlugin.getInstance().getOLogger().print("Hooked into (" + hook.getPlugin().getName() + ") " + hook.getPlugin().getDescription().getVersion());
-            } catch (Throwable ignored) {
-            }
+            } catch (Throwable ignored) {}
         }
     }
 
     public <T extends SHook> void executeIfFound(HookClassSupplier<T> supplier, Consumer<T> consumer) {
-        findHook(hookClazz).ifPresent(consumer);
+        findHook(supplier).ifPresent(consumer);
     }
 
     public <T extends SHook> void executeIfFound(HookClassSupplier<T> supplier, Runnable runnable) {
-        executeIfFound(hookClazz, (hook) -> runnable.run());
+        executeIfFound(supplier, (hook) -> runnable.run());
     }
 
     public <T extends SHook> Optional<T> findHook(HookClassSupplier<T> supplier) {
+        Class<T> clazz = getClazz(supplier);
+        if (clazz == null) return Optional.empty();
 
+        return (Optional<T>) Optional.ofNullable(hooks.get(clazz));
     }
 
     public void disableIf(SHook sHook, boolean b, String s) {
@@ -53,9 +58,6 @@ public class HookController {
         try {
             return supplier.getWithIO();
         } catch (Throwable ex) {
-            if (!(ex instanceof ClassNotFoundException))
-                ex.printStackTrace();
-
             return null;
         }
     }

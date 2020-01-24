@@ -119,7 +119,7 @@ public abstract class OMenu implements InventoryHolder {
 
         for (Object object : objects) {
             Set<BiFunction<String, Object, String>> placeholders = SuperiorPrisonPlugin.getInstance().getPlaceholderController().findPlaceholdersFor(object);
-            title = TextUtil.replaceText(object, title, placeholders, SuperiorPrisonPlugin.getInstance().getHookController().findHook(PapiHook.class));
+            title = TextUtil.replaceText(object, title, placeholders, SuperiorPrisonPlugin.getInstance().getHookController().findHook(() -> PapiHook.class));
         }
 
         Inventory inventory = Bukkit.createInventory(this, menuRows * 9, title);

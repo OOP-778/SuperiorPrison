@@ -96,7 +96,7 @@ public class OMenuButton implements Cloneable {
 
         public <T> ItemStack getItemStackWithPlaceholders(T object) {
             if (getItemStack().getType() == Material.AIR) return getItemStack();
-            Optional<PapiHook> papiOptional = SuperiorPrisonPlugin.getInstance().getHookController().findHook(PapiHook.class);
+            Optional<PapiHook> papiOptional = SuperiorPrisonPlugin.getInstance().getHookController().findHook(() -> PapiHook.class);
             if (!papiOptional.isPresent()) return itemBuilder.getItemStack();
             PapiHook papi = papiOptional.get();
 
@@ -111,7 +111,7 @@ public class OMenuButton implements Cloneable {
             if (getItemStack().getType() == Material.AIR) return getItemStack();
             ItemBuilder clone = itemBuilder.clone();
 
-            Optional<PapiHook> hook = SuperiorPrisonPlugin.getInstance().getHookController().findHook(PapiHook.class);
+            Optional<PapiHook> hook = SuperiorPrisonPlugin.getInstance().getHookController().findHook(() -> PapiHook.class);
             clone.setLore(replaceList(object, clone.getLore(), placeholders, hook));
             clone.setDisplayName(replaceText(object, clone.getDisplayName(), placeholders, hook));
 
@@ -122,9 +122,7 @@ public class OMenuButton implements Cloneable {
             if (getItemStack().getType() == Material.AIR) return getItemStack();
 
             ItemBuilder clone = itemBuilder.clone();
-            System.out.println("Building " + clone.getItemStack());
-
-            Optional<PapiHook> papi = SuperiorPrisonPlugin.getInstance().getHookController().findHook(PapiHook.class);
+            Optional<PapiHook> papi = SuperiorPrisonPlugin.getInstance().getHookController().findHook(() -> PapiHook.class);
             for (Object object : objs) {
                 if (object instanceof Player || object instanceof SPrisoner)
                     clone.setLore(finalizeLore(clone.getLore(), object instanceof Player ? (Player) object : ((SPrisoner) object).getPlayer()));

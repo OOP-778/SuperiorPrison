@@ -8,7 +8,7 @@ import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.hook.impl.VaultHook;
 
 public class EcoRequirement implements Requirement {
-    VaultHook vaultHook = SuperiorPrisonPlugin.getInstance().getHookController().findHook(VaultHook.class).get();
+    VaultHook vaultHook = SuperiorPrisonPlugin.getInstance().getHookController().findHook(() -> VaultHook.class).get();
 
     private RequirementHandler<RequirementData> handler = new RequirementHandler<RequirementData>() {
         @Override

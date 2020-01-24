@@ -19,8 +19,8 @@ public class RequirementRegisterer {
 
     public RequirementRegisterer() {
         add(new XpLevelRequirement(), new XpRequirement());
-        SuperiorPrisonPlugin.getInstance().getHookController().executeIfFound(PapiHook.class, () -> add(new PapiRequirement()));
-        SuperiorPrisonPlugin.getInstance().getHookController().executeIfFound(VaultHook.class, () -> add(new EcoRequirement()));
+        SuperiorPrisonPlugin.getInstance().getHookController().executeIfFound(() -> PapiHook.class, () -> add(new PapiRequirement()));
+        SuperiorPrisonPlugin.getInstance().getHookController().executeIfFound(() -> VaultHook.class, () -> add(new EcoRequirement()));
 
         register();
     }

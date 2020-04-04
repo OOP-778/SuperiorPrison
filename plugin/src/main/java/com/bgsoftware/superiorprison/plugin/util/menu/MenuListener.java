@@ -29,7 +29,7 @@ public class MenuListener {
 
         SyncEvents.listen(InventoryCloseEvent.class, event -> {
             if (!(event.getInventory().getHolder() instanceof OMenu)) return;
-            ((OMenu) event.getInventory().getHolder()).closeInventory();
+            ((OMenu) event.getInventory().getHolder()).closeInventory(event);
         });
 
         SyncEvents.listen(InventoryDragEvent.class, event -> {

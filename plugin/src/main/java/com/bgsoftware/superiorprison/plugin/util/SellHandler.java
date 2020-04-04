@@ -1,7 +1,5 @@
 package com.bgsoftware.superiorprison.plugin.util;
 
-import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
-import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 

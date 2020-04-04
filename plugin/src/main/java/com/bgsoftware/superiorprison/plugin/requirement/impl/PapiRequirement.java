@@ -2,6 +2,7 @@ package com.bgsoftware.superiorprison.plugin.requirement.impl;
 
 import com.bgsoftware.superiorprison.api.requirement.Requirement;
 import com.bgsoftware.superiorprison.api.requirement.RequirementData;
+import com.bgsoftware.superiorprison.api.requirement.RequirementException;
 import com.bgsoftware.superiorprison.api.requirement.RequirementHandler;
 import lombok.Getter;
 import me.clip.placeholderapi.PlaceholderAPI;
@@ -11,8 +12,13 @@ import java.util.Map;
 import java.util.Objects;
 
 public class PapiRequirement implements Requirement {
+    private static final RequirementHandler<Data> handler = (prisoner, data) -> {
+        String currentValue = PlaceholderAPI.setPlaceholders(prisoner.getPlayer(), data.getPlaceholder());
+        if (!currentValue.contentEquals(data.getValue()))
+            throw new RequirementException(data, currentValue);
 
-    private final RequirementHandler<Data> handler = (prisoner, data) -> PlaceholderAPI.setPlaceholders(prisoner.getPlayer(), data.getPlaceholder()).contentEquals(data.getValue());
+        return true;
+    };
 
     @Nullable
     @Override
@@ -41,5 +47,4 @@ public class PapiRequirement implements Requirement {
             this.placeholder = Objects.requireNonNull(data.get("placeholder"));
         }
     }
-
 }

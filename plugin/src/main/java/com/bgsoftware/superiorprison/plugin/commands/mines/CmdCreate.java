@@ -1,21 +1,28 @@
 package com.bgsoftware.superiorprison.plugin.commands.mines;
 
-import com.bgsoftware.superiorprison.api.events.MineCreateEvent;
+import com.bgsoftware.superiorprison.api.util.SPLocation;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
+import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
+import com.bgsoftware.superiorprison.plugin.util.MutliVerUtil;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Sets;
 import com.oop.orangeengine.command.OCommand;
 import com.oop.orangeengine.command.WrappedCommand;
 import com.oop.orangeengine.command.arg.arguments.StringArg;
 import com.oop.orangeengine.eventssubscription.SubscriptionFactory;
 import com.oop.orangeengine.eventssubscription.SubscriptionProperties;
-import com.oop.orangeengine.material.OMaterial;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
+import com.oop.orangeengine.eventssubscription.subscription.SubscribedEvent;
+import com.oop.orangeengine.main.task.OTask;
+import com.oop.orangeengine.particle.OParticle;
+import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
 
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 public class CmdCreate extends OCommand {
@@ -36,37 +43,58 @@ public class CmdCreate extends OCommand {
             String mineName = (String) command.getArg("name").get();
 
             if (SuperiorPrisonPlugin.getInstance().getMineController().getMine(mineName).isPresent()) {
-                //TODO: Configurable
-                player.sendMessage(ChatColor.RED + "Mine already exists.");
+                LocaleEnum.MINE_CREATE_FAIL_ALREADY_EXISTS.getWithErrorPrefix().send(player);
                 return;
             }
 
-            player.sendMessage(ChatColor.GREEN + "Select two corners for the mine.");
+            LocaleEnum.MINE_CREATE_SELECT_REGION_POS.getWithPrefix().send(player);
+            addIfDoesntHave(SuperiorPrisonPlugin.getInstance().getMainConfig().getAreaSelectionTool().getItemStack(), player);
 
             SubscriptionFactory sf = SubscriptionFactory.getInstance();
-            sf.subscribeTo(PlayerInteractEvent.class, pos1Event -> {
-                Location pos1 = pos1Event.getClickedBlock().getLocation();
-                player.sendMessage(ChatColor.GREEN + "Selected position #1.");
+            AtomicReference<SPLocation> regionPos1 = new AtomicReference<>();
+            AtomicReference<SPLocation> regionPos2 = new AtomicReference<>();
+            AtomicReference<SPLocation> minePos1 = new AtomicReference<>();
+            AtomicReference<SPLocation> minePos2 = new AtomicReference<>();
+            AtomicReference<SPLocation> spawnPos = new AtomicReference<>();
 
-                pos1Event.setCancelled(true);
+            Set<AtomicReference<SPLocation>> posses = Sets.newHashSet(regionPos1, regionPos2, minePos1, minePos2);
 
-                sf.subscribeTo(PlayerInteractEvent.class, pos2Event -> {
-                    Location pos2 = pos2Event.getClickedBlock().getLocation();
+            SubscribedEvent<PlayerInteractEvent> subscribedEvent = sf.subscribeTo(PlayerInteractEvent.class, posEvent -> {
+                if (!MutliVerUtil.isPrimaryHand(posEvent) || posEvent.getClickedBlock() == null) return;
+                posEvent.setCancelled(true);
 
-                    MineCreateEvent event = new MineCreateEvent(pos1, pos2, mineName, player);
-                    Bukkit.getPluginManager().callEvent(event);
+                if (regionPos1.get() == null) {
+                    regionPos1.set(new SPLocation(posEvent.getClickedBlock().getLocation()));
+                    LocaleEnum.MINE_SELECT_POS.getWithPrefix().send(player, ImmutableMap.of("%pos%", 1 + ""));
 
-                    if (event.isCancelled())
-                        return;
+                } else if (regionPos2.get() == null) {
+                    regionPos2.set(new SPLocation(posEvent.getClickedBlock().getLocation()));
+                    LocaleEnum.MINE_SELECT_POS.getWithPrefix().send(player, ImmutableMap.of("%pos%", 2 + ""));
 
-                    player.sendMessage(ChatColor.GREEN + "Successfully created a new mine! (" + mineName + ")");
-                    SuperiorPrisonPlugin.getInstance().getMineController().getData().add(new SNormalMine(mineName, pos1, pos2));
+                } else if (minePos1.get() == null) {
+                    minePos1.set(new SPLocation(posEvent.getClickedBlock().getLocation()));
+                    LocaleEnum.MINE_SELECT_POS.getWithPrefix().send(player, ImmutableMap.of("%pos%", 1 + ""));
 
-                }, new SubscriptionProperties<PlayerInteractEvent>().timeOut(TimeUnit.SECONDS, 30).timesToRun(1).filter(filterEvent -> filterEvent.getClickedBlock() != null && filterEvent.hasItem() && filterEvent.getItem().getType() == OMaterial.GOLDEN_AXE.parseMaterial()).onTimeOut(event -> {
-                }));
-            }, new SubscriptionProperties<PlayerInteractEvent>().timeOut(TimeUnit.SECONDS, 30).timesToRun(1).filter(filterEvent -> filterEvent.getClickedBlock() != null && filterEvent.hasItem() && filterEvent.getItem().getType() == OMaterial.GOLDEN_AXE.parseMaterial()).onTimeOut(event -> {
-            }));
+                } else if (minePos2.get() == null) {
+                    minePos2.set(new SPLocation(posEvent.getClickedBlock().getLocation()));
+                    LocaleEnum.MINE_SELECT_SPAWN_POS.getWithPrefix().send(player);
+
+                } else if (spawnPos.get() == null) {
+                    spawnPos.set(new SPLocation(posEvent.getClickedBlock().getLocation()));
+
+                    LocaleEnum.MINE_CREATE_SUCCESSFUL.getWithPrefix().send(player, ImmutableMap.of("%mine_name%", mineName));
+                    SNormalMine sNormalMine = new SNormalMine(mineName, regionPos1.get(), regionPos2.get(), minePos1.get(), minePos2.get());
+                    sNormalMine.setSpawnPoint(spawnPos.get());
+
+                    SuperiorPrisonPlugin.getInstance().getMineController().add(sNormalMine);
+                }
+            }, new SubscriptionProperties<PlayerInteractEvent>().timeOut(TimeUnit.MINUTES, 2).timesToRun(5).filter(posEvent -> MutliVerUtil.isPrimaryHand(posEvent) && SuperiorPrisonPlugin.getInstance().getMainConfig().getAreaSelectionTool().getItemStack().equals(posEvent.getItem()) && posEvent.getClickedBlock() != null));
         };
     }
 
+    public void addIfDoesntHave(ItemStack itemStack, Player player) {
+        for (ItemStack itemStack2 : player.getInventory().getContents())
+            if (itemStack2.equals(itemStack)) return;
+        player.getInventory().addItem(itemStack);
+    }
 }

@@ -1,0 +1,65 @@
+title: "&eAvailable Ranks"
+
+layout:
+  - "$ $ $ $ $ $ $ $ $"
+  - "S & P & & & N & &"
+
+templates:
+  - "rank template:R"
+
+actions:
+  - "previous page:P"
+  - "next page:N"
+  - "rank click:R"
+  - "sort click:S"
+
+buttons:
+  "&":
+    material: yellow_stained_glass_pane
+    display name: "&r"
+
+  "P":
+    shown:
+      material: arrow
+      display name: "&e<<"
+      lore:
+        - "&7Click to go to"
+        - "&7The previous page!"
+
+    hidden:
+      material: yellow_stained_glass_pane
+      display name: "&r"
+
+  "N":
+    shown:
+      material: arrow
+      display name: "&e>>"
+      lore:
+        - "&7Click to go to"
+        - "&7The next page!"
+
+    hidden:
+      material: yellow_stained_glass_pane
+      display name: "&r"
+
+  "S":
+    material: LEVER
+    display name: "&eSort"
+    lore:
+      - "&e&l* &7Sorted: {sort_method}"  
+      - ""
+      - "&a&l(!)&7 Click to change"
+      - "&7Sort method"
+
+  "F":
+    material: REDSTONE
+    display name: "&eSearch Ranks"
+    lore:
+      - "&cSearch for a specific rank"
+
+  "R":
+    material: DIAMOND
+    display name: "&e{rank_name}"
+    lore:
+      - ""
+      - "&7Click to add to the mine"

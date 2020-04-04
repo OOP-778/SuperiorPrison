@@ -1,99 +1,103 @@
 package com.bgsoftware.superiorprison.plugin.object.mine;
 
 import com.bgsoftware.superiorprison.api.data.mine.MineEnum;
+import com.bgsoftware.superiorprison.api.data.mine.area.Area;
+import com.bgsoftware.superiorprison.api.data.mine.area.AreaEnum;
+import com.bgsoftware.superiorprison.api.data.mine.sign.Sign;
 import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 import com.bgsoftware.superiorprison.api.util.SPLocation;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.config.main.MineDefaultsSection;
+import com.bgsoftware.superiorprison.plugin.object.mine.area.SArea;
 import com.bgsoftware.superiorprison.plugin.object.mine.settings.SMineSettings;
 import com.bgsoftware.superiorprison.plugin.object.mine.shop.SShop;
-import com.oop.orangeengine.database.OColumn;
-import com.oop.orangeengine.database.annotations.DatabaseTable;
-import com.oop.orangeengine.database.annotations.DatabaseValue;
-import com.oop.orangeengine.database.object.DatabaseObject;
+import com.bgsoftware.superiorprison.plugin.object.mine.sign.SSign;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.oop.orangeengine.database.DatabaseObject;
+import com.oop.orangeengine.database.annotation.Column;
+import com.oop.orangeengine.database.annotation.PrimaryKey;
+import com.oop.orangeengine.database.annotation.Table;
 import com.oop.orangeengine.item.ItemBuilder;
-import com.oop.orangeengine.item.custom.OItem;
 import com.oop.orangeengine.main.task.StaticTask;
-import com.oop.orangeengine.material.OMaterial;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
 
+import javax.annotation.Nullable;
 import java.io.Serializable;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
-@DatabaseTable(tableName = "mines")
+@Table(name = "mines")
 public class SNormalMine extends DatabaseObject implements com.bgsoftware.superiorprison.api.data.mine.type.NormalMine, Serializable {
 
     private Set<Prisoner> prisoners = ConcurrentHashMap.newKeySet();
 
-    @DatabaseValue(columnName = "mineType")
-    private MineEnum type = MineEnum.NORMAL_MINE;
-
-    @DatabaseValue(columnName = "name", columnType = OColumn.VARCHAR)
+    @PrimaryKey(name = "name")
     @Setter
     private String name;
 
-    @Setter
-    @DatabaseValue(columnName = "minPoint")
-    private SPLocation minPoint;
+    @Column(name = "type")
+    private MineEnum type = MineEnum.NORMAL_MINE;
 
     @Setter
-    @DatabaseValue(columnName = "highPoint")
-    private SPLocation highPoint;
-
-    @Setter
-    @DatabaseValue(columnName = "spawnPoint")
+    @Column(name = "spawnPoint")
     private SPLocation spawnPoint = null;
 
-    @DatabaseValue(columnName = "generator")
+    @Column(name = "generator")
     private SMineGenerator generator;
 
-    @DatabaseValue(columnName = "shop")
+    @Column(name = "shop")
     private SShop shop;
 
-    @Setter
-    @DatabaseValue(columnName = "permission")
-    private String permission;
+    @Getter
+    @Column(name = "ranks")
+    private Set<String> ranks = Sets.newConcurrentHashSet();
 
     @Getter
-    @DatabaseValue(columnName = "settings")
+    @Column(name = "settings")
     private SMineSettings settings;
 
     @Setter
-    @DatabaseValue(columnName = "icon")
+    @Column(name = "icon")
     private ItemStack icon;
+
+    @Column(name = "areas")
+    @Getter
+    private Map<AreaEnum, SArea> areas = Maps.newConcurrentMap();
+
+    @Column(name = "signs")
+    private Set<SSign> signs = Sets.newConcurrentHashSet();
 
     protected SNormalMine() {
         super();
-        MineDefaultsSection defaults = SuperiorPrisonPlugin.getInstance().getMainConfig().getMineDefaults();
-        registerFieldSupplier("settings", SMineSettings.class, () -> new SMineSettings(defaults));
-        registerFieldSupplier("icon", ItemStack.class, () -> icon = new OItem(OMaterial.STONE)
-                .setDisplayName("&c" + name)
-                .replaceDisplayName("{mine_name}", name)
-                .appendLore("&cYikes Yupppie!")
-                .getItemStack());
-
-        setWhenLoaded(() -> {
+        runWhenLoaded(() -> {
             generator.attach(this);
             settings.attach(this);
+
+            Map<AreaEnum, SArea> newAreas = Maps.newConcurrentMap();
+            areas.keySet()
+                    .stream()
+                    .sorted(Comparator.comparingInt(AreaEnum::getOrder))
+                    .sorted(Comparator.reverseOrder())
+                    .forEachOrdered(areaEnum -> newAreas.put(areaEnum, areas.get(areaEnum)));
+
+            this.areas = newAreas;
+            areas.values().forEach(area -> area.attach(this));
         });
     }
 
-    public SNormalMine(String name, Location pos1, Location pos2) {
+    public SNormalMine(@NonNull String name, @NonNull SPLocation regionPos1, @NonNull SPLocation regionPos2, @NonNull SPLocation minePos1, @NonNull SPLocation minePos2) {
         this.name = name;
-        if (pos1.getBlockY() > pos2.getBlockY()) {
-            this.highPoint = new SPLocation(pos1);
-            this.minPoint = new SPLocation(pos2);
-
-        } else {
-            this.minPoint = new SPLocation(pos1);
-            this.highPoint = new SPLocation(pos2);
-        }
-
+        this.areas.put(AreaEnum.MINE, new SArea(minePos1, minePos2, AreaEnum.MINE));
+        this.areas.put(AreaEnum.REGION, new SArea(regionPos1.y(0), regionPos2.y(255), AreaEnum.REGION));
+        areas.values().forEach(area -> area.attach(this));
         this.shop = new SShop();
         shop.attach(this);
 
@@ -107,13 +111,11 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
         generator = new SMineGenerator();
         defaults.getMaterials().forEach(material -> generator.getGeneratorMaterials().add(material));
         generator.setMine(this);
+        generator.setMineArea((SArea) getArea(AreaEnum.MINE));
         generator.initBlockChanger();
 
         defaults.getShopPrices().forEach(item -> shop.addItem(item.getFirst().parseItem(), item.getSecond()));
         StaticTask.getInstance().async(() -> generator.initCache(() -> generator.generate()));
-
-        this.permission = "superiorprison." + name;
-
         settings.setPlayerLimit(defaults.getLimit());
     }
 
@@ -128,13 +130,22 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
     }
 
     @Override
-    public SPLocation getMinPoint() {
-        return minPoint;
+    public Area getArea(AreaEnum type) {
+        return areas.get(type);
     }
 
     @Override
-    public SPLocation getHighPoint() {
-        return highPoint;
+    public Area getArea(Location location) {
+        Area mine = getArea(AreaEnum.MINE);
+        Area region = getArea(AreaEnum.REGION);
+
+        if (mine.isInside(location))
+            return mine;
+
+        if (region.isInside(location))
+            return region;
+
+        return null;
     }
 
     @Override
@@ -159,11 +170,29 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
 
     @Override
     public boolean isInside(Location location) {
-        return location.getWorld().getName().contentEquals(getMinPoint().worldName()) &&
-                (location.getBlockX() > getMinPoint().x()) &&
-                (location.getBlockZ() > getMinPoint().z()) &&
-                (location.getBlockX() < getHighPoint().x()) &&
-                (location.getBlockZ() < getHighPoint().z());
+        return areas.get(AreaEnum.REGION).isInside(location);
+    }
+
+    @Nullable
+    @Override
+    public AreaEnum getAreaTypeAt(Location location) {
+        if (areas.get(AreaEnum.MINE).isInside(location))
+            return AreaEnum.MINE;
+
+        if (areas.get(AreaEnum.REGION).isInside(location))
+            return AreaEnum.REGION;
+
+        return null;
+    }
+
+    @Override
+    public boolean isInsideArea(AreaEnum areaEnum, Location location) {
+        return getArea(areaEnum).isInside(location);
+    }
+
+    @Override
+    public World getWorld() {
+        return getArea(AreaEnum.MINE).getHighPoint().getWorld();
     }
 
     @Override
@@ -172,20 +201,58 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
     }
 
     @Override
-    public Optional<String> getPermission() {
-        return Optional.ofNullable(permission);
-    }
-
-    @Override
     public ItemStack getIcon() {
         return icon;
     }
 
-    public void preDelete() {
-        // TO DO
+    @Override
+    public boolean canEnter(Prisoner prisoner) {
+        return prisoner.getPlayer().isOp() || getRanks().stream().anyMatch(name -> prisoner.getRanks().stream().anyMatch(name2 -> name.contentEquals(name)));
     }
 
-    public void checkForReset() {
+    @Override
+    @Nullable
+    public Sign getSignAt(Location location) {
+        return signs
+                .stream()
+                .filter(sign -> sign.getLocation() == location)
+                .findFirst()
+                .orElse(null);
     }
 
+    public Set<Sign> getSigns() {
+        return new HashSet<>(signs);
+    }
+
+    @Override
+    public Set<Sign> getSigns(Predicate<Sign> sign) {
+        return signs
+                .stream()
+                .filter(sign)
+                .collect(Collectors.toSet());
+    }
+
+    @Override
+    public void removeSign(Sign sign) {
+        signs.remove(sign);
+    }
+
+    @Override
+    public void removeSign(Location location) {
+        signs.removeIf(sign -> sign.getLocation() == location);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        SNormalMine that = (SNormalMine) o;
+        return Objects.equals(name, that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return name != null ? name.hashCode() : 0;
+    }
 }

@@ -1,6 +1,9 @@
 package com.bgsoftware.superiorprison.plugin.hook.impl;
 
 import com.bgsoftware.superiorprison.plugin.hook.SHook;
+import net.brcdev.shopgui.ShopGuiPlusApi;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class ShopGuiPlusHook extends SHook {
@@ -11,5 +14,9 @@ public class ShopGuiPlusHook extends SHook {
     @Override
     public String getPluginName() {
         return "ShopGuiPlus";
+    }
+
+    public double getPriceFor(ItemStack itemStack, Player player) {
+        return ShopGuiPlusApi.getItemStackPriceSell(player, itemStack);
     }
 }

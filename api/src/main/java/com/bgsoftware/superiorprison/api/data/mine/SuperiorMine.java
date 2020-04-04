@@ -1,14 +1,20 @@
 package com.bgsoftware.superiorprison.api.data.mine;
 
+import com.bgsoftware.superiorprison.api.data.mine.area.Area;
+import com.bgsoftware.superiorprison.api.data.mine.area.AreaEnum;
 import com.bgsoftware.superiorprison.api.data.mine.settings.MineSettings;
 import com.bgsoftware.superiorprison.api.data.mine.shop.MineShop;
+import com.bgsoftware.superiorprison.api.data.mine.sign.Sign;
 import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 import com.bgsoftware.superiorprison.api.util.SPLocation;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
 
+import javax.annotation.Nullable;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 
 public interface SuperiorMine {
 
@@ -23,14 +29,11 @@ public interface SuperiorMine {
     String getName();
 
     /*
-    Get min point of mine area
+    Get different areas of the mine region or mine
     */
-    SPLocation getMinPoint();
+    Area getArea(AreaEnum type);
 
-    /*
-    Get min point of mine area
-    */
-    SPLocation getHighPoint();
+    Area getArea(Location location);
 
     /*
     Get spawn point of mine
@@ -64,9 +67,9 @@ public interface SuperiorMine {
     MineShop getShop();
 
     /*
-    Get permission of the mine
+    Get rank names that can access the mine!
     */
-    Optional<String> getPermission();
+    Set<String> getRanks();
 
     /*
     Get icon of the mine
@@ -78,5 +81,34 @@ public interface SuperiorMine {
     */
     MineSettings getSettings();
 
+    /*
+    Get area type at an location
+    */
+    @Nullable
+    AreaEnum getAreaTypeAt(Location location);
 
+    /*
+    Get a boolean if the location is inside the area
+    */
+    boolean isInsideArea(AreaEnum areaEnum, Location location);
+
+    /*
+    Get world of the mine
+    */
+    World getWorld();
+
+    boolean canEnter(Prisoner prisoner);
+
+    void save(boolean async);
+
+    @Nullable
+    Sign getSignAt(Location location);
+
+    Set<Sign> getSigns();
+
+    Set<Sign> getSigns(Predicate<Sign> sign);
+
+    void removeSign(Location location);
+
+    void removeSign(Sign sign);
 }

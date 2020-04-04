@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorprison.plugin.util.menu;
 
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
+import com.bgsoftware.superiorprison.plugin.util.ClassDebugger;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -51,7 +52,22 @@ public abstract class OPagedMenu<T> extends OMenu {
         Inventory inventory = buildInventory(getTitle().replace("{current_page}", currentPage + "").replace("{pages_available}", getPages() + ""), getViewer());
 
         List<T> allItems = requestObjects();
-        if (allItems.isEmpty()) return inventory;
+        if (allItems.isEmpty()) {
+            buttonOf(button -> button.action().contentEquals("next page")).ifPresent(button -> {
+                if (!button.containsState("hidden")) return;
+
+                inventory.setItem(button.slot(), button.currentItem(button.getStateItem("hidden").getItemStackWithPlaceholdersMulti(getViewer())).currentItem());
+            });
+
+            buttonOf(button -> button.action().contentEquals("previous page")).ifPresent(button -> {
+                if (!button.containsState("hidden")) return;
+
+                inventory.setItem(button.slot(), button.currentItem(button.getStateItem("hidden").getItemStackWithPlaceholdersMulti(getViewer())).currentItem());
+            });
+
+
+            return inventory;
+        }
 
         items.clear();
         emptySlots = getEmptySlots();
@@ -101,7 +117,12 @@ public abstract class OPagedMenu<T> extends OMenu {
     }
 
     private int getPages() {
-        int pages = Math.round(requestObjects().size() / getEmptySlots().size());
+        int pages = 1;
+        double pagesNotRounded = (float) requestObjects().size() / getEmptySlots().size();
+
+        ClassDebugger.debug("objects: " + requestObjects().size());
+        ClassDebugger.debug(getEmptySlots().size());
+        ClassDebugger.debug(pagesNotRounded);
         if (pages == 0)
             return 1;
 

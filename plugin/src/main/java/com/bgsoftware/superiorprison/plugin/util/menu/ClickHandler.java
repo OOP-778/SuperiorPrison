@@ -17,9 +17,6 @@ public class ClickHandler {
 
     private Consumer<ButtonClickEvent> consumer;
 
-    private ClickHandler() {
-    }
-
     public static ClickHandler of(OMenuButton button) {
         ClickHandler clickHandler = new ClickHandler();
         clickHandler.action = button.action();
@@ -34,8 +31,9 @@ public class ClickHandler {
         return clickHandler;
     }
 
-    public void apply(OMenu menu) {
+    public ClickHandler apply(OMenu menu) {
         menu.getClickHandlers().put(Objects.requireNonNull(action.toLowerCase(), "Cannot put action as null"), this);
+        return this;
     }
 
     public ClickHandler clearClickTypes() {

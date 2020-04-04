@@ -1,0 +1,8 @@
+default prefix: "&8(P&e{prestige_name}&8)"
+
+"1":
+  order: 1
+
+  requirements:
+    - "{RANK} C"
+    - "{ECO} 20000"

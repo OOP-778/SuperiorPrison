@@ -1,9 +1,5 @@
 package com.bgsoftware.superiorprison.api.data.mine.settings;
 
-import com.bgsoftware.superiorprison.api.data.mine.flags.MineFlag;
-
-import java.util.Map;
-
 public interface MineSettings {
 
     /*
@@ -15,14 +11,5 @@ public interface MineSettings {
     Get reset settings
     */
     ResetSettings getResetSettings();
-
-    /*
-    Get flags
-    */
-    Map<MineFlag, Boolean> getFlags();
-
-    default boolean isFlagToggled(MineFlag flag) {
-        return getFlags().get(flag);
-    }
 
 }

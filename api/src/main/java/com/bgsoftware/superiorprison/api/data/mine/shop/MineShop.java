@@ -12,4 +12,7 @@ public interface MineShop {
 
     void removeItem(ShopItem item);
 
+    double getPrice(ItemStack itemStack);
+
+    boolean hasItem(ItemStack itemStack);
 }

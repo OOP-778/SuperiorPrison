@@ -3,11 +3,13 @@ title: "&cPrisoner Control Panel"
 actions:
   - "auto sell:S"
   - "fortune blocks:F"
+  - "auto pickup:P"
+  - "auto burn:B"
 
 layout:
   - "$ $ $ $ $ $ $ $ $"
-  - "$ S $ $ I $ $ F $"
-  - "$ $ P $ $ $ M $ $"
+  - "$ S $ $ $ $ $ F $"
+  - "$ $ P $ $ $ B $ $"
   - "$ $ $ $ $ $ $ $ $"
 
 buttons:
@@ -68,3 +70,62 @@ buttons:
       lore:
         - "&cYou don't have the permission:"
         - "&c&l* &7{permission}"
+
+  "P":
+    required permission: "superiorprison.autopickup"
+
+    enabled:
+      material: diamond
+      glow: true
+      display name: "&eAuto Pickup &8(&aActive&8)"
+      lore:
+        - "&7It will auto pickup"
+        - "&7For you any block mined!"
+        - ""
+        - "&a&l(!)&7 Click to toggle!"
+
+    disabled:
+      material: diamond
+      display name: "&eAuto Pickup &8(&cDisabled&8)"
+      lore:
+        - "&7It will auto pickup"
+        - "&7For you any block mined!"
+        - ""
+        - "&a&l(!)&7 Click to toggle!"
+
+    no permission:
+      material: red_stained_glass_pane
+      display name: "&cAccess denied!"
+      lore:
+        - "&cYou don't have the permission:"
+        - "&c&l* &7{permission}"
+
+  "B":
+    required permission: "superiorprison.autoburn"
+
+    enabled:
+      material: diamond
+      glow: true
+      display name: "&eAuto Burn &8(&aActive&8)"
+      lore:
+        - "&7It will auto burn"
+        - "&7For you any block mined!"
+        - ""
+        - "&a&l(!)&7 Click to toggle!"
+
+    disabled:
+      material: diamond
+      display name: "&eAuto Burn &8(&cDisabled&8)"
+      lore:
+        - "&7It will auto burn"
+        - "&7For you any block mined!"
+        - ""
+        - "&a&l(!)&7 Click to toggle!"
+
+    no permission:
+      material: red_stained_glass_pane
+      display name: "&cAccess denied!"
+      lore:
+        - "&cYou don't have the permission:"
+        - "&c&l* &7{permission}"
+

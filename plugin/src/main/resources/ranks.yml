@@ -1,27 +1,32 @@
-# To set a default rank write default: true
-
-# Default permission for a rank
-default permission: "superiorprison.rank.%rank_name%"
-
 # Default prefix for a rank
-default prefix: "&8[&a%rank_name%&r&8]"
+default prefix: "&8[&a{rank_name}&r&8]"
 
+# Order 1 is the default rank
 "A":
-  prefix: "&8[&aA&r&8]"
-  default: true
+  order: 1
 
 "B":
-  prefix: "&8[&cB&r&8]"
-
+  order: 2
   requirements:
     - "{ECO} 1000"
     - "{XP_LEVEL, take=false} 10"
-    - "{PAPI, placeholder=%player_name%} CrazyBrian"
 
   # Commands that are executed upon receiving rank
   commands:
     - "give %player% diamond"
 
+  permissions:
+    - "superiorprison.autopickup"
 
+"C":
+  order: 3
+  prefix: "&8[&bC&8]"
+  requirements:
+    - "{ECO} 2000"
+    - "{XP_LEVEl, take=false} 20"
 
+"VIP":
+  prefix: "&8[&b&lVIP&8]"
 
+  commands:
+    - "broadcast %player% received VIP!"

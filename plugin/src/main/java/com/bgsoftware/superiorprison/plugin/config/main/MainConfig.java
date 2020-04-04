@@ -12,16 +12,14 @@ public class MainConfig {
     public OConfiguration configuration;
     private String locale = "en-us";
 
+    private boolean shopGuiAsFallBack = false;
+
     private DatabaseSection database;
     private MineDefaultsSection mineDefaults;
 
     private OItem areaSelectionTool;
 
     public MainConfig() {
-        load();
-    }
-
-    public void reload() {
         load();
     }
 
@@ -42,6 +40,7 @@ public class MainConfig {
         this.mineDefaults = new MineDefaultsSection(configuration.getSection("mine defaults"));
 
         this.areaSelectionTool = new OItem().load(configuration.getSection("area selection tool"));
-    }
 
+        configuration.ifValuePresent("shopgui fall back", boolean.class, b -> shopGuiAsFallBack = b);
+    }
 }

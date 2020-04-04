@@ -5,6 +5,7 @@ actions:
   - "previous page:P"
   - "material:M"
   - "reset:R"
+  - "save:S"
 
 templates:
   - "material:M"
@@ -13,7 +14,7 @@ layout:
   - "* * * * * * * * *"
   - "* $ $ $ $ $ $ $ *"
   - "* * * * * * * * *"
-  - "R & & P I N & & &"
+  - "R & & P I N & & S"
 
 buttons:
   "&":
@@ -28,7 +29,7 @@ buttons:
     display name: "&eInformation"
     lore:
       - "&cHere you can set chances of specific materials"
-      - "&cRemember the chances cannot pass 100%"
+      - "&cRemember the chances cannot be over or lower than 100%"
       - ""
       - "&cTo insert an material, just click it in your inventory"
 
@@ -69,5 +70,11 @@ buttons:
     material: BOOK
     display name: "&eReset"
     lore:
-      - "&e> &7Click to reset"
-      - "The materials to default!"
+      - "&7Click to reset"
+      - "&7The materials to default!"
+
+  "S":
+      material: BOOK
+      display name: "&eSave"
+      lore:
+        - "&7Click to save changes"

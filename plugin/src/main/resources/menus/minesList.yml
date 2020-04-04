@@ -47,9 +47,9 @@ buttons:
     material: stone
     display name: "&e{mine_name}"
     lore:
+      - ""
       - "&e&l* &7Click to teleport!"
       - "<hp=superior.admin>"
-      - ""
       - "&c&l* &7Shift-Click to edit mine!"
       - "</hp>"
 

@@ -7,6 +7,7 @@ import lombok.experimental.Accessors;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.util.NumberConversions;
 
 import java.io.Serializable;
 
@@ -16,9 +17,9 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class SPLocation implements Serializable, Cloneable {
 
-    private int x;
-    private int y;
-    private int z;
+    private double x;
+    private double y;
+    private double z;
     private String worldName;
 
     public SPLocation(Location location) {
@@ -33,6 +34,13 @@ public class SPLocation implements Serializable, Cloneable {
         if (world == null) return null;
 
         return new Location(world, x, y, z);
+    }
+
+    public SPLocation add(double x, double y, double z) {
+        this.x = this.x + x;
+        this.y = this.y + y;
+        this.z = this.z + z;
+        return this;
     }
 
     public World getWorld() {
@@ -52,5 +60,17 @@ public class SPLocation implements Serializable, Cloneable {
             ex.printStackTrace();
         }
         return null;
+    }
+
+    public int xBlock() {
+        return NumberConversions.floor(x);
+    }
+
+    public int yBlock() {
+        return NumberConversions.floor(y);
+    }
+
+    public int zBlock() {
+        return NumberConversions.floor(z);
     }
 }

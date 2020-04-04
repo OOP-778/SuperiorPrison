@@ -1,16 +1,18 @@
 package com.bgsoftware.superiorprison.plugin.controller;
 
+import com.bgsoftware.superiorprison.api.data.player.rank.Rank;
+import com.bgsoftware.superiorprison.plugin.menu.ranks.SortMethod;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
-import com.bgsoftware.superiorprison.plugin.object.mine.shop.SShop;
+import com.bgsoftware.superiorprison.plugin.object.mine.area.SArea;
 import com.bgsoftware.superiorprison.plugin.object.mine.shop.SShopItem;
 import com.bgsoftware.superiorprison.plugin.util.TextUtil;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.oop.orangeengine.main.Helper;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
@@ -23,16 +25,11 @@ public class PlaceholderController {
 
     public PlaceholderController() {
         add(SNormalMine.class, "{mine_name}", (text, mine) -> text.replace("{mine_name}", mine.getName()));
-        add(SNormalMine.class, "{mine_permission}", (text, mine) -> text.replace("{mine_permission}", mine.getPermission().orElse("None")));
         add(SNormalMine.class, "{mine_prisoners_count}", (text, mine) -> text.replace("{mine_prisoners_count}", mine.getPrisoners().size() + ""));
 
-        add(SNormalMine.class, "{mine_minpoint_x}", (text, mine) -> text.replace("{mine_minpoint_x}", mine.getMinPoint().x() + ""));
-        add(SNormalMine.class, "{mine_minpoint_y}", (text, mine) -> text.replace("{mine_minpoint_y}", mine.getMinPoint().y() + ""));
-        add(SNormalMine.class, "{mine_minpoint_z}", (text, mine) -> text.replace("{mine_minpoint_z}", mine.getMinPoint().z() + ""));
-
-        add(SNormalMine.class, "{mine_highpoint_x}", (text, mine) -> text.replace("{mine_highpoint_x}", mine.getHighPoint().x() + ""));
-        add(SNormalMine.class, "{mine_highpoint_y}", (text, mine) -> text.replace("{mine_highpoint_y}", mine.getHighPoint().y() + ""));
-        add(SNormalMine.class, "{mine_highpoint_z}", (text, mine) -> text.replace("{mine_highpoint_z}", mine.getHighPoint().z() + ""));
+        add(SArea.class, "{area_name}", (text, area) -> text.replace("{area_name}", Helper.beautify(area.getType().name())));
+        add(Rank.class, "{rank_prefix}", (text, rank) -> text.replace("{rank_prefix}", rank.getPrefix()));
+        add(Rank.class, "{rank_name}", (text, rank) -> text.replace("{rank_name}", rank.getName()));
 
         add(SNormalMine.class, "{mine_spawnpoint_x}", (text, mine) -> text.replace("{mine_spawnpoint_x}", mine.getSpawnPoint().isPresent() ? mine.getSpawnPoint().get().x() + "" : "None"));
         add(SNormalMine.class, "{mine_spawnpoint_y}", (text, mine) -> text.replace("{mine_spawnpoint_y}", mine.getSpawnPoint().isPresent() ? mine.getSpawnPoint().get().y() + "" : "None"));
@@ -42,6 +39,7 @@ public class PlaceholderController {
         add(SNormalMine.class, "{mine_shop_items_count}", (text, mine) -> text.replace("{mine_shop_items_count}", mine.getShop().getItems().size() + ""));
         add(SShopItem.class, "{item_price}", (text, item) -> text.replace("{item_price}", beautifyDouble(item.getPrice())));
         add(SShopItem.class, "{item_name}", (text, item) -> text.replace("{item_name}", TextUtil.beautifyName(item.getItem())));
+        add(SortMethod.class, "{sort_method}", (text, method) -> text.replace("{sort_method}", TextUtil.beautify(method.name())));
 
     }
 
@@ -51,11 +49,11 @@ public class PlaceholderController {
     }
 
     public String parse(String text, Object object) {
-        return TextUtil.replaceText(object, text, findPlaceholdersFor(object), Optional.empty());
+        return TextUtil.replaceText(object, text, findPlaceholdersFor(object));
     }
 
     public List<String> parse(List<String> multipleText, Object object) {
-        return TextUtil.replaceList(object, multipleText, findPlaceholdersFor(object), Optional.empty());
+        return TextUtil.replaceList(object, multipleText, findPlaceholdersFor(object));
     }
 
     public <T extends Object> Set<BiFunction<String, T, String>> findPlaceholdersFor(T object) {

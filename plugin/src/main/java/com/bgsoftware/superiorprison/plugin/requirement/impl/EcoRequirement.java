@@ -3,18 +3,21 @@ package com.bgsoftware.superiorprison.plugin.requirement.impl;
 import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 import com.bgsoftware.superiorprison.api.requirement.Requirement;
 import com.bgsoftware.superiorprison.api.requirement.RequirementData;
+import com.bgsoftware.superiorprison.api.requirement.RequirementException;
 import com.bgsoftware.superiorprison.api.requirement.RequirementHandler;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.hook.impl.VaultHook;
 
 public class EcoRequirement implements Requirement {
-    VaultHook vaultHook = SuperiorPrisonPlugin.getInstance().getHookController().findHook(() -> VaultHook.class).get();
-
-    private RequirementHandler<RequirementData> handler = new RequirementHandler<RequirementData>() {
+    private static final RequirementHandler<RequirementData> handler = new RequirementHandler<RequirementData>() {
+        VaultHook vaultHook = SuperiorPrisonPlugin.getInstance().getHookController().findHook(() -> VaultHook.class).get();
         @Override
-        public boolean test(Prisoner prisoner, RequirementData requirementData) {
+        public boolean testIO(Prisoner prisoner, RequirementData requirementData) throws RequirementException {
             double balance = vaultHook.getEcoProvider().getBalance(prisoner.getOfflinePlayer());
-            return balance >= Double.parseDouble(requirementData.getValue());
+            if (balance < Double.parseDouble(requirementData.getValue()))
+                throw new RequirementException(requirementData, balance);
+
+            return true;
         }
 
         @Override

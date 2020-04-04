@@ -1,0 +1,61 @@
+title: "&eEditing &6{mine_name} -> {area_name}&e flags!"
+
+layout:
+  - "$ $ $ $ $ $ $ $ $"
+  - "$ $ $ $ $ $ $ $ $"
+  - "& & & P & N & & &"
+
+templates:
+  - "flag template:F"
+  - "previous page:P"
+  - "next page:N"
+
+actions:
+  - "flag click:F"
+  - "previous page:P"
+  - "next page:N"
+
+buttons:
+  "P":
+    shown:
+      material: arrow
+      display name: "&e<<"
+      lore:
+        - "&7Click to go to"
+        - "&7The previous page!"
+
+    hidden:
+      material: yellow_stained_glass_pane
+      display name: "&r"
+
+  "N":
+    shown:
+      material: arrow
+      display name: "&e>>"
+      lore:
+        - "&7Click to go to"
+        - "&7The next page!"
+
+    hidden:
+      material: yellow_stained_glass_pane
+      display name: "&r"
+
+  "F":
+      enabled:
+        material: diamond
+        glow: true
+        display name: "&a{flag_name}"
+        lore:
+          - "{flag_description}"
+          - ""
+          - "&7Current state: &aEnabled"
+          - "&a&l(!) &7Click to disable!"
+
+      disabled:
+        material: diamond
+        display name: "&a{flag_name}"
+        lore:
+          - "{flag_description}"
+          - ""
+          - "&7Current state: &cDisabled"
+          - "&c&l(!) &7Click to enable!"

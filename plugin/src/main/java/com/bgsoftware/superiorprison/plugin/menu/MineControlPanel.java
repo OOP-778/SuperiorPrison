@@ -1,20 +1,25 @@
 package com.bgsoftware.superiorprison.plugin.menu;
 
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
+import com.bgsoftware.superiorprison.plugin.menu.flags.AreaChooseMenu;
+import com.bgsoftware.superiorprison.plugin.menu.ranks.RanksEditMenu;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.util.chatCmds.ChatCommands;
 import com.bgsoftware.superiorprison.plugin.util.menu.ClickHandler;
 import com.bgsoftware.superiorprison.plugin.util.menu.OMenu;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import com.oop.orangeengine.eventssubscription.SubscriptionFactory;
 import com.oop.orangeengine.eventssubscription.SubscriptionProperties;
 import com.oop.orangeengine.item.custom.OItem;
+import com.oop.orangeengine.item.message.ItemLineContent;
 import com.oop.orangeengine.main.Helper;
 import com.oop.orangeengine.material.OMaterial;
+import com.oop.orangeengine.message.OMessage;
 import lombok.Getter;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import java.util.ArrayList;
@@ -33,32 +38,19 @@ public class MineControlPanel extends OMenu {
         super("mineControlPanel", viewer);
         this.mine = mine;
 
-        // Action handler for set permission
         ClickHandler
-                .of("set permission")
+                .of("edit flags")
                 .handle(event -> {
                     previousMove = false;
-                    event.getWhoClicked().closeInventory();
+                    new AreaChooseMenu(getViewer(), getMine()).open(this);
+                })
+                .apply(this);
 
-                    //TODO: Configurable
-                    event.getWhoClicked().sendMessage(ChatColor.RED + "Write new permission!");
-
-                    SubscriptionFactory.getInstance().subscribeTo(
-                            AsyncPlayerChatEvent.class,
-                            chatEvent -> {
-                                mine.setPermission(chatEvent.getMessage());
-                                chatEvent.setCancelled(true);
-                                chatEvent.getPlayer().sendMessage(ChatColor.RED + "Mine permission has been set to " + chatEvent.getMessage());
-
-                                // Update button
-                                refreshMenus(getClass(), menu -> menu.getMine().getName().contentEquals(getMine().getName()));
-                                refresh();
-                                mine.save(true);
-                            },
-                            new SubscriptionProperties<AsyncPlayerChatEvent>()
-                                    .timesToRun(1)
-                                    .timeOut(TimeUnit.SECONDS, 30)
-                    );
+        ClickHandler
+                .of("edit ranks")
+                .handle(event -> {
+                    previousMove = false;
+                    new RanksEditMenu(getViewer(), mine).open(this);
                 })
                 .apply(this);
 
@@ -84,48 +76,72 @@ public class MineControlPanel extends OMenu {
                         String displayName = mergeText(args);
                         itemBuilder.setDisplayName(displayName);
 
-                        player.sendMessage(Helper.color("Set the display name to " + displayName));
+                        LocaleEnum.EDIT_ICON_DISPLAY_NAME_SET.getWithPrefix().send(player, ImmutableMap.of("%display_name%", displayName));
+
+                        OMessage clone = LocaleEnum.EDIT_ICON_MAIN_MESSAGE.getMessage().clone();
+                        clone.replace("%item%", new ItemLineContent(itemBuilder.getItemStack()).text(Helper.beautify(OMaterial.matchMaterial(itemBuilder.getItemStack()).name())));
+                        clone.send((Player) event.getWhoClicked());
                     });
 
                     chatCommands.appendCommand("cancel", (player, args) -> {
                         refresh();
                         cancel.set(true);
                     });
+
                     chatCommands.appendCommand("save", (player, args) -> {
                         mine.setIcon(itemBuilder.getItemStack());
                         mine.save(true);
                         refreshMenus(getClass(), menu -> menu.getMine().getName().contentEquals(getMine().getName()));
                         refresh();
                         cancel.set(true);
+
+                        LocaleEnum.EDIT_ICON_SAVE.getWithPrefix().send(player);
                     });
 
                     chatCommands.appendCommand("set lore", (player, args) -> {
                         Preconditions.checkArgument(args.length >= 2, "Lore line is required!");
                         int line = Integer.parseInt(args[0]);
-                        String message = mergeText(Arrays.stream(args).skip(1).toArray(String[]::new));
+                        String text = mergeText(Arrays.stream(args).skip(1).toArray(String[]::new));
 
-                        itemBuilder.setLoreLine(line, message);
-                        player.sendMessage(Helper.color("Set the lore line " + line + " to " + message));
+                        itemBuilder.setLoreLine(line, text);
+                        LocaleEnum.EDIT_ICON_SET_LORE_LINE.getWithPrefix().send(player, ImmutableMap.of("%line%", line + "", "%text%", text));
+
+                        OMessage clone = LocaleEnum.EDIT_ICON_MAIN_MESSAGE.getMessage().clone();
+                        clone.replace("%item%", new ItemLineContent(itemBuilder.getItemStack()).text(Helper.beautify(OMaterial.matchMaterial(itemBuilder.getItemStack()).name())));
+                        clone.send((Player) event.getWhoClicked());
                     });
 
                     chatCommands.appendCommand("add lore", (player, args) -> {
                         Preconditions.checkArgument(args.length >= 1, "Lore text is required!");
-                        itemBuilder.appendLore(mergeText(args));
+                        String text = mergeText(args);
+                        itemBuilder.appendLore(text);
 
-                        player.sendMessage(Helper.color("Added to lore: " + mergeText(args)));
+                        LocaleEnum.EDIT_ICON_ADD_LORE.getWithPrefix().send(player, ImmutableMap.of("%text%", text));
+
+                        OMessage clone = LocaleEnum.EDIT_ICON_MAIN_MESSAGE.getMessage().clone();
+                        clone.replace("%item%", new ItemLineContent(itemBuilder.getItemStack()).text(Helper.beautify(OMaterial.matchMaterial(itemBuilder.getItemStack()).name())));
+                        clone.send((Player) event.getWhoClicked());
                     });
 
                     chatCommands.appendCommand("clear lore", (player, args) -> {
                         itemBuilder.setLore(new ArrayList<>());
+                        LocaleEnum.EDIT_ICON_CLEAR_LORE.getWithPrefix().send(player);
 
-                        player.sendMessage("Cleared the lore!");
+                        OMessage clone = LocaleEnum.EDIT_ICON_MAIN_MESSAGE.getMessage().clone();
+                        clone.replace("%item%", new ItemLineContent(itemBuilder.getItemStack()).text(Helper.beautify(OMaterial.matchMaterial(itemBuilder.getItemStack()).name())));
+                        clone.send((Player) event.getWhoClicked());
                     });
 
                     chatCommands.appendCommand("remove lore", (player, args) -> {
                         Preconditions.checkArgument(args.length == 1, "Lore line is required!");
+                        int line = Integer.parseInt(args[0]);
 
-                        itemBuilder.removeLoreLine(Integer.parseInt(args[0]));
-                        player.sendMessage("Removed lore line " + Integer.parseInt(args[0]));
+                        itemBuilder.removeLoreLine(line);
+                        LocaleEnum.EDIT_ICON_REMOVE_LORE_LINE.getWithPrefix().send(player, ImmutableMap.of("%line%", line + ""));
+
+                        OMessage clone = LocaleEnum.EDIT_ICON_MAIN_MESSAGE.getMessage().clone();
+                        clone.replace("%item%", new ItemLineContent(itemBuilder.getItemStack()).text(Helper.beautify(OMaterial.matchMaterial(itemBuilder.getItemStack()).name())));
+                        clone.send((Player) event.getWhoClicked());
                     });
 
                     chatCommands.appendCommand("material", (player, args) -> {
@@ -135,20 +151,32 @@ public class MineControlPanel extends OMenu {
                         Preconditions.checkArgument(material != null, "Failed to find material by name: " + args[0]);
 
                         itemBuilder.setMaterial(material);
+                        LocaleEnum.EDIT_ICON_SET_MATERIAL.getWithPrefix().send(player, ImmutableMap.of("%material%", material.name()));
+
+                        OMessage clone = LocaleEnum.EDIT_ICON_MAIN_MESSAGE.getMessage().clone();
+                        clone.replace("%item%", new ItemLineContent(itemBuilder.getItemStack()).text(Helper.beautify(OMaterial.matchMaterial(itemBuilder.getItemStack()).name())));
+                        clone.send((Player) event.getWhoClicked());
                     });
 
                     SubscriptionFactory.getInstance().subscribeTo(
                             AsyncPlayerChatEvent.class,
-                            event3 -> {
-                                event3.setCancelled(true);
-                                chatCommands.handle(event3);
-                            },
+                            chatCommands::handle,
                             new SubscriptionProperties<AsyncPlayerChatEvent>()
                                     .runTill(e -> cancel.get())
+                                    .priority(EventPriority.HIGHEST)
+                                    .async(false)
                                     .timeOut(TimeUnit.MINUTES, 4)
                     );
 
-                    LocaleEnum.EDIT_ICON_MAIN_MESSAGE.getMessage().send((Player) event.getWhoClicked());
+                    chatCommands.setExceptionHandler(((player, throwable) -> {
+                        OMessage clone = LocaleEnum.PREFIX_ERROR.getMessage().clone();
+                        clone.getLineList().get(0).append(throwable.getMessage());
+                        clone.send(player);
+                    }));
+
+                    OMessage clone = LocaleEnum.EDIT_ICON_MAIN_MESSAGE.getMessage().clone();
+                    clone.replace("%item%", new ItemLineContent(itemBuilder.getItemStack()).text(Helper.beautify(OMaterial.matchMaterial(itemBuilder.getItemStack()).name())));
+                    clone.send((Player) event.getWhoClicked());
                 })
                 .apply(this);
 

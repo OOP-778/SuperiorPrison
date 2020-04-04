@@ -13,7 +13,7 @@ public class CmdPrisonerCP extends OCommand {
 
         onCommand(command -> {
             Player senderAsPlayer = command.getSenderAsPlayer();
-            PrisonerControlPanel prisonerControlPanel = new PrisonerControlPanel(SuperiorPrisonPlugin.getInstance().getDataController().insertIfAbsent(senderAsPlayer));
+            PrisonerControlPanel prisonerControlPanel = new PrisonerControlPanel(SuperiorPrisonPlugin.getInstance().getPrisonerController().getInsertIfAbsent(senderAsPlayer));
             senderAsPlayer.openInventory(prisonerControlPanel.getInventory());
         });
     }

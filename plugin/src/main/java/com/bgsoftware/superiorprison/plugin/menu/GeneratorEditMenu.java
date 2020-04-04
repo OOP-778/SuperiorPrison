@@ -23,11 +23,14 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.bgsoftware.superiorprison.plugin.util.TextUtil.beautify;
 import static com.bgsoftware.superiorprison.plugin.util.TextUtil.beautifyDouble;
 
 public class GeneratorEditMenu extends OPagedMenu<OPair<Double, OMaterial>> implements OMenu.Templateable {
+
+    private List<OPair<Double, OMaterial>> materials;
 
     @Getter
     private SNormalMine mine;
@@ -35,18 +38,33 @@ public class GeneratorEditMenu extends OPagedMenu<OPair<Double, OMaterial>> impl
     public GeneratorEditMenu(SPrisoner viewer, SNormalMine mine) {
         super("mineGenerator", viewer);
         this.mine = mine;
+        this.materials = mine.getGenerator().getGeneratorMaterials();
 
         ClickHandler
                 .of("reset")
                 .handle(event -> {
-                    //TODO: Gather materials from default config
-                    mine.getGenerator().getGeneratorMaterials().clear();
-                    mine.getGenerator().getGeneratorMaterials().add(new OPair<>(50d, OMaterial.STONE));
-                    mine.getGenerator().getGeneratorMaterials().add(new OPair<>(20d, OMaterial.CYAN_TERRACOTTA));
-                    mine.getGenerator().getGeneratorMaterials().add(new OPair<>(30d, OMaterial.DIAMOND_ORE));
+                    materials.addAll(SuperiorPrisonPlugin.getInstance().getMainConfig().getMineDefaults().getMaterials());
+                    refresh();
+                })
+                .apply(this);
 
-                    refreshMenus(GeneratorEditMenu.class, menu -> menu.getMine().getName().contentEquals(getMine().getName()));
-                    //TODO: Add message
+        ClickHandler
+                .of("save")
+                .handle(event -> {
+                    double percentage = materials
+                            .stream()
+                            .map(OPair::getFirst)
+                            .mapToDouble(Double::doubleValue)
+                            .sum();
+                    if (percentage < 100 || percentage > 100) {
+                        LocaleEnum.EDIT_GENERATOR_SAVE_FAILED_WRONG_PERCENTAGE.getWithErrorPrefix().send((Player) event.getWhoClicked());
+                        return;
+                    }
+
+                    mine.getGenerator().setGeneratorMaterials(materials);
+                    mine.getGenerator().setMaterialsChanged(true);
+                    mine.save(true);
+                    LocaleEnum.EDIT_GENERATOR_SAVE.getWithPrefix().send((Player) event.getWhoClicked());
                 })
                 .apply(this);
 
@@ -55,8 +73,8 @@ public class GeneratorEditMenu extends OPagedMenu<OPair<Double, OMaterial>> impl
                 .handle(event -> {
                     OPair<Double, OMaterial> materialPair = requestObject(event.getRawSlot());
                     if (event.getClick() == ClickType.RIGHT) {
-                        mine.getGenerator().getGeneratorMaterials().remove(materialPair);
-                        refreshMenus(GeneratorEditMenu.class, menu -> menu.mine.getName().contentEquals(mine.getName()));
+                        materials.remove(materialPair);
+                        refresh();
 
                     } else if (event.getClick() == ClickType.LEFT) {
                         previousMove = false;
@@ -69,14 +87,7 @@ public class GeneratorEditMenu extends OPagedMenu<OPair<Double, OMaterial>> impl
                                     double rate = Double.parseDouble(chatEvent.getMessage());
                                     chatEvent.setCancelled(true);
 
-                                    double currentRate = mine.getGenerator().getCurrentUsedRate(materialPair.getSecond());
-                                    if ((currentRate + rate) > 100) {
-                                        LocaleEnum.EDIT_GENERATOR_RATE_LIMIT_EXCEED.getWithErrorPrefix().send(chatEvent.getPlayer(), ImmutableMap.of("%material%", beautify(materialPair.getSecond().name())));
-                                        refresh();
-                                        return;
-                                    }
-
-                                    Optional<OPair<Double, OMaterial>> first = mine.getGenerator().getGeneratorMaterials().stream()
+                                    Optional<OPair<Double, OMaterial>> first = materials.stream()
                                             .filter(pair -> pair.getSecond() == materialPair.getValue())
                                             .findFirst();
                                     if (first.isPresent()) {
@@ -84,9 +95,6 @@ public class GeneratorEditMenu extends OPagedMenu<OPair<Double, OMaterial>> impl
                                         LocaleEnum.EDIT_GENERATOR_RATE_SET.getWithPrefix().send(chatEvent.getPlayer(), ImmutableMap.of("%material%", beautify(materialPair.getSecond().name()), "%rate%", beautifyDouble(rate)));
 
                                         // Update
-                                        SuperiorPrisonPlugin.getInstance().getDataController().save(mine, true);
-                                        refreshMenus(GeneratorEditMenu.class, menu -> menu.mine.getName().contentEquals(mine.getName()));
-                                        mine.getGenerator().setMaterialsChanged(true);
                                         refresh();
                                     }
                                 },
@@ -108,7 +116,7 @@ public class GeneratorEditMenu extends OPagedMenu<OPair<Double, OMaterial>> impl
 
     @Override
     public List<OPair<Double, OMaterial>> requestObjects() {
-        return mine.getGenerator().getGeneratorMaterials();
+        return materials;
     }
 
     @Override
@@ -143,14 +151,14 @@ public class GeneratorEditMenu extends OPagedMenu<OPair<Double, OMaterial>> impl
             return;
         }
 
-        if (mine.getGenerator().getGeneratorMaterials().stream().anyMatch(pair -> pair.getSecond() == material)) {
+        if (materials.stream().anyMatch(pair -> pair.getSecond() == material)) {
             LocaleEnum.EDIT_GENERATOR_MATERIAL_ALREADY_EXISTS.getWithErrorPrefix().send((Player) event.getWhoClicked());
             return;
         }
 
-        mine.getGenerator().getGeneratorMaterials().add(new OPair<>(0.0, OMaterial.matchMaterial(clone)));
+        materials.add(new OPair<>(0.0, OMaterial.matchMaterial(clone)));
         refreshMenus(GeneratorEditMenu.class, menu -> menu.mine.getName().contentEquals(mine.getName()));
-        SuperiorPrisonPlugin.getInstance().getDataController().save(mine, true);
+        mine.save(true);
         mine.getGenerator().setMaterialsChanged(true);
     }
 

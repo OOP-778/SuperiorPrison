@@ -6,6 +6,8 @@ import com.bgsoftware.superiorprison.plugin.commands.CommandsRegister;
 import com.bgsoftware.superiorprison.plugin.config.main.MainConfig;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.controller.*;
+import com.bgsoftware.superiorprison.plugin.data.SMineHolder;
+import com.bgsoftware.superiorprison.plugin.data.SPrisonerHolder;
 import com.bgsoftware.superiorprison.plugin.hook.impl.PapiHook;
 import com.bgsoftware.superiorprison.plugin.hook.impl.ShopGuiPlusHook;
 import com.bgsoftware.superiorprison.plugin.hook.impl.VaultHook;
@@ -14,19 +16,16 @@ import com.bgsoftware.superiorprison.plugin.listeners.MineListener;
 import com.bgsoftware.superiorprison.plugin.listeners.PrisonerListener;
 import com.bgsoftware.superiorprison.plugin.nms.ISuperiorNms;
 import com.bgsoftware.superiorprison.plugin.requirement.RequirementRegisterer;
-import com.bgsoftware.superiorprison.plugin.tasks.MineShowTask;
 import com.bgsoftware.superiorprison.plugin.tasks.TasksStarter;
 import com.bgsoftware.superiorprison.plugin.util.menu.MenuListener;
 import com.oop.orangeengine.command.CommandController;
-import com.oop.orangeengine.database.ODatabase;
 import com.oop.orangeengine.main.plugin.EnginePlugin;
 import com.oop.orangeengine.main.task.ClassicTaskController;
 import com.oop.orangeengine.main.task.ITaskController;
-import com.oop.orangeengine.material.OMaterial;
 import com.oop.orangeengine.message.locale.Locale;
 import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.Bukkit;
-import org.bukkit.scheduler.BukkitRunnable;
 
 @Getter
 public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison {
@@ -34,17 +33,15 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
     private static SuperiorPrisonPlugin instance;
     private PlaceholderController placeholderController;
     private ConfigController configController;
+
+    @Setter
     private MainConfig mainConfig;
     private RequirementController requirementController;
+    private PrestigeController prestigeController;
     private RankController rankController;
     private HookController hookController;
-    private DataController dataController;
-    private ODatabase dab;
+    private DatabaseController databaseController;
     private ISuperiorNms nms;
-
-    public SuperiorPrisonPlugin() {
-        instance = this;
-    }
 
     public static SuperiorPrisonPlugin getInstance() {
         return instance;
@@ -52,64 +49,64 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
 
     @Override
     public void enable() {
-        getOLogger().setDebugMode(true);
+        instance = this;
 
-        // Setup NMS
-        if (!setupNms()) {
-            Bukkit.getPluginManager().disablePlugin(this);
-            return;
+        try {
+            getOLogger().setDebugMode(true);
+
+            // Setup NMS
+            if (!setupNms()) {
+                Bukkit.getPluginManager().disablePlugin(this);
+                return;
+            }
+
+            new MenuListener();
+            this.configController = new ConfigController();
+            getPluginComponentController()
+                    .add(configController, true)
+                    .load();
+
+            this.hookController = new HookController();
+            hookController.registerHooks(() -> VaultHook.class, () -> ShopGuiPlusHook.class, () -> PapiHook.class);
+
+            // Setup API
+            new SuperiorPrisonAPI(this);
+
+            // Make sure plugin data folder exists
+            if (!getDataFolder().exists())
+                getDataFolder().mkdirs();
+
+            this.databaseController = new DatabaseController(mainConfig);
+
+            this.prestigeController = new PrestigeController(true);
+            this.rankController = new RankController(true);
+            getPluginComponentController()
+                    .add(rankController, true)
+                    .add(prestigeController, true);
+
+            this.placeholderController = new PlaceholderController();
+            this.requirementController = new RequirementController();
+            new RequirementRegisterer();
+
+            // Initialize listeners
+            new FlagsListener();
+            new MineListener();
+            new PrisonerListener();
+
+            // Initialize tasks
+            new TasksStarter();
+
+            CommandController commandController = new CommandController(this);
+            CommandsRegister.register(commandController);
+        } catch (Throwable thrw) {
+            throw new IllegalStateException("Failed to start SuperiorPrison", thrw);
         }
-
-        new MenuListener();
-        this.configController = new ConfigController();
-        getPluginComponentController()
-                .add(configController, true)
-                .load();
-
-        this.hookController = new HookController();
-        hookController.registerHooks(() -> VaultHook.class, () -> ShopGuiPlusHook.class, () -> PapiHook.class);
-
-        // Setup API
-        new SuperiorPrisonAPI(this);
-
-        // Make sure plugin data folder exists
-        if (!getDataFolder().exists())
-            getDataFolder().mkdirs();
-
-        this.mainConfig = new MainConfig();
-
-        // Setup Database
-        dab = mainConfig.getDatabase().getDatabase();
-
-        // Initialize controllers
-        this.rankController = new RankController(true);
-        this.dataController = new DataController(dab);
-        this.placeholderController = new PlaceholderController();
-        this.requirementController = new RequirementController();
-        new RequirementRegisterer();
-
-        // Load locale
-        Locale.load(mainConfig.getLocale());
-        LocaleEnum.load();
-
-        // Initialize listeners
-        new FlagsListener();
-        new MineListener();
-        new PrisonerListener();
-
-        // Initialize tasks
-        new TasksStarter();
-
-        CommandController commandController = new CommandController(this);
-        CommandsRegister.register(commandController);
     }
 
     @Override
     public void disable() {
-        long then = System.currentTimeMillis();
-        getDataController().saveAll();
-        getOLogger().print("Save done! Took " + (System.currentTimeMillis() - then) + "ms");
-
+        if (getDatabaseController() != null && getDatabaseController().getDatabase() != null)
+            getDatabaseController().save();
         instance = null;
     }
 
@@ -119,13 +116,13 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
     }
 
     @Override
-    public DataController getMineController() {
-        return dataController;
+    public SMineHolder getMineController() {
+        return databaseController.getMineHolder();
     }
 
     @Override
-    public DataController getPrisonerController() {
-        return dataController;
+    public SPrisonerHolder getPrisonerController() {
+        return databaseController.getPrisonerHolder();
     }
 
     public boolean setupNms() {

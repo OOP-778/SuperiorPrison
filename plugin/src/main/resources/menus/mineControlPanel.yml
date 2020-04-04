@@ -1,27 +1,25 @@
 title: "&eEditing &6{mine_name}"
 
 actions:
-  - "set permission:P"
+  - "edit ranks:R"
   - "edit icon:I"
   - "edit generator:G"
-  - "edit area:A"
+  - "edit flags:F"
   - "edit shop:S"
 
 layout:
   - "$ $ $ $ $ $ $ $ $"
-  - "$ P $ $ I $ $ G $"
+  - "$ R $ $ I $ $ G $"
   - "$ $ $ $ $ $ $ $ $"
-  - "$ $ A $ O $ S $ $"
+  - "$ $ F $ O $ S $ $"
   - "$ $ $ $ $ $ $ $ $"
 
 buttons:
-  "P":
+  "R":
     material: iron_bars
-    display name: "&ePermission"
+    display name: "&eRanks"
     lore:
-      - "&e&l*&7 {mine_permission}"
-      - ""
-      - "&e&l(!)&7 Click to change!"
+      - "&e&l*&7 Click to edit!"
 
   "I":
     material: sign
@@ -35,14 +33,10 @@ buttons:
     lore:
       - "&e&l* &7Click to modify generator!"
 
-  "A":
-    material: wooden_axe
-    display name: "&eArea"
+  "F":
+    material: white_wool
+    display name: "&eFlags"
     lore:
-      - "&e&l* &7Min point: {mine_minpoint_x}, {mine_minpoint_y}, {mine_minpoint_z}"
-      - "&e&l* &7High point: {mine_highpoint_x}, {mine_highpoint_y}, {mine_highpoint_z}"
-      - "&e&l* &7Spawn point: {mine_spawnpoint_x}, {mine_spawnpoint_y}, {mine_spawnpoint_z}"
-      - ""
       - "&e&l* &7Click to edit!"
 
   "S":

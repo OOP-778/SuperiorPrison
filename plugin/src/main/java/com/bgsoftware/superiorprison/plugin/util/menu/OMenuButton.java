@@ -21,6 +21,7 @@ import java.util.function.BiFunction;
 
 import static com.bgsoftware.superiorprison.plugin.util.TextUtil.replaceList;
 import static com.bgsoftware.superiorprison.plugin.util.TextUtil.replaceText;
+import static com.oop.orangeengine.main.Engine.getEngine;
 
 @Getter
 @Accessors(fluent = true, chain = true)
@@ -64,7 +65,6 @@ public class OMenuButton implements Cloneable {
     }
 
     protected void addState(String state, ButtonItemBuilder itemBuilder) {
-        System.out.println("Adding state for" + identifier + ", " + state + ", " + itemBuilder.getItemStack());
         itemStates.remove(state);
         itemStates.put(state, itemBuilder);
     }
@@ -90,6 +90,7 @@ public class OMenuButton implements Cloneable {
 
         public ButtonItemBuilder(@NonNull ItemBuilder itemBuilder) {
             this.itemBuilder = itemBuilder;
+            getEngine().getLogger().print("MATERIAL: " + itemBuilder.getMaterial());
         }
 
         protected ButtonItemBuilder() {}
@@ -111,9 +112,8 @@ public class OMenuButton implements Cloneable {
             if (getItemStack().getType() == Material.AIR) return getItemStack();
             ItemBuilder clone = itemBuilder.clone();
 
-            Optional<PapiHook> hook = SuperiorPrisonPlugin.getInstance().getHookController().findHook(() -> PapiHook.class);
-            clone.setLore(replaceList(object, clone.getLore(), placeholders, hook));
-            clone.setDisplayName(replaceText(object, clone.getDisplayName(), placeholders, hook));
+            clone.setLore(replaceList(object, clone.getLore(), placeholders));
+            clone.setDisplayName(replaceText(object, clone.getDisplayName(), placeholders));
 
             return clone.getItemStack();
         }
@@ -122,14 +122,13 @@ public class OMenuButton implements Cloneable {
             if (getItemStack().getType() == Material.AIR) return getItemStack();
 
             ItemBuilder clone = itemBuilder.clone();
-            Optional<PapiHook> papi = SuperiorPrisonPlugin.getInstance().getHookController().findHook(() -> PapiHook.class);
             for (Object object : objs) {
                 if (object instanceof Player || object instanceof SPrisoner)
                     clone.setLore(finalizeLore(clone.getLore(), object instanceof Player ? (Player) object : ((SPrisoner) object).getPlayer()));
 
                 Set<BiFunction<String, Object, String>> placeholdersFor = SuperiorPrisonPlugin.getInstance().getPlaceholderController().findPlaceholdersFor(object);
-                clone.setLore(replaceList(object, clone.getLore(), placeholdersFor, papi));
-                clone.setDisplayName(replaceText(object, clone.getDisplayName(), placeholdersFor, papi));
+                clone.setLore(replaceList(object, clone.getLore(), placeholdersFor));
+                clone.setDisplayName(replaceText(object, clone.getDisplayName(), placeholdersFor));
             }
 
             return clone.getItemStack();

@@ -7,20 +7,15 @@ import com.bgsoftware.superiorprison.plugin.util.Attachable;
 import com.google.common.collect.Sets;
 import com.google.gson.annotations.SerializedName;
 import com.oop.orangeengine.main.gson.GsonUpdateable;
-import com.oop.orangeengine.main.util.data.list.OLinkedList;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 import org.bukkit.inventory.ItemStack;
-import sun.security.provider.SHA;
 
-import java.util.LinkedList;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 @EqualsAndHashCode
 @Getter
-public class SShop implements MineShop, Attachable<SNormalMine>, GsonUpdateable {
+public class SShop implements MineShop, Attachable<SNormalMine> {
 
     private transient SNormalMine mine;
 
@@ -44,6 +39,22 @@ public class SShop implements MineShop, Attachable<SNormalMine>, GsonUpdateable 
     @Override
     public void removeItem(ShopItem item) {
         items.remove(item);
+    }
+
+    @Override
+    public double getPrice(ItemStack itemStack) {
+        return getItems()
+                .stream()
+                .filter(shopItem -> shopItem.getItem().isSimilar(itemStack))
+                .findFirst().map(ShopItem::getPrice)
+                .orElse(0.0);
+    }
+
+    @Override
+    public boolean hasItem(ItemStack itemStack) {
+        return getItems()
+                .stream()
+                .anyMatch(shopItem -> shopItem.getItem().isSimilar(itemStack));
     }
 
     @Override

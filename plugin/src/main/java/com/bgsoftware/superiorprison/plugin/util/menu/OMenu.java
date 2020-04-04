@@ -2,8 +2,9 @@ package com.bgsoftware.superiorprison.plugin.util.menu;
 
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.controller.ConfigController;
-import com.bgsoftware.superiorprison.plugin.hook.impl.PapiHook;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
+import com.bgsoftware.superiorprison.plugin.util.ClassDebugger;
+import com.bgsoftware.superiorprison.plugin.util.SPair;
 import com.bgsoftware.superiorprison.plugin.util.TextUtil;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Maps;
@@ -11,10 +12,13 @@ import com.google.common.collect.Sets;
 import com.oop.orangeengine.main.task.StaticTask;
 import com.oop.orangeengine.yaml.OConfiguration;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -24,6 +28,8 @@ import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
 
 @Getter
 public abstract class OMenu implements InventoryHolder {
@@ -119,23 +125,25 @@ public abstract class OMenu implements InventoryHolder {
 
         for (Object object : objects) {
             Set<BiFunction<String, Object, String>> placeholders = SuperiorPrisonPlugin.getInstance().getPlaceholderController().findPlaceholdersFor(object);
-            title = TextUtil.replaceText(object, title, placeholders, SuperiorPrisonPlugin.getInstance().getHookController().findHook(() -> PapiHook.class));
+            title = TextUtil.replaceText(object, title, placeholders);
         }
 
         Inventory inventory = Bukkit.createInventory(this, menuRows * 9, title);
         Object[] finalObjects = objects;
         fillerItems.forEach((slot, button) -> {
-            if (button.requiredPermission().trim().length() == 0)
-                inventory.setItem(slot, button.currentItem(stateRequester.request(button).getItemStackWithPlaceholdersMulti(finalObjects)).currentItem());
-
-            else if (getViewer().getPlayer().hasPermission(button.requiredPermission()))
+            ClassDebugger.debug("Setting button at " + slot + ", " + button.identifier());
+            if (button.requiredPermission().trim().length() == 0) {
+                ItemStack item = button.currentItem(stateRequester.request(button).getItemStackWithPlaceholdersMulti(finalObjects)).currentItem();
+                inventory.setItem(slot, item);
+                ClassDebugger.debug("Set item at slot " + slot + ", " + item);
+            } else if (getViewer().getPlayer().hasPermission(button.requiredPermission()))
                 inventory.setItem(slot, button.currentItem(stateRequester.request(button).getItemStackWithPlaceholdersMulti(finalObjects)).currentItem());
 
             else {
                 OMenuButton.ButtonItemBuilder no_permission = button.getStateItem("no permission");
                 if (no_permission == null) return;
-                no_permission.itemBuilder().replaceInLore("{permission}", button.requiredPermission());
 
+                no_permission.itemBuilder().replaceInLore("{permission}", button.requiredPermission());
                 inventory.setItem(slot, button.currentItem(no_permission.getItemStackWithPlaceholders(getViewer())).currentItem());
             }
         });
@@ -143,11 +151,16 @@ public abstract class OMenu implements InventoryHolder {
         return inventory;
     }
 
-    public void handleBottomClick(InventoryClickEvent event) {}
+    public void handleBottomClick(InventoryClickEvent event) {
+    }
 
     public void open(OMenu menu) {
+        open(menu, null);
+    }
+
+    public void open(OMenu menu, Runnable callback) {
         if (Bukkit.isPrimaryThread()) {
-            StaticTask.getInstance().async(() -> open(menu));
+            StaticTask.getInstance().async(() -> open(menu, callback));
             return;
         }
 
@@ -165,12 +178,16 @@ public abstract class OMenu implements InventoryHolder {
 
             player.openInventory(inventory);
 
+            if (callback != null)
+                callback.run();
+
             refreshing = false;
             this.previousMenu = menu != null ? menu : previousMove ? currentMenu : null;
         });
     }
 
-    public void closeInventory() {
+    public void closeInventory(InventoryCloseEvent event) {
+        if (((Player) event.getPlayer()).isSneaking()) return;
         if (previousMenu != null) {
             StaticTask.getInstance().sync(() -> {
                 if (previousMove)
@@ -190,12 +207,8 @@ public abstract class OMenu implements InventoryHolder {
         if (event.getCurrentItem() != null) {
             Optional<OMenuButton> menuButton = getButtons()
                     .stream()
-                    .filter(button -> {
-                        System.out.println("Filtering: " + button.slot() + ": " + button.currentItem());
-                        return button.slot() == event.getRawSlot();
-                    })
+                    .filter(button -> button.slot() == event.getRawSlot())
                     .findFirst();
-            System.out.println("Is button present?" + menuButton.isPresent());
             if (!menuButton.isPresent()) return;
 
             ButtonClickEvent buttonClickEvent = new ButtonClickEvent(event, menuButton.get());
@@ -372,7 +385,6 @@ public abstract class OMenu implements InventoryHolder {
         public interface StateRequest {
             OMenuButton.ButtonItemBuilder request(OMenuButton button);
         }
-
     }
 
     public Object[] getBuildPlaceholders() {
@@ -387,4 +399,30 @@ public abstract class OMenu implements InventoryHolder {
         previousMove = false;
         open(previousMenu);
     }
+
+    public List<SPair<Integer, ItemStack>> getBukkitItems(@NonNull Inventory inventory) {
+        List<Integer> occupiedSlots = getButtons()
+                .stream()
+                .map(OMenuButton::slot)
+                .sorted()
+                .collect(toList());
+
+        List<SPair<Integer, ItemStack>> bukkitItems = new ArrayList<>();
+        for (int slot = 0; slot < (menuRows * 9); slot++) {
+            ItemStack atSlot = inventory.getItem(slot);
+            if (atSlot == null || atSlot.getType() == Material.AIR) continue;
+
+            int finalSlot = slot;
+            if (occupiedSlots.stream().anyMatch(slot2 -> slot2 == finalSlot)) continue;
+
+            bukkitItems.add(new SPair<>(slot, atSlot));
+        }
+
+        return bukkitItems;
+    }
+
+    public ClickHandler clickHandler(String action) {
+        return ClickHandler.of(action).apply(this);
+    }
+
 }

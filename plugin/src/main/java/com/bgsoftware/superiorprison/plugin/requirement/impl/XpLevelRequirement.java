@@ -3,6 +3,7 @@ package com.bgsoftware.superiorprison.plugin.requirement.impl;
 import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 import com.bgsoftware.superiorprison.api.requirement.Requirement;
 import com.bgsoftware.superiorprison.api.requirement.RequirementData;
+import com.bgsoftware.superiorprison.api.requirement.RequirementException;
 import com.bgsoftware.superiorprison.api.requirement.RequirementHandler;
 import com.bgsoftware.superiorprison.plugin.util.XPUtil;
 
@@ -10,8 +11,11 @@ public class XpLevelRequirement implements Requirement {
 
     private final RequirementHandler<RequirementData> handler = new RequirementHandler<RequirementData>() {
         @Override
-        public boolean test(Prisoner prisoner, RequirementData requirementData) {
-            return prisoner.getPlayer().getLevel() >= Integer.parseInt(requirementData.getValue());
+        public boolean testIO(Prisoner prisoner, RequirementData requirementData) throws RequirementException {
+            if (prisoner.getPlayer().getLevel() < Integer.parseInt(requirementData.getValue()))
+                throw new RequirementException(requirementData, prisoner.getPlayer().getLevel());
+
+            return true;
         }
 
         @Override

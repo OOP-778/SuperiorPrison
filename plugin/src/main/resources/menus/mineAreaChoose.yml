@@ -1,0 +1,41 @@
+title: "&eChoose area!"
+
+templates:
+  - "area template:R"
+  - "previous page:P"
+  - "next page:N"
+
+layout:
+  - "P $ $ $ $ $ $ $ N"
+
+actions:
+  - "area click:R"
+
+buttons:
+  "P":
+    shown:
+      material: arrow
+      display name: "&e<<"
+      lore:
+        - "&7Click to go to"
+        - "&7The previous page!"
+
+    hidden:
+      material: yellow_stained_glass_pane
+      display name: "&r"
+
+  "N":
+    shown:
+      material: arrow
+      display name: "&e>>"
+      lore:
+        - "&7Click to go to"
+        - "&7The next page!"
+
+    hidden:
+      material: yellow_stained_glass_pane
+      display name: "&r"
+
+  "R":
+    material: WOODEN_AXE
+    display name: "&e{area_name}"

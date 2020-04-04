@@ -1,6 +1,5 @@
 package com.bgsoftware.superiorprison.plugin.menu;
 
-import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.mine.shop.SShopItem;
@@ -18,7 +17,9 @@ import com.oop.orangeengine.material.OMaterial;
 import lombok.Getter;
 import org.apache.commons.lang.math.NumberUtils;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +60,7 @@ public class ShopEditMenu extends OPagedMenu<SShopItem> implements OMenu.Templat
                                     LocaleEnum.EDIT_SHOP_PRICE_SET.getWithPrefix().send((Player) event.getWhoClicked(), ImmutableMap.of("{item_name}", TextUtil.beautifyName(shopItem.getItem()), "{item_price}", beautifyDouble(shopItem.getPrice())));
 
                                     // Update
-                                    SuperiorPrisonPlugin.getInstance().getDataController().save(mine, true);
+                                    mine.save(true);
                                     refreshMenus(ShopEditMenu.class, menu -> menu.getMine().getName().contentEquals(mine.getName()));
                                     refresh();
                                 },
@@ -106,6 +107,17 @@ public class ShopEditMenu extends OPagedMenu<SShopItem> implements OMenu.Templat
 
         button.currentItem(clone.getItemStackWithPlaceholdersMulti(getViewer(), mine, obj));
         return button;
+    }
+
+    @Override
+    public void handleBottomClick(InventoryClickEvent event) {
+        ItemStack clone = event.getCurrentItem().clone();
+        event.setCancelled(true);
+
+        if (mine.getShop().hasItem(clone)) {
+
+            return;
+        }
     }
 
     @Override

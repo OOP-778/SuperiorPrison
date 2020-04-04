@@ -1,11 +1,12 @@
 package com.bgsoftware.superiorprison.plugin.object.mine;
 
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
+import com.bgsoftware.superiorprison.api.data.mine.area.AreaEnum;
 import com.bgsoftware.superiorprison.api.util.SPLocation;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
+import com.bgsoftware.superiorprison.plugin.object.mine.area.SArea;
 import com.bgsoftware.superiorprison.plugin.util.Attachable;
 import com.bgsoftware.superiorprison.plugin.util.Cuboid;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gson.annotations.SerializedName;
 import com.oop.orangeengine.eventssubscription.SubscriptionFactory;
@@ -41,7 +42,7 @@ import static com.oop.orangeengine.main.Helper.debug;
 @Setter
 @Getter
 @EqualsAndHashCode
-public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mine.MineGenerator, GsonUpdateable, Attachable<SuperiorMine> {
+public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mine.MineGenerator, Attachable<SuperiorMine> {
 
     private transient SuperiorMine mine;
 
@@ -64,6 +65,9 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
     private transient boolean materialsChanged;
 
     private transient List<Chunk> cachedChunks;
+
+    @Setter
+    private transient SArea mineArea;
 
     protected SMineGenerator() {
         caching = false;
@@ -144,26 +148,30 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
         blockChanger.submitUpdate();
 
         debug("Cached chunks: " + cachedChunks.size());
-        SuperiorPrisonPlugin.getInstance().getNms().refreshChunks(mine.getMinPoint().getWorld(), cachedChunks);
+        SuperiorPrisonPlugin.getInstance().getNms().refreshChunks(mineArea.getMinPoint().getWorld(), cachedChunks);
     }
 
     public void initCache(Runnable whenFinished) {
         if (isCaching() || isWorldLoadWait() || cachedMineArea.length > 0)
             return;
 
-        if (mine.getMinPoint().getWorld() == null) {
+        if (mineArea == null)
+            mineArea = (SArea) mine.getArea(AreaEnum.MINE);
+
+        System.out.println(mineArea);
+        if (mineArea.getWorld() == null) {
             worldLoadWait = true;
             SubscriptionFactory.getInstance().subscribeTo(WorldLoadEvent.class, event -> {
 
                 worldLoadWait = false;
                 initCache(whenFinished);
 
-            }, new SubscriptionProperties<WorldLoadEvent>().timeOut(TimeUnit.SECONDS, 3).filter(event -> event.getWorld().getName().equals(mine.getMinPoint().worldName())));
+            }, new SubscriptionProperties<WorldLoadEvent>().timeOut(TimeUnit.SECONDS, 3).filter(event -> event.getWorld().getName().equals(mineArea.getMinPoint().worldName())));
             return;
         }
 
-        Location pos1 = mine.getMinPoint().toBukkit();
-        Location pos2 = mine.getHighPoint().toBukkit();
+        Location pos1 = mineArea.getMinPoint().toBukkit();
+        Location pos2 = mineArea.getHighPoint().toBukkit();
 
         Cuboid cuboid = new Cuboid(pos1, pos2);
         caching = true;
@@ -216,6 +224,7 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
         this.mine = obj;
         cachedChunks = new ArrayList<>();
         cachedMineArea = new Block[]{};
+        this.mineArea = (SArea) obj.getArea(AreaEnum.MINE);
         initCache(null);
     }
 
@@ -249,7 +258,7 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
 
     public void initBlockChanger() {
         if (blockChanger == null)
-            blockChanger = new BlockChanger(this, getMine().getHighPoint().getWorld());
+            blockChanger = new BlockChanger(this, mineArea.getHighPoint().getWorld());
     }
 
     private class BlockChanger {
@@ -288,7 +297,7 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
                 }
 
                 Bukkit.getScheduler().runTask(plugin, () -> {
-                    plugin.getNms().refreshChunks(world, chunkPositions.stream().map(chunkPos -> generator.mine.getHighPoint().getWorld().getChunkAt(chunkPos.x, chunkPos.z)).filter(Objects::nonNull).collect(Collectors.toList()));
+                    plugin.getNms().refreshChunks(world, chunkPositions.stream().map(chunkPos -> generator.mineArea.getWorld().getChunkAt(chunkPos.x, chunkPos.z)).filter(Objects::nonNull).collect(Collectors.toList()));
                     chunkPositions.clear();
                 });
             });

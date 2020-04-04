@@ -10,12 +10,9 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 public class HookController {
-
     private Map<Class<?>, SHook> hooks = new HashMap<>();
 
-    public HookController() {
-
-    }
+    public HookController() {}
 
     public void registerHooks(HookClassSupplier... hooks) {
         for (HookClassSupplier<?> clazzSupplier : hooks) {
@@ -24,11 +21,17 @@ public class HookController {
 
             try {
                 SHook hook = clazz.newInstance();
-                if (!hook.isLoaded()) continue;
+                if (!hook.isLoaded()) {
+                    if (!hook.isRequired()) continue;
+                    else throw new IllegalStateException("Failed to hook into " + hook.getPluginName() + " because it's not loaded and it is required!");
+                }
 
                 this.hooks.put(clazz, hook);
                 SuperiorPrisonPlugin.getInstance().getOLogger().print("Hooked into (" + hook.getPlugin().getName() + ") " + hook.getPlugin().getDescription().getVersion());
-            } catch (Throwable ignored) {}
+            } catch (Throwable throwable) {
+                if (throwable instanceof IllegalStateException || throwable instanceof NullPointerException)
+                    throw new IllegalStateException("Failed to start HookController", throwable);
+            }
         }
     }
 

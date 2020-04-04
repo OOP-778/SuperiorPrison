@@ -6,7 +6,6 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_15_R1.CraftChunk;
-import org.bukkit.craftbukkit.v1_15_R1.CraftChunkSnapshot;
 import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_15_R1.util.CraftMagicNumbers;
 

@@ -8,7 +8,6 @@ import org.bukkit.World;
 import java.util.List;
 
 public interface ISuperiorNms {
-
     void setBlock(Location location, OMaterial material);
 
     void refreshChunks(World world, List<Chunk> chunkList);

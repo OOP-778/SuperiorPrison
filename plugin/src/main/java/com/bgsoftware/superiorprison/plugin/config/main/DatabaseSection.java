@@ -25,7 +25,6 @@ public class DatabaseSection {
         section.ifValuePresent("port", int.class, port -> this.port = port);
         section.ifValuePresent("username", String.class, username -> this.username = username);
         section.ifValuePresent("password", String.class, password -> this.password = password);
-
     }
 
     public boolean isMySql() {

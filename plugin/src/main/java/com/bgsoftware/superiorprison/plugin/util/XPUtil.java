@@ -74,7 +74,7 @@ public class XPUtil {
     }
 
     public static int getExpUntilNextLevel(final Player player) {
-        int exp = (int) Math.round(getExpAtLevel(player) * player.getExp());
+        int exp = Math.round(getExpAtLevel(player) * player.getExp());
         int nextLevel = player.getLevel();
         return getExpAtLevel(nextLevel) - exp;
     }

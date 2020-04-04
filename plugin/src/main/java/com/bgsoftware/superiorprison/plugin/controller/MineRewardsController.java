@@ -22,7 +22,7 @@ public class MineRewardsController implements OComponent<SuperiorPrisonPlugin> {
         MineReward mineReward = rewardMap.get(rewardPlace);
         if (mineReward == null) return -1;
 
-        Optional<Prisoner> prisonerOptional = SuperiorPrisonPlugin.getInstance().getDataController().getPrisoner(player.getUniqueId());
+        Optional<Prisoner> prisonerOptional = SuperiorPrisonPlugin.getInstance().getPrisonerController().getPrisoner(player.getUniqueId());
         if (!prisonerOptional.isPresent()) return -1;
 
         SPrisoner prisoner = (SPrisoner) prisonerOptional.get();
@@ -38,7 +38,7 @@ public class MineRewardsController implements OComponent<SuperiorPrisonPlugin> {
     }
 
     public int getCurrentRewardPlace(Player player) {
-        Optional<Prisoner> prisonerOptional = SuperiorPrisonPlugin.getInstance().getDataController().getPrisoner(player.getUniqueId());
+        Optional<Prisoner> prisonerOptional = SuperiorPrisonPlugin.getInstance().getPrisonerController().getPrisoner(player.getUniqueId());
         if (!prisonerOptional.isPresent()) return 1;
 
         SPrisoner prisoner = (SPrisoner) prisonerOptional.get();

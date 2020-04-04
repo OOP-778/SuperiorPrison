@@ -25,8 +25,9 @@ public class MinesArg extends CommandArgument<SNormalMine> {
 
     @Override
     public void onAdd(OCommand command) {
-        command.nextTabComplete((args) -> SuperiorPrisonPlugin.getInstance().getMineController().getMines().stream()
-                .map(mine -> mine.getName())
-                .collect(Collectors.toList()));
+        command.nextTabComplete(args -> SuperiorPrisonPlugin.getInstance().getMineController().getMines().stream()
+                .map(SuperiorMine::getName)
+                .collect(Collectors.toList())
+        );
     }
 }

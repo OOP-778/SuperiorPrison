@@ -11,7 +11,6 @@ import lombok.Setter;
 import java.util.concurrent.TimeUnit;
 
 public class SResetSettings {
-
     public static ResetSettings of(OPair<ResetSettings.Type, String> data) {
         if (data.getFirst() == ResetSettings.Type.TIMED)
             return new STimed(TimeUtil.toSeconds(data.getSecond()));
@@ -49,6 +48,5 @@ public class SResetSettings {
         private int requiredPercentage;
 
         private SPercentage() {}
-
     }
 }

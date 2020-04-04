@@ -9,7 +9,7 @@ import lombok.Setter;
 import org.bukkit.inventory.ItemStack;
 
 @Setter
-public class SShopItem implements ShopItem, GsonUpdateable {
+public class SShopItem implements ShopItem {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

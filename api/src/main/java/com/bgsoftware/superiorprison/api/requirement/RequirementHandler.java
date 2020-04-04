@@ -4,9 +4,15 @@ import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 
 public interface RequirementHandler<O extends RequirementData> {
 
-    boolean test(Prisoner prisoner, O o);
+    boolean testIO(Prisoner prisoner, O o) throws RequirementException;
 
-    default void take(Prisoner prisoner, O o) {
+    default boolean test(Prisoner prisoner, O o) {
+        try {
+            return testIO(prisoner, o);
+        } catch (RequirementException ex) {
+            return false;
+        }
     }
 
+    default void take(Prisoner prisoner, O o) {}
 }

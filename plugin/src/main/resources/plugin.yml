@@ -1,5 +1,9 @@
 name: SuperiorPrison
 main: com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin
 version: 1
+depend:
+  - Vault
+
 softdepend:
   - Multiverse
+  - PlaceholderAPI

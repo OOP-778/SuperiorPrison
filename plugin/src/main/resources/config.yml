@@ -1,4 +1,4 @@
-# Locate default en-us
+# Locale default en-us
 locale: "en-us"
 
 database:
@@ -33,7 +33,7 @@ mine defaults:
 
     # If percentage the value should be a number between 0 and 100% of blocks left
     # If timed the value should be xHxMxS where H stands for hours, M for minutes and S for seconds
-    value: 99%
+    value: 60%
 
   # Materials used to generate mine
   # The rate cannot exceed 100!
@@ -50,15 +50,8 @@ mine defaults:
 
 area selection tool:
   material: WOODEN_AXE
-  display name: "&eArea Selection"
-  lore:
-    - "&e&l* &7Pos1: &eLeft-Click"
-    - "&e&l* &7Pos2: &eRight-Click"
-    - "&e&l* &7Spawn: &eMiddle-Click"
+  display name: "&ePrison Wand"
 
 # When item is not found inside mine shop, it can use a fallback!
-sell fallback: "shopGuiPlus"
+shopgui fall back: true
 
-# Edit the settings of disposal
-disposal:
-  title: "&6&l> &7Disposal"

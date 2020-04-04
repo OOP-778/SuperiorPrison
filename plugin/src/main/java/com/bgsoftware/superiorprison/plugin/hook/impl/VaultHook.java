@@ -16,6 +16,7 @@ public class VaultHook extends SHook {
 
     public VaultHook() {
         super(null);
+        setRequired(true);
 
         RegisteredServiceProvider<Permission> permissionProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.permission.Permission.class);
         if (permissionProvider != null && permissionProvider.getProvider() != null)
@@ -25,7 +26,7 @@ public class VaultHook extends SHook {
         if (economyProvider != null && economyProvider.getProvider() != null)
             this.ecoProvider = economyProvider.getProvider();
 
-        disableIf(ecoProvider == null || permProvider == null, "Failed to initialize Economy or Permission providers!");
+        disableIf(ecoProvider == null, "Failed to initialize Economy provider!");
     }
 
     @Override

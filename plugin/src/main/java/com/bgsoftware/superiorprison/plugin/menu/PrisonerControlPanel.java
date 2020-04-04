@@ -14,7 +14,8 @@ public class PrisonerControlPanel extends OMenu {
         getStateRequester()
                 .registerRequest("auto sell", button -> getToggleableState(button, viewer.isAutoSell()))
                 .registerRequest("fortune blocks", button -> getToggleableState(button, viewer.isFortuneBlocks()))
-                .registerRequest("auto pickup", button -> getToggleableState(button, viewer.isAutoPickup()));
+                .registerRequest("auto pickup", button -> getToggleableState(button, viewer.isAutoPickup()))
+                .registerRequest("auto burn", button -> getToggleableState(button, viewer.isAutoBurn()));
 
         ClickHandler
                 .of("auto sell")
@@ -30,6 +31,11 @@ public class PrisonerControlPanel extends OMenu {
                 .of("auto pickup")
                 .handle(event -> handleToggleable(event, viewer.isAutoPickup(), () -> viewer.setAutoPickup(!viewer.isAutoPickup())))
                 .apply(this);
+
+        ClickHandler
+                .of("auto burn")
+                .handle(event -> handleToggleable(event, viewer.isAutoBurn(), () -> viewer.setAutoBurn(!viewer.isAutoBurn())))
+                .apply(this);
     }
 
     private OMenuButton.ButtonItemBuilder getToggleableState(OMenuButton button, boolean state) {
@@ -44,6 +50,7 @@ public class PrisonerControlPanel extends OMenu {
         toggle.run();
         event.getWhoClicked().sendMessage(Helper.color("You've " + (current ? "disabled" : "enabled") + " '" + event.getButton().action() + "'"));
         refresh();
-    }
 
+        getViewer().save(true);
+    }
 }

@@ -132,7 +132,6 @@ public class Cuboid {
                         }
                     }
                     future.complete(blocks.toArray(new SPLocation[0]));
-
                 })
                 .execute();
 

@@ -2,27 +2,27 @@ package com.bgsoftware.superiorprison.plugin.object.player;
 
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
 import com.bgsoftware.superiorprison.api.data.mine.area.AreaEnum;
-import com.bgsoftware.superiorprison.api.data.player.rank.LadderRank;
 import com.bgsoftware.superiorprison.api.data.player.Prestige;
+import com.bgsoftware.superiorprison.api.data.player.booster.MoneyBooster;
+import com.bgsoftware.superiorprison.api.data.player.rank.LadderRank;
 import com.bgsoftware.superiorprison.api.data.player.rank.Rank;
 import com.bgsoftware.superiorprison.api.util.Pair;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.hook.impl.ShopGuiPlusHook;
 import com.bgsoftware.superiorprison.plugin.object.player.booster.SBoosters;
 import com.bgsoftware.superiorprison.plugin.object.player.rank.SLadderRank;
+import com.bgsoftware.superiorprison.plugin.object.player.rank.SRank;
 import com.bgsoftware.superiorprison.plugin.object.player.rank.SSpecialRank;
 import com.google.common.collect.Sets;
 import com.oop.orangeengine.database.DatabaseObject;
 import com.oop.orangeengine.database.annotation.Column;
 import com.oop.orangeengine.database.annotation.PrimaryKey;
 import com.oop.orangeengine.database.annotation.Table;
-import com.oop.orangeengine.main.util.data.map.OConcurrentMap;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -30,6 +30,9 @@ import org.bukkit.inventory.ItemStack;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import static com.bgsoftware.superiorprison.plugin.util.AccessUtil.findPrestige;
+import static com.bgsoftware.superiorprison.plugin.util.AccessUtil.findRank;
 
 @Accessors(chain = true)
 @Table(name = "prisoners")
@@ -67,10 +70,6 @@ public class SPrisoner extends DatabaseObject implements com.bgsoftware.superior
     @Column(name = "completedMineRewards")
     private Set<Integer> completedMineRewards = Sets.newHashSet();
 
-    @Getter
-    @Column(name = "minedBlocks")
-    private OConcurrentMap<Material, Long> minedBlocks = new OConcurrentMap<>();
-
     @Column(name = "ranks")
     private Set<String> ranks = Sets.newConcurrentHashSet();
 
@@ -96,6 +95,7 @@ public class SPrisoner extends DatabaseObject implements com.bgsoftware.superior
     public SPrisoner(UUID uuid) {
         this.uuid = uuid;
         ranks.add(SuperiorPrisonPlugin.getInstance().getRankController().getDefault().getName());
+        boosters.attach(this);
     }
 
     @Override
@@ -187,19 +187,30 @@ public class SPrisoner extends DatabaseObject implements com.bgsoftware.superior
     }
 
     @Override
-    public void removeRank(Rank ...rank) {
+    public void removeRank(Rank... rank) {
         for (Rank rank1 : rank) {
             ranks.remove(rank1.getName());
-            if (rank1 instanceof LadderRank)
-                ((SLadderRank) rank1).getAllNext().forEach(rank2 -> ranks.remove(rank2.getName()));
-        }
+            ((SRank) rank1).onRemove(this);
 
+            if (rank1 instanceof LadderRank)
+                ((SLadderRank) rank1).getAllNext().forEach(rank2 -> {
+                    ranks.remove(rank2.getName());
+                    ((SRank) rank2).onRemove(this);
+                });
+        }
         save(true);
     }
 
     @Override
-    public void removeRank(String ...rank) {
-        ranks.removeAll(Arrays.asList(rank));
+    public void removeRank(String... rank) {
+        for (String name : rank) {
+            findRank(name)
+                    .map(rank2 -> (SRank) rank2)
+                    .ifPresent(rank2 -> {
+                        ranks.remove(rank2.getName());
+                        rank2.onRemove(this);
+                    });
+        }
         save(true);
     }
 
@@ -220,13 +231,27 @@ public class SPrisoner extends DatabaseObject implements com.bgsoftware.superior
         if (price[0] == 0 && SuperiorPrisonPlugin.getInstance().getMainConfig().isShopGuiAsFallBack())
             SuperiorPrisonPlugin.getInstance().getHookController().executeIfFound(() -> ShopGuiPlusHook.class, hook -> price[0] = hook.getPriceFor(itemStack, getPlayer()));
 
+        getBoosters().findBoostersBy(MoneyBooster.class).forEach(booster -> price[0] = price[0] * booster.getRate());
         return price[0];
     }
 
-    public void addRank(Rank ...rank) {
-        for (Rank rank1 : rank)
+    public void addRank(Rank... rank) {
+        for (Rank rank1 : rank) {
             ranks.add(rank1.getName());
-        save(true);
+            ((SRank) rank1).onAdd(this);
+        }
+    }
+
+    @Override
+    public void addRank(String... rank) {
+        for (String name : rank) {
+            findRank(name)
+                    .map(rank2 -> (SRank) rank2)
+                    .ifPresent(rank2 -> {
+                        ranks.add(rank2.getName());
+                        rank2.onAdd(this);
+                    });
+        }
     }
 
     public Set<Prestige> getPrestiges() {
@@ -237,16 +262,43 @@ public class SPrisoner extends DatabaseObject implements com.bgsoftware.superior
                 .collect(Collectors.toSet());
     }
 
-    public void addPrestige(Prestige ...prestige) {
-        for (Prestige prestige1 : prestige)
+    public void addPrestige(Prestige... prestige) {
+        for (Prestige prestige1 : prestige) {
             prestiges.add(prestige1.getName());
-        save(true);
+            ((SPrestige) prestige1).onAdd(this);
+        }
     }
 
-    public void removePrestige(Prestige ...prestige) {
-        for (Prestige prestige1 : prestige)
+    @Override
+    public void addPrestige(String... prestige) {
+        for (String name : prestige) {
+            findPrestige(name).map(prestige2 -> (SPrestige) prestige2).ifPresent(prestige2 -> {
+                prestiges.add(prestige2.getName());
+                prestige2.onAdd(this);
+            });
+        }
+    }
+
+    public void removePrestige(Prestige... prestige) {
+        for (Prestige prestige1 : prestige) {
             prestiges.remove(prestige1.getName());
-        save(true);
+            ((SPrestige) prestige1).onRemove(this);
+        }
+    }
+
+    @Override
+    public void removePrestige(String... prestige) {
+        for (String name : prestige) {
+            findPrestige(name).map(prestige2 -> (SPrestige) prestige2).ifPresent(prestige2 -> {
+                prestiges.remove(prestige2.getName());
+                prestige2.onRemove(this);
+            });
+        }
+    }
+
+    @Override
+    public boolean hasPrestige(String prestige) {
+        return prestiges.contains(prestige);
     }
 
     public Optional<Prestige> getCurrentPrestige() {
@@ -257,7 +309,6 @@ public class SPrisoner extends DatabaseObject implements com.bgsoftware.superior
 
     public void clearRanks() {
         ranks.clear();
-        save(true);
     }
 
     public void removeRankIf(Predicate<Rank> filter) {
@@ -266,5 +317,9 @@ public class SPrisoner extends DatabaseObject implements com.bgsoftware.superior
                 .filter(filter)
                 .forEach(rank -> ranks.remove(rank.getName()));
         save(true);
+    }
+
+    public void clearPrestiges() {
+        prestiges.clear();
     }
 }

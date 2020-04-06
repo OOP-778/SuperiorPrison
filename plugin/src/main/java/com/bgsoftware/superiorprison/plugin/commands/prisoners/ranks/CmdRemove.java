@@ -1,10 +1,11 @@
 package com.bgsoftware.superiorprison.plugin.commands.prisoners.ranks;
 
+import com.bgsoftware.superiorprison.api.data.player.Prestige;
+import com.bgsoftware.superiorprison.api.data.player.rank.LadderRank;
 import com.bgsoftware.superiorprison.api.data.player.rank.Rank;
 import com.bgsoftware.superiorprison.plugin.commands.args.PrisonerArg;
 import com.bgsoftware.superiorprison.plugin.commands.args.RanksArg;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
-import com.bgsoftware.superiorprison.plugin.object.player.rank.SLadderRank;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.google.common.collect.ImmutableMap;
 import com.oop.orangeengine.command.OCommand;
@@ -15,13 +16,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
+
 public class CmdRemove extends OCommand {
     public CmdRemove() {
         label("remove");
         description("Remove a rank from prisoner");
         argument(new PrisonerArg(true).setRequired(true));
         argument(new RanksArg().setRequired(true));
-        argument(new BoolArg().setIdentity("all").setDescription("true or false, if true when removed ladder rank, it will remove all the previous ranks"));
+        argument(new BoolArg().setIdentity("all").setDescription("true or false, if true when removed rank, it will remove all the previous ranks"));
 
         onCommand(command -> {
             SPrisoner prisoner = command.getArgAsReq("prisoner");
@@ -31,14 +34,14 @@ public class CmdRemove extends OCommand {
             List<Rank> ranks = new ArrayList<>();
             ranks.add(rank);
 
-            if (all.isPresent() && all.get() && rank instanceof SLadderRank)
-                ranks.addAll(((SLadderRank) rank).getAllPrevious());
+            if (all.isPresent() && rank instanceof LadderRank)
+                ranks.addAll(((LadderRank) rank).getAllPrevious());
 
             prisoner.removeRank((String[]) ranks.stream().map(Rank::getName).toArray(String[]::new));
-            LocaleEnum.SUCCESSFULLY_REMOVED_RANK.getWithPrefix().send(
-                    command.getSenderAsPlayer(),
-                    ImmutableMap.of("{prisoner}", prisoner.getOfflinePlayer().getName(), "{rank}", ranks.size() == 1 ? rank.getName() : Arrays.toString(ranks.stream().map(Rank::getName).toArray()))
-            );
+            messageBuilder(LocaleEnum.SUCCESSFULLY_REMOVED_RANK.getWithPrefix())
+                    .replace("{rank_name}", ranks.size() == 1 ? rank.getName() : Arrays.toString(ranks.stream().map(Rank::getName).toArray()))
+                    .replace(prisoner, rank);
+            prisoner.save(true);
         });
     }
 }

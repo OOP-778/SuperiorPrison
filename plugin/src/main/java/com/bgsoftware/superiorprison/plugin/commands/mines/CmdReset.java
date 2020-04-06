@@ -7,8 +7,9 @@ import com.oop.orangeengine.command.OCommand;
 import com.oop.orangeengine.main.task.StaticTask;
 import org.bukkit.entity.Player;
 
-public class CmdReset extends OCommand {
+import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
 
+public class CmdReset extends OCommand {
     public CmdReset() {
         label("reset");
         description("Reset a mine!");
@@ -18,10 +19,10 @@ public class CmdReset extends OCommand {
             SNormalMine mine = command.getArgAsReq("mine");
             StaticTask.getInstance().async(() -> mine.getGenerator().reset());
 
-            if (command.getSender() instanceof Player)
-                LocaleEnum.MINE_RESET_SUCCESSFUL.getWithPrefix().send(command.getSenderAsPlayer());
+            messageBuilder(LocaleEnum.MINE_RESET_SUCCESSFUL.getWithPrefix())
+                    .replace(mine)
+                    .send(command);
         });
-
     }
 
 }

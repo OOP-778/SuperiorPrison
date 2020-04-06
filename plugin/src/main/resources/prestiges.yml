@@ -1,4 +1,4 @@
-default prefix: "&8(P&e{prestige_name}&8)"
+default prefix: "&8(&e&lP&e{prestige_name}&8)"
 
 "1":
   order: 1

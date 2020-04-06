@@ -8,7 +8,7 @@ import com.oop.orangeengine.main.util.data.pair.OPair;
 public class ClearTypeArg extends CommandArgument<String> {
     public ClearTypeArg() {
         setIdentity("type");
-        setDescription("If set to ladder, it will clear only ladder ranks, if set to special otherwise");
+        setDescription("If set to ladder, it will clear only ladder access, if set to special otherwise");
         setMapper(in -> new OPair<Object, String>((in.equalsIgnoreCase("ladder") || in.equalsIgnoreCase("special")) ? in : null, "Cannot find clear type by " + in));
     }
 

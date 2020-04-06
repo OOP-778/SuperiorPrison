@@ -39,4 +39,11 @@ public class SMineSettings implements Attachable<SNormalMine>, GsonUpdateable, c
     public ResetSettings getResetSettings() {
         return resetSettings;
     }
+
+    public static SMineSettings from(SMineSettings from) {
+        SMineSettings settings = new SMineSettings();
+        settings.setPlayerLimit(from.getPlayerLimit());
+        settings.setResetSettings(SResetSettings.from(from.getResetSettings()));
+        return settings;
+    }
 }

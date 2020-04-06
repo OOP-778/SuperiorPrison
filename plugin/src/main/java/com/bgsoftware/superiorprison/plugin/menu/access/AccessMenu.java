@@ -1,5 +1,6 @@
-package com.bgsoftware.superiorprison.plugin.menu.ranks;
+package com.bgsoftware.superiorprison.plugin.menu.access;
 
+import com.bgsoftware.superiorprison.api.data.player.Prestige;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.object.player.rank.SLadderRank;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
@@ -20,12 +21,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Getter
-public abstract class RanksMenu extends OPagedMenu<SRank> implements OMenu.Templateable {
+public abstract class AccessMenu extends OPagedMenu<AccessObject> implements OMenu.Templateable {
 
     private SortMethod sortMethod = SortMethod.ABC;
     private String input = null;
 
-    public RanksMenu(String identifier, SPrisoner viewer) {
+    public AccessMenu(String identifier, SPrisoner viewer) {
         super(identifier, viewer);
 
         ClickHandler
@@ -59,27 +60,27 @@ public abstract class RanksMenu extends OPagedMenu<SRank> implements OMenu.Templ
                 .apply(this);
     }
 
-    public List<SRank> sorted(Stream<SRank> stream) {
+    public List<AccessObject> sorted(Stream<AccessObject> stream) {
         if (sortMethod == SortMethod.ABC)
-            stream = stream.sorted(Comparator.comparing(SRank::getName));
+            stream = stream.sorted(Comparator.comparing(AccessObject::getName));
 
         else if (sortMethod == SortMethod.LADDER_FIRST)
-            stream = stream.sorted((rank1, rank2) -> {
-                if (rank1 instanceof SLadderRank && rank2 instanceof SLadderRank)
+            stream = stream.sorted((access1, access2) -> {
+                if (access1.isInstanceOf(SLadderRank.class) && access2.isInstanceOf(SLadderRank.class))
                     return 0;
 
-                else if (rank1 instanceof SLadderRank)
+                else if (access1.isInstanceOf(SLadderRank.class))
                     return -1;
 
                 return 1;
             });
 
         else if (sortMethod == SortMethod.SPECIAL_FIRST)
-            stream = stream.sorted((rank1, rank2) -> {
-                if (rank1 instanceof SSpecialRank && rank2 instanceof SSpecialRank)
+            stream = stream.sorted((access1, access2) -> {
+                if (access1.isInstanceOf(SSpecialRank.class) && access2.isInstanceOf(SSpecialRank.class))
                     return 0;
 
-                else if (rank1 instanceof SSpecialRank )
+                else if (access1.isInstanceOf(SSpecialRank.class))
                     return -1;
 
                 return 1;
@@ -91,16 +92,26 @@ public abstract class RanksMenu extends OPagedMenu<SRank> implements OMenu.Templ
                 return sorted(stream);
 
             } else {
-                stream = stream.sorted((rank1, rank2) -> {
-                    if (rank1.getName().toLowerCase().startsWith(input) && rank2.getName().toLowerCase().startsWith(input))
+                stream = stream.sorted((access1, access2) -> {
+                    if (access1.getName().toLowerCase().startsWith(input) && access2.getName().toLowerCase().startsWith(input))
                         return 0;
 
-                    else if (rank1.getName().startsWith(input))
+                    else if (access1.getName().startsWith(input))
                         return -1;
 
                     return 1;
                 });
             }
+        } else if (sortMethod == SortMethod.PRESTIGE_FIRST) {
+            stream = stream.sorted((access1, access2) -> {
+                if (access1.isInstanceOf(Prestige.class) && access2.isInstanceOf(Prestige.class))
+                    return 0;
+
+                else if (access1.isInstanceOf(Prestige.class))
+                    return -1;
+
+                return 1;
+            });
         }
 
         return stream.collect(Collectors.toList());

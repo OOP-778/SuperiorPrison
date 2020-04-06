@@ -21,6 +21,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -38,7 +39,7 @@ public class GeneratorEditMenu extends OPagedMenu<OPair<Double, OMaterial>> impl
     public GeneratorEditMenu(SPrisoner viewer, SNormalMine mine) {
         super("mineGenerator", viewer);
         this.mine = mine;
-        this.materials = mine.getGenerator().getGeneratorMaterials();
+        this.materials = new ArrayList<>(mine.getGenerator().getGeneratorMaterials());
 
         ClickHandler
                 .of("reset")
@@ -145,7 +146,6 @@ public class GeneratorEditMenu extends OPagedMenu<OPair<Double, OMaterial>> impl
         OMaterial material = OMaterial.matchMaterial(clone);
         event.setCancelled(true);
 
-        //TODO: Add messages to locale
         if (!clone.getType().isBlock()) {
             LocaleEnum.EDIT_GENERATOR_MATERIAL_IS_NOT_BLOCK.getWithErrorPrefix().send((Player) event.getWhoClicked());
             return;

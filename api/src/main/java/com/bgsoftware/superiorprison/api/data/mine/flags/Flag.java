@@ -7,23 +7,22 @@ import java.util.Set;
 
 public enum Flag {
 
-    PVP(false),
-    NIGHT_VISION(true),
-    FALL_DAMAGE(false),
-    BUILD(false),
-    FLIGHT(false),
-    HUNGER(true),
-    BREAK(false);
+    PVP(false, "Should players be able to hit each other"),
+    NIGHT_VISION(true, "Apply night vision to prisoners"),
+    FALL_DAMAGE(false, "Toggle fall damage"),
+    HUNGER(true, "Toggle hunger");
 
     private boolean defaultValue;
     private Set<AreaEnum> areas;
+    private String description;
 
-    Flag(boolean defaultValue) {
+    Flag(boolean defaultValue, String description) {
         this.defaultValue = defaultValue;
+        this.description = description;
         this.areas = Sets.newHashSet(AreaEnum.MINE, AreaEnum.REGION);
     }
 
-    Flag(boolean defaultValue, AreaEnum... areas) {
+    Flag(boolean defaultValue, String description, AreaEnum... areas) {
         this.defaultValue = defaultValue;
         this.areas = Sets.newHashSet(areas);
     }
@@ -34,5 +33,9 @@ public enum Flag {
 
     public Set<AreaEnum> getAreas() {
         return areas;
+    }
+
+    public String getDescription() {
+        return description;
     }
 }

@@ -1,0 +1,58 @@
+superiorprison_
+prisoner_%uuid/name%/none_
+- autosell
+- currentmine
+ - area
+- autopickup
+- prestige
+ - prefix
+ - order
+ - previous
+ - next
+- ladderrank
+ - prefix
+ - order
+ - previous
+  - prefix
+  - order
+ - next
+  - prefix
+  - order
+- autoburn
+- fortuneblocks
+
+mine_%name%
+- type
+- minpoint
+ - world
+ - x
+ - y
+ - z
+- highpoint
+ - world
+ - x
+ - y
+ - z
+- spawnpoint
+ - world
+ - x
+ - y
+ - z
+- region
+ - minpoint
+  - world
+  - x
+  - y
+  - z
+ - highpoint
+  - world
+  - x
+  - y
+  - z
+- prisoners
+- reset
+ - type
+ - timeleft
+ - percentage
+ - currentpercentage
+ - lastreset

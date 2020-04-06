@@ -32,11 +32,11 @@ mine defaults:
     mode: PERCENTAGE
 
     # If percentage the value should be a number between 0 and 100% of blocks left
-    # If timed the value should be xHxMxS where H stands for hours, M for minutes and S for seconds
+    # If timed the value should be xDxHxMxS where D stands for days, H stands for hours, M for minutes and S for seconds
     value: 60%
 
   # Materials used to generate mine
-  # The rate cannot exceed 100!
+  # The rate cannot exceed or be lower than 100!
   materials:
     - "STONE:50"
     - "DIAMOND_ORE:35"
@@ -49,9 +49,20 @@ mine defaults:
     - "GOLD_ORE:15"
 
 area selection tool:
-  material: WOODEN_AXE
+  material: STICK
   display name: "&ePrison Wand"
 
 # When item is not found inside mine shop, it can use a fallback!
 shopgui fall back: true
 
+# Progression scale
+progression scale:
+  symbols: "::::::::::"
+  color: "&7"
+  completed color: "&e"
+  not found: "none"
+
+command colors:
+  main: "&e"
+  second: "&3"
+  markup: "&7"

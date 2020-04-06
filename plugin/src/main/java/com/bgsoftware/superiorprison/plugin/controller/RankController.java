@@ -54,6 +54,7 @@ public class RankController implements com.bgsoftware.superiorprison.api.control
                     Set<RequirementData> reqs = Sets.newHashSet();
                     section.ifValuePresent("requirements", List.class, list -> {
                         for (Object o : list) {
+                            if (o.toString().trim().length() == 0) continue;
                             OPair<String, Optional<RequirementData>> data = rc.parse(o.toString());
                             if (data.getSecond().isPresent())
                                 reqs.add(data.getSecond().get());
@@ -67,7 +68,7 @@ public class RankController implements com.bgsoftware.superiorprison.api.control
                     SLadderRank rank = new SLadderRank(
                             order,
                             section.getKey(),
-                            section.hasValue("prefix") ? section.getValueAsReq("prefix", String.class) : defaultPrefix.replace("%rank_name%", section.getKey()),
+                            section.hasValue("prefix") ? section.getValueAsReq("prefix", String.class) : defaultPrefix.replace("{rank_name}", section.getKey()),
                             section.hasValue("commands") ? (List<String>) section.getValueAsReq("commands", List.class) : new ArrayList<>(),
                             section.hasValue("permissions") ? (List<String>) section.getValueAsReq("permissions", List.class) : new ArrayList<>(),
                             reqs,
@@ -103,7 +104,7 @@ public class RankController implements com.bgsoftware.superiorprison.api.control
             defaultRank = ladderRanks.get(1);
             loaded = true;
         } catch (Throwable thrw) {
-            throw new IllegalStateException("Failed to load RankController", thrw);
+            throw new IllegalStateException("Failed to load RankController cause " + thrw.getMessage(), thrw);
         }
 
         return true;

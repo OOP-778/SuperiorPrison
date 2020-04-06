@@ -3,12 +3,14 @@ package com.bgsoftware.superiorprison.plugin.object.mine.shop;
 import com.bgsoftware.superiorprison.api.data.mine.shop.ShopItem;
 import com.google.gson.annotations.SerializedName;
 import com.oop.orangeengine.main.gson.GsonUpdateable;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import org.bukkit.inventory.ItemStack;
 
 @Setter
+@EqualsAndHashCode
 public class SShopItem implements ShopItem {
     @Override
     public boolean equals(Object o) {
@@ -36,6 +38,13 @@ public class SShopItem implements ShopItem {
     protected SShopItem(@NonNull ItemStack item, double price) {
         this.item = item;
         this.price = price;
+    }
+
+    public static SShopItem from(SShopItem from) {
+        SShopItem item = new SShopItem();
+        item.setItem(from.getItem().clone());
+        item.setPrice(from.getPrice());
+        return item;
     }
 
     @Override

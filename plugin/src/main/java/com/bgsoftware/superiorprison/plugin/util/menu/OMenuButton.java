@@ -6,6 +6,7 @@ import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.google.common.collect.Maps;
 import com.oop.orangeengine.item.ItemBuilder;
 import com.oop.orangeengine.item.custom.OItem;
+import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.material.OMaterial;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -18,6 +19,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import static com.bgsoftware.superiorprison.plugin.util.TextUtil.replaceList;
 import static com.bgsoftware.superiorprison.plugin.util.TextUtil.replaceText;
@@ -90,7 +92,6 @@ public class OMenuButton implements Cloneable {
 
         public ButtonItemBuilder(@NonNull ItemBuilder itemBuilder) {
             this.itemBuilder = itemBuilder;
-            getEngine().getLogger().print("MATERIAL: " + itemBuilder.getMaterial());
         }
 
         protected ButtonItemBuilder() {}
@@ -108,7 +109,7 @@ public class OMenuButton implements Cloneable {
             return clone.getItemStack();
         }
 
-        public <T> ItemStack getItemStackWithPlaceholders(T object, Set<BiFunction<String, T, String>> placeholders) {
+        public <T> ItemStack getItemStackWithPlaceholders(T object, Set<OPair<String, Function<T, String>>> placeholders) {
             if (getItemStack().getType() == Material.AIR) return getItemStack();
             ItemBuilder clone = itemBuilder.clone();
 
@@ -126,7 +127,7 @@ public class OMenuButton implements Cloneable {
                 if (object instanceof Player || object instanceof SPrisoner)
                     clone.setLore(finalizeLore(clone.getLore(), object instanceof Player ? (Player) object : ((SPrisoner) object).getPlayer()));
 
-                Set<BiFunction<String, Object, String>> placeholdersFor = SuperiorPrisonPlugin.getInstance().getPlaceholderController().findPlaceholdersFor(object);
+                Set<OPair<String, Function<Object, String>>> placeholdersFor = SuperiorPrisonPlugin.getInstance().getPlaceholderController().findPlaceholdersFor(object);
                 clone.setLore(replaceList(object, clone.getLore(), placeholdersFor));
                 clone.setDisplayName(replaceText(object, clone.getDisplayName(), placeholdersFor));
             }

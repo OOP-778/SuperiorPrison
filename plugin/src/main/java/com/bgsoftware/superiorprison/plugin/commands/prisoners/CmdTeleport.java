@@ -13,23 +13,20 @@ public class CmdTeleport extends OCommand {
     public CmdTeleport() {
         label("teleport");
         alias("tp");
+        description("teleport prisoner into a mine");
         ableToExecute(Player.class);
 
         argument(new PrisonerArg(false));
         argument(new MinesArg().setRequired(true));
 
         onCommand(command -> {
-            Player player = command.getArgAsReq("prisoner", SPrisoner.class).getPlayer();
+            SPrisoner prisoner = command.getArgAsReq("prisoner", SPrisoner.class);
             SNormalMine superiorMine = command.getArgAsReq("mine");
 
-            if (!superiorMine.getSpawnPoint().isPresent()) {
-                player.sendMessage(ChatColor.RED + "Mine " + superiorMine.getName() + " doesn't have a spawn point!");
+            if (superiorMine.getPrisoners().contains(prisoner))
                 return;
-            }
 
-            player.teleport(superiorMine.getSpawnPoint().get().toBukkit());
-            player.sendMessage(ChatColor.GREEN + "Teleported to mine " + superiorMine.getName());
+            prisoner.getPlayer().teleport(superiorMine.getSpawnPoint().get().toBukkit());
         });
     }
-
 }

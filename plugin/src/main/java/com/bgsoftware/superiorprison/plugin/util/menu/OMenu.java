@@ -10,6 +10,7 @@ import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.oop.orangeengine.main.task.StaticTask;
+import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.yaml.OConfiguration;
 import lombok.Getter;
 import lombok.NonNull;
@@ -26,6 +27,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -124,18 +126,16 @@ public abstract class OMenu implements InventoryHolder {
         objects = mergeArray(objects, getBuildPlaceholders());
 
         for (Object object : objects) {
-            Set<BiFunction<String, Object, String>> placeholders = SuperiorPrisonPlugin.getInstance().getPlaceholderController().findPlaceholdersFor(object);
+            Set<OPair<String, Function<Object, String>>> placeholders = SuperiorPrisonPlugin.getInstance().getPlaceholderController().findPlaceholdersFor(object);
             title = TextUtil.replaceText(object, title, placeholders);
         }
 
         Inventory inventory = Bukkit.createInventory(this, menuRows * 9, title);
         Object[] finalObjects = objects;
         fillerItems.forEach((slot, button) -> {
-            ClassDebugger.debug("Setting button at " + slot + ", " + button.identifier());
             if (button.requiredPermission().trim().length() == 0) {
                 ItemStack item = button.currentItem(stateRequester.request(button).getItemStackWithPlaceholdersMulti(finalObjects)).currentItem();
                 inventory.setItem(slot, item);
-                ClassDebugger.debug("Set item at slot " + slot + ", " + item);
             } else if (getViewer().getPlayer().hasPermission(button.requiredPermission()))
                 inventory.setItem(slot, button.currentItem(stateRequester.request(button).getItemStackWithPlaceholdersMulti(finalObjects)).currentItem());
 

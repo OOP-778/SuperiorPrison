@@ -50,10 +50,20 @@ public class TimeUtil {
         return ZonedDateTime.ofInstant(Instant.ofEpochSecond(epochSeconds), ZoneId.systemDefault());
     }
 
-    public static String toString(ZonedDateTime date) {
+    public static String leftToString(ZonedDateTime date) {
+        return leftToString(date, false);
+    }
+
+    public static String leftToString(ZonedDateTime date, boolean reverse) {
         if (date == null) return "unlimited";
 
-        Duration between = Duration.between(getDate(), date);
+        Duration between;
+        if (reverse)
+            between = Duration.between(date, getDate());
+
+        else
+            between = Duration.between(getDate(), date);
+
         long[] longs = calculateTime(between.getSeconds());
         List<String> times = new ArrayList<>();
         times.add(longs[0] + "s");
@@ -73,5 +83,11 @@ public class TimeUtil {
         long days = seconds / 86400;
 
         return new long[]{sec, minutes, hours, days};
+    }
+
+    public static boolean hasExpired(long instant) {
+        ZonedDateTime date = getDate(instant);
+        Duration between = Duration.between(getDate(), date);
+        return between.getSeconds() <= 0;
     }
 }

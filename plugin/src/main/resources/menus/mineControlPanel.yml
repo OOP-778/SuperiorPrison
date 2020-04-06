@@ -1,7 +1,7 @@
 title: "&eEditing &6{mine_name}"
 
 actions:
-  - "edit ranks:R"
+  - "edit access:R"
   - "edit icon:I"
   - "edit generator:G"
   - "edit flags:F"
@@ -17,7 +17,7 @@ layout:
 buttons:
   "R":
     material: iron_bars
-    display name: "&eRanks"
+    display name: "&eAccess"
     lore:
       - "&e&l*&7 Click to edit!"
 

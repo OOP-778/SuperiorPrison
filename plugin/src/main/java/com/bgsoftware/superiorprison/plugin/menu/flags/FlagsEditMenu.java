@@ -1,10 +1,13 @@
 package com.bgsoftware.superiorprison.plugin.menu.flags;
 
 import com.bgsoftware.superiorprison.api.data.mine.flags.Flag;
+import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.object.mine.area.SArea;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.util.menu.*;
+import com.google.common.collect.ImmutableMap;
 import com.oop.orangeengine.main.Helper;
+import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +25,7 @@ public class FlagsEditMenu extends OPagedMenu<Flag> implements OMenu.Templateabl
                 .handle(event -> {
                     Flag flag = requestObject(event.getRawSlot());
                     boolean current = area.getFlagState(flag);
-                    handleToggleable(event, current, () -> area.setFlagState(flag, !current));
+                    handleToggleable(flag, event, current, () -> area.setFlagState(flag, !current));
                     area.getMine().save(true);
                 })
                 .apply(this);
@@ -45,8 +48,7 @@ public class FlagsEditMenu extends OPagedMenu<Flag> implements OMenu.Templateabl
 
         OMenuButton button = flagTemplate.get().clone();
         OMenuButton.ButtonItemBuilder toggleableState = getToggleableState(button, area.getFlagState(obj)).clone();
-        toggleableState.itemBuilder().replaceDisplayName("{flag_name}", Helper.beautify(obj.name()));
-        return button.currentItem(toggleableState.getItemStackWithPlaceholdersMulti(getViewer(), area));
+        return button.currentItem(toggleableState.getItemStackWithPlaceholdersMulti(getViewer(), area, obj));
     }
 
     private OMenuButton.ButtonItemBuilder getToggleableState(OMenuButton button, boolean state) {
@@ -57,9 +59,15 @@ public class FlagsEditMenu extends OPagedMenu<Flag> implements OMenu.Templateabl
             return button.getStateItem("disabled");
     }
 
-    public void handleToggleable(ButtonClickEvent event, Boolean current, Runnable toggle) {
+    public void handleToggleable(Flag flag, ButtonClickEvent event, Boolean current, Runnable toggle) {
         toggle.run();
-        event.getWhoClicked().sendMessage(Helper.color("You've " + (current ? "disabled" : "enabled") + " '" + event.getButton().action() + "'"));
+        LocaleEnum.EDIT_FLAGS_TOGGLE.getWithPrefix().send(
+                (Player) event.getWhoClicked(),
+                ImmutableMap.of(
+                        "{state}", current ? "disabled" : "enabled",
+                        "{flag}", flag.name().toLowerCase(),
+                        "{mine}", area.getMine().getName()
+                ));
         refresh();
     }
 

@@ -7,6 +7,7 @@ import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.object.mine.area.SArea;
 import com.bgsoftware.superiorprison.plugin.util.Attachable;
 import com.bgsoftware.superiorprison.plugin.util.Cuboid;
+import com.bgsoftware.superiorprison.plugin.util.TimeUtil;
 import com.google.common.collect.Sets;
 import com.google.gson.annotations.SerializedName;
 import com.oop.orangeengine.eventssubscription.SubscriptionFactory;
@@ -81,9 +82,7 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
     public void generate() {
         initBlockChanger();
         if (cachedMineArea.length == 0) return;
-
         int blocksInRegion = cachedMineArea.length;
-        debug("blocks in region: " + blocksInRegion);
 
         if (cachedMaterials.length == 0 || materialsChanged) {
 
@@ -103,7 +102,6 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
         shuffleArray(cachedMaterials);
         nonEmptyBlocks = cachedMaterials.length;
 
-        debug("materials amount: " + Arrays.stream(cachedMaterials).filter(Objects::nonNull).toArray().length);
         for (int index = 0; index < blocksInRegion; index++) {
             Block block = cachedMineArea[index];
             OMaterial material = cachedMaterials[index];
@@ -124,7 +122,8 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
             else
                 generate();
         });
-        lastReset = ZonedDateTime.now().toInstant();
+        lastReset = TimeUtil.getDate().toInstant();
+        mine.onReset();
     }
 
     @Override
@@ -146,8 +145,6 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
             blockChanger.setBlock(block.getLocation(), OMaterial.AIR);
         }
         blockChanger.submitUpdate();
-
-        debug("Cached chunks: " + cachedChunks.size());
         SuperiorPrisonPlugin.getInstance().getNms().refreshChunks(mineArea.getMinPoint().getWorld(), cachedChunks);
     }
 
@@ -158,7 +155,6 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
         if (mineArea == null)
             mineArea = (SArea) mine.getArea(AreaEnum.MINE);
 
-        System.out.println(mineArea);
         if (mineArea.getWorld() == null) {
             worldLoadWait = true;
             SubscriptionFactory.getInstance().subscribeTo(WorldLoadEvent.class, event -> {

@@ -51,9 +51,27 @@ public interface Prisoner {
 
     Set<SuperiorMine> getMines();
 
+    void addRank(Rank ...rank);
+
+    void addRank(String ...rank);
+
     void removeRank(Rank ...rank);
 
     void removeRank(String ...rank);
 
     boolean hasRank(String name);
+
+    Set<Prestige> getPrestiges();
+
+    void addPrestige(Prestige ...prestige);
+
+    void addPrestige(String ...prestige);
+
+    void removePrestige(Prestige ...prestige);
+
+    void removePrestige(String ...prestige);
+
+    boolean hasPrestige(String prestige);
+
+    Optional<Prestige> getCurrentPrestige();
 }

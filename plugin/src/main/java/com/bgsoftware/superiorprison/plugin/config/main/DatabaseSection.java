@@ -17,7 +17,7 @@ public class DatabaseSection {
     private String username = "root";
     private String password;
 
-    protected DatabaseSection(ConfigurationSection section) {
+    DatabaseSection(ConfigurationSection section) {
         this.type = section.getValueAsReq("type");
 
         section.ifValuePresent("database", String.class, database -> this.database = database);

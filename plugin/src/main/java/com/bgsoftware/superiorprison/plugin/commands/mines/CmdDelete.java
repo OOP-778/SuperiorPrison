@@ -1,11 +1,13 @@
 package com.bgsoftware.superiorprison.plugin.commands.mines;
 
 import com.bgsoftware.superiorprison.plugin.commands.args.MinesArg;
+import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.oop.orangeengine.command.OCommand;
 
-public class CmdDelete extends OCommand {
+import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
 
+public class CmdDelete extends OCommand {
     public CmdDelete() {
         label("delete");
         argument(new MinesArg().setRequired(true));
@@ -13,7 +15,9 @@ public class CmdDelete extends OCommand {
             SNormalMine mine = (SNormalMine) command.getArg("mine").get();
             mine.remove(true);
 
-            command.getSender().sendMessage("Successfully deleted mine with name " + mine.getName());
+            messageBuilder(LocaleEnum.MINE_DELETE_SUCCESSFUL.getWithPrefix())
+                    .replace(mine)
+                    .send(command);
         });
     }
 }

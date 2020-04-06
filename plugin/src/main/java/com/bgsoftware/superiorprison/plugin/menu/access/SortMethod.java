@@ -1,10 +1,11 @@
-package com.bgsoftware.superiorprison.plugin.menu.ranks;
+package com.bgsoftware.superiorprison.plugin.menu.access;
 
 public enum SortMethod {
+    ABC(0),
     LADDER_FIRST(1),
     SPECIAL_FIRST(2),
-    INPUT(3),
-    ABC(0);
+    PRESTIGE_FIRST(3),
+    INPUT(4);
 
     private int order;
 

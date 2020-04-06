@@ -9,13 +9,14 @@ import com.bgsoftware.superiorprison.plugin.util.Attachable;
 import com.bgsoftware.superiorprison.plugin.util.ClassDebugger;
 import com.google.common.collect.Maps;
 import com.google.gson.annotations.SerializedName;
-import com.oop.orangeengine.main.gson.GsonUpdateable;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.bukkit.Location;
 import org.bukkit.World;
 
 import java.util.Map;
 
+@EqualsAndHashCode
 public class SArea implements Area, Attachable<SNormalMine> {
 
     @Getter

@@ -51,10 +51,15 @@ public class PrestigeController implements com.bgsoftware.superiorprison.api.con
     }
 
     @Override
+    public Optional<Prestige> getPrestige(int order) {
+        return Optional.ofNullable(prestigeMap.get(order));
+    }
+
+    @Override
     public boolean load() {
         prestigeMap.clear();
         try {
-            OConfiguration prestigeConfig = SuperiorPrisonPlugin.getInstance().getConfigController().getRanksConfig();
+            OConfiguration prestigeConfig = SuperiorPrisonPlugin.getInstance().getConfigController().getPrestigesConfig();
             String defaultPrefix = prestigeConfig.getValueAsReq("default prefix");
             RequirementController rc = SuperiorPrisonPlugin.getInstance().getRequirementController();
 
@@ -63,6 +68,7 @@ public class PrestigeController implements com.bgsoftware.superiorprison.api.con
                     Set<RequirementData> reqs = Sets.newHashSet();
                     section.ifValuePresent("requirements", List.class, list -> {
                         for (Object o : list) {
+                            if (o.toString().trim().length() == 0) continue;
                             OPair<String, Optional<RequirementData>> data = rc.parse(o.toString());
                             if (data.getSecond().isPresent())
                                 reqs.add(data.getSecond().get());
@@ -75,7 +81,7 @@ public class PrestigeController implements com.bgsoftware.superiorprison.api.con
                     int order = section.getValueAsReq("order");
                     SPrestige prestige = new SPrestige(
                             section.getKey(),
-                            section.hasValue("prefix") ? section.getValueAsReq("prefix", String.class) : defaultPrefix.replace("%rank_name%", section.getKey()),
+                            section.hasValue("prefix") ? section.getValueAsReq("prefix", String.class) : defaultPrefix.replace("{prestige_name}", section.getKey()),
                             order,
                             section.hasValue("commands") ? (List<String>) section.getValueAsReq("commands", List.class) : new ArrayList<>(),
                             section.hasValue("permissions") ? (List<String>) section.getValueAsReq("permissions", List.class) : new ArrayList<>(),

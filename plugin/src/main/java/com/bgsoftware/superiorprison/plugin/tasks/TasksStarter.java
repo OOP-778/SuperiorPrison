@@ -4,7 +4,7 @@ public class TasksStarter {
 
     public TasksStarter() {
         new MineResetTask();
-        new MineShowTask();
         new RankupTask();
+        new BoosterTask();
     }
 }

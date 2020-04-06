@@ -11,4 +11,6 @@ public interface PrestigeController {
     List<Prestige> getPrestiges();
 
     Optional<Prestige> getPrestige(String name);
+
+    Optional<Prestige> getPrestige(int order);
 }

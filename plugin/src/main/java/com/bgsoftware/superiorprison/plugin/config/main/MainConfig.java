@@ -16,6 +16,7 @@ public class MainConfig {
 
     private DatabaseSection database;
     private MineDefaultsSection mineDefaults;
+    private CommandColorsSection commandColors;
 
     private OItem areaSelectionTool;
 
@@ -42,5 +43,6 @@ public class MainConfig {
         this.areaSelectionTool = new OItem().load(configuration.getSection("area selection tool"));
 
         configuration.ifValuePresent("shopgui fall back", boolean.class, b -> shopGuiAsFallBack = b);
+        configuration.ifSectionPresent("command colors", section -> commandColors = new CommandColorsSection(section));
     }
 }

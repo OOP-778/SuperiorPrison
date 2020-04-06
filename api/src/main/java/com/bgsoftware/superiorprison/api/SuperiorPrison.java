@@ -6,7 +6,6 @@ import com.bgsoftware.superiorprison.api.controller.RankController;
 import com.bgsoftware.superiorprison.api.controller.RequirementController;
 
 public interface SuperiorPrison {
-
     MineHolder getMineController();
 
     PrisonerHolder getPrisonerController();

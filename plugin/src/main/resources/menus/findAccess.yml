@@ -1,18 +1,17 @@
-title: "&eEditing &6{mine_name}&e ranks!"
-
-templates:
-  - "rank template:R"
-
-actions:
-  - "rank click:R"
-  - "previous page:P"
-  - "next page:N"
-  - "find ranks:F"
-  - "sort click:S"
+title: "&eAvailable Ranks"
 
 layout:
   - "$ $ $ $ $ $ $ $ $"
-  - "F S P & & & N & &"
+  - "S & P & & & N & &"
+
+templates:
+  - "access template:R"
+
+actions:
+  - "previous page:P"
+  - "next page:N"
+  - "access click:R"
+  - "sort click:S"
 
 buttons:
   "&":
@@ -52,16 +51,11 @@ buttons:
       - "&a&l(!)&7 Click to change"
       - "&7Sort method"
 
-  "F":
-    material: REDSTONE
-    display name: "&eFind Ranks"
-    lore:
-      - "&cLook through list of ranks"
-      - "&cTo find your wanted one!"
-
   "R":
     material: DIAMOND
-    display name: "{rank_name}"
+    display name: "&e{access_name}"
     lore:
+      - "&e&l* &7Type: &e{access_type}"
+      - "&e&l* &7Prefix: &e{access_prefix}"
       - ""
-      - "&c&l(!)&7 Click to remove"
+      - "&7Click to add to the mine"

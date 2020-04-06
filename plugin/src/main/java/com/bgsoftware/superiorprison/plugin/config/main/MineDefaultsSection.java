@@ -22,7 +22,7 @@ public class MineDefaultsSection {
 
     private List<OPair<OMaterial, Double>> shopPrices;
 
-    public MineDefaultsSection(ConfigurationSection section) {
+    MineDefaultsSection(ConfigurationSection section) {
         this.icon = new OItem().load(section.getSection("icon"));
         this.limit = section.getValueAsReq("limit");
 
@@ -41,5 +41,4 @@ public class MineDefaultsSection {
                 .map(array -> new OPair<>(OMaterial.matchMaterial(array[0].toUpperCase()), Double.parseDouble(array[1])))
                 .collect(Collectors.toList());
     }
-
 }

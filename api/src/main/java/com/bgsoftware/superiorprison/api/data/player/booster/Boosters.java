@@ -14,5 +14,7 @@ public interface Boosters {
 
     <T extends Booster> Set<T> findBoostersBy(Class<T> type);
 
-    Set<Booster> getBoosters();
+    Optional<Booster> findBoosterBy(int id);
+
+    Set<Booster> set();
 }

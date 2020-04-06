@@ -2,7 +2,7 @@ package com.bgsoftware.superiorprison.plugin.menu;
 
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.menu.flags.AreaChooseMenu;
-import com.bgsoftware.superiorprison.plugin.menu.ranks.RanksEditMenu;
+import com.bgsoftware.superiorprison.plugin.menu.access.AccessEditMenu;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.util.chatCmds.ChatCommands;
@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
 import static com.bgsoftware.superiorprison.plugin.util.TextUtil.mergeText;
 
 @Getter
@@ -47,10 +48,10 @@ public class MineControlPanel extends OMenu {
                 .apply(this);
 
         ClickHandler
-                .of("edit ranks")
+                .of("edit access")
                 .handle(event -> {
                     previousMove = false;
-                    new RanksEditMenu(getViewer(), mine).open(this);
+                    new AccessEditMenu(getViewer(), mine).open(this);
                 })
                 .apply(this);
 
@@ -76,7 +77,9 @@ public class MineControlPanel extends OMenu {
                         String displayName = mergeText(args);
                         itemBuilder.setDisplayName(displayName);
 
-                        LocaleEnum.EDIT_ICON_DISPLAY_NAME_SET.getWithPrefix().send(player, ImmutableMap.of("%display_name%", displayName));
+                        messageBuilder(LocaleEnum.EDIT_ICON_DISPLAY_NAME_SET.getWithPrefix())
+                                .replace("{display_name}", displayName)
+                                .send(player);
 
                         OMessage clone = LocaleEnum.EDIT_ICON_MAIN_MESSAGE.getMessage().clone();
                         clone.replace("%item%", new ItemLineContent(itemBuilder.getItemStack()).text(Helper.beautify(OMaterial.matchMaterial(itemBuilder.getItemStack()).name())));
@@ -104,7 +107,10 @@ public class MineControlPanel extends OMenu {
                         String text = mergeText(Arrays.stream(args).skip(1).toArray(String[]::new));
 
                         itemBuilder.setLoreLine(line, text);
-                        LocaleEnum.EDIT_ICON_SET_LORE_LINE.getWithPrefix().send(player, ImmutableMap.of("%line%", line + "", "%text%", text));
+                        messageBuilder(LocaleEnum.EDIT_ICON_SET_LORE_LINE.getWithPrefix())
+                                .replace("{line}", line)
+                                .replace("{text}", text)
+                                .send(player);
 
                         OMessage clone = LocaleEnum.EDIT_ICON_MAIN_MESSAGE.getMessage().clone();
                         clone.replace("%item%", new ItemLineContent(itemBuilder.getItemStack()).text(Helper.beautify(OMaterial.matchMaterial(itemBuilder.getItemStack()).name())));
@@ -116,7 +122,9 @@ public class MineControlPanel extends OMenu {
                         String text = mergeText(args);
                         itemBuilder.appendLore(text);
 
-                        LocaleEnum.EDIT_ICON_ADD_LORE.getWithPrefix().send(player, ImmutableMap.of("%text%", text));
+                        messageBuilder(LocaleEnum.EDIT_ICON_ADD_LORE.getWithPrefix())
+                                .replace("{text}", text)
+                                .send(player);
 
                         OMessage clone = LocaleEnum.EDIT_ICON_MAIN_MESSAGE.getMessage().clone();
                         clone.replace("%item%", new ItemLineContent(itemBuilder.getItemStack()).text(Helper.beautify(OMaterial.matchMaterial(itemBuilder.getItemStack()).name())));
@@ -137,7 +145,9 @@ public class MineControlPanel extends OMenu {
                         int line = Integer.parseInt(args[0]);
 
                         itemBuilder.removeLoreLine(line);
-                        LocaleEnum.EDIT_ICON_REMOVE_LORE_LINE.getWithPrefix().send(player, ImmutableMap.of("%line%", line + ""));
+                        messageBuilder(LocaleEnum.EDIT_ICON_REMOVE_LORE_LINE.getWithPrefix())
+                                .replace("{line}", line)
+                                .send(player);
 
                         OMessage clone = LocaleEnum.EDIT_ICON_MAIN_MESSAGE.getMessage().clone();
                         clone.replace("%item%", new ItemLineContent(itemBuilder.getItemStack()).text(Helper.beautify(OMaterial.matchMaterial(itemBuilder.getItemStack()).name())));
@@ -151,7 +161,9 @@ public class MineControlPanel extends OMenu {
                         Preconditions.checkArgument(material != null, "Failed to find material by name: " + args[0]);
 
                         itemBuilder.setMaterial(material);
-                        LocaleEnum.EDIT_ICON_SET_MATERIAL.getWithPrefix().send(player, ImmutableMap.of("%material%", material.name()));
+                        messageBuilder(LocaleEnum.EDIT_ICON_SET_MATERIAL.getWithPrefix())
+                                .replace("{material}", Helper.beautify(material.name()))
+                                .send(player);
 
                         OMessage clone = LocaleEnum.EDIT_ICON_MAIN_MESSAGE.getMessage().clone();
                         clone.replace("%item%", new ItemLineContent(itemBuilder.getItemStack()).text(Helper.beautify(OMaterial.matchMaterial(itemBuilder.getItemStack()).name())));

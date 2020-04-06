@@ -49,14 +49,10 @@ public class ClickHandler {
     public boolean doesAcceptEvent(ButtonClickEvent event) {
         if (!acceptsTypes.contains(event.getClick()))
             return false;
-        System.out.println("Accepts types");
 
-        System.out.println("Button action: " + event.getButton().action());
-        System.out.println("ItemStack: " + event.getButton().currentItem());
         if (action != null && !event.getButton().action().equalsIgnoreCase(action))
             return false;
 
-        System.out.println("Accepts action");
         return true;
     }
 

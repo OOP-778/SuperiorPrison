@@ -27,33 +27,36 @@ public class RankupTask extends OTask {
         sync(false);
         delay(TimeUnit.SECONDS, 6);
         repeat(true);
-        runnable(() -> SuperiorPrisonPlugin.getInstance().getPrisonerController()
-                .dataStream()
-                .parallel()
-                .filter(SPrisoner::isOnline)
-                .filter(prisoner -> cache.getIfPresent(prisoner.getUUID()) == null || !cache.getIfPresent(prisoner.getUUID()).contentEquals(prisoner.getCurrentLadderRank().getName()))
-                .filter(prisoner -> {
-                    LadderRank rank = prisoner.getCurrentLadderRank();
-                    Optional<SLadderRank> next = rank.getNext().map(r -> (SLadderRank)r);
-                    if (!next.isPresent()) return false;
+        runnable(() -> {
+            if (SuperiorPrisonPlugin.disabling) return;
+            SuperiorPrisonPlugin.getInstance().getPrisonerController()
+                    .dataStream()
+                    .parallel()
+                    .filter(SPrisoner::isOnline)
+                    .filter(prisoner -> cache.getIfPresent(prisoner.getUUID()) == null || !cache.getIfPresent(prisoner.getUUID()).contentEquals(prisoner.getCurrentLadderRank().getName()))
+                    .filter(prisoner -> {
+                        LadderRank rank = prisoner.getCurrentLadderRank();
+                        Optional<SLadderRank> next = rank.getNext().map(r -> (SLadderRank)r);
+                        if (!next.isPresent()) return false;
 
-                    List<RequirementException> failed = new ArrayList<>();
-                    next.get().getRequirements()
-                            .forEach(data -> {
-                                Optional<Requirement> requirement = SuperiorPrisonPlugin.getInstance().getRequirementController().findRequirement(data.getType());
-                                try {
-                                    requirement.get().getHandler().testIO(prisoner, data);
-                                } catch (RequirementException ex) {
-                                    failed.add(ex);
-                                }
-                            });
-                    return failed.isEmpty();
-                })
-                .forEach(prisoner -> {
-                    cache.invalidate(prisoner.getUUID());
-                    cache.put(prisoner.getUUID(), prisoner.getCurrentLadderRank().getName());
-                    LocaleEnum.RANKUP_AVAILABLE.getWithPrefix().send(prisoner.getPlayer(), ImmutableMap.of("{rank}", prisoner.getCurrentLadderRank().getNext().get().getName()));
-                }));
+                        List<RequirementException> failed = new ArrayList<>();
+                        next.get().getRequirements()
+                                .forEach(data -> {
+                                    Optional<Requirement> requirement = SuperiorPrisonPlugin.getInstance().getRequirementController().findRequirement(data.getType());
+                                    try {
+                                        requirement.get().getHandler().testIO(prisoner, data);
+                                    } catch (RequirementException ex) {
+                                        failed.add(ex);
+                                    }
+                                });
+                        return failed.isEmpty();
+                    })
+                    .forEach(prisoner -> {
+                        cache.invalidate(prisoner.getUUID());
+                        cache.put(prisoner.getUUID(), prisoner.getCurrentLadderRank().getName());
+                        LocaleEnum.RANKUP_AVAILABLE.getWithPrefix().send(prisoner.getPlayer(), ImmutableMap.of("{rank}", prisoner.getCurrentLadderRank().getNext().get().getName()));
+                    });
+        });
         execute();
     }
 }

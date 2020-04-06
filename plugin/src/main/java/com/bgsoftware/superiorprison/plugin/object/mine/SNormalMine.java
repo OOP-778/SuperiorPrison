@@ -4,7 +4,9 @@ import com.bgsoftware.superiorprison.api.data.mine.MineEnum;
 import com.bgsoftware.superiorprison.api.data.mine.area.Area;
 import com.bgsoftware.superiorprison.api.data.mine.area.AreaEnum;
 import com.bgsoftware.superiorprison.api.data.mine.sign.Sign;
+import com.bgsoftware.superiorprison.api.data.player.Prestige;
 import com.bgsoftware.superiorprison.api.data.player.Prisoner;
+import com.bgsoftware.superiorprison.api.data.player.rank.Rank;
 import com.bgsoftware.superiorprison.api.util.SPLocation;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.config.main.MineDefaultsSection;
@@ -12,6 +14,7 @@ import com.bgsoftware.superiorprison.plugin.object.mine.area.SArea;
 import com.bgsoftware.superiorprison.plugin.object.mine.settings.SMineSettings;
 import com.bgsoftware.superiorprison.plugin.object.mine.shop.SShop;
 import com.bgsoftware.superiorprison.plugin.object.mine.sign.SSign;
+import com.bgsoftware.superiorprison.plugin.util.AccessUtil;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.oop.orangeengine.database.DatabaseObject;
@@ -53,14 +56,18 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
     @Column(name = "generator")
     private SMineGenerator generator;
 
+    @Setter
     @Column(name = "shop")
     private SShop shop;
 
-    @Getter
     @Column(name = "ranks")
     private Set<String> ranks = Sets.newConcurrentHashSet();
 
+    @Column(name = "prestiges")
+    private Set<String> prestiges = Sets.newConcurrentHashSet();
+
     @Getter
+    @Setter
     @Column(name = "settings")
     private SMineSettings settings;
 
@@ -90,6 +97,9 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
 
             this.areas = newAreas;
             areas.values().forEach(area -> area.attach(this));
+
+           if ( getSettings().getResetSettings().isTimed())
+               getGenerator().reset();
         });
     }
 
@@ -201,13 +211,43 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
     }
 
     @Override
+    public Set<String> getRanks() {
+        return new HashSet<>(ranks);
+    }
+
+    @Override
+    public Set<Rank> getRanksMapped() {
+        return ranks
+                .stream()
+                .map(name -> SuperiorPrisonPlugin.getInstance().getRankController().getRank(name).orElse(null))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+    }
+
+    @Override
+    public Set<String> getPrestiges() {
+        return new HashSet<>(prestiges);
+    }
+
+    @Override
+    public Set<Prestige> getPrestigesMapped() {
+        return ranks
+                .stream()
+                .map(name -> SuperiorPrisonPlugin.getInstance().getPrestigeController().getPrestige(name).orElse(null))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+    }
+
+    @Override
     public ItemStack getIcon() {
         return icon;
     }
 
     @Override
     public boolean canEnter(Prisoner prisoner) {
-        return prisoner.getPlayer().isOp() || getRanks().stream().anyMatch(name -> prisoner.getRanks().stream().anyMatch(name2 -> name.contentEquals(name)));
+        boolean hasRanks = getRanks().isEmpty() || getRanks().stream().anyMatch(name -> prisoner.getRanks().stream().anyMatch(name2 -> name.contentEquals(name2.getName())));
+        boolean hasPrestiges = getPrestiges().isEmpty() || getRanks().stream().anyMatch(name -> prisoner.getPrestiges().stream().anyMatch(name2 -> name.contentEquals(name2.getName())));
+        return prisoner.getPlayer().hasPermission("superiorprison.bypass") || (hasPrestiges && hasRanks);
     }
 
     @Override
@@ -235,6 +275,63 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
     @Override
     public void removeSign(Sign sign) {
         signs.remove(sign);
+    }
+
+    @Override
+    public void removeRank(String... rank) {
+        Arrays.stream(rank).forEach(ranks::remove);
+    }
+
+    @Override
+    public void removeRank(Rank... rank) {
+        Arrays.stream(rank).map(Rank::getName).forEach(ranks::remove);
+    }
+
+    @Override
+    public void removePrestige(String... prestige) {
+        Arrays.stream(prestige).forEach(prestiges::remove);
+    }
+
+    @Override
+    public void removePrestige(Prestige... prestige) {
+        Arrays.stream(prestige).map(Prestige::getName).forEach(prestiges::remove);
+    }
+
+    @Override
+    public void addRank(String... rank) {
+        Arrays.stream(rank)
+                .map(AccessUtil::findRank)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(Rank::getName)
+                .forEach(ranks::add);
+    }
+
+    @Override
+    public void addRank(Rank... rank) {
+        Arrays.stream(rank).map(Rank::getName).forEach(ranks::add);
+    }
+
+    @Override
+    public void addPrestige(String... prestige) {
+        Arrays.stream(prestige)
+                .map(AccessUtil::findPrestige)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(Prestige::getName)
+                .forEach(prestiges::add);
+    }
+
+    @Override
+    public void addPrestige(Prestige... prestige) {
+        Arrays.stream(prestige).map(Prestige::getName).forEach(prestiges::add);
+    }
+
+    @Override
+    public void onReset() {
+        for (Prisoner prisoner : getPrisoners()) {
+            prisoner.getPlayer().teleport(getSpawnPoint().get().toBukkit());
+        }
     }
 
     @Override

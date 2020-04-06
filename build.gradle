@@ -11,12 +11,12 @@ buildscript {
 }
 
 group 'SuperiorPrison'
-version '1.0-SNAPSHOT'
 apply plugin: 'maven'
 apply plugin: 'base'
 
 allprojects {
 
+    version = '0.0.2-ALPHA'
     apply plugin: 'java'
     apply plugin: 'com.github.johnrengelman.shadow'
 
@@ -85,13 +85,23 @@ allprojects {
     }
 
     tasks.build.dependsOn tasks.shadowJar
+
+    processResources {
+        eachFile { details ->
+            if (details.name.contentEquals('plugin.yml')) {
+                filter { String line ->
+                    line.replaceAll('\\$\\{project.version\\}', version)
+                }
+            }
+        }
+    }
 }
 
 subprojects.each { subproject -> evaluationDependsOn(subproject.path) }
 
 shadowJar {
     archiveName = 'SuperiorPrison.jar'
-    destinationDir = file("./target")
+    destinationDir = file("D:\\Work\\Allatori\\SuperiorPrison")
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
     from fileTree(dir: "archive").collect {
@@ -100,8 +110,3 @@ shadowJar {
 
 }
 shadowJar.dependsOn(subprojects.shadowJar)
-
-wrapper {
-    distributionType = Wrapper.DistributionType.ALL
-    gradleVersion = '6.2.2'
-}

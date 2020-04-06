@@ -9,11 +9,12 @@ import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.object.player.booster.SDropsBooster;
 import com.bgsoftware.superiorprison.plugin.object.player.booster.SMoneyBooster;
 import com.bgsoftware.superiorprison.plugin.util.TimeUtil;
-import com.google.common.collect.ImmutableMap;
 import com.oop.orangeengine.command.OCommand;
 import com.oop.orangeengine.command.arg.arguments.NumberArg;
 
 import java.util.Optional;
+
+import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
 
 public class CmdAdd extends OCommand {
     public CmdAdd() {
@@ -35,15 +36,11 @@ public class CmdAdd extends OCommand {
                     rate.doubleValue()
             );
 
-            LocaleEnum.PRISONER_ADD_BOOSTER.getWithPrefix().send(
-                    command.getSenderAsPlayer(),
-                    ImmutableMap.of(
-                            "{type}", type.toLowerCase(),
-                            "{rate}", rate.toString(),
-                            "{time}", TimeUtil.toString(TimeUtil.getDate(booster.getValidTill())),
-                            "{prisoner}", prisoner.getOfflinePlayer().getName()
-                    )
-            );
+            messageBuilder(LocaleEnum.PRISONER_BOOSTER_ADD.getWithPrefix())
+                    .replace(prisoner, booster)
+                    .send(command);
+
+            prisoner.save(true);
         });
     }
 }

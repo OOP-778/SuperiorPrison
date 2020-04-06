@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorprison.api.data.mine.settings;
 
+import java.time.ZonedDateTime;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -29,6 +30,7 @@ public interface ResetSettings {
     }
 
     public static interface Timed extends ResetSettings {
+        ZonedDateTime getResetDate();
 
         long getInterval();
 

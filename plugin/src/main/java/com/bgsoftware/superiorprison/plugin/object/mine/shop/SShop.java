@@ -9,8 +9,10 @@ import com.google.gson.annotations.SerializedName;
 import com.oop.orangeengine.main.gson.GsonUpdateable;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @EqualsAndHashCode
@@ -26,14 +28,19 @@ public class SShop implements MineShop, Attachable<SNormalMine> {
 
     @Override
     public <T extends ShopItem> Set<T> getItems() {
-        return (Set<T>) items;
+        return new HashSet<>((Set<T>) items);
     }
 
     @Override
     public void addItem(ItemStack itemStack, double price) {
+        if (itemStack.getType() == Material.AIR) return;
+
         SShopItem shopItem = new SShopItem(itemStack, price);
-        if (!items.contains(shopItem))
-            items.add(shopItem);
+        items.add(shopItem);
+    }
+
+    public void addItem(SShopItem item) {
+        items.add(item);
     }
 
     @Override
@@ -60,5 +67,15 @@ public class SShop implements MineShop, Attachable<SNormalMine> {
     @Override
     public void attach(SNormalMine obj) {
         this.mine = obj;
+    }
+
+    public static SShop from(SShop from) {
+        SShop shop = new SShop();
+        from.items
+                .stream()
+                .map(SShopItem::from)
+                .forEach(item -> shop.items.add(item));
+
+        return shop;
     }
 }

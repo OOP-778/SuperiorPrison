@@ -10,7 +10,7 @@ public class CmdReload extends OCommand {
 
     public CmdReload() {
         label("reload");
-        permission("sp.reload");
+        permission("superiorprison.reload");
         ableToExecute(Player.class);
 
         onCommand(command -> {

@@ -1,10 +1,14 @@
 package com.bgsoftware.superiorprison.plugin.hook.impl;
 
 import com.bgsoftware.superiorprison.plugin.hook.SHook;
+import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import lombok.Getter;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.plugin.RegisteredServiceProvider;
+
+import java.util.List;
+import java.util.Objects;
 
 import static org.bukkit.Bukkit.getServer;
 
@@ -27,6 +31,16 @@ public class VaultHook extends SHook {
             this.ecoProvider = economyProvider.getProvider();
 
         disableIf(ecoProvider == null, "Failed to initialize Economy provider!");
+    }
+
+    public void removePermissions(SPrisoner prisoner, List<String> permissions) {
+        Objects.requireNonNull(permProvider, "Failed to remove permission, missing permission provider!");
+        permissions.forEach(perm -> permProvider.playerRemove(null, prisoner.getOfflinePlayer(), perm));
+    }
+
+    public void addPermissions(SPrisoner prisoner, List<String> permissions) {
+        Objects.requireNonNull(permProvider, "Failed to add permission, missing permission provider!");
+        permissions.forEach(perm -> permProvider.playerAdd(null, prisoner.getOfflinePlayer(), perm));
     }
 
     @Override

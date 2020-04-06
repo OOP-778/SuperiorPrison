@@ -25,13 +25,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
 import static com.bgsoftware.superiorprison.plugin.util.TextUtil.beautifyDouble;
 
 @Getter
 public class ShopEditMenu extends OPagedMenu<SShopItem> implements OMenu.Templateable {
 
     private SNormalMine mine;
-
     public ShopEditMenu(SPrisoner viewer, SNormalMine mine) {
         super("shopEdit", viewer);
         this.mine = mine;
@@ -62,7 +62,6 @@ public class ShopEditMenu extends OPagedMenu<SShopItem> implements OMenu.Templat
                                     // Update
                                     mine.save(true);
                                     refreshMenus(ShopEditMenu.class, menu -> menu.getMine().getName().contentEquals(mine.getName()));
-                                    refresh();
                                 },
                                 new SubscriptionProperties<AsyncPlayerChatEvent>()
                                         .filter(chatEvent -> {
@@ -93,7 +92,7 @@ public class ShopEditMenu extends OPagedMenu<SShopItem> implements OMenu.Templat
 
         OMenuButton button = item.get().clone();
         OMenuButton.ButtonItemBuilder clone = button.getDefaultStateItem().clone();
-        clone.itemBuilder().setMaterial(OMaterial.matchMaterial(obj.getItem()).parseMaterial());
+        clone.itemBuilder().setMaterial(OMaterial.matchMaterial(obj.getItem()));
 
         if (obj.getItem().hasItemMeta()) {
             if (obj.getItem().getItemMeta().hasDisplayName())
@@ -112,12 +111,19 @@ public class ShopEditMenu extends OPagedMenu<SShopItem> implements OMenu.Templat
     @Override
     public void handleBottomClick(InventoryClickEvent event) {
         ItemStack clone = event.getCurrentItem().clone();
+        clone.setAmount(1);
         event.setCancelled(true);
 
         if (mine.getShop().hasItem(clone)) {
-
+            messageBuilder(LocaleEnum.SHOP_EDIT_ALREADY_HAS_ITEM.getWithErrorPrefix())
+                    .replace(mine, mine.getShop())
+                    .send(event.getWhoClicked());
             return;
         }
+
+        mine.getShop().addItem(clone, 0);
+        mine.save(true);
+        refreshMenus(ShopEditMenu.class, menu -> menu.getMine().getName().contentEquals(mine.getName()));
     }
 
     @Override

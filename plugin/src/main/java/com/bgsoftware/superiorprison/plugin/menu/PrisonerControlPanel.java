@@ -1,11 +1,16 @@
 package com.bgsoftware.superiorprison.plugin.menu;
 
+import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.util.menu.ButtonClickEvent;
 import com.bgsoftware.superiorprison.plugin.util.menu.ClickHandler;
 import com.bgsoftware.superiorprison.plugin.util.menu.OMenu;
 import com.bgsoftware.superiorprison.plugin.util.menu.OMenuButton;
 import com.oop.orangeengine.main.Helper;
+
+import java.util.Locale;
+
+import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
 
 public class PrisonerControlPanel extends OMenu {
     public PrisonerControlPanel(SPrisoner viewer) {
@@ -48,9 +53,11 @@ public class PrisonerControlPanel extends OMenu {
 
     public void handleToggleable(ButtonClickEvent event, Boolean current, Runnable toggle) {
         toggle.run();
-        event.getWhoClicked().sendMessage(Helper.color("You've " + (current ? "disabled" : "enabled") + " '" + event.getButton().action() + "'"));
+        messageBuilder(LocaleEnum.PRISONER_OPTION_TOGGLE.getWithPrefix())
+                .replace("{option_name}", event.getButton().action())
+                .replace("{state}", current ? "disabled" : "enabled")
+                .send(event.getWhoClicked());
         refresh();
-
         getViewer().save(true);
     }
 }

@@ -13,20 +13,48 @@ default prefix: "&8[&a{rank_name}&r&8]"
 
   # Commands that are executed upon receiving rank
   commands:
-    - "give %player% diamond"
+    - "give {prisoner} diamond"
 
   permissions:
     - "superiorprison.autopickup"
 
 "C":
   order: 3
-  prefix: "&8[&bC&8]"
   requirements:
     - "{ECO} 2000"
-    - "{XP_LEVEl, take=false} 20"
+    - "{XP_LEVEL, take=false} 20"
+
+"D":
+  order: 4
+  requirements:
+    - "{ECO} 2000"
+    - "{XP_LEVEL, take=false} 20"
+
+"E":
+  order: 5
+  requirements:
+    - "{ECO} 2000"
+    - "{XP_LEVEL, take=false} 20"
+
+"F":
+  order: 6
+  requirements:
+    - "{ECO} 2000"
+    - "{XP_LEVEL, take=false} 20"
+    -
+"G":
+  order: 7
+  requirements:
+    - "{ECO} 2000"
+    - "{XP_LEVEL, take=false} 20"
+
+"H":
+  order: 8
+  requirements:
+    - "{ECO} 2000"
+    - "{XP_LEVEL, take=false} 20"
 
 "VIP":
   prefix: "&8[&b&lVIP&8]"
-
   commands:
-    - "broadcast %player% received VIP!"
+    - "broadcast {prisoner} received VIP!"

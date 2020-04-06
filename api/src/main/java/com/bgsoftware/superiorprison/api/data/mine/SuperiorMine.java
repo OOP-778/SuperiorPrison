@@ -5,7 +5,9 @@ import com.bgsoftware.superiorprison.api.data.mine.area.AreaEnum;
 import com.bgsoftware.superiorprison.api.data.mine.settings.MineSettings;
 import com.bgsoftware.superiorprison.api.data.mine.shop.MineShop;
 import com.bgsoftware.superiorprison.api.data.mine.sign.Sign;
+import com.bgsoftware.superiorprison.api.data.player.Prestige;
 import com.bgsoftware.superiorprison.api.data.player.Prisoner;
+import com.bgsoftware.superiorprison.api.data.player.rank.Rank;
 import com.bgsoftware.superiorprison.api.util.SPLocation;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -71,6 +73,12 @@ public interface SuperiorMine {
     */
     Set<String> getRanks();
 
+    Set<Rank> getRanksMapped();
+
+    Set<String> getPrestiges();
+
+    Set<Prestige> getPrestigesMapped();
+
     /*
     Get icon of the mine
     */
@@ -111,4 +119,22 @@ public interface SuperiorMine {
     void removeSign(Location location);
 
     void removeSign(Sign sign);
+
+    void removeRank(String ...rank);
+
+    void removeRank(Rank ...rank);
+
+    void removePrestige(String ...prestige);
+
+    void removePrestige(Prestige ...prestige);
+
+    void addRank(String ...rank);
+
+    void addRank(Rank ...rank);
+
+    void addPrestige(String ...prestige);
+
+    void addPrestige(Prestige ...prestige);
+
+    void onReset();
 }

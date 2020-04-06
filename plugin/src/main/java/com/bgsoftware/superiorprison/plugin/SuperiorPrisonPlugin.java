@@ -18,6 +18,7 @@ import com.bgsoftware.superiorprison.plugin.nms.ISuperiorNms;
 import com.bgsoftware.superiorprison.plugin.requirement.RequirementRegisterer;
 import com.bgsoftware.superiorprison.plugin.tasks.TasksStarter;
 import com.bgsoftware.superiorprison.plugin.util.menu.MenuListener;
+import com.oop.orangeengine.command.ColorScheme;
 import com.oop.orangeengine.command.CommandController;
 import com.oop.orangeengine.main.plugin.EnginePlugin;
 import com.oop.orangeengine.main.task.ClassicTaskController;
@@ -30,6 +31,7 @@ import org.bukkit.Bukkit;
 @Getter
 public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison {
 
+    public static boolean disabling = false;
     private static SuperiorPrisonPlugin instance;
     private PlaceholderController placeholderController;
     private ConfigController configController;
@@ -52,7 +54,6 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
         instance = this;
 
         try {
-            getOLogger().setDebugMode(true);
 
             // Setup NMS
             if (!setupNms()) {
@@ -97,7 +98,12 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
             new TasksStarter();
 
             CommandController commandController = new CommandController(this);
+            if (getMainConfig().getCommandColors() != null)
+                commandController.setColorScheme(getMainConfig().getCommandColors().getScheme());
+
             CommandsRegister.register(commandController);
+
+            getOLogger().printWarning("SuperiorPrison is in alpha mode, running publicly is not recommended!");
         } catch (Throwable thrw) {
             throw new IllegalStateException("Failed to start SuperiorPrison", thrw);
         }
@@ -108,6 +114,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
         if (getDatabaseController() != null && getDatabaseController().getDatabase() != null)
             getDatabaseController().save();
         instance = null;
+        disabling = true;
     }
 
     @Override

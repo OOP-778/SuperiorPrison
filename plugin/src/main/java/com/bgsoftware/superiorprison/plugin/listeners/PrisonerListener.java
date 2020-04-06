@@ -2,6 +2,9 @@ package com.bgsoftware.superiorprison.plugin.listeners;
 
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
 import com.bgsoftware.superiorprison.api.data.player.Prisoner;
+import com.bgsoftware.superiorprison.api.data.player.booster.DropsBooster;
+import com.bgsoftware.superiorprison.api.data.player.booster.MoneyBooster;
+import com.bgsoftware.superiorprison.api.event.mine.MineEnterEvent;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.hook.impl.VaultHook;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
@@ -112,20 +115,24 @@ public class PrisonerListener {
                 // Handle auto sell
                 if (prisoner.isAutoSell()) {
                     SNormalMine mine = (SNormalMine) prisoner.getCurrentMine().get().getKey();
-                    getEngine().getLogger().printDebug("Prisoner Auto Sell");
-
                     mine.getShop().getItems().forEach(shopItem -> {
                         for (ItemStack drop : new HashSet<>(drops)) {
                             if (shopItem.getItem().isSimilar(drop)) {
-                                double onePrice = shopItem.getPrice();
-                                double finalPrice = onePrice * drop.getAmount();
+                                double price = prisoner.getPrice(drop) * drop.getAmount();
+                                if (price == 0) continue;
 
-                                getEngine().getLogger().printDebug("Found sell time for " + finalPrice);
-                                SuperiorPrisonPlugin.getInstance().getHookController().executeIfFound(() -> VaultHook.class, vault -> vault.getEcoProvider().depositPlayer(event.getPlayer(), finalPrice));
+                                SuperiorPrisonPlugin.getInstance().getHookController().executeIfFound(() -> VaultHook.class, vault -> vault.getEcoProvider().depositPlayer(event.getPlayer(), price));
                                 drops.remove(drop);
                             }
                         }
                     });
+                }
+
+                Set<DropsBooster> boosters = prisoner.getBoosters().findBoostersBy(DropsBooster.class);
+                if (!boosters.isEmpty()) {
+                    double[] rate = new double[]{0};
+                    boosters.forEach(booster -> rate[0] = rate[0] + booster.getRate());
+                    drops.forEach(itemStack -> itemStack.setAmount((int) Math.round(rate[0] * itemStack.getAmount())));
                 }
 
                 // Handle auto pickup
@@ -133,12 +140,13 @@ public class PrisonerListener {
                     HashMap<Integer, ItemStack> left = event.getPlayer().getInventory().addItem(drops.toArray(new ItemStack[0]));
                     if (left.isEmpty())
                         drops.clear();
-                    else
-                        left.forEach((amount, item) -> System.out.println("Left " + item + " " + amount));
 
+                    else {
+                        drops.clear();
+                        drops.addAll(left.values());
+                    }
                 }
 
-                System.out.println("Prisoner Check");
                 event.setCancelled(true);
                 event.getBlock().setType(Material.AIR);
 
@@ -146,16 +154,7 @@ public class PrisonerListener {
             }
         });
 
-        SyncEvents.listen(BlockBreakEvent.class, EventPriority.LOW, event -> {
-            if (event.isCancelled()) return;
-
-            Optional<Prisoner> prisonerOptional = SuperiorPrisonPlugin.getInstance().getPrisonerController().getPrisoner(event.getPlayer().getUniqueId());
-            if (!prisonerOptional.isPresent()) return;
-
-            SPrisoner prisoner = (SPrisoner) prisonerOptional.get();
-            prisoner.getMinedBlocks().putIfPresentUpdate(event.getBlock().getType(), 1L, Long::sum);
-            prisoner.save(true);
-        });
+        SyncEvents.listen(MineEnterEvent.class, EventPriority.LOWEST, event -> event.setCancelled(!event.getMine().canEnter(event.getPrisoner())));
     }
 
     private int getItemCountWithFortune(Material material, int enchant_level) {

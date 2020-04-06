@@ -1,7 +1,6 @@
 package com.bgsoftware.superiorprison.plugin.util.menu;
 
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
-import com.bgsoftware.superiorprison.plugin.util.ClassDebugger;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -117,17 +116,18 @@ public abstract class OPagedMenu<T> extends OMenu {
     }
 
     private int getPages() {
-        int pages = 1;
         double pagesNotRounded = (float) requestObjects().size() / getEmptySlots().size();
+        String split[] = String.valueOf(pagesNotRounded).split("\\.");
+        int pages = (int) pagesNotRounded;
 
-        ClassDebugger.debug("objects: " + requestObjects().size());
-        ClassDebugger.debug(getEmptySlots().size());
-        ClassDebugger.debug(pagesNotRounded);
+        if (Integer.parseInt(String.valueOf(split[1].toCharArray()[0])) > 0)
+            pages = pages + 1;
+
         if (pages == 0)
             return 1;
 
         return pages;
-}
+    }
 
     public abstract List<T> requestObjects();
 

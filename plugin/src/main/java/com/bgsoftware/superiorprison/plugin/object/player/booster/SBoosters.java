@@ -5,17 +5,20 @@ import com.bgsoftware.superiorprison.api.data.player.booster.Boosters;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.util.Attachable;
 import com.google.common.collect.Sets;
-import com.oop.orangeengine.main.gson.GsonUpdateable;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
+@EqualsAndHashCode
 public class SBoosters implements Boosters, Attachable<SPrisoner> {
 
     @Getter
-    private SPrisoner prisoner;
+    private transient SPrisoner prisoner;
 
     private Set<Booster> boosters = Sets.newConcurrentHashSet();
 
@@ -27,16 +30,15 @@ public class SBoosters implements Boosters, Attachable<SPrisoner> {
     @Override
     public void removeBooster(Booster booster) {
         boosters.remove(booster);
-        prisoner.save(true);
     }
 
     @Override
     public SBooster addBooster(Class<? extends Booster> boosterClazz, long validTill, double rate) {
         SBooster booster;
         if (boosterClazz.isAssignableFrom(SDropsBooster.class))
-            booster = new SDropsBooster(validTill, rate);
+            booster = new SDropsBooster(generateId(), validTill, rate);
         else
-            booster = new SMoneyBooster(validTill, rate);
+            booster = new SMoneyBooster(generateId(), validTill, rate);
 
         addBooster(booster);
         return booster;
@@ -45,7 +47,6 @@ public class SBoosters implements Boosters, Attachable<SPrisoner> {
     @Override
     public void addBooster(Booster booster) {
         boosters.add(booster);
-        prisoner.save(true);
     }
 
     @Override
@@ -58,12 +59,38 @@ public class SBoosters implements Boosters, Attachable<SPrisoner> {
     }
 
     @Override
-    public Set<Booster> getBoosters() {
+    public Optional<Booster> findBoosterBy(int id) {
+        return boosters
+                .stream()
+                .filter(booster -> booster.getId() == id)
+                .findFirst();
+    }
+
+    @Override
+    public Set<Booster> set() {
         return new HashSet<>(boosters);
     }
 
     @Override
     public void attach(SPrisoner obj) {
         this.prisoner = obj;
+
+        for (Booster booster : set()) {
+            if (booster.getId() == 0) {
+                ((SBooster) booster).setId(generateId());
+            }
+        }
+    }
+
+    public int generateId() {
+        int[] ids = new int[3];
+        for (int i = 0; i < ids.length; i++)
+            ids[i] = ThreadLocalRandom.current().nextInt(9);
+
+        return Integer.parseInt("" + ids[0] + ids[1] + ids[2]);
+    }
+
+    public void clear() {
+        boosters.clear();
     }
 }

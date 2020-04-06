@@ -1,17 +1,22 @@
 package com.bgsoftware.superiorprison.plugin.commands.rankup;
 
+import com.bgsoftware.superiorprison.api.data.player.Prestige;
 import com.bgsoftware.superiorprison.api.data.player.rank.LadderRank;
 import com.bgsoftware.superiorprison.api.requirement.Requirement;
+import com.bgsoftware.superiorprison.api.requirement.RequirementData;
 import com.bgsoftware.superiorprison.api.requirement.RequirementException;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
+import com.bgsoftware.superiorprison.plugin.object.player.SPrestige;
 import com.bgsoftware.superiorprison.plugin.object.player.rank.SLadderRank;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
-import com.google.common.collect.ImmutableMap;
 import com.oop.orangeengine.command.OCommand;
 import org.bukkit.entity.Player;
 
 import java.util.*;
+
+import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.listedBuilder;
+import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
 
 public class CmdRankup extends OCommand {
     public CmdRankup() {
@@ -25,31 +30,76 @@ public class CmdRankup extends OCommand {
             Optional<SLadderRank> nextOptional = currentLadderRank.getNext().map(rank -> (SLadderRank) rank);
             if (nextOptional.isPresent()) {
                 SLadderRank next = nextOptional.get();
-
-                List<RequirementException> failed = new ArrayList<>();
-                next.getRequirements()
-                        .forEach(data -> {
-                            Optional<Requirement> requirement = SuperiorPrisonPlugin.getInstance().getRequirementController().findRequirement(data.getType());
-                            try {
-                                requirement.get().getHandler().testIO(prisoner, data);
-                            } catch (RequirementException ex) {
-                                failed.add(ex);
-                            }
-                        });
+                List<RequirementException> failed = testRequirements(next.getRequirements(), prisoner);
 
                 // Failed to rankup cause requirements aren't met
                 if (!failed.isEmpty()) {
-                    LocaleEnum.RANKUP_FAILED_DOES_NOT_MEET_REQUIREMENTS.getWithErrorPrefix().send(player, ImmutableMap.of("%rank%", next.getName()));
-                    failed.forEach(data -> LocaleEnum.RANKUP_REQUIREMENT_FORMAT.getMessage().send(player, ImmutableMap.of("%requirement%", data.getData().getType(), "%current%", data.getCurrentValue() + "", "%required%", data.getRequired() + "")));
+                    listedBuilder(RequirementException.class)
+                            .addObject(failed.toArray(new RequirementException[0]))
+                            .addPlaceholderObject(prisoner, next)
+                            .identifier("{TEMPLATE}")
+                            .message(LocaleEnum.RANKUP_FAILED_DOES_NOT_MEET_REQUIREMENTS.getWithErrorPrefix())
+                            .send(command);
 
                 } else {
-                    LocaleEnum.RANKUP_SUCCESSFUL.getWithPrefix().send(player, ImmutableMap.of("%previous_rank%", currentLadderRank.getName(), "%current_rank%", next.getName()));
+                    messageBuilder(LocaleEnum.RANKUP_SUCCESSFUL.getWithPrefix())
+                            .replace("{previous_rank}", currentLadderRank.getName())
+                            .replace("{current_rank}", next.getName())
+                            .send(command);
 
                     prisoner.addRank(next);
                     prisoner.save(true);
                 }
-            } else
-                LocaleEnum.RANKUP_MAX.getWithErrorPrefix().send(player);
+            } else {
+                Optional<Prestige> currentPrestige = prisoner.getCurrentPrestige();
+                SPrestige next = null;
+                if (currentPrestige.isPresent()) {
+                    Optional<Prestige> prestige = currentPrestige.get().getNext();
+                    if (prestige.isPresent())
+                        next = (SPrestige) prestige.get();
+
+                } else {
+                    Optional<Prestige> prestige = SuperiorPrisonPlugin.getInstance().getPrestigeController().getPrestige(1);
+                    if (prestige.isPresent())
+                        next = (SPrestige) prestige.get();
+                }
+
+                if (next == null) {
+                    LocaleEnum.PRISONER_MAX_PRESTIGE.getWithErrorPrefix().send(player);
+                    return;
+                }
+
+                List<RequirementException> failed = testRequirements(next.getRequirements(), prisoner);
+                if (!failed.isEmpty()) {
+                    listedBuilder(RequirementException.class)
+                            .addObject(failed.toArray(new RequirementException[0]))
+                            .addPlaceholderObject(prisoner, next)
+                            .identifier("{TEMPLATE}")
+                            .message(LocaleEnum.PRESTIGE_FAILED_DOES_NOT_MEET_REQUIREMENTS.getWithErrorPrefix())
+                            .send(command);
+                    return;
+                }
+
+                prisoner.addPrestige(next);
+                prisoner.save(true);
+
+                messageBuilder(LocaleEnum.PRESTIGE_SUCCESSFUL.getWithPrefix())
+                        .replace(prisoner, next)
+                        .send(command);
+            }
         });
+    }
+
+    public List<RequirementException> testRequirements(Set<RequirementData> datas, SPrisoner prisoner) {
+        List<RequirementException> failed = new ArrayList<>();
+        datas.forEach(data -> {
+            Optional<Requirement> requirement = SuperiorPrisonPlugin.getInstance().getRequirementController().findRequirement(data.getType());
+            try {
+                requirement.get().getHandler().testIO(prisoner, data);
+            } catch (RequirementException ex) {
+                failed.add(ex);
+            }
+        });
+        return failed;
     }
 }

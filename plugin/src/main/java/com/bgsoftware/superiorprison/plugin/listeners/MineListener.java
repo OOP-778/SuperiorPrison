@@ -47,6 +47,7 @@ public class MineListener {
 
             SNormalMine superiorMine = (SNormalMine) prisoner.getCurrentMine().get().getKey();
             AreaEnum areaTypeAt = superiorMine.getAreaTypeAt(event.getBlock().getLocation());
+
             if (areaTypeAt == AreaEnum.MINE) {
                 superiorMine.getGenerator().setNonEmptyBlocks(superiorMine.getGenerator().getNonEmptyBlocks() - 1);
                 superiorMine.save(true);
@@ -55,10 +56,6 @@ public class MineListener {
                 async(() -> {
                     int percentageOfFullBlocks = superiorMine.getGenerator().getPercentageOfFullBlocks();
                     int percentageRequired = superiorMine.getSettings().getResetSettings().asPercentage().getRequiredPercentage();
-
-                    System.out.println("Percentage Required: " + percentageRequired);
-                    System.out.println("Current: " + percentageOfFullBlocks);
-                    System.out.println("Non Emtpy Blocks: " + superiorMine.getGenerator().getNonEmptyBlocks());
 
                     if (percentageOfFullBlocks <= percentageRequired) {
                         superiorMine.getGenerator().setNonEmptyBlocks(superiorMine.getGenerator().getCachedMaterials().length);
@@ -118,8 +115,9 @@ public class MineListener {
                     Bukkit.getPluginManager().callEvent(enterEvent);
 
                     if (enterEvent.isCancelled()) {
-                        Vector vector = event.getPlayer().getLocation().toVector().subtract(event.getTo().toVector().add(new Vector(0, 1, 0))).normalize();
-                        event.getPlayer().setVelocity(vector.multiply(0.8));
+                        event.setCancelled(true);
+                        Vector vector = event.getPlayer().getLocation().toVector().subtract(event.getTo().toVector()).normalize();
+                        event.getPlayer().setVelocity(vector.multiply(1));
                         return;
                     }
 

@@ -194,9 +194,9 @@ public class CommandHelper {
 
         public OMessage build() {
             Map<Class, Set<OPair<String, Function<Object, String>>>> allPlaceholders = Maps.newHashMap();
-
             // Initialize placeholders for objects
             Set<Object> allObjects = new HashSet<>(placeholderObjects);
+
             if (!objects.isEmpty()) allObjects.add(objects.toArray()[0]);
             for (Object placeholderObject : allObjects) {
                 Set<OPair<String, Function<Object, String>>> set = Sets.newHashSet();

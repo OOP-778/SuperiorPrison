@@ -49,7 +49,7 @@ allprojects {
             compile "com.oop.orangeengine:eventssubscription:4.5"
             compile "com.oop.orangeengine:message:4.5"
 
-            // Dependecies
+            // Dependencies
             compileOnly("com.github.MilkBowl:VaultAPI:1.7")
             compileOnly 'me.clip:placeholderapi:2.10.4'
             compileOnly files("../lib/ShopGuiPlus.jar")

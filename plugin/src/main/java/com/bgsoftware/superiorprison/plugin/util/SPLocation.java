@@ -1,5 +1,7 @@
-package com.bgsoftware.superiorprison.api.util;
+package com.bgsoftware.superiorprison.plugin.util;
 
+import com.oop.datamodule.SerializableObject;
+import com.oop.datamodule.SerializedData;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,12 +17,14 @@ import java.io.Serializable;
 @Setter
 @Accessors(fluent = true, chain = true)
 @AllArgsConstructor
-public class SPLocation implements Serializable, Cloneable {
+public class SPLocation implements Cloneable, SerializableObject {
 
     private double x;
     private double y;
     private double z;
     private String worldName;
+
+    protected SPLocation() {}
 
     public SPLocation(Location location) {
         this.x = location.getBlockX();
@@ -72,5 +76,21 @@ public class SPLocation implements Serializable, Cloneable {
 
     public int zBlock() {
         return NumberConversions.floor(z);
+    }
+
+    @Override
+    public void serialize(SerializedData data) {
+        data.write("world", worldName);
+        data.write("x", x);
+        data.write("y", y);
+        data.write("z", z);
+    }
+
+    @Override
+    public void deserialize(SerializedData data) {
+        this.worldName = data.applyAs("world", String.class);
+        this.x = data.applyAs("x", double.class);
+        this.y = data.applyAs("y", double.class);
+        this.z = data.applyAs("z", double.class);
     }
 }

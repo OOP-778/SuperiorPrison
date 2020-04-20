@@ -18,6 +18,7 @@ public enum LocaleEnum {
     MINE_CREATE_SELECT_REGION_POS("Select two corners for the region of the mine"),
     MINE_CREATE_SELECT_MINE_POS("Select two corners for the mine area"),
     MINE_SELECT_SPAWN_POS("Select spawn position"),
+    MINE_CREATE_POSITION_MUST_BE_WITHIN_REGION("Position should be inside region"),
     MINE_CREATE_SUCCESSFUL("Successfully created a new mine! ({mine_name})"),
     MINE_DELETE_SUCCESSFUL("Successfully deleted mine! (&e{mine_name}&7)"),
 
@@ -143,7 +144,8 @@ public enum LocaleEnum {
     SHOP_EDIT_ALREADY_HAS_ITEM("Shop already has this item"),
     COPIED_OPTION("Copied {option_name} from {from_name} to {to_name}"),
 
-    SOLD_EVERYTHING("Sold everything for {total}");
+    SOLD_EVERYTHING("Sold everything for {total}"),
+    MINE_IS_FULL("Mine is currently full.");
 
     private OMessage[] cache = new OMessage[2];
 

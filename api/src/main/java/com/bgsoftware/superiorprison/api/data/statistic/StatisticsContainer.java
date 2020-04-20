@@ -1,7 +1,5 @@
 package com.bgsoftware.superiorprison.api.data.statistic;
 
-public interface StatisticContainer {
-
+public interface StatisticsContainer {
     BlocksStatistic getBlocksStatistic();
-
 }

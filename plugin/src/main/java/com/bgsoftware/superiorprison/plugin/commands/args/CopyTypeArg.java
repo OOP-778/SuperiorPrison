@@ -17,6 +17,6 @@ public class CopyTypeArg extends CommandArgument<CopyTypeArg> {
 
     @Override
     public void onAdd(OCommand command) {
-        command.nextTabComplete(args -> Arrays.stream(CopyType.values()).map(Enum::name).collect(Collectors.toList()));
+        command.nextTabComplete((previous, args) -> Arrays.stream(CopyType.values()).map(Enum::name).collect(Collectors.toList()));
     }
 }

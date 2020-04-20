@@ -1,10 +1,13 @@
 package com.bgsoftware.superiorprison.plugin.config.main;
 
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
+import com.bgsoftware.superiorprison.plugin.util.TimeUtil;
 import com.oop.orangeengine.file.OFile;
 import com.oop.orangeengine.item.custom.OItem;
 import com.oop.orangeengine.yaml.OConfiguration;
 import lombok.Getter;
+
+import java.util.concurrent.TimeUnit;
 
 @Getter
 public class MainConfig {
@@ -14,6 +17,7 @@ public class MainConfig {
 
     private boolean shopGuiAsFallBack = false;
 
+    private long cacheTime = TimeUnit.HOURS.toMillis(1);
     private DatabaseSection database;
     private MineDefaultsSection mineDefaults;
     private CommandColorsSection commandColors;
@@ -44,5 +48,8 @@ public class MainConfig {
 
         configuration.ifValuePresent("shopgui fall back", boolean.class, b -> shopGuiAsFallBack = b);
         configuration.ifSectionPresent("command colors", section -> commandColors = new CommandColorsSection(section));
+
+        cacheTime = TimeUtil.toSeconds(configuration.getOrInsert("blocks cache time limit", String.class, "1h"));
+        configuration.save();
     }
 }

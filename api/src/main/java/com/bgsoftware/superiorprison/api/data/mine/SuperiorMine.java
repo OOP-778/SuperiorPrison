@@ -8,7 +8,6 @@ import com.bgsoftware.superiorprison.api.data.mine.sign.Sign;
 import com.bgsoftware.superiorprison.api.data.player.Prestige;
 import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 import com.bgsoftware.superiorprison.api.data.player.rank.Rank;
-import com.bgsoftware.superiorprison.api.util.SPLocation;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
@@ -41,7 +40,7 @@ public interface SuperiorMine {
     Get spawn point of mine
     Can return null inside Optional
     */
-    Optional<SPLocation> getSpawnPoint();
+    Location getSpawnPoint();
 
     /*
     Get generator of mine

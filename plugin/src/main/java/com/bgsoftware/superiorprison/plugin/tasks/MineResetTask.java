@@ -16,7 +16,7 @@ public class MineResetTask extends OTask {
         delay(TimeUnit.SECONDS, 1);
         runnable(() -> {
             if (SuperiorPrisonPlugin.disabling) return;
-            SuperiorPrisonPlugin.getInstance().getDatabaseController().getMineHolder().dataBy(mine -> mine.getSettings().getResetSettings().isTimed()).forEach(mine -> {
+            SuperiorPrisonPlugin.getInstance().getDatabaseController().getMineHolder().getMines(mine -> mine.getSettings().getResetSettings().isTimed()).forEach(mine -> {
                 SResetSettings.STimed timed = mine.getSettings().getResetSettings().as(SResetSettings.STimed.class);
                 if (timed.getResetDate() == null) {
                     timed.setResetDate(TimeUtil.getDate().plusSeconds(timed.getInterval()));

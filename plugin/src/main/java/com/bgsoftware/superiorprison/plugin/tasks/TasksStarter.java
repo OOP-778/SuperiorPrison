@@ -6,5 +6,6 @@ public class TasksStarter {
         new MineResetTask();
         new RankupTask();
         new BoosterTask();
+        new StatisticSaveTask();
     }
 }

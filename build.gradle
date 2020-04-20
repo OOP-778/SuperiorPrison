@@ -16,7 +16,7 @@ apply plugin: 'base'
 
 allprojects {
 
-    version = '0.0.2-ALPHA'
+    version = '0.0.3-ALPHA'
     apply plugin: 'java'
     apply plugin: 'com.github.johnrengelman.shadow'
 
@@ -45,14 +45,14 @@ allprojects {
             compile "com.oop.orangeengine:particle:4.5"
             compile "com.oop.orangeengine:inventory:4.5"
             compile "com.oop.orangeengine:command:4.5"
-            compile "com.oop.orangeengine:database:4.5"
             compile "com.oop.orangeengine:eventssubscription:4.5"
             compile "com.oop.orangeengine:message:4.5"
 
             // Dependencies
             compileOnly("com.github.MilkBowl:VaultAPI:1.7")
             compileOnly 'me.clip:placeholderapi:2.10.4'
-            compileOnly files("../lib/ShopGuiPlus.jar")
+            compileOnly fileTree("../lib")
+            compile files("../lib/oop-data.jar")
 
         } else {
             compileOnly "com.oop.orangeengine:file:4.5"

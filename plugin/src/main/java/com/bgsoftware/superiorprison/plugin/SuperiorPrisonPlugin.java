@@ -8,18 +8,22 @@ import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.controller.*;
 import com.bgsoftware.superiorprison.plugin.data.SMineHolder;
 import com.bgsoftware.superiorprison.plugin.data.SPrisonerHolder;
+import com.bgsoftware.superiorprison.plugin.data.SStatisticHolder;
 import com.bgsoftware.superiorprison.plugin.hook.impl.PapiHook;
 import com.bgsoftware.superiorprison.plugin.hook.impl.ShopGuiPlusHook;
 import com.bgsoftware.superiorprison.plugin.hook.impl.VaultHook;
 import com.bgsoftware.superiorprison.plugin.listeners.FlagsListener;
 import com.bgsoftware.superiorprison.plugin.listeners.MineListener;
 import com.bgsoftware.superiorprison.plugin.listeners.PrisonerListener;
+import com.bgsoftware.superiorprison.plugin.listeners.StatisticsListener;
 import com.bgsoftware.superiorprison.plugin.nms.ISuperiorNms;
 import com.bgsoftware.superiorprison.plugin.requirement.RequirementRegisterer;
 import com.bgsoftware.superiorprison.plugin.tasks.TasksStarter;
 import com.bgsoftware.superiorprison.plugin.util.menu.MenuListener;
+import com.oop.datamodule.DataHelper;
 import com.oop.orangeengine.command.ColorScheme;
 import com.oop.orangeengine.command.CommandController;
+import com.oop.orangeengine.main.gson.ItemStackAdapter;
 import com.oop.orangeengine.main.plugin.EnginePlugin;
 import com.oop.orangeengine.main.task.ClassicTaskController;
 import com.oop.orangeengine.main.task.ITaskController;
@@ -43,6 +47,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
     private RankController rankController;
     private HookController hookController;
     private DatabaseController databaseController;
+    private SStatisticHolder statisticsController;
     private ISuperiorNms nms;
 
     public static SuperiorPrisonPlugin getInstance() {
@@ -54,7 +59,6 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
         instance = this;
 
         try {
-
             // Setup NMS
             if (!setupNms()) {
                 Bukkit.getPluginManager().disablePlugin(this);
@@ -79,6 +83,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
 
             this.databaseController = new DatabaseController(mainConfig);
 
+            this.statisticsController = databaseController.getStatisticHolder();
             this.prestigeController = new PrestigeController(true);
             this.rankController = new RankController(true);
             getPluginComponentController()
@@ -93,6 +98,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
             new FlagsListener();
             new MineListener();
             new PrisonerListener();
+            new StatisticsListener();
 
             // Initialize tasks
             new TasksStarter();

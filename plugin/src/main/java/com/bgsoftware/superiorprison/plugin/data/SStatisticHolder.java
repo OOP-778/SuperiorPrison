@@ -1,62 +1,58 @@
 package com.bgsoftware.superiorprison.plugin.data;
 
-import com.bgsoftware.superiorprison.api.controller.StatisticController;
-import com.bgsoftware.superiorprison.api.data.statistic.StatisticContainer;
-import com.bgsoftware.superiorprison.plugin.object.statistic.SStatisticContainer;
+import com.bgsoftware.superiorprison.api.controller.StatisticsController;
+import com.bgsoftware.superiorprison.plugin.controller.DatabaseController;
+import com.bgsoftware.superiorprison.plugin.object.statistic.SStatisticsContainer;
+import com.google.common.collect.Iterators;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.oop.orangeengine.database.DatabaseController;
-import com.oop.orangeengine.database.DatabaseHolder;
-import com.oop.orangeengine.database.DatabaseObject;
+import com.oop.datamodule.DataStorage;
 
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Stream;
 
-public class SStatisticHolder implements DatabaseHolder<UUID, SStatisticContainer>, StatisticController {
+public class SStatisticHolder extends DataStorage<SStatisticsContainer> implements StatisticsController {
 
-    private Map<UUID, SStatisticContainer> containers = Maps.newConcurrentMap();
-
-    private DatabaseController databaseController;
+    private Map<UUID, SStatisticsContainer> containers = Maps.newConcurrentMap();
 
     public SStatisticHolder(DatabaseController databaseController) {
-        this.databaseController = databaseController;
+        super(databaseController);
     }
 
     @Override
-    public Stream<SStatisticContainer> dataStream() {
+    public Stream<SStatisticsContainer> stream() {
         return containers.values().stream();
     }
 
     @Override
-    public UUID generatePrimaryKey(SStatisticContainer container) {
-        return container.getUuid();
+    public Class<? extends SStatisticsContainer>[] getVariants() {
+        return new Class[]{SStatisticsContainer.class};
     }
 
     @Override
-    public Set<Class<? extends DatabaseObject>> getObjectVariants() {
-        return Sets.newHashSet(SStatisticContainer.class);
-    }
-
-    @Override
-    public DatabaseController getDatabaseController() {
-        return databaseController;
-    }
-
-    @Override
-    public void onAdd(SStatisticContainer sStatisticContainer, boolean b) {
+    public void onAdd(SStatisticsContainer sStatisticContainer) {
         containers.put(sStatisticContainer.getUuid(), sStatisticContainer);
     }
 
     @Override
-    public void onRemove(SStatisticContainer sStatisticContainer) {
+    public void onRemove(SStatisticsContainer sStatisticContainer) {
         containers.remove(sStatisticContainer);
     }
 
     @Override
-    public Optional<StatisticContainer> getContainer(UUID uuid) {
-        return Optional.ofNullable(containers.get(uuid));
+    public SStatisticsContainer getContainer(UUID uuid) {
+        SStatisticsContainer container = containers.get(uuid);
+        if (container == null) {
+            container = new SStatisticsContainer(uuid);
+            containers.put(uuid, container);
+            save(container, true);
+        }
+
+        return container;
+    }
+
+    @Override
+    public Iterator<SStatisticsContainer> iterator() {
+        return containers.values().iterator();
     }
 }

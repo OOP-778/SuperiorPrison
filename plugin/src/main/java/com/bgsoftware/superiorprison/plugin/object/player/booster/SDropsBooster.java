@@ -6,4 +6,7 @@ public class SDropsBooster extends SBooster implements DropsBooster {
     public SDropsBooster(int id, long validTill, double rate) {
         super(id, validTill, rate);
     }
+
+    public SDropsBooster() {}
+
 }

@@ -66,3 +66,5 @@ command colors:
   main: "&e"
   second: "&3"
   markup: "&7"
+
+blocks cache time limit: "1h"

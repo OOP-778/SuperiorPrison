@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorprison.plugin.commands.mines;
 
-import com.bgsoftware.superiorprison.api.util.SPLocation;
+import com.bgsoftware.superiorprison.plugin.util.Cuboid;
+import com.bgsoftware.superiorprison.plugin.util.SPLocation;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
@@ -12,8 +13,11 @@ import com.oop.orangeengine.command.WrappedCommand;
 import com.oop.orangeengine.command.arg.arguments.StringArg;
 import com.oop.orangeengine.eventssubscription.SubscriptionFactory;
 import com.oop.orangeengine.eventssubscription.SubscriptionProperties;
+import com.oop.orangeengine.eventssubscription.subscription.SubscribedEvent;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -67,9 +71,11 @@ public class CmdCreate extends OCommand {
             AtomicReference<SPLocation> minePos2 = new AtomicReference<>();
             AtomicReference<SPLocation> spawnPos = new AtomicReference<>();
 
+            AtomicReference<Cuboid> region = new AtomicReference<>();
+
             creating.put(player.getUniqueId(), true);
 
-            sf.subscribeTo(PlayerInteractEvent.class, posEvent -> {
+            SubscribedEvent<PlayerInteractEvent> posSelectEvent = sf.subscribeTo(PlayerInteractEvent.class, posEvent -> {
                 if (!MutliVerUtil.isPrimaryHand(posEvent) || posEvent.getClickedBlock() == null) return;
                 posEvent.setCancelled(true);
 
@@ -85,14 +91,26 @@ public class CmdCreate extends OCommand {
                             .replace("{pos}", 2)
                             .send(command);
                     LocaleEnum.MINE_CREATE_SELECT_MINE_POS.getWithPrefix().send(player);
+                    region.set(new Cuboid(regionPos1.get().toBukkit(), regionPos2.get().toBukkit()));
 
                 } else if (minePos1.get() == null) {
+                    if (!region.get().containsLocation(posEvent.getClickedBlock().getLocation(), false)) {
+                        LocaleEnum.MINE_CREATE_POSITION_MUST_BE_WITHIN_REGION.getWithErrorPrefix().send(player);
+                        return;
+                    }
+
+
                     minePos1.set(new SPLocation(posEvent.getClickedBlock().getLocation()));
                     messageBuilder(LocaleEnum.MINE_SELECT_POS.getWithPrefix())
                             .replace("{pos}", 1)
                             .send(command);
 
                 } else if (minePos2.get() == null) {
+                    if (!region.get().containsLocation(posEvent.getClickedBlock().getLocation(), false)) {
+                        LocaleEnum.MINE_CREATE_POSITION_MUST_BE_WITHIN_REGION.getWithErrorPrefix().send(player);
+                        return;
+                    }
+
                     minePos2.set(new SPLocation(posEvent.getClickedBlock().getLocation()));
                     messageBuilder(LocaleEnum.MINE_SELECT_POS.getWithPrefix())
                             .replace("{pos}", 2)
@@ -102,6 +120,10 @@ public class CmdCreate extends OCommand {
                             .send(command);
 
                 } else if (spawnPos.get() == null) {
+                    if (!region.get().containsLocation(posEvent.getClickedBlock().getLocation(), false)) {
+                        LocaleEnum.MINE_CREATE_POSITION_MUST_BE_WITHIN_REGION.getWithErrorPrefix().send(player);
+                        return;
+                    }
                     spawnPos.set(new SPLocation(posEvent.getClickedBlock().getLocation().add(0.5, 1.3, 0.5)));
 
                     SNormalMine sNormalMine = new SNormalMine(mineName, regionPos1.get(), regionPos2.get(), minePos1.get(), minePos2.get());
@@ -115,7 +137,20 @@ public class CmdCreate extends OCommand {
                     SuperiorPrisonPlugin.getInstance().getMineController().add(sNormalMine);
                     creating.invalidate(player.getUniqueId());
                 }
-            }, new SubscriptionProperties<PlayerInteractEvent>().timeOut(TimeUnit.MINUTES, 5).timesToRun(5).filter(posEvent -> MutliVerUtil.isPrimaryHand(posEvent) && SuperiorPrisonPlugin.getInstance().getMainConfig().getAreaSelectionTool().getItemStack().equals(posEvent.getItem()) && posEvent.getClickedBlock() != null));
+            }, new SubscriptionProperties<PlayerInteractEvent>().timeOut(TimeUnit.MINUTES, 5)
+                    .priority(EventPriority.HIGHEST)
+                    .timesToRun(5)
+                    .filter(posEvent -> posEvent.getPlayer().equals(player) && MutliVerUtil.isPrimaryHand(posEvent) && SuperiorPrisonPlugin.getInstance().getMainConfig().getAreaSelectionTool().getItemStack().equals(posEvent.getItem()) && posEvent.getClickedBlock() != null));
+
+            sf.subscribeTo(AsyncPlayerChatEvent.class, chatEvent -> {
+                chatEvent.setCancelled(true);
+                creating.invalidate(player.getUniqueId());
+                posSelectEvent.end();
+                player.getInventory().remove(SuperiorPrisonPlugin.getInstance().getMainConfig().getAreaSelectionTool().getItemStack());
+            }, new SubscriptionProperties<AsyncPlayerChatEvent>()
+                    .runTill(e -> posSelectEvent.cancelled())
+                    .filter(event -> event.getMessage().equalsIgnoreCase("cancel") && event.getPlayer().equals(player)));
+
         };
     }
 

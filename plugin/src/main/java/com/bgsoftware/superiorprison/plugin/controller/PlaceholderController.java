@@ -11,6 +11,7 @@ import com.bgsoftware.superiorprison.plugin.menu.access.SortMethod;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.mine.area.SArea;
 import com.bgsoftware.superiorprison.plugin.object.mine.shop.SShopItem;
+import com.bgsoftware.superiorprison.plugin.object.player.Access;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.object.player.booster.SBooster;
 import com.bgsoftware.superiorprison.plugin.object.player.rank.SRank;
@@ -42,6 +43,11 @@ public class PlaceholderController {
         add(Rank.class, "{rank_name}", Rank::getName);
         add(LadderRank.class, "{rank_order}", LadderRank::getOrder);
 
+        add(AccessObject.class, "{access_name}", AccessObject::getName);
+        add(AccessObject.class, "{access_prefix}", AccessObject::getPrefix);
+        add(AccessObject.class, "{access_type}", AccessObject::getType);
+        add(AccessObject.class, "{access_order}", access -> access.isInstanceOf(LadderRank.class) ? access.getAs(LadderRank.class).getOrder() : access.getAs());
+
         add(Prestige.class, "{prestige_prefix}", Prestige::getPrefix);
         add(Prestige.class, "{prestige_name}", Prestige::getName);
         add(Prestige.class, "{prestige_order}", Prestige::getOrder);
@@ -52,9 +58,9 @@ public class PlaceholderController {
         add(SPrisoner.class, "{prisoner_prestiges}", prisoner -> listToString(prisoner.getPrestiges().stream().map(Prestige::getName).collect(Collectors.toList())));
 
 
-        add(SNormalMine.class, "{mine_spawnpoint_x}", mine -> mine.getSpawnPoint().isPresent() ? mine.getSpawnPoint().get().x() + "" : "None");
-        add(SNormalMine.class, "{mine_spawnpoint_y}", mine -> mine.getSpawnPoint().isPresent() ? mine.getSpawnPoint().get().y() + "" : "None");
-        add(SNormalMine.class, "{mine_spawnpoint_z}", mine -> mine.getSpawnPoint().isPresent() ? mine.getSpawnPoint().get().z() + "" : "None");
+        add(SNormalMine.class, "{mine_spawnpoint_x}", mine -> mine.getSpawnPoint().getBlockX());
+        add(SNormalMine.class, "{mine_spawnpoint_y}", mine -> mine.getSpawnPoint().getBlockY());
+        add(SNormalMine.class, "{mine_spawnpoint_z}", mine -> mine.getSpawnPoint().getBlockZ());
 
         // Placeholders for shop
         add(SShopItem.class, "{item_price}", item -> beautifyDouble(item.getPrice()));

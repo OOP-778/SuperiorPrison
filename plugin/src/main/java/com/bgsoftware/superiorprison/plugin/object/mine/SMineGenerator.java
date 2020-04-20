@@ -2,17 +2,22 @@ package com.bgsoftware.superiorprison.plugin.object.mine;
 
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
 import com.bgsoftware.superiorprison.api.data.mine.area.AreaEnum;
-import com.bgsoftware.superiorprison.api.util.SPLocation;
+import com.bgsoftware.superiorprison.plugin.util.SPLocation;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.object.mine.area.SArea;
 import com.bgsoftware.superiorprison.plugin.util.Attachable;
 import com.bgsoftware.superiorprison.plugin.util.Cuboid;
 import com.bgsoftware.superiorprison.plugin.util.TimeUtil;
 import com.google.common.collect.Sets;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
+import com.oop.datamodule.SerializableObject;
+import com.oop.datamodule.SerializedData;
+import com.oop.datamodule.util.DataUtil;
 import com.oop.orangeengine.eventssubscription.SubscriptionFactory;
 import com.oop.orangeengine.eventssubscription.SubscriptionProperties;
-import com.oop.orangeengine.main.gson.GsonUpdateable;
 import com.oop.orangeengine.main.task.OTask;
 import com.oop.orangeengine.main.task.StaticTask;
 import com.oop.orangeengine.main.util.OptionalConsumer;
@@ -38,19 +43,14 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.oop.orangeengine.main.Helper.debug;
-
 @Setter
 @Getter
 @EqualsAndHashCode
-public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mine.MineGenerator, Attachable<SuperiorMine> {
+public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mine.MineGenerator, Attachable<SuperiorMine>, SerializableObject {
 
     private transient SuperiorMine mine;
 
-    @SerializedName(value = "generatorMaterials")
     private List<OPair<Double, OMaterial>> generatorMaterials = new ArrayList<>();
-
-    @SerializedName(value = "nonEmptyBlocks")
     private int nonEmptyBlocks = 0;
 
     private transient Instant lastReset;
@@ -162,12 +162,12 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
                 worldLoadWait = false;
                 initCache(whenFinished);
 
-            }, new SubscriptionProperties<WorldLoadEvent>().timeOut(TimeUnit.SECONDS, 3).filter(event -> event.getWorld().getName().equals(mineArea.getMinPoint().worldName())));
+            }, new SubscriptionProperties<WorldLoadEvent>().timeOut(TimeUnit.SECONDS, 3).filter(event -> event.getWorld().getName().equals(mineArea.getMinPoint().getWorld().getName())));
             return;
         }
 
-        Location pos1 = mineArea.getMinPoint().toBukkit();
-        Location pos2 = mineArea.getHighPoint().toBukkit();
+        Location pos1 = mineArea.getMinPoint();
+        Location pos2 = mineArea.getHighPoint();
 
         Cuboid cuboid = new Cuboid(pos1, pos2);
         caching = true;
@@ -257,15 +257,39 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
             blockChanger = new BlockChanger(this, mineArea.getHighPoint().getWorld());
     }
 
+    @Override
+    public void serialize(SerializedData serializedData) {
+        JsonArray array = new JsonArray();
+        for (OPair<Double, OMaterial> generatorMaterial : generatorMaterials) {
+            JsonObject object = new JsonObject();
+            object.addProperty("m", generatorMaterial.getSecond().name());
+            object.addProperty("c", generatorMaterial.getFirst().toString());
+            array.add(object);
+        }
+        serializedData.getJsonObject().add("materials", array);
+        serializedData.write("nonemptyblocks", nonEmptyBlocks);
+    }
+
+    @Override
+    public void deserialize(SerializedData serializedData) {
+        JsonArray materialsArray = serializedData.getElement("materials").get().getAsJsonArray();
+        for (JsonElement element : materialsArray) {
+            JsonObject object = element.getAsJsonObject();
+            generatorMaterials.add(new OPair<>(
+                    DataUtil.fromElement(object.get("c"), Double.class),
+                    OMaterial.valueOf(object.get("m").getAsString())
+            ));
+        }
+        nonEmptyBlocks = serializedData.applyAs("nonemptyblocks", int.class);
+    }
+
     private class BlockChanger {
 
         private final Set<ChunkPosition> chunkPositions = Sets.newConcurrentHashSet();
         private final SuperiorPrisonPlugin plugin;
-
+        ExecutorService executor;
         private World world;
         private SMineGenerator generator;
-
-        ExecutorService executor;
 
         public BlockChanger(@NonNull SMineGenerator generator, @NonNull World world) {
             this.plugin = SuperiorPrisonPlugin.getInstance();
@@ -323,5 +347,4 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
             }
         }
     }
-
 }

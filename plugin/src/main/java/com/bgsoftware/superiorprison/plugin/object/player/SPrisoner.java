@@ -8,16 +8,19 @@ import com.bgsoftware.superiorprison.api.data.player.rank.LadderRank;
 import com.bgsoftware.superiorprison.api.data.player.rank.Rank;
 import com.bgsoftware.superiorprison.api.util.Pair;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
+import com.bgsoftware.superiorprison.plugin.data.SPrisonerHolder;
+import com.bgsoftware.superiorprison.plugin.data.SStatisticHolder;
 import com.bgsoftware.superiorprison.plugin.hook.impl.ShopGuiPlusHook;
 import com.bgsoftware.superiorprison.plugin.object.player.booster.SBoosters;
 import com.bgsoftware.superiorprison.plugin.object.player.rank.SLadderRank;
 import com.bgsoftware.superiorprison.plugin.object.player.rank.SRank;
 import com.bgsoftware.superiorprison.plugin.object.player.rank.SSpecialRank;
 import com.google.common.collect.Sets;
-import com.oop.orangeengine.database.DatabaseObject;
-import com.oop.orangeengine.database.annotation.Column;
-import com.oop.orangeengine.database.annotation.PrimaryKey;
-import com.oop.orangeengine.database.annotation.Table;
+import com.google.gson.JsonElement;
+import com.oop.datamodule.DataBody;
+import com.oop.datamodule.SerializedData;
+import com.oop.orangeengine.main.task.OTask;
+import com.oop.orangeengine.main.util.data.set.OConcurrentSet;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -35,50 +38,35 @@ import static com.bgsoftware.superiorprison.plugin.util.AccessUtil.findPrestige;
 import static com.bgsoftware.superiorprison.plugin.util.AccessUtil.findRank;
 
 @Accessors(chain = true)
-@Table(name = "prisoners")
-public class SPrisoner extends DatabaseObject implements com.bgsoftware.superiorprison.api.data.player.Prisoner {
+public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.Prisoner, DataBody {
 
-    @PrimaryKey(name = "uuid")
     @Setter
     private @NonNull UUID uuid;
 
     @Getter
     @Setter
-    @Column(name = "autoBurn")
     private boolean autoBurn = false;
 
     @Getter
-    @Column(name = "isAutoSell")
     @Setter
     private boolean autoSell = false;
 
-    @Column(name = "booster")
     @Setter
     private SBoosters boosters = new SBoosters();
 
-    @Column(name = "logoutMine")
     @Setter
     @Getter
     private String logoutMine;
 
-    @Column(name = "autoPickup")
     @Getter
     @Setter
     private boolean autoPickup = false;
 
-    @Getter
-    @Column(name = "completedMineRewards")
-    private Set<Integer> completedMineRewards = Sets.newHashSet();
-
-    @Column(name = "ranks")
-    private Set<String> ranks = Sets.newConcurrentHashSet();
-
-    @Column(name = "prestiges")
-    private Set<String> prestiges = Sets.newConcurrentHashSet();
+    private Set<String> ranks = new OConcurrentSet<>();
+    private Set<String> prestiges = new OConcurrentSet<>();
 
     @Setter
     @Getter
-    @Column(name = "fortuneBlocks")
     private boolean fortuneBlocks = false;
 
     private transient OfflinePlayer cachedOfflinePlayer;
@@ -88,9 +76,7 @@ public class SPrisoner extends DatabaseObject implements com.bgsoftware.superior
     @Setter
     private transient Pair<SuperiorMine, AreaEnum> currentMine;
 
-    protected SPrisoner() {
-        runWhenLoaded(() -> boosters.attach(this));
-    }
+    public SPrisoner() {}
 
     public SPrisoner(UUID uuid) {
         this.uuid = uuid;
@@ -321,5 +307,80 @@ public class SPrisoner extends DatabaseObject implements com.bgsoftware.superior
 
     public void clearPrestiges() {
         prestiges.clear();
+    }
+
+    @Override
+    public String getTable() {
+        return "prisoners";
+    }
+
+    @Override
+    public String getPrimaryKey() {
+        return uuid.toString();
+    }
+
+    @Override
+    public String[] getStructure() {
+        return new String[]{
+                "uuid",
+                "autoburn",
+                "autopickup",
+                "autosell",
+                "fortuneblocks",
+                "ranks",
+                "boosters",
+                "prestiges",
+                "logoutmine"
+        };
+    }
+
+    @Override
+    public void remove() {
+        SuperiorPrisonPlugin.getInstance().getDatabaseController().getStorage(SPrisonerHolder.class).remove(this);
+    }
+
+    @Override
+    public void serialize(SerializedData data) {
+        data.write("uuid", uuid);
+        data.write("autoburn", autoBurn);
+        data.write("autopickup", autoPickup);
+        data.write("autosell", autoSell);
+        data.write("fortuneblocks", fortuneBlocks);
+        data.write("ranks", ranks);
+        data.write("prestiges", prestiges);
+        data.write("boosters", boosters);
+        data.write("logoutmine", logoutMine);
+    }
+
+    @Override
+    public void deserialize(SerializedData data) {
+        this.uuid = data.applyAs("uuid", UUID.class);
+        this.autoBurn = data.applyAs("autoburn", boolean.class);
+        this.autoPickup = data.applyAs("autopickup", boolean.class);
+        this.autoSell = data.applyAs("autosell", boolean.class);
+        this.fortuneBlocks = data.applyAs("fortuneblocks", boolean.class);
+        this.ranks.addAll(
+                data.applyAsCollection("ranks")
+                        .map(JsonElement::getAsString)
+                        .collect(Collectors.toSet())
+        );
+        this.prestiges.addAll(
+                data.applyAsCollection("prestiges")
+                        .map(JsonElement::getAsString)
+                        .collect(Collectors.toSet())
+        );
+        this.logoutMine = data.applyAs("logoutmine", String.class);
+        this.boosters = data.applyAs("boosters", SBoosters.class);
+        this.boosters.attach(this);
+    }
+
+    @Override
+    public void save(boolean b, Runnable runnable) {
+        SuperiorPrisonPlugin.getInstance().getDatabaseController().getStorage(SPrisonerHolder.class).save(this, true, runnable);
+    }
+
+    @Override
+    public void save(boolean async) {
+        SuperiorPrisonPlugin.getInstance().getDatabaseController().getStorage(SPrisonerHolder.class).save(this, async);
     }
 }

@@ -68,7 +68,7 @@ public class FlagsListener {
                 event.setCancelled(true);
 
             SArea area = (SArea) mineAt.get().getArea(event.getBlock().getLocation());
-            if (area.getType() == AreaEnum.MINE && area.getMinPoint().y() > event.getBlock().getLocation().getY())
+            if (area.getType() == AreaEnum.MINE && area.getMinPoint().getBlockY() > event.getBlock().getLocation().getY())
                 event.setCancelled(true);
 
             if (area.getType() != AreaEnum.MINE && !hasBypass(event.getPlayer()))

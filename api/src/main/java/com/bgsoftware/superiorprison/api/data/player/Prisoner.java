@@ -45,6 +45,8 @@ public interface Prisoner {
 
     LadderRank getCurrentLadderRank();
 
+    void remove();
+
     void save(boolean async);
 
     double getPrice(ItemStack itemStack);

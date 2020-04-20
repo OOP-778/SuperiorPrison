@@ -29,6 +29,8 @@ public class CommandsRegister {
                 .subCommand(new CmdReload())
         );
 
+        controller.register(new SellCommand());
+
         // Prisoners
         controller.register(
                 new OCommand()

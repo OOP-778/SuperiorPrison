@@ -44,6 +44,7 @@ public class GeneratorEditMenu extends OPagedMenu<OPair<Double, OMaterial>> impl
         ClickHandler
                 .of("reset")
                 .handle(event -> {
+                    materials.clear();
                     materials.addAll(SuperiorPrisonPlugin.getInstance().getMainConfig().getMineDefaults().getMaterials());
                     refresh();
                 })

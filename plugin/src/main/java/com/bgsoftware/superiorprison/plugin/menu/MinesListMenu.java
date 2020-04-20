@@ -1,6 +1,6 @@
 package com.bgsoftware.superiorprison.plugin.menu;
 
-import com.bgsoftware.superiorprison.api.util.SPLocation;
+import com.bgsoftware.superiorprison.plugin.util.SPLocation;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
@@ -27,12 +27,7 @@ public class MinesListMenu extends OPagedMenu<SNormalMine> implements OMenu.Temp
                     if (event.getClick() == ClickType.RIGHT || event.getClick() == ClickType.LEFT) {
                         //TODO: Add teleport timer and move check
                         SNormalMine mine = requestObject(event.getRawSlot());
-                        Optional<SPLocation> spawnPoint = mine.getSpawnPoint();
-                        if (spawnPoint.isPresent())
-                            event.getWhoClicked().teleport(spawnPoint.get().toBukkit());
-
-                        else
-                            LocaleEnum.MINE_TELEPORT_FAILED_SPAWN_NOT_SET.getWithErrorPrefix().send((Player) event.getWhoClicked());
+                        event.getWhoClicked().teleport(mine.getSpawnPoint());
 
                     } else if (event.getClick().name().contains("SHIFT") && event.getWhoClicked().hasPermission("superiorprison.admin"))
                         new MineControlPanel(getViewer(), requestObject(event.getRawSlot())).open(this);

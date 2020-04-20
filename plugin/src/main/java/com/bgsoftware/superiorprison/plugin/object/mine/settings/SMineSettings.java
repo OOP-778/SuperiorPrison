@@ -5,7 +5,8 @@ import com.bgsoftware.superiorprison.plugin.config.main.MineDefaultsSection;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.util.Attachable;
 import com.google.gson.annotations.SerializedName;
-import com.oop.orangeengine.main.gson.GsonUpdateable;
+import com.oop.datamodule.SerializableObject;
+import com.oop.datamodule.SerializedData;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,7 +14,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class SMineSettings implements Attachable<SNormalMine>, GsonUpdateable, com.bgsoftware.superiorprison.api.data.mine.settings.MineSettings {
+public class SMineSettings implements Attachable<SNormalMine>, com.bgsoftware.superiorprison.api.data.mine.settings.MineSettings, SerializableObject {
 
     @SerializedName(value = "playerLimit")
     private int playerLimit;
@@ -45,5 +46,17 @@ public class SMineSettings implements Attachable<SNormalMine>, GsonUpdateable, c
         settings.setPlayerLimit(from.getPlayerLimit());
         settings.setResetSettings(SResetSettings.from(from.getResetSettings()));
         return settings;
+    }
+
+    @Override
+    public void serialize(SerializedData data) {
+        data.write("limit", playerLimit);
+        data.write("reset", resetSettings);
+    }
+
+    @Override
+    public void deserialize(SerializedData data) {
+        this.playerLimit = data.applyAs("limit", int.class);
+        this.resetSettings = SResetSettings.of(data.getElement("reset").get().getAsJsonObject());
     }
 }

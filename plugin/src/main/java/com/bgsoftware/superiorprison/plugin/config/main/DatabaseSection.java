@@ -1,9 +1,9 @@
 package com.bgsoftware.superiorprison.plugin.config.main;
 
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
-import com.oop.orangeengine.database.ODatabase;
-import com.oop.orangeengine.database.types.MySqlDatabase;
-import com.oop.orangeengine.database.types.SqlLiteDatabase;
+import com.oop.datamodule.database.DatabaseWrapper;
+import com.oop.datamodule.database.types.MySqlDatabase;
+import com.oop.datamodule.database.types.SqlLiteDatabase;
 import com.oop.orangeengine.yaml.ConfigurationSection;
 import lombok.Getter;
 
@@ -31,7 +31,7 @@ public class DatabaseSection {
         return type.equalsIgnoreCase("mysql");
     }
 
-    public ODatabase getDatabase() {
+    public DatabaseWrapper getDatabase() {
         return isMySql() ? new MySqlDatabase(
                 new MySqlDatabase.MySqlProperties()
                         .database(database)

@@ -30,7 +30,7 @@ public class RankupTask extends OTask {
         runnable(() -> {
             if (SuperiorPrisonPlugin.disabling) return;
             SuperiorPrisonPlugin.getInstance().getPrisonerController()
-                    .dataStream()
+                    .stream()
                     .parallel()
                     .filter(SPrisoner::isOnline)
                     .filter(prisoner -> cache.getIfPresent(prisoner.getUUID()) == null || !cache.getIfPresent(prisoner.getUUID()).contentEquals(prisoner.getCurrentLadderRank().getName()))
@@ -54,7 +54,7 @@ public class RankupTask extends OTask {
                     .forEach(prisoner -> {
                         cache.invalidate(prisoner.getUUID());
                         cache.put(prisoner.getUUID(), prisoner.getCurrentLadderRank().getName());
-                        LocaleEnum.RANKUP_AVAILABLE.getWithPrefix().send(prisoner.getPlayer(), ImmutableMap.of("{rank}", prisoner.getCurrentLadderRank().getNext().get().getName()));
+                        LocaleEnum.RANKUP_AVAILABLE.getWithPrefix().send(prisoner.getPlayer(), ImmutableMap.of("{rank_name}", prisoner.getCurrentLadderRank().getNext().get().getName()));
                     });
         });
         execute();

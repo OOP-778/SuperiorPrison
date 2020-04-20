@@ -15,7 +15,7 @@ public class BoosterTask extends OTask {
         runnable(() -> {
             if (SuperiorPrisonPlugin.disabling) return;
             SuperiorPrisonPlugin.getInstance().getPrisonerController()
-                    .dataStream()
+                    .stream()
                     .parallel()
                     .forEach(prisoner -> {
                         for (Booster booster : prisoner.getBoosters().set()) {

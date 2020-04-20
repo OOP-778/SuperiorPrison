@@ -14,6 +14,6 @@ public class ClearTypeArg extends CommandArgument<String> {
 
     @Override
     public void onAdd(OCommand command) {
-        command.nextTabComplete(args -> Lists.newArrayList("ladder", "special"));
+        command.nextTabComplete((previous, args) -> Lists.newArrayList("ladder", "special"));
     }
 }

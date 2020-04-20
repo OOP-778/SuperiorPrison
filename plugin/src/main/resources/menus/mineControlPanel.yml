@@ -44,9 +44,3 @@ buttons:
     display name: "&eShop"
     lore:
       - "&e&l* &7Click to edit the shop!"
-
-  "O":
-    material: redstone_torch
-    display name: "&eSettings"
-    lore:
-      - "&e&l* &7Click to edit settings!"

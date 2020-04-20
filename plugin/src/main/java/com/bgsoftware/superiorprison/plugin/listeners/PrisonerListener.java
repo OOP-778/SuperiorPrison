@@ -48,8 +48,8 @@ public class PrisonerListener {
                                             .runnable(() -> {
                                                 SuperiorPrisonPlugin.getInstance().getMineController()
                                                         .getMine(prisoner.getLogoutMine())
-                                                        .flatMap(SuperiorMine::getSpawnPoint)
-                                                        .ifPresent(location -> event.getPlayer().teleport(location.toBukkit()));
+                                                        .map(SuperiorMine::getSpawnPoint)
+                                                        .ifPresent(location -> event.getPlayer().teleport(location));
                                                 prisoner.setLogoutMine(null);
                                             })
                                             .execute();

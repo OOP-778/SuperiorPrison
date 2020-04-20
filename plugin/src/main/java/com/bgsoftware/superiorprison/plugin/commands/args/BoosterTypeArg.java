@@ -14,6 +14,6 @@ public class BoosterTypeArg extends CommandArgument<String> {
 
     @Override
     public void onAdd(OCommand command) {
-        command.nextTabComplete(args -> Lists.newArrayList("drops", "money"));
+        command.nextTabComplete((previous, args) -> Lists.newArrayList("drops", "money"));
     }
 }

@@ -1,6 +1,5 @@
 package com.bgsoftware.superiorprison.plugin.util;
 
-import com.bgsoftware.superiorprison.api.util.SPLocation;
 import com.oop.orangeengine.main.task.OTask;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -62,8 +61,25 @@ public class Cuboid {
         this.maximumPoint = new Vector(xPos2, yPos2, zPos2);
     }
 
+    public boolean containsLocation(Location location, boolean withY) {
+        if (location == null || !location.getWorld().getName().equals(this.worldName)) return false;
+
+        double cuboidMinX = minimumPoint.getX();
+        double cuboidMinY = minimumPoint.getY();
+        double cuboidMinZ = minimumPoint.getZ();
+
+        double cuboidHighX = maximumPoint.getX();
+        double cuboidHighY = maximumPoint.getY();
+        double cuboidHighZ = maximumPoint.getZ();
+
+        return
+                cuboidMinX >= location.getX() && cuboidHighX <= location.getX() &&
+                (!withY || cuboidMinY >= location.getY() && cuboidHighY <= location.getY()) ||
+                cuboidMinZ >= location.getZ() && cuboidHighZ <= location.getZ();
+    }
+
     public boolean containsLocation(Location location) {
-        return location != null && location.getWorld().getName().equals(this.worldName) && location.toVector().isInAABB(this.minimumPoint, this.maximumPoint);
+        return containsLocation(location, true);
     }
 
     public boolean containsVector(Vector vector) {

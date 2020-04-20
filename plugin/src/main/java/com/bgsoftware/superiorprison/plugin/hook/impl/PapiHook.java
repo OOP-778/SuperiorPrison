@@ -1,6 +1,5 @@
 package com.bgsoftware.superiorprison.plugin.hook.impl;
 
-import com.bgsoftware.superiorprison.api.SuperiorPrison;
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
 import com.bgsoftware.superiorprison.api.data.mine.area.AreaEnum;
 import com.bgsoftware.superiorprison.api.data.mine.settings.ResetSettings;
@@ -8,21 +7,17 @@ import com.bgsoftware.superiorprison.api.data.player.Prestige;
 import com.bgsoftware.superiorprison.api.data.player.rank.LadderRank;
 import com.bgsoftware.superiorprison.api.data.player.rank.Rank;
 import com.bgsoftware.superiorprison.api.util.Pair;
-import com.bgsoftware.superiorprison.api.util.SPLocation;
+import com.bgsoftware.superiorprison.plugin.util.SPLocation;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
-import com.bgsoftware.superiorprison.plugin.controller.PrestigeController;
 import com.bgsoftware.superiorprison.plugin.hook.SHook;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
-import com.bgsoftware.superiorprison.plugin.object.mine.settings.SResetSettings;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
-import com.bgsoftware.superiorprison.plugin.object.player.rank.SLadderRank;
+import com.bgsoftware.superiorprison.plugin.object.statistic.SStatisticsContainer;
 import com.bgsoftware.superiorprison.plugin.util.TimeUtil;
-import com.google.common.base.Preconditions;
 import me.clip.placeholderapi.PlaceholderAPI;
-import me.clip.placeholderapi.PlaceholderAPIPlugin;
-import me.clip.placeholderapi.PlaceholderHook;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
@@ -32,7 +27,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class PapiHook extends SHook {
-
     public PapiHook() {
         super(null);
         new Expansion();
@@ -164,6 +158,13 @@ public class PapiHook extends SHook {
                     } else
                         return prestige.getName();
 
+                } else if (split[2].equalsIgnoreCase("statistic")) {
+                    SStatisticsContainer statisticsContainer = SuperiorPrisonPlugin.getInstance().getStatisticsController().getContainer(prisoner.getUUID());
+                    if (split[3].equalsIgnoreCase("blocks")) {
+                        if (split.length == 5 && split[4].equalsIgnoreCase("total")) {
+                            return statisticsContainer.getBlocksStatistic().getTotal() + "";
+                        }
+                    }
                 }
             } else if (split[0].equalsIgnoreCase("mine") && split.length > 2) {
                 SNormalMine mine = (SNormalMine) SuperiorPrisonPlugin.getInstance().getMineController().getMine(split[1]).orElse(null);
@@ -174,7 +175,7 @@ public class PapiHook extends SHook {
 
                 else if (split[2].equalsIgnoreCase("spawnpoint"))
                     if (split.length == 4)
-                        return getFromLocation(mine.getSpawnPoint().get(), split[3]);
+                        return getFromLocation(mine.getSpawnPoint(), split[3]);
 
                     else
                         return "none";
@@ -250,18 +251,18 @@ public class PapiHook extends SHook {
             return Arrays.copyOfRange(array, amount, array.length);
     }
 
-    public String getFromLocation(SPLocation location, String identifier) {
+    public String getFromLocation(Location location, String identifier) {
         if (identifier.equalsIgnoreCase("world"))
             return location.getWorld().getName();
 
         else if (identifier.equalsIgnoreCase("x"))
-            return location.xBlock() + "";
+            return location.getBlockX() + "";
 
         else if (identifier.equalsIgnoreCase("y"))
-            return location.yBlock() + "";
+            return location.getBlockY() + "";
 
         else if (identifier.equalsIgnoreCase("z"))
-            return location.zBlock() + "";
+            return location.getBlockZ() + "";
 
         else
             return "invalid identifier";
@@ -279,5 +280,4 @@ public class PapiHook extends SHook {
 
         return "invalid identifier";
     }
-
 }

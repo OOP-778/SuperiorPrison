@@ -2,40 +2,39 @@ package com.bgsoftware.superiorprison.plugin.data;
 
 import com.bgsoftware.superiorprison.api.controller.MineHolder;
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
+import com.bgsoftware.superiorprison.plugin.controller.DatabaseController;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import com.oop.orangeengine.database.DatabaseController;
-import com.oop.orangeengine.database.DatabaseHolder;
-import com.oop.orangeengine.database.DatabaseObject;
+import com.oop.datamodule.DataStorage;
 import org.bukkit.Location;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class SMineHolder implements DatabaseHolder<String, SNormalMine>, MineHolder {
+public class SMineHolder extends DataStorage<SNormalMine> implements MineHolder {
 
     private Map<String, SNormalMine> mineMap = Maps.newConcurrentMap();
-    private DatabaseController controller;
 
     public SMineHolder(DatabaseController controller) {
-        this.controller = controller;
+        super(controller);
     }
 
     @Override
-    public Stream<SNormalMine> dataStream() {
+    public Stream<SNormalMine> stream() {
         return mineMap.values().stream();
     }
 
     @Override
-    public String generatePrimaryKey(SNormalMine sNormalMine) {
-        return sNormalMine.getName();
+    public Class<? extends SNormalMine>[] getVariants() {
+        return new Class[]{SNormalMine.class};
     }
 
     @Override
-    public void onAdd(SNormalMine sNormalMine, boolean isNew) {
+    public void onAdd(SNormalMine sNormalMine) {
+        System.out.println("added");
         mineMap.put(sNormalMine.getName(), sNormalMine);
     }
 
@@ -45,31 +44,26 @@ public class SMineHolder implements DatabaseHolder<String, SNormalMine>, MineHol
     }
 
     @Override
-    public Set<Class<? extends DatabaseObject>> getObjectVariants() {
-        return Sets.newHashSet(SNormalMine.class);
-    }
-
-    @Override
-    public DatabaseController getDatabaseController() {
-        return controller;
-    }
-
-    @Override
     public Set<SuperiorMine> getMines() {
-        return dataStream()
+        return getMines(null);
+    }
+
+    public Set<SuperiorMine> getMines(Predicate<SuperiorMine> filter) {
+        return stream()
                 .map(mine -> (SuperiorMine) mine)
+                .filter(mine -> filter == null || filter.test(mine))
                 .collect(Collectors.toSet());
     }
 
     public Set<String> getMinesWorlds() {
-        return dataStream()
+        return stream()
                 .map(mine -> mine.getWorld().getName())
                 .collect(Collectors.toSet());
     }
 
     @Override
     public Optional<SuperiorMine> getMine(String mineName) {
-        return dataStream()
+        return stream()
                 .filter(mine -> mine.getName().contentEquals(mineName))
                 .map(mine -> (SuperiorMine) mine)
                 .findFirst();
@@ -77,16 +71,21 @@ public class SMineHolder implements DatabaseHolder<String, SNormalMine>, MineHol
 
     @Override
     public Optional<SuperiorMine> getMineAt(Location location) {
-        return dataStream()
+        return stream()
                 .filter(mine -> mine.isInside(location))
                 .map(mine -> (SuperiorMine) mine)
                 .findFirst();
     }
 
     public List<SNormalMine> getMinesFor(SPrisoner prisoner) {
-        return dataStream()
+        return stream()
                 .filter(mine -> prisoner.getPlayer().isOp() || mine.canEnter(prisoner))
                 .sorted(Comparator.comparing(SNormalMine::getName))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Iterator<SNormalMine> iterator() {
+        return mineMap.values().iterator();
     }
 }

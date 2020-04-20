@@ -7,9 +7,12 @@ import org.bukkit.entity.Player;
 
 public class SellCommand extends OCommand {
     public SellCommand() {
-        label("sell");
+        label("sellall");
         permission("superiorprison.sellgui");
         ableToExecute(Player.class);
-        onCommand(command -> new SellMenu(SuperiorPrisonPlugin.getInstance().getPrisonerController().getInsertIfAbsent(command.getSenderAsPlayer())));
+        onCommand(command -> {
+            SellMenu sellMenu = new SellMenu(SuperiorPrisonPlugin.getInstance().getPrisonerController().getInsertIfAbsent(command.getSenderAsPlayer()));
+            command.getSenderAsPlayer().openInventory(sellMenu.getInventory());
+        });
     }
 }

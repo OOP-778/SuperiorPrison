@@ -6,7 +6,10 @@ import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.util.Attachable;
 import com.google.common.collect.Sets;
 import com.google.gson.annotations.SerializedName;
-import com.oop.orangeengine.main.gson.GsonUpdateable;
+import com.oop.datamodule.SerializableObject;
+import com.oop.datamodule.SerializedData;
+import com.oop.datamodule.util.DataUtil;
+import com.oop.orangeengine.main.util.data.set.OConcurrentSet;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.bukkit.Material;
@@ -17,12 +20,10 @@ import java.util.Set;
 
 @EqualsAndHashCode
 @Getter
-public class SShop implements MineShop, Attachable<SNormalMine> {
+public class SShop implements MineShop, Attachable<SNormalMine>, SerializableObject {
 
     private transient SNormalMine mine;
-
-    @SerializedName(value = "items")
-    private Set<SShopItem> items = Sets.newConcurrentHashSet();
+    private Set<SShopItem> items = new OConcurrentSet<>();
 
     public SShop() {}
 
@@ -77,5 +78,17 @@ public class SShop implements MineShop, Attachable<SNormalMine> {
                 .forEach(item -> shop.items.add(item));
 
         return shop;
+    }
+
+    @Override
+    public void serialize(SerializedData serializedData) {
+        serializedData.write("items", items);
+    }
+
+    @Override
+    public void deserialize(SerializedData serializedData) {
+        serializedData.applyAsCollection("items")
+                .map(element -> DataUtil.fromElement(element, SShopItem.class))
+                .forEach(this::addItem);
     }
 }

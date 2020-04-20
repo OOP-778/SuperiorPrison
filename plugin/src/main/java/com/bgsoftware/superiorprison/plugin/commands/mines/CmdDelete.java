@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorprison.plugin.commands.mines;
 
+import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.commands.args.MinesArg;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;

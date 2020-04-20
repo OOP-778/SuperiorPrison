@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.oop.orangeengine.command.WrappedCommand;
-import com.oop.orangeengine.database.suppliers.Suppliable;
 import com.oop.orangeengine.main.Helper;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.message.Contentable;
@@ -188,7 +187,6 @@ public class CommandHelper {
                 else
                     temp = newTemp;
             }
-
             return temp;
         }
 

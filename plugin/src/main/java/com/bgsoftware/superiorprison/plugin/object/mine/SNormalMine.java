@@ -7,7 +7,9 @@ import com.bgsoftware.superiorprison.api.data.mine.sign.Sign;
 import com.bgsoftware.superiorprison.api.data.player.Prestige;
 import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 import com.bgsoftware.superiorprison.api.data.player.rank.Rank;
-import com.bgsoftware.superiorprison.api.util.SPLocation;
+import com.bgsoftware.superiorprison.plugin.data.SMineHolder;
+import com.bgsoftware.superiorprison.plugin.data.SPrisonerHolder;
+import com.bgsoftware.superiorprison.plugin.util.SPLocation;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.config.main.MineDefaultsSection;
 import com.bgsoftware.superiorprison.plugin.object.mine.area.SArea;
@@ -16,13 +18,17 @@ import com.bgsoftware.superiorprison.plugin.object.mine.shop.SShop;
 import com.bgsoftware.superiorprison.plugin.object.mine.sign.SSign;
 import com.bgsoftware.superiorprison.plugin.util.AccessUtil;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import com.oop.orangeengine.database.DatabaseObject;
-import com.oop.orangeengine.database.annotation.Column;
-import com.oop.orangeengine.database.annotation.PrimaryKey;
-import com.oop.orangeengine.database.annotation.Table;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.oop.datamodule.BodyCache;
+import com.oop.datamodule.DataBody;
+import com.oop.datamodule.SerializedData;
+import com.oop.datamodule.util.DataUtil;
 import com.oop.orangeengine.item.ItemBuilder;
+import com.oop.orangeengine.main.task.OTask;
 import com.oop.orangeengine.main.task.StaticTask;
+import com.oop.orangeengine.main.util.data.set.OConcurrentSet;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -37,71 +43,40 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-@Table(name = "mines")
-public class SNormalMine extends DatabaseObject implements com.bgsoftware.superiorprison.api.data.mine.type.NormalMine, Serializable {
+public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.type.NormalMine, Serializable, DataBody {
 
     private Set<Prisoner> prisoners = ConcurrentHashMap.newKeySet();
 
-    @PrimaryKey(name = "name")
     @Setter
     private String name;
 
-    @Column(name = "type")
     private MineEnum type = MineEnum.NORMAL_MINE;
 
     @Setter
-    @Column(name = "spawnPoint")
     private SPLocation spawnPoint = null;
 
-    @Column(name = "generator")
     private SMineGenerator generator;
 
     @Setter
-    @Column(name = "shop")
     private SShop shop;
 
-    @Column(name = "ranks")
-    private Set<String> ranks = Sets.newConcurrentHashSet();
+    private Set<String> ranks = new OConcurrentSet<>();
 
-    @Column(name = "prestiges")
-    private Set<String> prestiges = Sets.newConcurrentHashSet();
+    private Set<String> prestiges = new OConcurrentSet<>();
 
     @Getter
     @Setter
-    @Column(name = "settings")
     private SMineSettings settings;
 
     @Setter
-    @Column(name = "icon")
     private ItemStack icon;
 
-    @Column(name = "areas")
     @Getter
     private Map<AreaEnum, SArea> areas = Maps.newConcurrentMap();
 
-    @Column(name = "signs")
-    private Set<SSign> signs = Sets.newConcurrentHashSet();
+    private Set<SSign> signs = new OConcurrentSet<>();
 
-    protected SNormalMine() {
-        super();
-        runWhenLoaded(() -> {
-            generator.attach(this);
-            settings.attach(this);
-
-            Map<AreaEnum, SArea> newAreas = Maps.newConcurrentMap();
-            areas.keySet()
-                    .stream()
-                    .sorted(Comparator.comparingInt(AreaEnum::getOrder))
-                    .sorted(Comparator.reverseOrder())
-                    .forEachOrdered(areaEnum -> newAreas.put(areaEnum, areas.get(areaEnum)));
-
-            this.areas = newAreas;
-            areas.values().forEach(area -> area.attach(this));
-
-           if ( getSettings().getResetSettings().isTimed())
-               getGenerator().reset();
-        });
-    }
+    private SNormalMine() {}
 
     public SNormalMine(@NonNull String name, @NonNull SPLocation regionPos1, @NonNull SPLocation regionPos2, @NonNull SPLocation minePos1, @NonNull SPLocation minePos2) {
         this.name = name;
@@ -159,8 +134,8 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
     }
 
     @Override
-    public Optional<SPLocation> getSpawnPoint() {
-        return Optional.ofNullable(spawnPoint);
+    public Location getSpawnPoint() {
+        return spawnPoint.toBukkit();
     }
 
     @Override
@@ -330,7 +305,7 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
     @Override
     public void onReset() {
         for (Prisoner prisoner : getPrisoners()) {
-            prisoner.getPlayer().teleport(getSpawnPoint().get().toBukkit());
+            prisoner.getPlayer().teleport(getSpawnPoint());
         }
     }
 
@@ -351,5 +326,116 @@ public class SNormalMine extends DatabaseObject implements com.bgsoftware.superi
     @Override
     public int hashCode() {
         return name != null ? name.hashCode() : 0;
+    }
+
+    @Override
+    public String getTable() {
+        return "mines";
+    }
+
+    @Override
+    public String getPrimaryKey() {
+        return name;
+    }
+
+    @Override
+    public String[] getStructure() {
+        return new String[]{
+            "name",
+            "type",
+            "spawnpoint",
+            "generator",
+            "shop",
+            "ranks",
+            "prestiges",
+            "settings",
+            "icon",
+            "areas"
+        };
+    }
+
+    @Override
+    public void serialize(SerializedData serializedData) {
+        serializedData.write("name", name);
+        serializedData.write("type", type.name());
+        serializedData.write("spawnpoint", spawnPoint);
+        serializedData.write("generator", generator);
+        serializedData.write("shop", shop);
+        serializedData.write("ranks", ranks);
+        serializedData.write("prestiges", prestiges);
+        serializedData.write("settings", settings);
+        serializedData.write("icon", icon);
+
+        JsonArray areasArray = new JsonArray();
+        areas.forEach((key, value) -> {
+            JsonObject object = new JsonObject();
+            object.addProperty("key", key.name());
+
+            SerializedData data = new SerializedData();
+            value.serialize(data);
+
+            object.add("value", data.getJsonObject());
+            areasArray.add(object);
+        });
+        serializedData.getJsonObject().add("areas", areasArray);
+    }
+
+    @Override
+    public void deserialize(SerializedData data) {
+        this.name = data.applyAs("name", String.class);
+        this.type = MineEnum.valueOf(data.applyAs("type", String.class));
+        this.spawnPoint = data.applyAs("spawnpoint", SPLocation.class);
+        this.generator = data.applyAs("generator", SMineGenerator.class);
+        this.shop = data.applyAs("shop", SShop.class);
+        this.ranks.addAll(
+                data.applyAsCollection("ranks")
+                        .map(JsonElement::getAsString)
+                        .collect(Collectors.toSet())
+        );
+        this.prestiges.addAll(
+                data.applyAsCollection("prestiges")
+                        .map(JsonElement::getAsString)
+                        .collect(Collectors.toSet())
+        );
+        this.settings = data.applyAs("settings", SMineSettings.class);
+        JsonArray areasArray = data.getElement("areas").get().getAsJsonArray();
+        for (JsonElement element : areasArray) {
+            JsonObject jsonObject = element.getAsJsonObject();
+            JsonElement key = jsonObject.get("key");
+            JsonElement value = jsonObject.get("value");
+
+            areas.put(AreaEnum.valueOf(key.getAsString()), DataUtil.fromElement(value, SArea.class));
+        }
+        this.icon  = data.applyAs("icon", ItemStack.class);
+
+        generator.attach(this);
+        shop.attach(this);
+        settings.attach(this);
+
+        Map<AreaEnum, SArea> newAreas = Maps.newConcurrentMap();
+        areas.keySet()
+                .stream()
+                .sorted(Comparator.comparingInt(AreaEnum::getOrder))
+                .sorted(Comparator.reverseOrder())
+                .forEachOrdered(areaEnum -> newAreas.put(areaEnum, areas.get(areaEnum)));
+
+        this.areas = newAreas;
+        areas.values().forEach(area -> area.attach(this));
+
+        if (getSettings().getResetSettings().isTimed())
+            getGenerator().reset();
+    }
+
+    @Override
+    public void remove(boolean b) {
+        new OTask()
+                .sync(!b)
+                .runnable(() -> SuperiorPrisonPlugin.getInstance().getDatabaseController().getStorage(SMineHolder.class).remove(this))
+                .execute();
+    }
+
+    @Override
+    public void save(boolean async) {
+        SuperiorPrisonPlugin.getInstance().getDatabaseController().getStorage(SMineHolder.class).save(this, async);
     }
 }

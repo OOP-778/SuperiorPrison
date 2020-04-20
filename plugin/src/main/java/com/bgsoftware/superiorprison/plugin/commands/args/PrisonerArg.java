@@ -26,7 +26,7 @@ public class PrisonerArg extends CommandArgument<SPrisoner> {
 
     @Override
     public void onAdd(OCommand command) {
-        command.nextTabComplete(args -> SuperiorPrisonPlugin.getInstance().getPrisonerController().dataStream()
+        command.nextTabComplete((previous, args) -> SuperiorPrisonPlugin.getInstance().getPrisonerController().stream()
                 .filter(prisoner -> offline || prisoner.isOnline())
                 .filter(Objects::nonNull)
                 .map(prisoner -> prisoner.getOfflinePlayer().getName())

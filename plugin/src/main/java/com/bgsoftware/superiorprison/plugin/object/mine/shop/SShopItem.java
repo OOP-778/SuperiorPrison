@@ -2,7 +2,8 @@ package com.bgsoftware.superiorprison.plugin.object.mine.shop;
 
 import com.bgsoftware.superiorprison.api.data.mine.shop.ShopItem;
 import com.google.gson.annotations.SerializedName;
-import com.oop.orangeengine.main.gson.GsonUpdateable;
+import com.oop.datamodule.SerializableObject;
+import com.oop.datamodule.SerializedData;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
@@ -11,7 +12,7 @@ import org.bukkit.inventory.ItemStack;
 
 @Setter
 @EqualsAndHashCode
-public class SShopItem implements ShopItem {
+public class SShopItem implements ShopItem, SerializableObject {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -27,10 +28,9 @@ public class SShopItem implements ShopItem {
     }
 
     @Getter
-    @SerializedName(value = "item")
     private ItemStack item;
 
-    @SerializedName(value = "sellPrice")
+    @Getter
     private double price;
 
     private SShopItem() {}
@@ -50,5 +50,17 @@ public class SShopItem implements ShopItem {
     @Override
     public double getPrice() {
         return price;
+    }
+
+    @Override
+    public void serialize(SerializedData serializedData) {
+        serializedData.write("item", item);
+        serializedData.write("price", price);
+    }
+
+    @Override
+    public void deserialize(SerializedData serializedData) {
+        this.item = serializedData.applyAs("item", ItemStack.class);
+        this.price = serializedData.applyAs("price", double.class);
     }
 }

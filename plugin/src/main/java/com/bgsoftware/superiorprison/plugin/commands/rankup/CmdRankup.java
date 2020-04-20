@@ -81,6 +81,8 @@ public class CmdRankup extends OCommand {
                 }
 
                 prisoner.addPrestige(next);
+                prisoner.removeRankIf(rank -> rank instanceof LadderRank);
+
                 prisoner.save(true);
 
                 messageBuilder(LocaleEnum.PRESTIGE_SUCCESSFUL.getWithPrefix())

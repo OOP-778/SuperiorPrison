@@ -1,15 +1,11 @@
 package com.bgsoftware.superiorprison.plugin.commands.prisoners.prestige;
 
 import com.bgsoftware.superiorprison.api.data.player.Prestige;
-import com.bgsoftware.superiorprison.api.data.player.rank.Rank;
 import com.bgsoftware.superiorprison.plugin.commands.args.PrestigesArg;
 import com.bgsoftware.superiorprison.plugin.commands.args.PrisonerArg;
-import com.bgsoftware.superiorprison.plugin.commands.args.RanksArg;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrestige;
-import com.bgsoftware.superiorprison.plugin.object.player.rank.SLadderRank;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
-import com.google.common.collect.ImmutableMap;
 import com.oop.orangeengine.command.OCommand;
 import com.oop.orangeengine.command.arg.arguments.BoolArg;
 

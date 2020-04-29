@@ -1,0 +1,64 @@
+title: "&e&l{mine_name} &8&l> &6Messages"
+
+templates:
+  - "message:M"
+
+actions:
+  - "message:E"
+  - "next page:N"
+  - "previous page:P"
+
+layout:
+  - "@ @ @ @ @ @ @ @ @"
+  - "# $ $ $ $ $ $ $ #"
+  - "# $ $ $ $ $ $ $ #"
+  - "@ @ P @ I @ N @ @"
+
+buttons:
+  "@":
+    material: gray_stained_glass_pane
+    display name: "&r"
+
+  "#":
+    material: orange_stained_glass_pane
+    display name: "&r"
+
+  "P":
+    shown:
+      material: arrow
+      display name: "&e<<"
+      lore:
+        - "&7Click to go to"
+        - "&7The previous page!"
+
+    hidden:
+      material: gray_stained_glass_pane
+      display name: "&r"
+
+  "N":
+    shown:
+      material: arrow
+      display name: "&e>>"
+      lore:
+        - "&7Click to go to"
+        - "&7The next page!"
+
+    hidden:
+      material: gray_stained_glass_pane
+      display name: "&r"
+
+  "I":
+    material: book
+    display name: "&eInfo"
+    lore:
+      - "&cSoon."
+
+  "M":
+    material: paper
+    display name: "&e#{message_id]"
+    lore:
+      - "&e&l* &7Type: &e{message_type}"
+      - "&e&l* &7Every: &e{message_every}"
+      - ""
+      - "&aLeft-Click to edit"
+      - "&cRight-Click to remove"

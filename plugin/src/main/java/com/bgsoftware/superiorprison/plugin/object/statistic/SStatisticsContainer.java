@@ -6,8 +6,6 @@ import com.bgsoftware.superiorprison.plugin.data.SStatisticHolder;
 import com.google.common.collect.Sets;
 import com.oop.datamodule.DataBody;
 import com.oop.datamodule.SerializedData;
-import com.oop.orangeengine.main.task.OTask;
-import com.oop.orangeengine.main.task.StaticTask;
 import lombok.Getter;
 
 import java.util.Set;
@@ -17,15 +15,15 @@ public class SStatisticsContainer implements StatisticsContainer, DataBody {
 
     @Getter
     private UUID uuid;
+    @Getter
+    private SBlocksStatistic blocksStatistic = new SBlocksStatistic();
 
-    private SStatisticsContainer() {}
+    private SStatisticsContainer() {
+    }
 
     public SStatisticsContainer(UUID uuid) {
         this.uuid = uuid;
     }
-
-    @Getter
-    private SBlocksStatistic blocksStatistic = new SBlocksStatistic();
 
     public Set<SStatistic> getAllStatistics() {
         return Sets.newHashSet(blocksStatistic);
@@ -50,11 +48,8 @@ public class SStatisticsContainer implements StatisticsContainer, DataBody {
     }
 
     @Override
-    public void remove(boolean b) {
-        new OTask()
-                .sync(!b)
-                .runnable(() -> SuperiorPrisonPlugin.getInstance().getDatabaseController().getStorage(SStatisticHolder.class).remove(this))
-                .execute();
+    public void remove() {
+        SuperiorPrisonPlugin.getInstance().getDatabaseController().getStorage(SStatisticHolder.class).remove(this);
     }
 
     @Override
@@ -71,7 +66,7 @@ public class SStatisticsContainer implements StatisticsContainer, DataBody {
     }
 
     @Override
-    public void save(boolean b) {
-        SuperiorPrisonPlugin.getInstance().getDatabaseController().getStorage(SStatisticHolder.class).save(this, b);
+    public void save(boolean b, Runnable runnable) {
+        SuperiorPrisonPlugin.getInstance().getDatabaseController().getStorage(SStatisticHolder.class).save(this, b, runnable);
     }
 }

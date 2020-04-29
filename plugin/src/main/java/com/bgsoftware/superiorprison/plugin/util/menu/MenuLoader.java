@@ -2,36 +2,38 @@ package com.bgsoftware.superiorprison.plugin.util.menu;
 
 import com.google.common.collect.Maps;
 import com.oop.orangeengine.item.ItemBuilder;
-import com.oop.orangeengine.yaml.ConfigurationSection;
-import com.oop.orangeengine.yaml.OConfiguration;
+import com.oop.orangeengine.yaml.Config;
+import com.oop.orangeengine.yaml.ConfigSection;
 import org.bukkit.ChatColor;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class MenuLoader {
 
-    public static void loadMenu(OMenu menu, OConfiguration configuration) {
-        menu.setTitle(ChatColor.translateAlternateColorCodes('&', configuration.getValueAsReq("title")));
+    public static void loadMenu(OMenu menu, Config config) {
+        menu.setTitle(ChatColor.translateAlternateColorCodes('&', config.getAs("title")));
 
-        List<String> layout = configuration.getValueAsReq("layout", List.class);
+        List<String> layout = config.getAs("layout", List.class);
         menu.setMenuRows(layout.size());
 
         Map<Character, String> charToActionMap = Maps.newHashMap();
-        if (configuration.hasValue("actions")) {
-            for (String action : (List<String>) configuration.getValueAsReq("actions")) {
+        if (config.isValuePresent("actions")) {
+            for (String action : (List<String>) config.getAs("actions")) {
                 String[] split = action.split(":");
                 charToActionMap.put(split[1].charAt(0), split[0]);
             }
         }
 
         if (menu instanceof OMenu.Placeholderable)
-            ((OMenu.Placeholderable) menu).initPlaceholderable(configuration);
+            ((OMenu.Placeholderable) menu).initPlaceholderable(config);
 
         if (menu instanceof OMenu.Templateable)
-            ((OMenu.Templateable) menu).initTemplateable(configuration);
+            ((OMenu.Templateable) menu).initTemplateable(config);
 
-        ConfigurationSection buttonsSection = configuration.getSection("buttons");
+        ConfigSection buttonsSection = config.getSection("buttons").get();
         for (int a = 0; a < layout.size(); a++) {
             String row = layout.get(a);
             int slot = a * 9;
@@ -40,11 +42,13 @@ public class MenuLoader {
                 char ch = row.charAt(b);
                 if (ch == ' ') continue;
 
-                ConfigurationSection section = buttonsSection.getSection(ch + "");
-                if (section == null) {
+                Optional<ConfigSection> optSection = buttonsSection.getSection(ch + "");
+                if (!optSection.isPresent()) {
                     slot++;
                     continue;
                 }
+
+                ConfigSection section = optSection.get();
 
                 OMenuButton button = initButton(section);
                 String action = charToActionMap.get(ch);
@@ -64,7 +68,7 @@ public class MenuLoader {
         }
 
         // For templates
-        for (ConfigurationSection buttonSection : buttonsSection.getSections().values()) {
+        for (ConfigSection buttonSection : buttonsSection.getSections().values()) {
             Character ch = buttonSection.getKey().charAt(0);
             if (menu instanceof OMenu.Templateable && ((OMenu.Templateable) menu).containsTemplate(ch + "")) {
                 OMenuButton button = initButton(buttonSection);
@@ -75,21 +79,22 @@ public class MenuLoader {
             }
         }
 
-        ConfigurationSection actions = configuration.getSection("actions");
-        if (actions == null) return;
+        Optional<ConfigSection> actions = config.getSection("actions");
+        if (!actions.isPresent()) return;
 
-        actions.getValues().forEach((k, v) -> menu.buttonOfChar(v.getValueAsReq(String.class).charAt(0)).ifPresent(button -> button.action(v.getKey())));
+        actions.get().getValues().forEach((k, v) -> menu.buttonOfChar(v.getAs(String.class).charAt(0)).ifPresent(button -> button.action(v.getKey())));
     }
 
-    private static OMenuButton initButton(ConfigurationSection section) {
+    private static OMenuButton initButton(ConfigSection section) {
         OMenuButton button = new OMenuButton(section.getKey().charAt(0));
         section.ifValuePresent("permission", String.class, button::requiredPermission);
 
-        if (section.isPresentValue("material"))
+        if (section.isValuePresent("material"))
             button.addState("default", new OMenuButton.ButtonItemBuilder(ItemBuilder.fromConfiguration(section)));
 
-        for (ConfigurationSection stateSection : section.getSections().values())
+        for (ConfigSection stateSection : section.getSections().values()) {
             button.addState(stateSection.getKey(), new OMenuButton.ButtonItemBuilder(ItemBuilder.fromConfiguration(stateSection)));
+        }
 
         return button;
     }

@@ -3,8 +3,8 @@ package com.bgsoftware.superiorprison.plugin.menu.access;
 import com.bgsoftware.superiorprison.api.data.player.Prestige;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
-import com.bgsoftware.superiorprison.plugin.object.player.rank.SLadderRank;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
+import com.bgsoftware.superiorprison.plugin.object.player.rank.SLadderRank;
 import com.bgsoftware.superiorprison.plugin.object.player.rank.SRank;
 import com.bgsoftware.superiorprison.plugin.util.menu.ClickHandler;
 import com.bgsoftware.superiorprison.plugin.util.menu.OMenu;
@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class FindAccessMenu extends AccessMenu {
     private SNormalMine mine;

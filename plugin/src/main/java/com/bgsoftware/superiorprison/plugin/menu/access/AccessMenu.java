@@ -2,9 +2,8 @@ package com.bgsoftware.superiorprison.plugin.menu.access;
 
 import com.bgsoftware.superiorprison.api.data.player.Prestige;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
-import com.bgsoftware.superiorprison.plugin.object.player.rank.SLadderRank;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
-import com.bgsoftware.superiorprison.plugin.object.player.rank.SRank;
+import com.bgsoftware.superiorprison.plugin.object.player.rank.SLadderRank;
 import com.bgsoftware.superiorprison.plugin.object.player.rank.SSpecialRank;
 import com.bgsoftware.superiorprison.plugin.util.menu.ClickHandler;
 import com.bgsoftware.superiorprison.plugin.util.menu.OMenu;

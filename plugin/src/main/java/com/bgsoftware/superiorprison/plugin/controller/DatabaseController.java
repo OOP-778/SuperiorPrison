@@ -4,10 +4,11 @@ import com.bgsoftware.superiorprison.plugin.config.main.MainConfig;
 import com.bgsoftware.superiorprison.plugin.data.SMineHolder;
 import com.bgsoftware.superiorprison.plugin.data.SPrisonerHolder;
 import com.bgsoftware.superiorprison.plugin.data.SStatisticHolder;
-import com.google.gson.*;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
 import com.oop.datamodule.DataHelper;
 import com.oop.datamodule.StorageController;
-import com.oop.orangeengine.main.gson.ItemStackAdapter;
 import com.oop.orangeengine.main.task.StaticTask;
 import com.oop.orangeengine.nbt.NBTContainer;
 import com.oop.orangeengine.nbt.NBTItem;
@@ -15,11 +16,8 @@ import lombok.Getter;
 import lombok.NonNull;
 import org.bukkit.inventory.ItemStack;
 
-import java.lang.reflect.Type;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static com.oop.orangeengine.main.Engine.getEngine;
 
 @Getter
 public class DatabaseController extends StorageController {
@@ -64,8 +62,8 @@ public class DatabaseController extends StorageController {
         Matcher matcher = UNICODE_PATTERN.matcher(text);
         StringBuffer decodedMessage = new StringBuffer();
 
-        while(matcher.find()) {
-            matcher.appendReplacement(decodedMessage, String.valueOf((char)Integer.parseInt(matcher.group(1), 16)));
+        while (matcher.find()) {
+            matcher.appendReplacement(decodedMessage, String.valueOf((char) Integer.parseInt(matcher.group(1), 16)));
         }
 
         matcher.appendTail(decodedMessage);

@@ -1,6 +1,9 @@
 package com.bgsoftware.superiorprison.plugin.util;
 
-import java.time.*;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -13,7 +16,8 @@ public class TimeUtil {
         long seconds = 0;
         try {
             return Long.parseLong(string);
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
 
         List<String> characters = Arrays.stream(string.split("\\d")).filter(s -> !s.isEmpty()).collect(Collectors.toList());
         List<String> numbers = Arrays.asList(string.split("\\D"));
@@ -50,6 +54,19 @@ public class TimeUtil {
         return ZonedDateTime.ofInstant(Instant.ofEpochSecond(epochSeconds), ZoneId.systemDefault());
     }
 
+    public static String toString(long seconds) {
+        long[] longs = calculateTime(seconds);
+        List<String> times = new ArrayList<>();
+        times.add(longs[0] + "s");
+        times.add(longs[1] + "m");
+        times.add(longs[2] + "h");
+        times.add(longs[3] + "d");
+        Collections.reverse(times);
+
+        times.removeIf(time -> time.startsWith("0"));
+        return String.join(", ", times);
+    }
+
     public static String leftToString(ZonedDateTime date) {
         return leftToString(date, false);
     }
@@ -64,16 +81,7 @@ public class TimeUtil {
         else
             between = Duration.between(getDate(), date);
 
-        long[] longs = calculateTime(between.getSeconds());
-        List<String> times = new ArrayList<>();
-        times.add(longs[0] + "s");
-        times.add(longs[1] + "m");
-        times.add(longs[2] + "h");
-        times.add(longs[3] + "d");
-        Collections.reverse(times);
-
-        times.removeIf(time -> time.startsWith("0"));
-        return String.join(", ", times);
+        return toString(between.getSeconds());
     }
 
     public static long[] calculateTime(long seconds) {

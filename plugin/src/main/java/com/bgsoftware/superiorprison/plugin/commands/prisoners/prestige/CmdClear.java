@@ -1,18 +1,9 @@
 package com.bgsoftware.superiorprison.plugin.commands.prisoners.prestige;
 
-import com.bgsoftware.superiorprison.api.data.player.rank.Rank;
-import com.bgsoftware.superiorprison.plugin.commands.args.ClearTypeArg;
 import com.bgsoftware.superiorprison.plugin.commands.args.PrisonerArg;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
-import com.bgsoftware.superiorprison.plugin.object.player.rank.SLadderRank;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
-import com.bgsoftware.superiorprison.plugin.object.player.rank.SSpecialRank;
-import com.google.common.collect.ImmutableMap;
 import com.oop.orangeengine.command.OCommand;
-import org.bukkit.entity.Player;
-
-import java.util.Optional;
-import java.util.function.Predicate;
 
 import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
 

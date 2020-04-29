@@ -9,11 +9,12 @@ import com.oop.orangeengine.material.OMaterial;
 import org.bukkit.inventory.Inventory;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public abstract class OPagedMenu<T> extends OMenu {
 
-    private Map<Integer, T> items = Maps.newConcurrentMap();
-    private Map<Integer, OMenuButton> buttons = Maps.newConcurrentMap();
+    private Map<Integer, T> items = new HashMap<>();
+    private Map<Integer, OMenuButton> buttons = new HashMap<>();
     private List<Integer> emptySlots = new ArrayList<>();
 
     private int currentPage = 1;
@@ -48,8 +49,13 @@ public abstract class OPagedMenu<T> extends OMenu {
 
     @Override
     public Inventory getInventory() {
-        Inventory inventory = buildInventory(getTitle().replace("{current_page}", currentPage + "").replace("{pages_available}", getPages() + ""), getViewer());
+        items.clear();
+        buttons.clear();
 
+        if (emptySlots.isEmpty())
+            emptySlots = getEmptySlots();
+
+        Inventory inventory = buildInventory(getTitle().replace("{current_page}", currentPage + "").replace("{pages_available}", getPages() + ""), getViewer());
         List<T> allItems = requestObjects();
         if (allItems.isEmpty()) {
             buttonOf(button -> button.action().contentEquals("next page")).ifPresent(button -> {
@@ -63,18 +69,16 @@ public abstract class OPagedMenu<T> extends OMenu {
 
                 inventory.setItem(button.slot(), button.currentItem(button.getStateItem("hidden").getItemStackWithPlaceholdersMulti(getViewer())).currentItem());
             });
-
-
             return inventory;
         }
 
-        items.clear();
-        emptySlots = getEmptySlots();
         for (int i = 0; i < emptySlots.size(); i++) {
             int objectIndex = i + (emptySlots.size() * (currentPage - 1));
             if (objectIndex >= allItems.size()) break;
 
             Optional<OMenuButton> pagedButton = Optional.ofNullable(toButton(allItems.get(objectIndex)));
+            System.out.println("slot: " + emptySlots.get(i) + ", available?: " + pagedButton.isPresent() + ", obj: " + allItems.get(objectIndex));
+
             if (pagedButton.isPresent()) {
                 pagedButton.get().slot(emptySlots.get(i));
                 inventory.setItem(pagedButton.get().slot(), pagedButton.get().currentItem());
@@ -116,11 +120,11 @@ public abstract class OPagedMenu<T> extends OMenu {
     }
 
     private int getPages() {
-        double pagesNotRounded = (float) requestObjects().size() / getEmptySlots().size();
+        double pagesNotRounded = (float) requestObjects().size() / emptySlots.size();
         String split[] = String.valueOf(pagesNotRounded).split("\\.");
         int pages = (int) pagesNotRounded;
 
-        if (Integer.parseInt(String.valueOf(split[1].toCharArray()[0])) > 0)
+        if (split.length == 2 && Integer.parseInt(String.valueOf(split[1].toCharArray()[0])) > 0)
             pages = pages + 1;
 
         if (pages == 0)
@@ -143,6 +147,7 @@ public abstract class OPagedMenu<T> extends OMenu {
     public List<Integer> getEmptySlots() {
         List<Integer> emptySlots = Lists.newArrayList();
         Set<Integer> usedSlots = Sets.newHashSet();
+
         if (this instanceof Placeholderable)
             getFillerItems().forEach((slot, button) -> {
                 if (((Placeholderable) this).containsPlaceholder(button.identifier() + ""))
@@ -153,9 +158,11 @@ public abstract class OPagedMenu<T> extends OMenu {
         else
             usedSlots.addAll(getFillerItems().keySet());
 
-        for (int slot = 0; slot < (getMenuRows() * 9); slot++)
+        usedSlots.addAll(buttons.keySet());
+        for (int slot = 0; slot < (getMenuRows() * 9); slot++) {
             if (!usedSlots.contains(slot))
                 emptySlots.add(slot);
+        }
 
         return emptySlots;
     }

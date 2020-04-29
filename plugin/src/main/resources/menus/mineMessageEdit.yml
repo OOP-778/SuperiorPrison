@@ -1,0 +1,38 @@
+title: "&e&l{mine_name} &8&l> &6Message: #{message_id}"
+
+actions:
+  - "every:E"
+  - "content:C"
+
+layout:
+  - "@ @ @ @ @ @ @ @ @"
+  - "# $ C $ M $ E $ #"
+  - "@ @ @ @ @ @ @ @ @"
+
+buttons:
+  "@":
+    material: gray_stained_glass_pane
+    display name: "&r"
+
+  "#":
+    material: orange_stained_glass_pane
+    display name: "&r"
+
+  "M":
+    material: paper
+    display name: "&eMessage #{message_id}"
+    lore:
+      - "&e&l* &7Type: &e{message_type}"
+      - "&e&l* &7Every: &e{message_every}"
+
+  "C":
+    material: book
+    display name: "&eContent"
+    lore:
+      - "&e&l* &7Click to edit"
+
+  "T":
+    material: clock
+    display name: "&eEvery"
+    lore:
+      - "&e&l* &7Click to edit"

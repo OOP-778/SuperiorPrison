@@ -10,11 +10,10 @@ import com.bgsoftware.superiorprison.plugin.menu.access.AccessObject;
 import com.bgsoftware.superiorprison.plugin.menu.access.SortMethod;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.mine.area.SArea;
+import com.bgsoftware.superiorprison.plugin.object.mine.messages.SMineMessage;
 import com.bgsoftware.superiorprison.plugin.object.mine.shop.SShopItem;
-import com.bgsoftware.superiorprison.plugin.object.player.Access;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.object.player.booster.SBooster;
-import com.bgsoftware.superiorprison.plugin.object.player.rank.SRank;
 import com.bgsoftware.superiorprison.plugin.util.TextUtil;
 import com.bgsoftware.superiorprison.plugin.util.TimeUtil;
 import com.google.common.collect.Maps;
@@ -32,7 +31,8 @@ import static com.bgsoftware.superiorprison.plugin.util.TextUtil.beautifyDouble;
 
 public class PlaceholderController {
 
-    private Map<Class<?>, Set<OPair<String, Function<?, String>>>> placeholders = Maps.newHashMap();
+    private Map<Class<?>, Set<OPair<String, Function<Object, String>>>> placeholders = Maps.newHashMap();
+
     public PlaceholderController() {
         add(SNormalMine.class, "{mine_name}", SNormalMine::getName);
         add(SNormalMine.class, "{mine_prisoners_count}", mine -> mine.getPrisoners().size());
@@ -79,11 +79,16 @@ public class PlaceholderController {
         add(RequirementException.class, "{requirement_type}", ex -> TextUtil.beautify(ex.getData().getType()));
         add(RequirementException.class, "{requirement_current}", ex -> TextUtil.beautify(ex.getCurrentValue()));
         add(RequirementException.class, "{requirement_expected}", ex -> TextUtil.beautify(ex.getRequired()));
+
+        add(SMineMessage.class, "{message_type}", message -> Helper.beautify(message.getType()));
+        add(SMineMessage.class, "{message_id}", SMineMessage::getId);
+        add(SMineMessage.class, "{message_every}", message -> TimeUtil.toString(message.getEvery()));
     }
 
     private <T> void add(Class<T> type, String placeholder, Function<T, Object> handler) {
-        Set<OPair<String, Function<?, String>>> oPairs = placeholders.computeIfAbsent(type, (clazz) -> Sets.newHashSet());
-        oPairs.add(new OPair(placeholder, handler));
+        Set<OPair<String, Function<Object, String>>> oPairs = placeholders.computeIfAbsent(type, (clazz) -> Sets.newHashSet());
+        OPair<String, Function<Object, String>> pair = new OPair<>(placeholder, object -> handler.apply((T) object).toString());
+        oPairs.add(pair);
     }
 
     public String parse(String text, Object object) {

@@ -1,6 +1,5 @@
 package com.bgsoftware.superiorprison.plugin.commands.mines;
 
-import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.commands.args.MinesArg;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
@@ -14,7 +13,7 @@ public class CmdDelete extends OCommand {
         argument(new MinesArg().setRequired(true));
         onCommand(command -> {
             SNormalMine mine = (SNormalMine) command.getArg("mine").get();
-            mine.remove(true);
+            mine.remove();
 
             messageBuilder(LocaleEnum.MINE_DELETE_SUCCESSFUL.getWithPrefix())
                     .replace(mine)

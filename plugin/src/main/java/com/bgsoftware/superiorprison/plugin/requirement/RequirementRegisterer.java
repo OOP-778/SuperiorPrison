@@ -13,6 +13,7 @@ import java.util.Set;
 public class RequirementRegisterer {
 
     private Set<Requirement> reqs = Sets.newHashSet();
+
     public RequirementRegisterer() {
         add(new XpLevelRequirement(), new XpRequirement(), new RankRequirement());
         SuperiorPrisonPlugin.getInstance().getHookController().executeIfFound(() -> PapiHook.class, () -> add(new PapiRequirement()));

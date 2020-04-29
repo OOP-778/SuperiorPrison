@@ -1,0 +1,57 @@
+title: "&e&l{mine_name} &8&l> &6Effects"
+
+templates:
+  - "effect:E"
+
+actions:
+  - "effect:E"
+  - "next page:N"
+  - "previous page:P"
+
+layout:
+  - "@ @ @ @ @ @ @ @ @"
+  - "# $ $ $ $ $ $ $ #"
+  - "# $ $ $ $ $ $ $ #"
+  - "@ @ P @ @ @ N @ @"
+
+buttons:
+  "@":
+    material: gray_stained_glass_pane
+    display name: "&r"
+
+  "#":
+    material: orange_stained_glass_pane
+    display name: "&r"
+
+  "P":
+    shown:
+      material: arrow
+      display name: "&e<<"
+      lore:
+        - "&7Click to go to"
+        - "&7The previous page!"
+
+    hidden:
+      material: gray_stained_glass_pane
+      display name: "&r"
+
+  "N":
+    shown:
+      material: arrow
+      display name: "&e>>"
+      lore:
+        - "&7Click to go to"
+        - "&7The next page!"
+
+    hidden:
+      material: gray_stained_glass_pane
+      display name: "&r"
+
+  "E":
+    display name: "&e{potion_type}"
+    material: potion
+    lore:
+      - "&e&l* &7Amplifier: &e{potion_amplifier}"
+      - ""
+      - "&aLeft-Click to increase"
+      - "&cRight-Click to decrease"

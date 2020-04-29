@@ -1,7 +1,6 @@
 package com.bgsoftware.superiorprison.plugin.object.mine.shop;
 
 import com.bgsoftware.superiorprison.api.data.mine.shop.ShopItem;
-import com.google.gson.annotations.SerializedName;
 import com.oop.datamodule.SerializableObject;
 import com.oop.datamodule.SerializedData;
 import lombok.EqualsAndHashCode;
@@ -13,6 +12,26 @@ import org.bukkit.inventory.ItemStack;
 @Setter
 @EqualsAndHashCode
 public class SShopItem implements ShopItem, SerializableObject {
+    @Getter
+    private ItemStack item;
+    @Getter
+    private double price;
+
+    private SShopItem() {
+    }
+
+    protected SShopItem(@NonNull ItemStack item, double price) {
+        this.item = item;
+        this.price = price;
+    }
+
+    public static SShopItem from(SShopItem from) {
+        SShopItem item = new SShopItem();
+        item.setItem(from.getItem().clone());
+        item.setPrice(from.getPrice());
+        return item;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -25,26 +44,6 @@ public class SShopItem implements ShopItem, SerializableObject {
     @Override
     public int hashCode() {
         return item.hashCode();
-    }
-
-    @Getter
-    private ItemStack item;
-
-    @Getter
-    private double price;
-
-    private SShopItem() {}
-
-    protected SShopItem(@NonNull ItemStack item, double price) {
-        this.item = item;
-        this.price = price;
-    }
-
-    public static SShopItem from(SShopItem from) {
-        SShopItem item = new SShopItem();
-        item.setItem(from.getItem().clone());
-        item.setPrice(from.getPrice());
-        return item;
     }
 
     @Override

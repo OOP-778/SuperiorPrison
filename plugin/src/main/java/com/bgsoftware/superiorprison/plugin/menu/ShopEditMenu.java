@@ -32,6 +32,7 @@ import static com.bgsoftware.superiorprison.plugin.util.TextUtil.beautifyDouble;
 public class ShopEditMenu extends OPagedMenu<SShopItem> implements OMenu.Templateable {
 
     private SNormalMine mine;
+
     public ShopEditMenu(SPrisoner viewer, SNormalMine mine) {
         super("shopEdit", viewer);
         this.mine = mine;
@@ -57,7 +58,7 @@ public class ShopEditMenu extends OPagedMenu<SShopItem> implements OMenu.Templat
                                     chatEvent.setCancelled(true);
 
                                     shopItem.setPrice(price);
-                                    LocaleEnum.EDIT_SHOP_PRICE_SET.getWithPrefix().send((Player) event.getWhoClicked(), ImmutableMap.of("{item_name}", TextUtil.beautifyName(shopItem.getItem()), "{item_price}", beautifyDouble(shopItem.getPrice())));
+                                    LocaleEnum.EDIT_SHOP_PRICE_SET.getWithPrefix().send(ImmutableMap.of("{item_name}", TextUtil.beautifyName(shopItem.getItem()), "{item_price}", beautifyDouble(shopItem.getPrice())), (Player) event.getWhoClicked());
 
                                     // Update
                                     mine.save(true);

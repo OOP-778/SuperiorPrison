@@ -18,12 +18,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import static com.bgsoftware.superiorprison.plugin.util.TextUtil.replaceList;
 import static com.bgsoftware.superiorprison.plugin.util.TextUtil.replaceText;
-import static com.oop.orangeengine.main.Engine.getEngine;
 
 @Getter
 @Accessors(fluent = true, chain = true)
@@ -94,7 +92,8 @@ public class OMenuButton implements Cloneable {
             this.itemBuilder = itemBuilder;
         }
 
-        protected ButtonItemBuilder() {}
+        protected ButtonItemBuilder() {
+        }
 
         public <T> ItemStack getItemStackWithPlaceholders(T object) {
             if (getItemStack().getType() == Material.AIR) return getItemStack();
@@ -131,6 +130,18 @@ public class OMenuButton implements Cloneable {
                 clone.setLore(replaceList(object, clone.getLore(), placeholdersFor));
                 clone.setDisplayName(replaceText(object, clone.getDisplayName(), placeholdersFor));
             }
+
+            return clone.getItemStack();
+        }
+
+        public ItemStack getItemStackWithPlaceholders(Map<String, Object> placeholders) {
+            if (getItemStack().getType() == Material.AIR) return getItemStack();
+
+            ItemBuilder clone = itemBuilder.clone();
+            placeholders.forEach((key, value) -> {
+                clone.replaceDisplayName(key, value.toString());
+                clone.replaceInLore(key, value.toString());
+            });
 
             return clone.getItemStack();
         }

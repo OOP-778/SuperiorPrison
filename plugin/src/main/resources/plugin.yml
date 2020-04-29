@@ -7,3 +7,4 @@ depend:
 softdepend:
   - Multiverse
   - PlaceholderAPI
+  - Essentials

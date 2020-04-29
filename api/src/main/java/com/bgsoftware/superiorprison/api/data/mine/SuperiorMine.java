@@ -2,6 +2,8 @@ package com.bgsoftware.superiorprison.api.data.mine;
 
 import com.bgsoftware.superiorprison.api.data.mine.area.Area;
 import com.bgsoftware.superiorprison.api.data.mine.area.AreaEnum;
+import com.bgsoftware.superiorprison.api.data.mine.effects.MineEffect;
+import com.bgsoftware.superiorprison.api.data.mine.effects.MineEffects;
 import com.bgsoftware.superiorprison.api.data.mine.settings.MineSettings;
 import com.bgsoftware.superiorprison.api.data.mine.shop.MineShop;
 import com.bgsoftware.superiorprison.api.data.mine.sign.Sign;
@@ -87,6 +89,8 @@ public interface SuperiorMine {
     Get settings of the mine
     */
     MineSettings getSettings();
+
+    MineEffects getEffects();
 
     /*
     Get area type at an location

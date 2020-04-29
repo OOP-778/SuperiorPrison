@@ -1,6 +1,5 @@
 package com.bgsoftware.superiorprison.plugin.commands.prisoners.ranks;
 
-import com.bgsoftware.superiorprison.api.data.player.Prestige;
 import com.bgsoftware.superiorprison.api.data.player.rank.LadderRank;
 import com.bgsoftware.superiorprison.api.data.player.rank.Rank;
 import com.bgsoftware.superiorprison.plugin.commands.args.PrisonerArg;

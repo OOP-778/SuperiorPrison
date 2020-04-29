@@ -7,7 +7,6 @@ import com.bgsoftware.superiorprison.api.data.player.Prestige;
 import com.bgsoftware.superiorprison.api.data.player.rank.LadderRank;
 import com.bgsoftware.superiorprison.api.data.player.rank.Rank;
 import com.bgsoftware.superiorprison.api.util.Pair;
-import com.bgsoftware.superiorprison.plugin.util.SPLocation;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.hook.SHook;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
@@ -51,6 +50,43 @@ public class PapiHook extends SHook {
 
     public List<String> parse(OfflinePlayer player, List<String> lore) {
         return PlaceholderAPI.setPlaceholders(player, lore);
+    }
+
+    private String[] cutArray(String[] array, int amount) {
+        if (array.length <= amount)
+            return new String[0];
+        else
+            return Arrays.copyOfRange(array, amount, array.length);
+    }
+
+    public String getFromLocation(Location location, String identifier) {
+        if (identifier.equalsIgnoreCase("world"))
+            return location.getWorld().getName();
+
+        else if (identifier.equalsIgnoreCase("x"))
+            return location.getBlockX() + "";
+
+        else if (identifier.equalsIgnoreCase("y"))
+            return location.getBlockY() + "";
+
+        else if (identifier.equalsIgnoreCase("z"))
+            return location.getBlockZ() + "";
+
+        else
+            return "invalid identifier";
+    }
+
+    public String getFromAccess(Object object, String identifier) {
+        if (identifier == null)
+            return object instanceof Rank ? ((Rank) object).getName() : ((Prestige) object).getName();
+
+        if (identifier.equalsIgnoreCase("prefix"))
+            return object instanceof Rank ? ((Rank) object).getPrefix() : ((Prestige) object).getPrefix();
+
+        if (identifier.equalsIgnoreCase("order"))
+            return object instanceof LadderRank ? ((LadderRank) object).getOrder() + "" : ((Prestige) object).getOrder() + "";
+
+        return "invalid identifier";
     }
 
     public class Expansion extends PlaceholderExpansion {
@@ -131,8 +167,7 @@ public class PapiHook extends SHook {
 
                             else
                                 return obj.getName();
-                        }
-                        else
+                        } else
                             return getFromAccess(currentLadderRank, split[3]);
 
                     } else
@@ -208,9 +243,7 @@ public class PapiHook extends SHook {
                         else if (split[3].equalsIgnoreCase("percentage")) {
                             if (resetSettings.isTimed()) return "none";
                             return resetSettings.asPercentage().getRequiredPercentage() + "";
-                        }
-
-                        else if (split[3].equalsIgnoreCase("timeleft")) {
+                        } else if (split[3].equalsIgnoreCase("timeleft")) {
                             if (!resetSettings.isTimed()) return "none";
                             return TimeUtil.leftToString(resetSettings.asTimed().getResetDate());
 
@@ -228,7 +261,7 @@ public class PapiHook extends SHook {
         private String[] addToArray(String[] split, int index, String s) {
             String[] newArray = new String[split.length + 1];
             boolean found = false;
-            for (int i = 0; i < split.length+1; i++) {
+            for (int i = 0; i < split.length + 1; i++) {
                 if (i == index) {
                     found = true;
                     newArray[i] = s;
@@ -236,48 +269,11 @@ public class PapiHook extends SHook {
                     if (!found)
                         newArray[i] = split[i];
                     else
-                        newArray[i] = split[i-1];
+                        newArray[i] = split[i - 1];
                 }
             }
 
             return newArray;
         }
-    }
-
-    private String[] cutArray(String[] array, int amount) {
-        if (array.length <= amount)
-            return new String[0];
-        else
-            return Arrays.copyOfRange(array, amount, array.length);
-    }
-
-    public String getFromLocation(Location location, String identifier) {
-        if (identifier.equalsIgnoreCase("world"))
-            return location.getWorld().getName();
-
-        else if (identifier.equalsIgnoreCase("x"))
-            return location.getBlockX() + "";
-
-        else if (identifier.equalsIgnoreCase("y"))
-            return location.getBlockY() + "";
-
-        else if (identifier.equalsIgnoreCase("z"))
-            return location.getBlockZ() + "";
-
-        else
-            return "invalid identifier";
-    }
-
-    public String getFromAccess(Object object, String identifier) {
-        if (identifier == null)
-            return object instanceof Rank ? ((Rank) object).getName() : ((Prestige)object).getName();
-
-        if (identifier.equalsIgnoreCase("prefix"))
-            return object instanceof Rank ? ((Rank) object).getPrefix() : ((Prestige)object).getPrefix();
-
-        if (identifier.equalsIgnoreCase("order"))
-            return object instanceof LadderRank ? ((LadderRank) object).getOrder() + "" : ((Prestige)object).getOrder() + "";
-
-        return "invalid identifier";
     }
 }

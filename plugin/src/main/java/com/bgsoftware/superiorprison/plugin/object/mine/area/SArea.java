@@ -3,9 +3,9 @@ package com.bgsoftware.superiorprison.plugin.object.mine.area;
 import com.bgsoftware.superiorprison.api.data.mine.area.Area;
 import com.bgsoftware.superiorprison.api.data.mine.area.AreaEnum;
 import com.bgsoftware.superiorprison.api.data.mine.flags.Flag;
-import com.bgsoftware.superiorprison.plugin.util.SPLocation;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.util.Attachable;
+import com.bgsoftware.superiorprison.plugin.util.SPLocation;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonElement;
 import com.oop.datamodule.SerializableObject;
@@ -31,7 +31,8 @@ public class SArea implements Area, Attachable<SNormalMine>, SerializableObject 
     private Map<Flag, Boolean> flags = Maps.newConcurrentMap();
     private AreaEnum type;
 
-    private SArea() {}
+    private SArea() {
+    }
 
     public SArea(SPLocation pos1, SPLocation pos2, AreaEnum type) {
         if (pos1.y() > pos2.y()) {

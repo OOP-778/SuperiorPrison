@@ -1,7 +1,6 @@
 package com.bgsoftware.superiorprison.plugin.object.mine.settings;
 
 import com.bgsoftware.superiorprison.api.data.mine.settings.ResetSettings;
-import com.bgsoftware.superiorprison.plugin.object.mine.settings.SResetSettings.STimed;
 import com.bgsoftware.superiorprison.plugin.util.TimeUtil;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
@@ -49,7 +48,8 @@ public class SResetSettings {
         @Setter
         private transient ZonedDateTime resetDate;
 
-        private STimed() {}
+        private STimed() {
+        }
 
         public STimed(long interval) {
             this.interval = interval;

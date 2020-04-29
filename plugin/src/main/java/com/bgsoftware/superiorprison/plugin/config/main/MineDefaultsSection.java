@@ -4,7 +4,7 @@ import com.bgsoftware.superiorprison.api.data.mine.settings.ResetSettings;
 import com.oop.orangeengine.item.custom.OItem;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.material.OMaterial;
-import com.oop.orangeengine.yaml.ConfigurationSection;
+import com.oop.orangeengine.yaml.ConfigSection;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -22,20 +22,20 @@ public class MineDefaultsSection {
 
     private List<OPair<OMaterial, Double>> shopPrices;
 
-    MineDefaultsSection(ConfigurationSection section) {
-        this.icon = new OItem().load(section.getSection("icon"));
-        this.limit = section.getValueAsReq("limit");
+    MineDefaultsSection(ConfigSection section) {
+        this.icon = new OItem().load(section.getSection("icon").get());
+        this.limit = section.getAs("limit");
 
-        ConfigurationSection resettingSection = section.getSection("resetting");
-        this.resetting.set(ResetSettings.Type.valueOf(resettingSection.getValueAsReq("mode", String.class).toUpperCase()), resettingSection.getValueAsReq("value"));
+        ConfigSection resettingSection = section.getSection("resetting").get();
+        this.resetting.set(ResetSettings.Type.valueOf(resettingSection.getAs("mode", String.class).toUpperCase()), resettingSection.getAs("value"));
 
-        this.materials = ((List<String>) section.getValueAsReq("materials"))
+        this.materials = ((List<String>) section.getAs("materials"))
                 .stream()
                 .map(string -> string.split(":"))
                 .map(array -> new OPair<>(Double.parseDouble(array[1]), OMaterial.matchMaterial(array[0])))
                 .collect(Collectors.toList());
 
-        this.shopPrices = !section.hasValue("shop items") ? new ArrayList<>() : ((List<String>) section.getValueAsReq("shop items"))
+        this.shopPrices = !section.isValuePresent("shop items") ? new ArrayList<>() : ((List<String>) section.getAs("shop items"))
                 .stream()
                 .map(string -> string.split(":"))
                 .map(array -> new OPair<>(OMaterial.matchMaterial(array[0].toUpperCase()), Double.parseDouble(array[1])))

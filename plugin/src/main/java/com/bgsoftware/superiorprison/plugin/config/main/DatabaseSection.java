@@ -4,7 +4,7 @@ import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.oop.datamodule.database.DatabaseWrapper;
 import com.oop.datamodule.database.types.MySqlDatabase;
 import com.oop.datamodule.database.types.SqlLiteDatabase;
-import com.oop.orangeengine.yaml.ConfigurationSection;
+import com.oop.orangeengine.yaml.ConfigSection;
 import lombok.Getter;
 
 @Getter
@@ -17,8 +17,8 @@ public class DatabaseSection {
     private String username = "root";
     private String password;
 
-    DatabaseSection(ConfigurationSection section) {
-        this.type = section.getValueAsReq("type");
+    DatabaseSection(ConfigSection section) {
+        this.type = section.getAs("type");
 
         section.ifValuePresent("database", String.class, database -> this.database = database);
         section.ifValuePresent("hostname", String.class, hostname -> this.hostname = hostname);

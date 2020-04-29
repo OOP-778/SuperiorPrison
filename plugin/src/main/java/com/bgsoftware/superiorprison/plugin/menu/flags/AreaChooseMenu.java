@@ -14,6 +14,7 @@ import java.util.Optional;
 
 public class AreaChooseMenu extends OPagedMenu<SArea> implements OMenu.Templateable {
     private SNormalMine mine;
+
     public AreaChooseMenu(SPrisoner viewer, SNormalMine mine) {
         super("mineAreaChoose", viewer);
         this.mine = mine;

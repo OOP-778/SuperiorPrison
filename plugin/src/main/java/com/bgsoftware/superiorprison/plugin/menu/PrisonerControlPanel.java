@@ -6,9 +6,6 @@ import com.bgsoftware.superiorprison.plugin.util.menu.ButtonClickEvent;
 import com.bgsoftware.superiorprison.plugin.util.menu.ClickHandler;
 import com.bgsoftware.superiorprison.plugin.util.menu.OMenu;
 import com.bgsoftware.superiorprison.plugin.util.menu.OMenuButton;
-import com.oop.orangeengine.main.Helper;
-
-import java.util.Locale;
 
 import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
 

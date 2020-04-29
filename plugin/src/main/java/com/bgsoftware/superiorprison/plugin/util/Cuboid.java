@@ -73,9 +73,9 @@ public class Cuboid {
         double cuboidHighZ = maximumPoint.getZ();
 
         return
-                cuboidMinX >= location.getX() && cuboidHighX <= location.getX() &&
-                (!withY || cuboidMinY >= location.getY() && cuboidHighY <= location.getY()) ||
-                cuboidMinZ >= location.getZ() && cuboidHighZ <= location.getZ();
+                cuboidMinX <= location.getX() && cuboidHighX >= location.getX() &&
+                        (!withY || cuboidMinY <= location.getY() && cuboidHighY >= location.getY()) &&
+                        cuboidMinZ <= location.getZ() && cuboidHighZ >= location.getZ();
     }
 
     public boolean containsLocation(Location location) {

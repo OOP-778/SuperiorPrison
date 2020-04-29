@@ -62,7 +62,6 @@ public class MineListener {
                         superiorMine.getGenerator().reset();
                     }
                 });
-
             }
         });
 

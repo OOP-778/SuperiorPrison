@@ -9,8 +9,8 @@ import com.google.common.collect.Sets;
 import com.oop.orangeengine.main.plugin.OComponent;
 import com.oop.orangeengine.main.task.OTask;
 import com.oop.orangeengine.main.util.data.pair.OPair;
-import com.oop.orangeengine.yaml.ConfigurationSection;
-import com.oop.orangeengine.yaml.OConfiguration;
+import com.oop.orangeengine.yaml.Config;
+import com.oop.orangeengine.yaml.ConfigSection;
 import lombok.Getter;
 
 import java.util.*;
@@ -59,12 +59,12 @@ public class PrestigeController implements com.bgsoftware.superiorprison.api.con
     public boolean load() {
         prestigeMap.clear();
         try {
-            OConfiguration prestigeConfig = SuperiorPrisonPlugin.getInstance().getConfigController().getPrestigesConfig();
-            String defaultPrefix = prestigeConfig.getValueAsReq("default prefix");
+            Config prestigeConfig = SuperiorPrisonPlugin.getInstance().getConfigController().getPrestigesConfig();
+            String defaultPrefix = prestigeConfig.getAs("default prefix");
             RequirementController rc = SuperiorPrisonPlugin.getInstance().getRequirementController();
 
-            for (ConfigurationSection section : prestigeConfig.getSections().values()) {
-                if (section.isPresentValue("order")) {
+            for (ConfigSection section : prestigeConfig.getSections().values()) {
+                if (section.isValuePresent("order")) {
                     Set<RequirementData> reqs = Sets.newHashSet();
                     section.ifValuePresent("requirements", List.class, list -> {
                         for (Object o : list) {
@@ -78,13 +78,13 @@ public class PrestigeController implements com.bgsoftware.superiorprison.api.con
                         }
                     });
 
-                    int order = section.getValueAsReq("order");
+                    int order = section.getAs("order");
                     SPrestige prestige = new SPrestige(
                             section.getKey(),
-                            section.hasValue("prefix") ? section.getValueAsReq("prefix", String.class) : defaultPrefix.replace("{prestige_name}", section.getKey()),
+                            section.isValuePresent("prefix") ? section.getAs("prefix", String.class) : defaultPrefix.replace("{prestige_name}", section.getKey()),
                             order,
-                            section.hasValue("commands") ? (List<String>) section.getValueAsReq("commands", List.class) : new ArrayList<>(),
-                            section.hasValue("permissions") ? (List<String>) section.getValueAsReq("permissions", List.class) : new ArrayList<>(),
+                            section.isValuePresent("commands") ? (List<String>) section.getAs("commands", List.class) : new ArrayList<>(),
+                            section.isValuePresent("permissions") ? (List<String>) section.getAs("permissions", List.class) : new ArrayList<>(),
                             reqs,
                             null,
                             null

@@ -6,21 +6,26 @@ import com.bgsoftware.superiorprison.plugin.util.Attachable;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Maps;
-import com.google.gson.annotations.SerializedName;
+import com.oop.datamodule.SerializableObject;
+import com.oop.datamodule.SerializedData;
+import com.oop.datamodule.util.DataUtil;
+import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.material.OMaterial;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.SneakyThrows;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 import java.time.ZonedDateTime;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import static com.bgsoftware.superiorprison.plugin.util.TimeUtil.getDate;
 
 @EqualsAndHashCode
-public class SBlocksStatistic implements BlocksStatistic, Attachable<SStatisticsContainer>, SStatistic {
+public class SBlocksStatistic implements BlocksStatistic, Attachable<SStatisticsContainer>, SStatistic, SerializableObject {
 
     @Getter
     private transient SStatisticsContainer container;
@@ -30,7 +35,7 @@ public class SBlocksStatistic implements BlocksStatistic, Attachable<SStatistics
 
     private Map<OMaterial, Long> minedBlocks = Maps.newConcurrentMap();
 
-    private transient Cache<Long, OMaterial> timedCache = CacheBuilder.newBuilder()
+    private transient Cache<Long, OPair<OMaterial, Long>> timedCache = CacheBuilder.newBuilder()
             .concurrencyLevel(4)
             .expireAfterAccess(SuperiorPrisonPlugin.getInstance().getMainConfig().getCacheTime(), TimeUnit.SECONDS)
             .build();
@@ -40,11 +45,13 @@ public class SBlocksStatistic implements BlocksStatistic, Attachable<SStatistics
         update(OMaterial.matchMaterial(new ItemStack(material, 1, data)), amount);
     }
 
+    @SneakyThrows
     public void update(OMaterial material, long amount) {
         minedBlocks.merge(material, amount, Long::sum);
 
         lastUpdated = getDate().toEpochSecond();
-        timedCache.put(lastUpdated, material);
+        OPair<OMaterial, Long> data = timedCache.get(lastUpdated, () -> new OPair<>(material, amount));
+        data.setSecond(data.getSecond() + amount);
     }
 
     @Override
@@ -69,7 +76,14 @@ public class SBlocksStatistic implements BlocksStatistic, Attachable<SStatistics
     public long getTotalBlocksWithinTimeFrame(ZonedDateTime start, ZonedDateTime end) {
         long startLong = start.toEpochSecond();
         long endLong = end.toEpochSecond();
-        return timedCache.asMap().keySet().stream().filter(timeLong -> startLong >= timeLong && timeLong <= endLong).count();
+
+        return timedCache.asMap().keySet()
+                .stream()
+                .filter(timeLong -> timeLong >= startLong && timeLong <= endLong)
+                .map(key -> timedCache.getIfPresent(key))
+                .filter(Objects::nonNull)
+                .mapToLong(OPair::getSecond)
+                .sum();
     }
 
     public long getBlockWithinTimeFrame(ZonedDateTime start, ZonedDateTime end, OMaterial material) {
@@ -78,11 +92,29 @@ public class SBlocksStatistic implements BlocksStatistic, Attachable<SStatistics
         long[] sum = new long[]{0};
 
         timedCache.asMap().forEach((time, timedMaterial) -> {
-            if (timedMaterial != material) return;
+            if (timedMaterial.getFirst() != material) return;
             if (!(startLong >= time && time <= endLong)) return;
 
-            sum[0] = sum[0] + 1;
+            sum[0] = sum[0] + timedMaterial.getSecond();
         });
         return sum[0];
+    }
+
+    @Override
+    public void serialize(SerializedData serializedData) {
+        serializedData.write("blocks", minedBlocks);
+    }
+
+    @Override
+    public void deserialize(SerializedData serializedData) {
+        if (serializedData.getElement("blocks").isPresent()) {
+            serializedData
+                    .applyAsMap("blocks")
+                    .forEach(pair -> {
+                        OMaterial key = DataUtil.fromElement(pair.getKey(), OMaterial.class);
+                        long value = DataUtil.fromElement(pair.getValue(), long.class);
+                        minedBlocks.put(key, value);
+                    });
+        }
     }
 }

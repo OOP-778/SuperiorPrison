@@ -3,7 +3,6 @@ package com.bgsoftware.superiorprison.plugin.util.menu;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.controller.ConfigController;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
-import com.bgsoftware.superiorprison.plugin.util.ClassDebugger;
 import com.bgsoftware.superiorprison.plugin.util.SPair;
 import com.bgsoftware.superiorprison.plugin.util.TextUtil;
 import com.google.common.collect.HashBiMap;
@@ -11,7 +10,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.oop.orangeengine.main.task.StaticTask;
 import com.oop.orangeengine.main.util.data.pair.OPair;
-import com.oop.orangeengine.yaml.OConfiguration;
+import com.oop.orangeengine.yaml.Config;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -26,7 +25,6 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -110,9 +108,13 @@ public abstract class OMenu implements InventoryHolder {
         }
     }
 
+    public static <T> Object[] mergeArray(T[] arr1, T... arr2) {
+        return Stream.of(arr1, arr2).flatMap(Stream::of).toArray();
+    }
+
     private void _init() {
         ConfigController cc = SuperiorPrisonPlugin.getInstance().getConfigController();
-        OConfiguration configuration = cc.getMenus().get(identifier.toLowerCase());
+        Config configuration = cc.getMenus().get(identifier.toLowerCase());
 
         MenuLoader.loadMenu(this, Objects.requireNonNull(configuration, "Failed to find configuration for menu " + identifier));
     }
@@ -254,6 +256,40 @@ public abstract class OMenu implements InventoryHolder {
                 .findFirst();
     }
 
+    public Object[] getBuildPlaceholders() {
+        return new Object[0];
+    }
+
+    public void refresh() {
+        previousMove = false;
+        open(previousMenu);
+    }
+
+    public List<SPair<Integer, ItemStack>> getBukkitItems(@NonNull Inventory inventory) {
+        List<Integer> occupiedSlots = getButtons()
+                .stream()
+                .map(OMenuButton::slot)
+                .sorted()
+                .collect(toList());
+
+        List<SPair<Integer, ItemStack>> bukkitItems = new ArrayList<>();
+        for (int slot = 0; slot < (menuRows * 9); slot++) {
+            ItemStack atSlot = inventory.getItem(slot);
+            if (atSlot == null || atSlot.getType() == Material.AIR) continue;
+
+            int finalSlot = slot;
+            if (occupiedSlots.stream().anyMatch(slot2 -> slot2 == finalSlot)) continue;
+
+            bukkitItems.add(new SPair<>(slot, atSlot));
+        }
+
+        return bukkitItems;
+    }
+
+    public ClickHandler clickHandler(String action) {
+        return ClickHandler.of(action).apply(this);
+    }
+
     private interface MenuCallback {
         void run(Player player, OMenu OMenu);
     }
@@ -304,8 +340,8 @@ public abstract class OMenu implements InventoryHolder {
             return button;
         }
 
-        default void initPlaceholderable(OConfiguration configuration) {
-            List<String> stringPlaceholders = (List<String>) configuration.getValueAsReq("placeholders", List.class);
+        default void initPlaceholderable(Config configuration) {
+            List<String> stringPlaceholders = (List<String>) configuration.getAs("placeholders", List.class);
             HashBiMap<String, String> placeholders = HashBiMap.create();
 
             for (String placeholder : stringPlaceholders) {
@@ -348,8 +384,8 @@ public abstract class OMenu implements InventoryHolder {
             return getTemplateButtonFromIdentifier(getIdentifierFromTemplate(template).orElse("nothing"));
         }
 
-        default void initTemplateable(OConfiguration configuration) {
-            List<String> stringPlaceholders = (List<String>) configuration.getValueAsReq("templates", List.class);
+        default void initTemplateable(Config configuration) {
+            List<String> stringPlaceholders = (List<String>) configuration.getAs("templates", List.class);
             HashBiMap<String, String> placeholders = HashBiMap.create();
 
             for (String placeholder : stringPlaceholders) {
@@ -385,44 +421,6 @@ public abstract class OMenu implements InventoryHolder {
         public interface StateRequest {
             OMenuButton.ButtonItemBuilder request(OMenuButton button);
         }
-    }
-
-    public Object[] getBuildPlaceholders() {
-        return new Object[0];
-    }
-
-    public static <T> Object[] mergeArray(T[] arr1, T... arr2) {
-        return Stream.of(arr1, arr2).flatMap(Stream::of).toArray();
-    }
-
-    public void refresh() {
-        previousMove = false;
-        open(previousMenu);
-    }
-
-    public List<SPair<Integer, ItemStack>> getBukkitItems(@NonNull Inventory inventory) {
-        List<Integer> occupiedSlots = getButtons()
-                .stream()
-                .map(OMenuButton::slot)
-                .sorted()
-                .collect(toList());
-
-        List<SPair<Integer, ItemStack>> bukkitItems = new ArrayList<>();
-        for (int slot = 0; slot < (menuRows * 9); slot++) {
-            ItemStack atSlot = inventory.getItem(slot);
-            if (atSlot == null || atSlot.getType() == Material.AIR) continue;
-
-            int finalSlot = slot;
-            if (occupiedSlots.stream().anyMatch(slot2 -> slot2 == finalSlot)) continue;
-
-            bukkitItems.add(new SPair<>(slot, atSlot));
-        }
-
-        return bukkitItems;
-    }
-
-    public ClickHandler clickHandler(String action) {
-        return ClickHandler.of(action).apply(this);
     }
 
 }

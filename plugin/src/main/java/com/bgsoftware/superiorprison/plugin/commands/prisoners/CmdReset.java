@@ -4,7 +4,6 @@ import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 import com.bgsoftware.superiorprison.plugin.commands.args.PrisonerArg;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
-import com.google.common.collect.ImmutableMap;
 import com.oop.orangeengine.command.OCommand;
 
 import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
@@ -18,7 +17,7 @@ public class CmdReset extends OCommand {
 
         onCommand(command -> {
             Prisoner prisoner = command.getArgAsReq("prisoner");
-            ((SPrisoner) prisoner).remove(true);
+            ((SPrisoner) prisoner).remove();
 
             if (prisoner.isOnline())
                 prisoner.getPlayer().kickPlayer("&cReseting your data...");

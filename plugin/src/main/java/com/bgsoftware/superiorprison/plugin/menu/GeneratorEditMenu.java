@@ -24,7 +24,6 @@ import org.bukkit.inventory.ItemStack;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.bgsoftware.superiorprison.plugin.util.TextUtil.beautify;
 import static com.bgsoftware.superiorprison.plugin.util.TextUtil.beautifyDouble;
@@ -94,7 +93,7 @@ public class GeneratorEditMenu extends OPagedMenu<OPair<Double, OMaterial>> impl
                                             .findFirst();
                                     if (first.isPresent()) {
                                         first.get().setFirst(rate);
-                                        LocaleEnum.EDIT_GENERATOR_RATE_SET.getWithPrefix().send(chatEvent.getPlayer(), ImmutableMap.of("%material%", beautify(materialPair.getSecond().name()), "%rate%", beautifyDouble(rate)));
+                                        LocaleEnum.EDIT_GENERATOR_RATE_SET.getWithPrefix().send(ImmutableMap.of("{material}", beautify(materialPair.getSecond().name()), "{rate}", beautifyDouble(rate)), chatEvent.getPlayer());
 
                                         // Update
                                         refresh();

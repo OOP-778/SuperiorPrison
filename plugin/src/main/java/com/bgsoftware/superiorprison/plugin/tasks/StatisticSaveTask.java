@@ -23,12 +23,10 @@ public class StatisticSaveTask extends OTask {
                             if (shouldSave[0] || statistic.getLastUpdated() <= 0) return;
 
                             Duration duration = Duration.between(getDate(statistic.getLastUpdated()), getDate());
-                            System.out.println(duration.getSeconds());
                             if (duration.getSeconds() == 10)
                                 shouldSave[0] = true;
                         });
                         if (shouldSave[0]) {
-                            System.out.println("Updated");
                             container.save(true);
                         }
                     });

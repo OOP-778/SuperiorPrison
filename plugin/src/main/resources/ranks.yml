@@ -41,7 +41,7 @@ default prefix: "&8[&a{rank_name}&r&8]"
   requirements:
     - "{ECO} 2000"
     - "{XP_LEVEL, take=false} 20"
-    -
+
 "G":
   order: 7
   requirements:

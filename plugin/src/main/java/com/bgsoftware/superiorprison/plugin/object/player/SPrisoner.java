@@ -9,17 +9,14 @@ import com.bgsoftware.superiorprison.api.data.player.rank.Rank;
 import com.bgsoftware.superiorprison.api.util.Pair;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.data.SPrisonerHolder;
-import com.bgsoftware.superiorprison.plugin.data.SStatisticHolder;
 import com.bgsoftware.superiorprison.plugin.hook.impl.ShopGuiPlusHook;
 import com.bgsoftware.superiorprison.plugin.object.player.booster.SBoosters;
 import com.bgsoftware.superiorprison.plugin.object.player.rank.SLadderRank;
 import com.bgsoftware.superiorprison.plugin.object.player.rank.SRank;
 import com.bgsoftware.superiorprison.plugin.object.player.rank.SSpecialRank;
-import com.google.common.collect.Sets;
 import com.google.gson.JsonElement;
 import com.oop.datamodule.DataBody;
 import com.oop.datamodule.SerializedData;
-import com.oop.orangeengine.main.task.OTask;
 import com.oop.orangeengine.main.util.data.set.OConcurrentSet;
 import lombok.Getter;
 import lombok.NonNull;
@@ -76,7 +73,8 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
     @Setter
     private transient Pair<SuperiorMine, AreaEnum> currentMine;
 
-    public SPrisoner() {}
+    public SPrisoner() {
+    }
 
     public SPrisoner(UUID uuid) {
         this.uuid = uuid;

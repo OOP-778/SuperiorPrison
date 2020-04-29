@@ -3,30 +3,31 @@ package com.bgsoftware.superiorprison.plugin.object.mine;
 import com.bgsoftware.superiorprison.api.data.mine.MineEnum;
 import com.bgsoftware.superiorprison.api.data.mine.area.Area;
 import com.bgsoftware.superiorprison.api.data.mine.area.AreaEnum;
+import com.bgsoftware.superiorprison.api.data.mine.effects.MineEffects;
 import com.bgsoftware.superiorprison.api.data.mine.sign.Sign;
 import com.bgsoftware.superiorprison.api.data.player.Prestige;
 import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 import com.bgsoftware.superiorprison.api.data.player.rank.Rank;
-import com.bgsoftware.superiorprison.plugin.data.SMineHolder;
-import com.bgsoftware.superiorprison.plugin.data.SPrisonerHolder;
-import com.bgsoftware.superiorprison.plugin.util.SPLocation;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.config.main.MineDefaultsSection;
+import com.bgsoftware.superiorprison.plugin.data.SMineHolder;
 import com.bgsoftware.superiorprison.plugin.object.mine.area.SArea;
+import com.bgsoftware.superiorprison.plugin.object.mine.effects.SMineEffects;
+import com.bgsoftware.superiorprison.plugin.object.mine.messages.SMineMessage;
+import com.bgsoftware.superiorprison.plugin.object.mine.messages.SMineMessages;
 import com.bgsoftware.superiorprison.plugin.object.mine.settings.SMineSettings;
 import com.bgsoftware.superiorprison.plugin.object.mine.shop.SShop;
 import com.bgsoftware.superiorprison.plugin.object.mine.sign.SSign;
 import com.bgsoftware.superiorprison.plugin.util.AccessUtil;
+import com.bgsoftware.superiorprison.plugin.util.SPLocation;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.oop.datamodule.BodyCache;
 import com.oop.datamodule.DataBody;
 import com.oop.datamodule.SerializedData;
 import com.oop.datamodule.util.DataUtil;
 import com.oop.orangeengine.item.ItemBuilder;
-import com.oop.orangeengine.main.task.OTask;
 import com.oop.orangeengine.main.task.StaticTask;
 import com.oop.orangeengine.main.util.data.set.OConcurrentSet;
 import lombok.Getter;
@@ -74,9 +75,16 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
     @Getter
     private Map<AreaEnum, SArea> areas = Maps.newConcurrentMap();
 
+    @Getter
+    private SMineEffects effects;
+
+    @Getter
+    private SMineMessages messages;
+
     private Set<SSign> signs = new OConcurrentSet<>();
 
-    private SNormalMine() {}
+    private SNormalMine() {
+    }
 
     public SNormalMine(@NonNull String name, @NonNull SPLocation regionPos1, @NonNull SPLocation regionPos2, @NonNull SPLocation minePos1, @NonNull SPLocation minePos2) {
         this.name = name;
@@ -102,6 +110,12 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
         defaults.getShopPrices().forEach(item -> shop.addItem(item.getFirst().parseItem(), item.getSecond()));
         StaticTask.getInstance().async(() -> generator.initCache(() -> generator.generate()));
         settings.setPlayerLimit(defaults.getLimit());
+
+        effects = new SMineEffects();
+        effects.attach(this);
+
+        messages = new SMineMessages();
+        messages.attach(this);
     }
 
     @Override
@@ -226,6 +240,11 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
     }
 
     @Override
+    public void save(boolean async) {
+        save(async, null);
+    }
+
+    @Override
     @Nullable
     public Sign getSignAt(Location location) {
         return signs
@@ -341,16 +360,18 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
     @Override
     public String[] getStructure() {
         return new String[]{
-            "name",
-            "type",
-            "spawnpoint",
-            "generator",
-            "shop",
-            "ranks",
-            "prestiges",
-            "settings",
-            "icon",
-            "areas"
+                "name",
+                "type",
+                "spawnpoint",
+                "generator",
+                "shop",
+                "ranks",
+                "prestiges",
+                "settings",
+                "icon",
+                "areas",
+                "effects",
+                "messages"
         };
     }
 
@@ -365,6 +386,8 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
         serializedData.write("prestiges", prestiges);
         serializedData.write("settings", settings);
         serializedData.write("icon", icon);
+        serializedData.write("effects", effects);
+        serializedData.write("messages", messages);
 
         JsonArray areasArray = new JsonArray();
         areas.forEach((key, value) -> {
@@ -398,6 +421,8 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
                         .collect(Collectors.toSet())
         );
         this.settings = data.applyAs("settings", SMineSettings.class);
+        this.effects = data.has("effects") ? data.applyAs("effects", SMineEffects.class) : new SMineEffects();
+        this.messages = data.has("messages") ? data.applyAs("messages", SMineMessages.class) : new SMineMessages();
         JsonArray areasArray = data.getElement("areas").get().getAsJsonArray();
         for (JsonElement element : areasArray) {
             JsonObject jsonObject = element.getAsJsonObject();
@@ -406,11 +431,13 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
 
             areas.put(AreaEnum.valueOf(key.getAsString()), DataUtil.fromElement(value, SArea.class));
         }
-        this.icon  = data.applyAs("icon", ItemStack.class);
+        this.icon = data.applyAs("icon", ItemStack.class);
 
         generator.attach(this);
         shop.attach(this);
         settings.attach(this);
+        effects.attach(this);
+        messages.attach(this);
 
         Map<AreaEnum, SArea> newAreas = Maps.newConcurrentMap();
         areas.keySet()
@@ -427,15 +454,12 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
     }
 
     @Override
-    public void remove(boolean b) {
-        new OTask()
-                .sync(!b)
-                .runnable(() -> SuperiorPrisonPlugin.getInstance().getDatabaseController().getStorage(SMineHolder.class).remove(this))
-                .execute();
+    public void remove() {
+        SuperiorPrisonPlugin.getInstance().getDatabaseController().getStorage(SMineHolder.class).remove(this);
     }
 
     @Override
-    public void save(boolean async) {
-        SuperiorPrisonPlugin.getInstance().getDatabaseController().getStorage(SMineHolder.class).save(this, async);
+    public void save(boolean b, Runnable runnable) {
+        SuperiorPrisonPlugin.getInstance().getDatabaseController().getStorage(SMineHolder.class).save(this, b, runnable);
     }
 }

@@ -6,8 +6,6 @@ import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.oop.orangeengine.command.OCommand;
-import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
 
 import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
 

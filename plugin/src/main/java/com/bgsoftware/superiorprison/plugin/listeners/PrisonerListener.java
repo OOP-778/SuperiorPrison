@@ -3,11 +3,12 @@ package com.bgsoftware.superiorprison.plugin.listeners;
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
 import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 import com.bgsoftware.superiorprison.api.data.player.booster.DropsBooster;
-import com.bgsoftware.superiorprison.api.data.player.booster.MoneyBooster;
 import com.bgsoftware.superiorprison.api.event.mine.MineEnterEvent;
+import com.bgsoftware.superiorprison.api.event.mine.MineLeaveEvent;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.hook.impl.VaultHook;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
+import com.bgsoftware.superiorprison.plugin.object.mine.effects.SMineEffect;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.oop.orangeengine.item.custom.OItem;
 import com.oop.orangeengine.main.Helper;
@@ -27,8 +28,6 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
-
-import static com.oop.orangeengine.main.Engine.getEngine;
 
 public class PrisonerListener {
     public PrisonerListener() {
@@ -154,7 +153,16 @@ public class PrisonerListener {
             }
         });
 
-        SyncEvents.listen(MineEnterEvent.class, EventPriority.LOWEST, event -> event.setCancelled(!event.getMine().canEnter(event.getPrisoner())));
+        SyncEvents.listen(MineEnterEvent.class, EventPriority.LOWEST, event -> {
+            if (!event.getMine().canEnter(event.getPrisoner())) {
+                event.setCancelled(true);
+                return;
+            }
+
+            event.getMine().getEffects().get().stream().map(effect -> (SMineEffect) effect).map(SMineEffect::create).forEach(effect -> event.getPrisoner().getPlayer().addPotionEffect(effect, false));
+        });
+
+        SyncEvents.listen(MineLeaveEvent.class, EventPriority.LOWEST, event -> event.getMine().getEffects().get().forEach(effect -> event.getPrisoner().getPlayer().removePotionEffect(effect.getType())));
     }
 
     private int getItemCountWithFortune(Material material, int enchant_level) {

@@ -1,7 +1,10 @@
 package com.bgsoftware.superiorprison.plugin.commands;
 
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
-import com.bgsoftware.superiorprison.plugin.commands.mines.*;
+import com.bgsoftware.superiorprison.plugin.commands.mines.CmdCreate;
+import com.bgsoftware.superiorprison.plugin.commands.mines.CmdDelete;
+import com.bgsoftware.superiorprison.plugin.commands.mines.CmdReload;
+import com.bgsoftware.superiorprison.plugin.commands.mines.CmdReset;
 import com.bgsoftware.superiorprison.plugin.commands.pcp.CmdPrisonerCP;
 import com.bgsoftware.superiorprison.plugin.commands.prisoners.CmdTeleport;
 import com.bgsoftware.superiorprison.plugin.commands.prisoners.boosters.CmdBoosters;
@@ -17,16 +20,16 @@ public class CommandsRegister {
         // Mines
         controller.register(
                 new OCommand()
-                .label("mines")
-                .onCommand(command -> {
-                    MinesListMenu minesListMenu = new MinesListMenu(SuperiorPrisonPlugin.getInstance().getPrisonerController().getInsertIfAbsent(command.getSenderAsPlayer()));
-                    command.getSenderAsPlayer().openInventory(minesListMenu.getInventory());
-                })
-                .subCommand(new CmdCreate())
-                .subCommand(new CmdTeleport())
-                .subCommand(new CmdDelete())
-                .subCommand(new CmdReset())
-                .subCommand(new CmdReload())
+                        .label("mines")
+                        .onCommand(command -> {
+                            MinesListMenu minesListMenu = new MinesListMenu(SuperiorPrisonPlugin.getInstance().getPrisonerController().getInsertIfAbsent(command.getSenderAsPlayer()));
+                            command.getSenderAsPlayer().openInventory(minesListMenu.getInventory());
+                        })
+                        .subCommand(new CmdCreate())
+                        .subCommand(new CmdTeleport())
+                        .subCommand(new CmdDelete())
+                        .subCommand(new CmdReset())
+                        .subCommand(new CmdReload())
         );
 
         controller.register(new SellCommand());
@@ -34,30 +37,30 @@ public class CommandsRegister {
         // Prisoners
         controller.register(
                 new OCommand()
-                .label("prisoners")
-                .subCommand(new com.bgsoftware.superiorprison.plugin.commands.prisoners.CmdReset())
-                .subCommand(new CmdTeleport())
-                .subCommand(
-                        new CmdRanks()
-                        .subCommand(new com.bgsoftware.superiorprison.plugin.commands.prisoners.ranks.CmdAdd())
-                        .subCommand(new com.bgsoftware.superiorprison.plugin.commands.prisoners.ranks.CmdRemove())
-                        .subCommand(new com.bgsoftware.superiorprison.plugin.commands.prisoners.ranks.CmdClear())
-                        .subCommand(new com.bgsoftware.superiorprison.plugin.commands.prisoners.ranks.CmdList())
-                )
-                .subCommand(
-                        new CmdBoosters()
-                        .subCommand(new com.bgsoftware.superiorprison.plugin.commands.prisoners.boosters.CmdAdd())
-                        .subCommand(new com.bgsoftware.superiorprison.plugin.commands.prisoners.boosters.CmdList())
-                        .subCommand(new com.bgsoftware.superiorprison.plugin.commands.prisoners.boosters.CmdRemove())
-                        .subCommand(new com.bgsoftware.superiorprison.plugin.commands.prisoners.boosters.CmdClear())
-                )
-                .subCommand(
-                        new CmdPrestiges()
-                        .subCommand(new CmdAdd())
-                        .subCommand(new CmdRemove())
-                        .subCommand(new CmdClear())
-                        .subCommand(new CmdList())
-                )
+                        .label("prisoners")
+                        .subCommand(new com.bgsoftware.superiorprison.plugin.commands.prisoners.CmdReset())
+                        .subCommand(new CmdTeleport())
+                        .subCommand(
+                                new CmdRanks()
+                                        .subCommand(new com.bgsoftware.superiorprison.plugin.commands.prisoners.ranks.CmdAdd())
+                                        .subCommand(new com.bgsoftware.superiorprison.plugin.commands.prisoners.ranks.CmdRemove())
+                                        .subCommand(new com.bgsoftware.superiorprison.plugin.commands.prisoners.ranks.CmdClear())
+                                        .subCommand(new com.bgsoftware.superiorprison.plugin.commands.prisoners.ranks.CmdList())
+                        )
+                        .subCommand(
+                                new CmdBoosters()
+                                        .subCommand(new com.bgsoftware.superiorprison.plugin.commands.prisoners.boosters.CmdAdd())
+                                        .subCommand(new com.bgsoftware.superiorprison.plugin.commands.prisoners.boosters.CmdList())
+                                        .subCommand(new com.bgsoftware.superiorprison.plugin.commands.prisoners.boosters.CmdRemove())
+                                        .subCommand(new com.bgsoftware.superiorprison.plugin.commands.prisoners.boosters.CmdClear())
+                        )
+                        .subCommand(
+                                new CmdPrestiges()
+                                        .subCommand(new CmdAdd())
+                                        .subCommand(new CmdRemove())
+                                        .subCommand(new CmdClear())
+                                        .subCommand(new CmdList())
+                        )
         );
 
         controller.register(new CmdPrisonerCP());

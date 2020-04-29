@@ -8,7 +8,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Setter
 @Getter
-public class SPair<K,V> implements Pair<K, V> {
+public class SPair<K, V> implements Pair<K, V> {
     private K key;
     private V value;
 

@@ -41,21 +41,21 @@ buttons:
       display name: "&r"
 
   "F":
-      enabled:
-        material: diamond
-        glow: true
-        display name: "&a{flag_name}"
-        lore:
-          - "{flag_description}"
-          - ""
-          - "&7Current state: &aEnabled"
-          - "&a&l(!) &7Click to disable!"
+    enabled:
+      material: diamond
+      glow: true
+      display name: "&a{flag_name}"
+      lore:
+        - "{flag_description}"
+        - ""
+        - "&7Current state: &aEnabled"
+        - "&a&l(!) &7Click to disable!"
 
-      disabled:
-        material: diamond
-        display name: "&a{flag_name}"
-        lore:
-          - "{flag_description}"
-          - ""
-          - "&7Current state: &cDisabled"
-          - "&c&l(!) &7Click to enable!"
+    disabled:
+      material: diamond
+      display name: "&a{flag_name}"
+      lore:
+        - "{flag_description}"
+        - ""
+        - "&7Current state: &cDisabled"
+        - "&c&l(!) &7Click to enable!"

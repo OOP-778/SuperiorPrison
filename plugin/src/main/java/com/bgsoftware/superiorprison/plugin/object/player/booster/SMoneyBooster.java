@@ -7,5 +7,6 @@ public class SMoneyBooster extends SBooster implements MoneyBooster {
         super(id, validTill, rate);
     }
 
-    public SMoneyBooster() {}
+    public SMoneyBooster() {
+    }
 }

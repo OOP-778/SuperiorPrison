@@ -8,6 +8,7 @@ import com.bgsoftware.superiorprison.api.data.player.rank.SpecialRank;
 public class AccessObject {
 
     private Object object;
+
     public AccessObject(Object object) {
         this.object = object;
     }
@@ -29,7 +30,7 @@ public class AccessObject {
     }
 
     public String getName() {
-        return object instanceof Rank ? ((Rank) object).getName() : ((Prestige)object).getName();
+        return object instanceof Rank ? ((Rank) object).getName() : ((Prestige) object).getName();
     }
 
     public String getType() {
@@ -41,6 +42,6 @@ public class AccessObject {
     }
 
     public String getPrefix() {
-        return object instanceof Rank ? ((Rank) object).getPrefix() : ((Prestige)object).getPrefix();
+        return object instanceof Rank ? ((Rank) object).getPrefix() : ((Prestige) object).getPrefix();
     }
 }

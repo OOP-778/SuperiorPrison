@@ -12,7 +12,8 @@ import java.util.function.Consumer;
 public class HookController {
     private Map<Class<?>, SHook> hooks = new HashMap<>();
 
-    public HookController() {}
+    public HookController() {
+    }
 
     public void registerHooks(HookClassSupplier... hooks) {
         for (HookClassSupplier<?> clazzSupplier : hooks) {
@@ -23,7 +24,8 @@ public class HookController {
                 SHook hook = clazz.newInstance();
                 if (!hook.isLoaded()) {
                     if (!hook.isRequired()) continue;
-                    else throw new IllegalStateException("Failed to hook into " + hook.getPluginName() + " because it's not loaded and it is required!");
+                    else
+                        throw new IllegalStateException("Failed to hook into " + hook.getPluginName() + " because it's not loaded and it is required!");
                 }
 
                 this.hooks.put(clazz, hook);

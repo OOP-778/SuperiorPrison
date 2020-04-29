@@ -4,8 +4,6 @@ import com.bgsoftware.superiorprison.api.data.mine.shop.MineShop;
 import com.bgsoftware.superiorprison.api.data.mine.shop.ShopItem;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.util.Attachable;
-import com.google.common.collect.Sets;
-import com.google.gson.annotations.SerializedName;
 import com.oop.datamodule.SerializableObject;
 import com.oop.datamodule.SerializedData;
 import com.oop.datamodule.util.DataUtil;
@@ -25,7 +23,18 @@ public class SShop implements MineShop, Attachable<SNormalMine>, SerializableObj
     private transient SNormalMine mine;
     private Set<SShopItem> items = new OConcurrentSet<>();
 
-    public SShop() {}
+    public SShop() {
+    }
+
+    public static SShop from(SShop from) {
+        SShop shop = new SShop();
+        from.items
+                .stream()
+                .map(SShopItem::from)
+                .forEach(item -> shop.items.add(item));
+
+        return shop;
+    }
 
     @Override
     public <T extends ShopItem> Set<T> getItems() {
@@ -68,16 +77,6 @@ public class SShop implements MineShop, Attachable<SNormalMine>, SerializableObj
     @Override
     public void attach(SNormalMine obj) {
         this.mine = obj;
-    }
-
-    public static SShop from(SShop from) {
-        SShop shop = new SShop();
-        from.items
-                .stream()
-                .map(SShopItem::from)
-                .forEach(item -> shop.items.add(item));
-
-        return shop;
     }
 
     @Override

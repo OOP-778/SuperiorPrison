@@ -8,12 +8,15 @@ import com.bgsoftware.superiorprison.api.requirement.RequirementException;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrestige;
-import com.bgsoftware.superiorprison.plugin.object.player.rank.SLadderRank;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
+import com.bgsoftware.superiorprison.plugin.object.player.rank.SLadderRank;
 import com.oop.orangeengine.command.OCommand;
 import org.bukkit.entity.Player;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.listedBuilder;
 import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
@@ -82,6 +85,7 @@ public class CmdRankup extends OCommand {
 
                 prisoner.addPrestige(next);
                 prisoner.removeRankIf(rank -> rank instanceof LadderRank);
+                prisoner.addRank(SuperiorPrisonPlugin.getInstance().getRankController().getDefault().getName());
 
                 prisoner.save(true);
 

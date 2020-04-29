@@ -39,14 +39,14 @@ allprojects {
         annotationProcessor 'org.projectlombok:lombok:1.18.8'
 
         if (project.name.equalsIgnoreCase("plugin")) {
-            compile "com.oop.orangeengine:file:4.5"
-            compile "com.oop.orangeengine:item:4.5"
-            compile "com.oop.orangeengine:engine:4.5"
-            compile "com.oop.orangeengine:particle:4.5"
-            compile "com.oop.orangeengine:inventory:4.5"
-            compile "com.oop.orangeengine:command:4.5"
-            compile "com.oop.orangeengine:eventssubscription:4.5"
-            compile "com.oop.orangeengine:message:4.5"
+            compile "com.oop.orangeengine:file:4.6"
+            compile "com.oop.orangeengine:item:4.6"
+            compile "com.oop.orangeengine:engine:4.6"
+            compile "com.oop.orangeengine:particle:4.6"
+            compile "com.oop.orangeengine:inventory:4.6"
+            compile "com.oop.orangeengine:command:4.6"
+            compile "com.oop.orangeengine:eventssubscription:4.6"
+            compile "com.oop.orangeengine:message:4.6"
 
             // Dependencies
             compileOnly("com.github.MilkBowl:VaultAPI:1.7")
@@ -55,15 +55,15 @@ allprojects {
             compile files("../lib/oop-data.jar")
 
         } else {
-            compileOnly "com.oop.orangeengine:file:4.5"
-            compileOnly "com.oop.orangeengine:item:4.5"
-            compileOnly "com.oop.orangeengine:engine:4.5"
-            compileOnly "com.oop.orangeengine:particle:4.5"
-            compileOnly "com.oop.orangeengine:inventory:4.5"
-            compileOnly "com.oop.orangeengine:command:4.5"
-            compileOnly "com.oop.orangeengine:database:4.5"
-            compileOnly "com.oop.orangeengine:eventssubscription:4.5"
-            compileOnly "com.oop.orangeengine:message:4.5"
+            compileOnly "com.oop.orangeengine:file:4.6"
+            compileOnly "com.oop.orangeengine:item:4.6"
+            compileOnly "com.oop.orangeengine:engine:4.6"
+            compileOnly "com.oop.orangeengine:particle:4.6"
+            compileOnly "com.oop.orangeengine:inventory:4.6"
+            compileOnly "com.oop.orangeengine:command:4.6"
+            compileOnly "com.oop.orangeengine:database:4.6"
+            compileOnly "com.oop.orangeengine:eventssubscription:4.6"
+            compileOnly "com.oop.orangeengine:message:4.6"
         }
 
         if (project.name.equalsIgnoreCase("plugin")) {

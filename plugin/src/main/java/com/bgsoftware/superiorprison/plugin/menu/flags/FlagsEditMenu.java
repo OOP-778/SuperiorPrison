@@ -6,7 +6,6 @@ import com.bgsoftware.superiorprison.plugin.object.mine.area.SArea;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.util.menu.*;
 import com.google.common.collect.ImmutableMap;
-import com.oop.orangeengine.main.Helper;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -16,6 +15,7 @@ import java.util.Optional;
 public class FlagsEditMenu extends OPagedMenu<Flag> implements OMenu.Templateable {
 
     private SArea area;
+
     public FlagsEditMenu(SPrisoner viewer, SArea area) {
         super("areaFlags", viewer);
         this.area = area;
@@ -62,12 +62,11 @@ public class FlagsEditMenu extends OPagedMenu<Flag> implements OMenu.Templateabl
     public void handleToggleable(Flag flag, ButtonClickEvent event, Boolean current, Runnable toggle) {
         toggle.run();
         LocaleEnum.EDIT_FLAGS_TOGGLE.getWithPrefix().send(
-                (Player) event.getWhoClicked(),
                 ImmutableMap.of(
                         "{state}", current ? "disabled" : "enabled",
                         "{flag}", flag.name().toLowerCase(),
                         "{mine}", area.getMine().getName()
-                ));
+                ), (Player) event.getWhoClicked());
         refresh();
     }
 

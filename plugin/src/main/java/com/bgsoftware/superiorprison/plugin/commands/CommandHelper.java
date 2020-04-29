@@ -5,81 +5,65 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.oop.orangeengine.command.WrappedCommand;
-import com.oop.orangeengine.main.Helper;
 import com.oop.orangeengine.main.util.data.pair.OPair;
-import com.oop.orangeengine.message.Contentable;
 import com.oop.orangeengine.message.OMessage;
-import com.oop.orangeengine.message.line.LineContent;
-import com.oop.orangeengine.message.line.MessageLine;
-import lombok.Getter;
+import com.oop.orangeengine.message.Replaceable;
+import com.oop.orangeengine.message.Sendable;
+import com.oop.orangeengine.message.impl.OChatMessage;
+import com.oop.orangeengine.message.impl.chat.ChatLine;
+import com.oop.orangeengine.message.impl.chat.LineContent;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 import java.util.*;
 import java.util.function.Function;
 
 public class CommandHelper {
-    public static void sendMessage(WrappedCommand command, OMessage message, Object... objects) {
-        message = message.clone();
+    public static void sendMessage(WrappedCommand command, Sendable message, Object... objects) {
+        message = message instanceof OMessage ? ((OMessage) message).clone() : message instanceof ChatLine ? ((ChatLine) message).clone() : message;
 
-        for (Object object : objects)
-            message.replace(object, SuperiorPrisonPlugin.getInstance().getPlaceholderController().findPlaceholdersFor(object));
+        if (message instanceof Replaceable) {
+            for (Object object : objects)
+                ((Replaceable) message).replace(object, SuperiorPrisonPlugin.getInstance().getPlaceholderController().findPlaceholdersFor(object));
+        }
 
-        if (command.getSender() instanceof Player)
-            message.send(command.getSenderAsPlayer());
-
-        else
-            message.getRaw().forEach(line -> Bukkit.getConsoleSender().sendMessage(Helper.color(line)));
+        message.send(command.getSender());
     }
 
-    public static void send(CommandSender sender, Contentable contentable) {
-        if (contentable instanceof OMessage)
-            sendMessage(sender, contentable);
-
-        else
-            sendLine(sender, contentable);
+    public static void send(CommandSender sender, Sendable sendable) {
+        sendable.send(sender);
     }
 
-    private static void sendMessage(CommandSender sender, Contentable contentable) {
-        if (sender instanceof Player)
-            ((OMessage)contentable).send((Player) sender);
-
-        else
-            ((OMessage)contentable).getRaw().forEach(line -> Bukkit.getConsoleSender().sendMessage(Helper.color(line)));
+    private static void sendMessage(CommandSender sender, Sendable sendable) {
+        sendable.send(sender);
     }
 
-    private static void sendLine(CommandSender sender, Contentable contentable) {
-        if (sender instanceof Player)
-            ((MessageLine)contentable).send((Player) sender);
-
-        else
-            Bukkit.getConsoleSender().sendMessage(Helper.color(((MessageLine)contentable).getRaw()));
+    public static MessageBuilder messageBuilder(Sendable message, boolean clone) {
+        return new MessageBuilder(clone ? message instanceof OMessage ? ((OMessage) message).clone() : message instanceof ChatLine ? ((ChatLine) message).clone() : message : message);
     }
 
-    public static MessageBuilder messageBuilder(Contentable message, boolean clone) {
-        return new MessageBuilder(clone ? message.clone() : message);
-    }
-
-    public static MessageBuilder messageBuilder(Contentable message) {
+    public static MessageBuilder messageBuilder(Sendable message) {
         return messageBuilder(message, true);
     }
 
-    public static <T extends Object> ListedBuilder<T> listedBuilder(Class<T> clazz) { return new ListedBuilder<>(); }
+    public static <T extends Object> ListedBuilder<T> listedBuilder(Class<T> clazz) {
+        return new ListedBuilder<>();
+    }
 
     public static class MessageBuilder {
-        private Contentable contentable;
+        private Sendable sendable;
 
-        private MessageBuilder(Contentable contentable) {
-            this.contentable = contentable;
+        private MessageBuilder(Sendable sendable) {
+            this.sendable = sendable;
         }
 
-        public MessageBuilder replace(Object ...objects) {
-            for (Object object : objects)
-                contentable.replace(object, SuperiorPrisonPlugin.getInstance().getPlaceholderController().findPlaceholdersFor(object));
+        public MessageBuilder replace(Object... objects) {
+            if (sendable instanceof Replaceable) {
+                for (Object object : objects)
+                    ((Replaceable) sendable).replace(object, SuperiorPrisonPlugin.getInstance().getPlaceholderController().findPlaceholdersFor(object));
+            }
             return this;
         }
 
@@ -88,20 +72,21 @@ public class CommandHelper {
         }
 
         public MessageBuilder replace(Map<String, Object> placeholders) {
-            contentable.replace(placeholders);
+            if (sendable instanceof Replaceable)
+                ((Replaceable) sendable).replace(placeholders);
             return this;
         }
 
-        public <T extends Contentable> T getAs() {
-            return (T) contentable;
+        public <T extends Sendable> T getAs() {
+            return (T) sendable;
         }
 
         public void send(WrappedCommand command) {
-            sendMessage(command.getSender(), contentable);
+            sendMessage(command.getSender(), sendable);
         }
 
         public void send(CommandSender sender) {
-            sendMessage(sender, contentable);
+            sendMessage(sender, sendable);
         }
     }
 
@@ -121,12 +106,12 @@ public class CommandHelper {
 
         private Map<Class, Set<OPair<String, Function<Object, String>>>> placeholders = Maps.newHashMap();
 
-        public ListedBuilder<T> addObject(T ...objects) {
+        public ListedBuilder<T> addObject(T... objects) {
             this.objects.addAll(Arrays.asList(objects));
             return this;
         }
 
-        public ListedBuilder<T> addPlaceholderObject(Object ...objects) {
+        public ListedBuilder<T> addPlaceholderObject(Object... objects) {
             this.placeholderObjects.addAll(Arrays.asList(objects));
             return this;
         }
@@ -203,12 +188,15 @@ public class CommandHelper {
                 allPlaceholders.put(findParent(placeholderObject.getClass()), set);
             }
 
+            if (!(message instanceof OChatMessage)) return message;
+
             // Handle message stuff
-            OPair<MessageLine, LineContent> line1 = message.findLine(line -> line.getText().contains(identifier));
+            OPair<ChatLine, LineContent> line1 = ((OChatMessage) message).findContent(content -> content.text().contains(identifier));
             if (line1.getFirst() == null) return null;
 
-            MessageLine messageLine = line1.getFirst().clone();
-            messageLine.removeContentIf(lineContent -> lineContent.getText().contentEquals(line1.getSecond().getText()));
+
+            ChatLine messageLine = line1.getFirst().clone();
+            messageLine.removeContentIf(lineContent -> lineContent.text().contentEquals(line1.getSecond().text()));
 
             // Replace placeholders for placeholder objects
             for (Object placeholderObject : placeholderObjects)
@@ -231,7 +219,7 @@ public class CommandHelper {
                 }
             } else messageLine.append("None");
 
-            return new OMessage(messageLine);
+            return new OChatMessage(messageLine);
         }
 
         public void send(WrappedCommand command) {

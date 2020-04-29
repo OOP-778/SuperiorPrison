@@ -11,8 +11,8 @@ import com.google.common.collect.Sets;
 import com.oop.orangeengine.main.plugin.OComponent;
 import com.oop.orangeengine.main.task.OTask;
 import com.oop.orangeengine.main.util.data.pair.OPair;
-import com.oop.orangeengine.yaml.ConfigurationSection;
-import com.oop.orangeengine.yaml.OConfiguration;
+import com.oop.orangeengine.yaml.Config;
+import com.oop.orangeengine.yaml.ConfigSection;
 import lombok.Getter;
 
 import java.util.*;
@@ -44,16 +44,18 @@ public class RankController implements com.bgsoftware.superiorprison.api.control
         specialRanks.clear();
 
         try {
-            OConfiguration ranksConfig = SuperiorPrisonPlugin.getInstance().getConfigController().getRanksConfig();
-            String defaultPrefix = ranksConfig.getValueAsReq("default prefix");
+            Config ranksConfig = SuperiorPrisonPlugin.getInstance().getConfigController().getRanksConfig();
+            String defaultPrefix = ranksConfig.getAs("default prefix");
             RequirementController rc = SuperiorPrisonPlugin.getInstance().getRequirementController();
 
-            for (ConfigurationSection section : ranksConfig.getSections().values()) {
+            for (ConfigSection section : ranksConfig.getSections().values()) {
                 // Is ladder rank
-                if (section.isPresentValue("order")) {
+                if (section.isValuePresent("order")) {
                     Set<RequirementData> reqs = Sets.newHashSet();
                     section.ifValuePresent("requirements", List.class, list -> {
+
                         for (Object o : list) {
+                            System.out.println(o);
                             if (o.toString().trim().length() == 0) continue;
                             OPair<String, Optional<RequirementData>> data = rc.parse(o.toString());
                             if (data.getSecond().isPresent())
@@ -64,13 +66,13 @@ public class RankController implements com.bgsoftware.superiorprison.api.control
                         }
                     });
 
-                    int order = section.getValueAsReq("order");
+                    int order = section.getAs("order");
                     SLadderRank rank = new SLadderRank(
                             order,
                             section.getKey(),
-                            section.hasValue("prefix") ? section.getValueAsReq("prefix", String.class) : defaultPrefix.replace("{rank_name}", section.getKey()),
-                            section.hasValue("commands") ? (List<String>) section.getValueAsReq("commands", List.class) : new ArrayList<>(),
-                            section.hasValue("permissions") ? (List<String>) section.getValueAsReq("permissions", List.class) : new ArrayList<>(),
+                            section.isValuePresent("prefix") ? section.getAs("prefix", String.class) : defaultPrefix.replace("{rank_name}", section.getKey()),
+                            section.isValuePresent("commands") ? (List<String>) section.getAs("commands", List.class) : new ArrayList<>(),
+                            section.isValuePresent("permissions") ? (List<String>) section.getAs("permissions", List.class) : new ArrayList<>(),
                             reqs,
                             null,
                             null
@@ -85,9 +87,9 @@ public class RankController implements com.bgsoftware.superiorprison.api.control
                     specialRanks.add(
                             new SSpecialRank(
                                     section.getKey(),
-                                    section.hasValue("prefix") ? section.getValueAsReq("prefix", String.class) : defaultPrefix.replace("%rank_name%", section.getKey()),
-                                    section.hasValue("commands") ? (List<String>) section.getValueAsReq("commands", List.class) : new ArrayList<>(),
-                                    section.hasValue("permissions") ? (List<String>) section.getValueAsReq("permissions", List.class) : new ArrayList<>()
+                                    section.isValuePresent("prefix") ? section.getAs("prefix", String.class) : defaultPrefix.replace("%rank_name%", section.getKey()),
+                                    section.isValuePresent("commands") ? (List<String>) section.getAs("commands", List.class) : new ArrayList<>(),
+                                    section.isValuePresent("permissions") ? (List<String>) section.getAs("permissions", List.class) : new ArrayList<>()
                             )
                     );
                 }
@@ -104,6 +106,7 @@ public class RankController implements com.bgsoftware.superiorprison.api.control
             defaultRank = ladderRanks.get(1);
             loaded = true;
         } catch (Throwable thrw) {
+            thrw.printStackTrace();
             throw new IllegalStateException("Failed to load RankController cause " + thrw.getMessage(), thrw);
         }
 

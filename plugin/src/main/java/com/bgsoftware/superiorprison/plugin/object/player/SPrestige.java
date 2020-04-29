@@ -1,15 +1,16 @@
 package com.bgsoftware.superiorprison.plugin.object.player;
 
 import com.bgsoftware.superiorprison.api.data.player.Prestige;
-import com.bgsoftware.superiorprison.api.data.player.rank.LadderRank;
 import com.bgsoftware.superiorprison.api.requirement.RequirementData;
-import com.bgsoftware.superiorprison.plugin.object.player.rank.SLadderRank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @AllArgsConstructor
 public class SPrestige implements Prestige, Access {
@@ -43,7 +44,9 @@ public class SPrestige implements Prestige, Access {
     }
 
     @Override
-    public Optional<Prestige> getPrevious() { return Optional.ofNullable(previousPrestige); }
+    public Optional<Prestige> getPrevious() {
+        return Optional.ofNullable(previousPrestige);
+    }
 
     @Override
     public List<Prestige> getAllPrevious() {

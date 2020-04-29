@@ -13,9 +13,9 @@ public class CmdClear extends OCommand {
         label("clear");
         argument(new PrisonerArg(true).setRequired(true));
         onCommand(command -> {
-           SPrisoner prisoner = command.getArgAsReq("prisoner");
-           prisoner.getBoosters().clear();
-           prisoner.save(true);
+            SPrisoner prisoner = command.getArgAsReq("prisoner");
+            prisoner.getBoosters().clear();
+            prisoner.save(true);
 
             messageBuilder(LocaleEnum.PRISONER_BOOSTER_CLEAR.getWithPrefix())
                     .replace(prisoner)

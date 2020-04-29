@@ -1,9 +1,9 @@
 package com.bgsoftware.superiorprison.plugin.constant;
 
 import com.oop.orangeengine.message.OMessage;
-import com.oop.orangeengine.message.additions.action.CommandAddition;
-import com.oop.orangeengine.message.line.LineContent;
-import com.oop.orangeengine.message.line.MessageLine;
+import com.oop.orangeengine.message.impl.OChatMessage;
+import com.oop.orangeengine.message.impl.chat.ChatLine;
+import com.oop.orangeengine.message.impl.chat.LineContent;
 import lombok.Getter;
 
 import static com.oop.orangeengine.message.locale.Locale.getLocale;
@@ -44,23 +44,23 @@ public enum LocaleEnum {
     MINE_TELEPORT_FAILED_SPAWN_NOT_SET("Failed to teleport to the mine, cause spawn point is not set!"),
 
     EDIT_ICON_MAIN_MESSAGE(
-            new OMessage()
-                    .appendLine("&7&l-----------------")
-                    .appendLine("")
-                    .appendLine("   &e&lICON EDITOR")
-                    .appendLine("   &7Current: &e%item%")
-                    .appendLine("")
-                    .appendLine("   &6Available functions")
-                    .appendLine("   &e&l* &7material (material) &6=>&f set material of the icon!")
-                    .appendLine("   &e&l* &7display name (text) &6=>&f set display name of the icon")
-                    .appendLine("   &e&l* &7add lore (text) &6=>&f add lore to the icon!")
-                    .appendLine("   &e&l* &7set lore (line) (text) &6=>&f set specific line of the lore of the icon!")
-                    .appendLine("   &e&l* &7remove lore (line) &6=>&f removes specific line of the lore of the icon!")
-                    .appendLine("   &e&l* &7clear lore &6=>&f clears the lore of the icon!")
-                    .appendLine("   &e&l* &7cancel &6=>&f quit icon editor without saving!")
-                    .appendLine("   &e&l* &7save &6=>&f quit icon editor with saving!")
-                    .appendLine("")
-                    .appendLine("&7&l-----------------")
+            new OChatMessage()
+                    .append("&7&l-----------------")
+                    .append("")
+                    .append("   &e&lICON EDITOR")
+                    .append("   &7Current: &e%item%")
+                    .append("")
+                    .append("   &6Available functions")
+                    .append("   &e&l* &7material (material) &6=>&f set material of the icon!")
+                    .append("   &e&l* &7display name (text) &6=>&f set display name of the icon")
+                    .append("   &e&l* &7add lore (text) &6=>&f add lore to the icon!")
+                    .append("   &e&l* &7set lore (line) (text) &6=>&f set specific line of the lore of the icon!")
+                    .append("   &e&l* &7remove lore (line) &6=>&f removes specific line of the lore of the icon!")
+                    .append("   &e&l* &7clear lore &6=>&f clears the lore of the icon!")
+                    .append("   &e&l* &7cancel &6=>&f quit icon editor without saving!")
+                    .append("   &e&l* &7save &6=>&f quit icon editor with saving!")
+                    .append("")
+                    .append("&7&l-----------------")
     ),
     EDIT_ICON_DISPLAY_NAME_SET("Set the display name of the mine icon to &e{display_name}"),
     EDIT_ICON_SAVE("Successfully saved the icon!"),
@@ -71,35 +71,41 @@ public enum LocaleEnum {
     EDIT_ICON_SET_MATERIAL("The material of mine icon was set to &e{material}"),
 
     RANKUP_FAILED_DOES_NOT_MEET_REQUIREMENTS(
-            new OMessage(
-                    new MessageLine("Failed to rank up to (&e{rank_name}&7) cause requirements aren't met: ")
-                    .append(
-                            new LineContent("{TEMPLATE}&e{requirement_type}")
-                            .appendHover("&e&l* &7Expected Value: &e{requirement_expected}")
-                            .appendHover("&e&l* &7Current value: &e{requirement_current}")
-                    )
+            new OChatMessage(
+                    new ChatLine("Failed to rank up to (&e{rank_name}&7) cause requirements aren't met: ")
+                            .append(
+                                    new LineContent("{TEMPLATE}&e{requirement_type}")
+                                            .hover()
+                                            .add("&e&l* &7Expected Value: &e{requirement_expected}", "&e&l* &7Current value: &e{requirement_current}")
+                                            .parent()
+                            )
             )
     ),
     RANKUP_SUCCESSFUL("Successfully ranked up from ({previous_rank}) to ({current_rank})"),
     RANKUP_MAX("You're already the highest rank!"),
     RANKUP_AVAILABLE(
-            new OMessage().appendLine(
-                    new MessageLine("You have an rankup to (&e{rank_name}&7) available! ")
-                    .append(
-                            new LineContent("&e&lRANKUP")
-                            .hoverText("&eClick me to rankup!")
-                            .addAddition(new CommandAddition("rankup"))
-                    )
+            new OChatMessage().append(
+                    new ChatLine("You have an rankup to (&e{rank_name}&7) available! ")
+                            .append(
+                                    new LineContent("&e&lRANKUP")
+                                            .hover()
+                                            .add("&eClick me to rankup!")
+                                            .parent()
+                                            .command()
+                                            .command("rankup")
+                                            .parent()
+                            )
             )
     ),
 
     PRESTIGE_FAILED_DOES_NOT_MEET_REQUIREMENTS(
-            new OMessage(
-                    new MessageLine("Failed to prestige up to (&e{prestige_name}&7) cause requirements aren't met: ")
+            new OChatMessage(
+                    new ChatLine("Failed to prestige up to (&e{prestige_name}&7) cause requirements aren't met: ")
                             .append(
                                     new LineContent("{TEMPLATE}&e{requirement_type}")
-                                            .appendHover("&e&l* &7Expected Value: &e{requirement_expected}")
-                                            .appendHover("&e&l* &7Current value: &e{requirement_current}")
+                                            .hover()
+                                            .add("&e&l* &7Expected Value: &e{requirement_expected}", "&e&l* &7Current value: &e{requirement_current}")
+                                            .parent()
                             )
             )
     ),
@@ -128,14 +134,16 @@ public enum LocaleEnum {
     PRISONER_BOOSTER_REMOVE_DOESNT_HAVE("{prisoner_name} doesn't have booster by id {id}"),
     PRISONER_BOOSTER_REMOVE("Removed {booster_id} booster from {prisoner_name}"),
     PRISONER_BOOSTER_LIST(
-            new OMessage(
-                    new MessageLine("{prisoner_name}'s active boosters: ")
-                    .append(
-                            new LineContent("{TEMPLATE}&e{booster_id}")
-                                    .appendHover("&e&l* &7Type: &e{booster_type}")
-                                    .appendHover("&e&l* &7Rate: &e{booster_rate}")
-                                    .appendHover("&e&l* &7Time left: &e{booster_time}")
-                    )
+            new OChatMessage(
+                    new ChatLine("{prisoner_name}'s active boosters: ")
+                            .append(
+                                    new LineContent("{TEMPLATE}&e{booster_id}")
+                                            .hover()
+                                            .add("&e&l* &7Type: &e{booster_type}")
+                                            .add("&e&l* &7Rate: &e{booster_rate}")
+                                            .add("&e&l* &7Time left: &e{booster_time}")
+                                            .parent()
+                            )
             )
     ),
     PRISONER_MAX_PRESTIGE("You have the highest prestige!"),
@@ -153,18 +161,15 @@ public enum LocaleEnum {
     private OMessage message;
 
     LocaleEnum(String text) {
-        message = new OMessage();
-        message.appendLine(text);
+        message = new OChatMessage(text);
     }
 
     LocaleEnum(OMessage message) {
         this.message = message;
     }
 
-    LocaleEnum(String ...message) {
-        this.message = new OMessage();
-        for (String s : message)
-            this.message.appendLine(s);
+    LocaleEnum(String... message) {
+        this.message = new OChatMessage(message);
     }
 
     public static void load() {
@@ -173,24 +178,28 @@ public enum LocaleEnum {
     }
 
     public OMessage getWithPrefix() {
-        if (cache[0] == null) {
-            OMessage messageClone = message.clone();
-            messageClone.getLineList().get(0).insert(new LineContent(PREFIX.message.getLineList().get(0).getRaw()), 0);
-            cache[0] = messageClone;
-            return messageClone;
+        if (message instanceof OChatMessage) {
+            if (cache[0] == null) {
+                OChatMessage chatMessage = ((OChatMessage) message).clone();
+                chatMessage.lineList().get(0).insert(new LineContent(PREFIX.message.asChat().lineList().get(0).raw()), 0);
+                cache[0] = chatMessage;
+                return chatMessage;
 
-        } else
-            return cache[0];
+            } else return cache[0];
+        }
+        return message;
     }
 
     public OMessage getWithErrorPrefix() {
-        if (cache[1] == null) {
-            OMessage messageClone = message.clone();
-            messageClone.getLineList().get(0).insert(new LineContent(PREFIX_ERROR.message.getLineList().get(0).getRaw()), 0);
-            cache[1] = messageClone;
-            return messageClone;
+        if (message instanceof OChatMessage) {
+            if (cache[0] == null) {
+                OChatMessage chatMessage = ((OChatMessage) message).clone();
+                chatMessage.lineList().get(0).insert(new LineContent(PREFIX_ERROR.message.asChat().lineList().get(0).raw()), 0);
+                cache[0] = chatMessage;
+                return chatMessage;
 
-        } else
-            return cache[1];
+            } else return cache[0];
+        }
+        return message;
     }
 }

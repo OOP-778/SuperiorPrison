@@ -11,8 +11,6 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.util.NumberConversions;
 
-import java.io.Serializable;
-
 @Getter
 @Setter
 @Accessors(fluent = true, chain = true)
@@ -24,7 +22,8 @@ public class SPLocation implements Cloneable, SerializableObject {
     private double z;
     private String worldName;
 
-    protected SPLocation() {}
+    protected SPLocation() {
+    }
 
     public SPLocation(Location location) {
         this.x = location.getBlockX();

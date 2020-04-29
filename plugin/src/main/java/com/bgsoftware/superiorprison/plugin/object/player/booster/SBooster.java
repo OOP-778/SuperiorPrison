@@ -3,10 +3,8 @@ package com.bgsoftware.superiorprison.plugin.object.player.booster;
 import com.bgsoftware.superiorprison.api.data.player.booster.Booster;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.annotations.SerializedName;
 import com.oop.datamodule.SerializableObject;
 import com.oop.datamodule.SerializedData;
-import io.netty.bootstrap.ServerBootstrap;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -26,7 +24,21 @@ public abstract class SBooster implements Booster, SerializableObject {
     @Getter
     private double rate;
 
-    public SBooster() {}
+    public SBooster() {
+    }
+
+    public static SBooster fromElement(JsonElement element) {
+        JsonObject object = element.getAsJsonObject();
+
+        SBooster booster;
+        if (object.get("type").getAsString().contentEquals("drops"))
+            booster = new SDropsBooster();
+        else
+            booster = new SMoneyBooster();
+
+        booster.deserialize(new SerializedData(object));
+        return booster;
+    }
 
     @Override
     public void serialize(SerializedData data) {
@@ -41,19 +53,6 @@ public abstract class SBooster implements Booster, SerializableObject {
         this.id = data.applyAs("id", int.class);
         this.validTill = data.applyAs("validTill", long.class);
         this.rate = data.applyAs("rate", double.class);
-    }
-
-    public static SBooster fromElement(JsonElement element) {
-        JsonObject object = element.getAsJsonObject();
-
-        SBooster booster;
-        if (object.get("type").getAsString().contentEquals("drops"))
-            booster = new SDropsBooster();
-        else
-            booster = new SMoneyBooster();
-
-        booster.deserialize(new SerializedData(object));
-        return booster;
     }
 
 }

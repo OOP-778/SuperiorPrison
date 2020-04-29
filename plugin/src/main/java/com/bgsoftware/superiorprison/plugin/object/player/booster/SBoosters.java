@@ -4,8 +4,6 @@ import com.bgsoftware.superiorprison.api.data.player.booster.Booster;
 import com.bgsoftware.superiorprison.api.data.player.booster.Boosters;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.util.Attachable;
-import com.google.common.collect.Sets;
-import com.google.gson.annotations.SerializedName;
 import com.oop.datamodule.SerializableObject;
 import com.oop.datamodule.SerializedData;
 import com.oop.orangeengine.main.util.data.set.OConcurrentSet;
@@ -109,7 +107,6 @@ public class SBoosters implements Boosters, Attachable<SPrisoner>, SerializableO
                 serializedData.applyAsCollection("data")
                         .map(SBooster::fromElement)
                         .collect(Collectors.toSet())
-
         );
     }
 }

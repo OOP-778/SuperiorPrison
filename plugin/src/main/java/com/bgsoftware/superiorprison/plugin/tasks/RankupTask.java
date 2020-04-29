@@ -5,8 +5,8 @@ import com.bgsoftware.superiorprison.api.requirement.Requirement;
 import com.bgsoftware.superiorprison.api.requirement.RequirementException;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
-import com.bgsoftware.superiorprison.plugin.object.player.rank.SLadderRank;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
+import com.bgsoftware.superiorprison.plugin.object.player.rank.SLadderRank;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableMap;
@@ -36,7 +36,7 @@ public class RankupTask extends OTask {
                     .filter(prisoner -> cache.getIfPresent(prisoner.getUUID()) == null || !cache.getIfPresent(prisoner.getUUID()).contentEquals(prisoner.getCurrentLadderRank().getName()))
                     .filter(prisoner -> {
                         LadderRank rank = prisoner.getCurrentLadderRank();
-                        Optional<SLadderRank> next = rank.getNext().map(r -> (SLadderRank)r);
+                        Optional<SLadderRank> next = rank.getNext().map(r -> (SLadderRank) r);
                         if (!next.isPresent()) return false;
 
                         List<RequirementException> failed = new ArrayList<>();
@@ -54,7 +54,7 @@ public class RankupTask extends OTask {
                     .forEach(prisoner -> {
                         cache.invalidate(prisoner.getUUID());
                         cache.put(prisoner.getUUID(), prisoner.getCurrentLadderRank().getName());
-                        LocaleEnum.RANKUP_AVAILABLE.getWithPrefix().send(prisoner.getPlayer(), ImmutableMap.of("{rank_name}", prisoner.getCurrentLadderRank().getNext().get().getName()));
+                        LocaleEnum.RANKUP_AVAILABLE.getWithPrefix().send(ImmutableMap.of("{rank_name}", prisoner.getCurrentLadderRank().getNext().get().getName()), prisoner.getPlayer());
                     });
         });
         execute();

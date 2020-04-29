@@ -4,7 +4,7 @@ import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.util.TimeUtil;
 import com.oop.orangeengine.file.OFile;
 import com.oop.orangeengine.item.custom.OItem;
-import com.oop.orangeengine.yaml.OConfiguration;
+import com.oop.orangeengine.yaml.Config;
 import lombok.Getter;
 
 import java.util.concurrent.TimeUnit;
@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 @Getter
 public class MainConfig {
 
-    public OConfiguration configuration;
+    public Config configuration;
     private String locale = "en-us";
 
     private boolean shopGuiAsFallBack = false;
@@ -29,27 +29,23 @@ public class MainConfig {
     }
 
     private void load() {
-        this.configuration = new OConfiguration(new OFile(SuperiorPrisonPlugin.getInstance().getDataFolder(), "config.yml").createIfNotExists(true));
-
-        int update = configuration.updater().update();
-        if (update > 1)
-            SuperiorPrisonPlugin.getInstance().getOLogger().print("Updated config.yml (" + update + ") values!");
+        this.configuration = new Config(new OFile(SuperiorPrisonPlugin.getInstance().getDataFolder(), "config.yml").createIfNotExists(true));
 
         // Set Locale
         configuration.ifValuePresent("locale", String.class, locale -> this.locale = locale);
 
         // Load Database Section
-        this.database = new DatabaseSection(configuration.getSection("database"));
+        this.database = new DatabaseSection(configuration.getSection("database").get());
 
         // Load Mine Defaults
-        this.mineDefaults = new MineDefaultsSection(configuration.getSection("mine defaults"));
+        this.mineDefaults = new MineDefaultsSection(configuration.createSection("mine defaults"));
 
-        this.areaSelectionTool = new OItem().load(configuration.getSection("area selection tool"));
+        this.areaSelectionTool = new OItem().load(configuration.getSection("area selection tool").get());
 
         configuration.ifValuePresent("shopgui fall back", boolean.class, b -> shopGuiAsFallBack = b);
         configuration.ifSectionPresent("command colors", section -> commandColors = new CommandColorsSection(section));
 
-        cacheTime = TimeUtil.toSeconds(configuration.getOrInsert("blocks cache time limit", String.class, "1h"));
+        cacheTime = TimeUtil.toSeconds(configuration.getAs("blocks cache time limit", String.class, () -> "1h"));
         configuration.save();
     }
 }

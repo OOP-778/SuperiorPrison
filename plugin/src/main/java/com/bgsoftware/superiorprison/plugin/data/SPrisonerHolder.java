@@ -5,13 +5,15 @@ import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 import com.bgsoftware.superiorprison.plugin.controller.DatabaseController;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.oop.datamodule.DataStorage;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 public class SPrisonerHolder extends DataStorage<SPrisoner> implements PrisonerHolder {

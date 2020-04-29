@@ -74,7 +74,7 @@ buttons:
       - "&7The materials to default!"
 
   "S":
-      material: BOOK
-      display name: "&eSave"
-      lore:
-        - "&7Click to save changes"
+    material: BOOK
+    display name: "&eSave"
+    lore:
+      - "&7Click to save changes"

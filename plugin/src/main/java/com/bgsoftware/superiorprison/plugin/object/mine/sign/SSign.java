@@ -2,7 +2,6 @@ package com.bgsoftware.superiorprison.plugin.object.mine.sign;
 
 import com.bgsoftware.superiorprison.api.data.mine.sign.Sign;
 import com.bgsoftware.superiorprison.api.data.mine.sign.SignType;
-import com.google.gson.annotations.SerializedName;
 import lombok.Getter;
 import org.bukkit.Location;
 

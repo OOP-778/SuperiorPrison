@@ -1,8 +1,7 @@
 package com.bgsoftware.superiorprison.plugin.menu;
 
-import com.bgsoftware.superiorprison.plugin.util.SPLocation;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
-import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
+import com.bgsoftware.superiorprison.plugin.menu.control.MineControlPanel;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.util.menu.ClickHandler;
@@ -10,11 +9,9 @@ import com.bgsoftware.superiorprison.plugin.util.menu.OMenu;
 import com.bgsoftware.superiorprison.plugin.util.menu.OMenuButton;
 import com.bgsoftware.superiorprison.plugin.util.menu.OPagedMenu;
 import com.oop.orangeengine.material.OMaterial;
-import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 
 import java.util.List;
-import java.util.Optional;
 
 public class MinesListMenu extends OPagedMenu<SNormalMine> implements OMenu.Templateable {
     public MinesListMenu(SPrisoner viewer) {

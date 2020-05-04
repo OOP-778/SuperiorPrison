@@ -101,7 +101,12 @@ public class OMenuButton implements Cloneable {
             if (!papiOptional.isPresent()) return itemBuilder.getItemStack();
             PapiHook papi = papiOptional.get();
 
+            Set<OPair<String, Function<Object, String>>> placeholdersFor = SuperiorPrisonPlugin.getInstance().getPlaceholderController().findPlaceholdersFor(object);
             ItemBuilder clone = itemBuilder.clone();
+
+            clone.setLore(replaceList(object, clone.getLore(), placeholdersFor));
+            clone.setDisplayName(replaceText(object, clone.getDisplayName(), placeholdersFor));
+
             clone.setDisplayName(papi.parse(object, clone.getDisplayName()));
             clone.setLore(papi.parse(object, finalizeLore(clone.getLore(), object instanceof SPrisoner ? ((SPrisoner) object).getPlayer() : null)));
 

@@ -6,6 +6,7 @@ import com.bgsoftware.superiorprison.plugin.util.Attachable;
 import com.oop.datamodule.SerializableObject;
 import com.oop.datamodule.SerializedData;
 import lombok.Getter;
+import lombok.NonNull;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -28,6 +29,11 @@ public class SMineMessages implements MineMesssages, SerializableObject, Attacha
     }
 
     @Override
+    public void remove(int id) {
+        messages.remove(id);
+    }
+
+    @Override
     public MineChatMessage addChatMessage(String content, long every) {
         return generateId(new SMineChatMessage(every, content));
     }
@@ -40,6 +46,12 @@ public class SMineMessages implements MineMesssages, SerializableObject, Attacha
     @Override
     public MineActionBarMessage addActionBarMessage(String content, long every) {
         return generateId(new SMineActionBarMessage(every, content));
+    }
+
+    public SMineMessage add(@NonNull SMineMessage message) {
+        generateId(message);
+        messages.put(message.getId(), message);
+        return message;
     }
 
     public <T extends SMineMessage> T generateId(T message) {

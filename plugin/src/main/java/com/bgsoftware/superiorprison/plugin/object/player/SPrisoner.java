@@ -367,7 +367,7 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
                         .map(JsonElement::getAsString)
                         .collect(Collectors.toSet())
         );
-        this.logoutMine = data.applyAs("logoutmine", String.class);
+        this.logoutMine = data.getElement("logoutmine").map(JsonElement::getAsString).orElse(null);
         this.boosters = data.applyAs("boosters", SBoosters.class);
         this.boosters.attach(this);
     }

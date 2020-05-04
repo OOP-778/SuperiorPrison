@@ -82,7 +82,7 @@ public class PlaceholderController {
 
         add(SMineMessage.class, "{message_type}", message -> Helper.beautify(message.getType()));
         add(SMineMessage.class, "{message_id}", SMineMessage::getId);
-        add(SMineMessage.class, "{message_every}", message -> TimeUtil.toString(message.getEvery()));
+        add(SMineMessage.class, "{message_interval}", message -> TimeUtil.toString(message.getEvery()));
     }
 
     private <T> void add(Class<T> type, String placeholder, Function<T, Object> handler) {

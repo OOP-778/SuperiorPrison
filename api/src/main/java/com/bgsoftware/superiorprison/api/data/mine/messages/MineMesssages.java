@@ -8,6 +8,12 @@ public interface MineMesssages {
 
     Set<MineMessage> get();
 
+    void remove(int id);
+
+    default void remove(MineMessage mineMessage) {
+        remove(mineMessage.getId());
+    }
+
     MineChatMessage addChatMessage(String content, long every);
 
     MineTitleMessage addTitleMessage(int fadeIn, int stay, int fadeOut, String title, String subTitle, long every);

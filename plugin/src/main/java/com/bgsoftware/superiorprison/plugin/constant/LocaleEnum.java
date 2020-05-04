@@ -38,6 +38,9 @@ public enum LocaleEnum {
     EDIT_SHOP_PRICE_NOT_NUMBER("Given value is not an number! ex: 5.5"),
     EDIT_SHOP_PRICE_SET("Price {item_name} was set to ${item_price}"),
 
+    EDIT_MESSAGE_INTERVAL("Please write new interval! Example: 1h2m2s, 1m, 5m6s, 10s"),
+    EDIT_MESSAGE_INTERVAL_SET("New interval for msssage {message_id} set to {message_interval}"),
+
     EDIT_FLAGS_TOGGLE("You've &e{state} {flag} &7for &e{mine}&7"),
 
     MINE_RESET_SUCCESSFUL("Mine was successfully reset!"),
@@ -153,7 +156,11 @@ public enum LocaleEnum {
     COPIED_OPTION("Copied {option_name} from {from_name} to {to_name}"),
 
     SOLD_EVERYTHING("Sold everything for {total}"),
-    MINE_IS_FULL("Mine is currently full.");
+    MINE_IS_FULL("Mine is currently full."),
+
+    MINE_MESSAGES_CREATE_TYPE("What type of message you want to create? Available: actionbar, title, chat"),
+    MINE_MESSAGES_CREATE_INTERVAL("Now write interval of message. Example: 1h2m2s, 1m, 3s, 10m10s"),
+    MINE_MESSAGES_CREATE_SUCCESS("Successfully create mine message of type {message_type}");
 
     private OMessage[] cache = new OMessage[2];
 

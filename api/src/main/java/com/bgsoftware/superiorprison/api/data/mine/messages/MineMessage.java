@@ -8,5 +8,5 @@ public interface MineMessage {
 
     int getId();
 
-    void setEvery(long every);
+    void setInterval(long every);
 }

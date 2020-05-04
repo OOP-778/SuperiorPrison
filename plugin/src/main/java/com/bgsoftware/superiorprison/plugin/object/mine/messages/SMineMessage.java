@@ -24,7 +24,7 @@ public abstract class SMineMessage implements MineMessage, SerializableObject {
     }
 
     @Override
-    public void setEvery(long every) {
+    public void setInterval(long every) {
         this.every = every;
     }
 

@@ -20,6 +20,7 @@ import com.bgsoftware.superiorprison.plugin.requirement.RequirementRegisterer;
 import com.bgsoftware.superiorprison.plugin.tasks.TasksStarter;
 import com.bgsoftware.superiorprison.plugin.util.menu.MenuListener;
 import com.oop.orangeengine.command.CommandController;
+import com.oop.orangeengine.main.Helper;
 import com.oop.orangeengine.main.plugin.EnginePlugin;
 import com.oop.orangeengine.main.task.ClassicTaskController;
 import com.oop.orangeengine.main.task.ITaskController;
@@ -114,6 +115,9 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
     public void disable() {
         if (getDatabaseController() != null && getDatabaseController().getDatabase() != null)
             getDatabaseController().save();
+
+        Bukkit.getOnlinePlayers().forEach(player -> player.kickPlayer(Helper.color("&cPrison shutting down...")));
+
         instance = null;
         disabling = true;
     }

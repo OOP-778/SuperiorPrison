@@ -16,6 +16,8 @@ import lombok.NonNull;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.bukkit.command.CommandSender;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerEvent;
 
 import java.util.*;
 import java.util.function.Function;
@@ -87,6 +89,10 @@ public class CommandHelper {
 
         public void send(CommandSender sender) {
             sendMessage(sender, sendable);
+        }
+
+        public void send(PlayerEvent playerEvent) {
+            send(playerEvent.getPlayer());
         }
     }
 

@@ -1,12 +1,12 @@
 title: "&e&l{mine_name} &8&l> &6Message: #{message_id}"
 
 actions:
-  - "every:E"
+  - "interval:I"
   - "content:C"
 
 layout:
   - "@ @ @ @ @ @ @ @ @"
-  - "# $ C $ M $ E $ #"
+  - "# $ C $ M $ I $ #"
   - "@ @ @ @ @ @ @ @ @"
 
 buttons:
@@ -23,7 +23,7 @@ buttons:
     display name: "&eMessage #{message_id}"
     lore:
       - "&e&l* &7Type: &e{message_type}"
-      - "&e&l* &7Every: &e{message_every}"
+      - "&e&l* &7Interval: &e{message_every}"
 
   "C":
     material: book
@@ -31,8 +31,8 @@ buttons:
     lore:
       - "&e&l* &7Click to edit"
 
-  "T":
+  "I":
     material: clock
-    display name: "&eEvery"
+    display name: "&eInterval"
     lore:
       - "&e&l* &7Click to edit"

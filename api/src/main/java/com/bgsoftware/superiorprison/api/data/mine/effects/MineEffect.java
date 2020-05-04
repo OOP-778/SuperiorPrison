@@ -4,6 +4,7 @@ import org.bukkit.potion.PotionEffectType;
 
 public interface MineEffect {
     PotionEffectType getType();
+
     int getAmplifier();
 
     void setAmplifier(int amplifier);

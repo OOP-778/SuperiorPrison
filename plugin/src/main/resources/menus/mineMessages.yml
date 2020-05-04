@@ -4,15 +4,16 @@ templates:
   - "message:M"
 
 actions:
-  - "message:E"
+  - "message:M"
   - "next page:N"
   - "previous page:P"
+  - "create:C"
 
 layout:
   - "@ @ @ @ @ @ @ @ @"
   - "# $ $ $ $ $ $ $ #"
   - "# $ $ $ $ $ $ $ #"
-  - "@ @ P @ I @ N @ @"
+  - "C @ P @ I @ N @ @"
 
 buttons:
   "@":
@@ -53,12 +54,18 @@ buttons:
     lore:
       - "&cSoon."
 
+  "C":
+    material: paper
+    display name: "&eCreate New"
+    lore:
+      - "&7Create new message"
+
   "M":
     material: paper
-    display name: "&e#{message_id]"
+    display name: "&e#{message_id}"
     lore:
       - "&e&l* &7Type: &e{message_type}"
-      - "&e&l* &7Every: &e{message_every}"
+      - "&e&l* &7Every: &e{message_interval}"
       - ""
       - "&aLeft-Click to edit"
       - "&cRight-Click to remove"

@@ -31,7 +31,8 @@ public class ChatCommands {
         event.setMessage("");
 
         // Try to find labels
-        Optional<String> first = commandMap.keySet().stream()
+        Optional<String> first = commandMap.keySet()
+                .stream()
                 .filter(label -> message.toLowerCase().startsWith(label.toLowerCase()))
                 .findFirst();
         if (!first.isPresent()) {
@@ -46,7 +47,6 @@ public class ChatCommands {
             }
             return;
         }
-
         BiConsumer<Player, String[]> cmd = commandMap.get(first.get());
         String[] noLabelMessage = message.split(first.get());
         String[] args = new String[0];

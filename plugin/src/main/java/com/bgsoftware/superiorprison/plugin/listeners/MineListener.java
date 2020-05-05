@@ -55,7 +55,7 @@ public class MineListener {
                 if (superiorMine.getSettings().getResetSettings().isTimed()) return;
                 async(() -> {
                     int percentageOfFullBlocks = superiorMine.getGenerator().getPercentageOfFullBlocks();
-                    int percentageRequired = superiorMine.getSettings().getResetSettings().asPercentage().getRequiredPercentage();
+                    long percentageRequired = superiorMine.getSettings().getResetSettings().asPercentage().getValue();
 
                     if (percentageOfFullBlocks <= percentageRequired) {
                         superiorMine.getGenerator().setNonEmptyBlocks(superiorMine.getGenerator().getCachedMaterials().length);

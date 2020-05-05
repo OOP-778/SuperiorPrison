@@ -58,10 +58,10 @@ public class MessagesListMenu extends OPagedMenu<SMineMessage> implements OMenu.
 
                             SMineMessage message = null;
                             if (match == MessageType.CHAT)
-                                message = new SMineChatMessage(seconds, "None");
+                                message = new SMineChatMessage(seconds, null);
 
                             else if (match == MessageType.ACTION_BAR)
-                                message = new SMineActionBarMessage(seconds, "None");
+                                message = new SMineActionBarMessage(seconds, null);
 
                             else if (match == MessageType.TITLE)
                                 message = new SMineTitleMessage(seconds, 5, 10, 5, null, null);
@@ -90,11 +90,17 @@ public class MessagesListMenu extends OPagedMenu<SMineMessage> implements OMenu.
 
     @Override
     public OMenuButton toButton(SMineMessage obj) {
+        System.out.println("Building for " + obj);
         Optional<OMenuButton> messageTemplate = getTemplateButtonFromTemplate("message");
         if (!messageTemplate.isPresent()) return null;
 
         OMenuButton oMenuButton = messageTemplate.get().clone();
         oMenuButton.currentItem(oMenuButton.getDefaultStateItem().getItemStackWithPlaceholders(obj));
         return oMenuButton;
+    }
+
+    @Override
+    public Object[] getBuildPlaceholders() {
+        return new Object[]{mine, mine.getMessages()};
     }
 }

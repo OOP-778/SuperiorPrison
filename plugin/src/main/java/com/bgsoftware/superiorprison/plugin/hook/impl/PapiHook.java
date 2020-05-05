@@ -242,7 +242,8 @@ public class PapiHook extends SHook {
 
                         else if (split[3].equalsIgnoreCase("percentage")) {
                             if (resetSettings.isTimed()) return "none";
-                            return resetSettings.asPercentage().getRequiredPercentage() + "";
+                            return resetSettings.asPercentage().getValue() + "";
+
                         } else if (split[3].equalsIgnoreCase("timeleft")) {
                             if (!resetSettings.isTimed()) return "none";
                             return TimeUtil.leftToString(resetSettings.asTimed().getResetDate());

@@ -4,6 +4,8 @@ import com.bgsoftware.superiorprison.api.data.mine.area.Area;
 import com.bgsoftware.superiorprison.api.data.mine.area.AreaEnum;
 import com.bgsoftware.superiorprison.api.data.mine.effects.MineEffect;
 import com.bgsoftware.superiorprison.api.data.mine.effects.MineEffects;
+import com.bgsoftware.superiorprison.api.data.mine.messages.MineMessage;
+import com.bgsoftware.superiorprison.api.data.mine.messages.MineMesssages;
 import com.bgsoftware.superiorprison.api.data.mine.settings.MineSettings;
 import com.bgsoftware.superiorprison.api.data.mine.shop.MineShop;
 import com.bgsoftware.superiorprison.api.data.mine.sign.Sign;
@@ -140,4 +142,6 @@ public interface SuperiorMine {
     void addPrestige(Prestige ...prestige);
 
     void onReset();
+
+    MineMesssages getMessages();
 }

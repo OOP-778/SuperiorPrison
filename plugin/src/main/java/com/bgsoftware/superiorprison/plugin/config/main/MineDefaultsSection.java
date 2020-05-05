@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorprison.plugin.config.main;
 
 import com.bgsoftware.superiorprison.api.data.mine.settings.ResetSettings;
+import com.bgsoftware.superiorprison.api.data.mine.settings.ResetType;
 import com.oop.orangeengine.item.custom.OItem;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.material.OMaterial;
@@ -17,7 +18,7 @@ public class MineDefaultsSection {
     private OItem icon;
     private int limit = -1;
 
-    private OPair<ResetSettings.Type, String> resetting = new OPair<>(ResetSettings.Type.PERCENTAGE, "50");
+    private OPair<ResetType, String> resetting = new OPair<>(ResetType.PERCENTAGE, "50");
     private List<OPair<Double, OMaterial>> materials;
 
     private List<OPair<OMaterial, Double>> shopPrices;
@@ -27,7 +28,7 @@ public class MineDefaultsSection {
         this.limit = section.getAs("limit");
 
         ConfigSection resettingSection = section.getSection("resetting").get();
-        this.resetting.set(ResetSettings.Type.valueOf(resettingSection.getAs("mode", String.class).toUpperCase()), resettingSection.getAs("value"));
+        this.resetting.set(ResetType.valueOf(resettingSection.getAs("mode", String.class).toUpperCase()), resettingSection.getAs("value"));
 
         this.materials = ((List<String>) section.getAs("materials"))
                 .stream()

@@ -23,7 +23,7 @@ buttons:
     display name: "&eMessage #{message_id}"
     lore:
       - "&e&l* &7Type: &e{message_type}"
-      - "&e&l* &7Interval: &e{message_every}"
+      - "&e&l* &7Interval: &e{message_interval}"
 
   "C":
     material: book

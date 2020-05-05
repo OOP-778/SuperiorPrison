@@ -3,19 +3,26 @@ package com.bgsoftware.superiorprison.plugin.object.mine.messages;
 import com.bgsoftware.superiorprison.api.data.mine.messages.MineMessage;
 import com.oop.datamodule.SerializableObject;
 import com.oop.datamodule.SerializedData;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.time.ZonedDateTime;
 
 public abstract class SMineMessage implements MineMessage, SerializableObject {
 
-    private long every;
+    private long interval;
     private int id;
 
-    public SMineMessage(long every) {
-        this.every = every;
+    @Setter @Getter
+    private ZonedDateTime timeToRun;
+
+    public SMineMessage(long interval) {
+        this.interval = interval;
     }
 
     @Override
-    public long getEvery() {
-        return every;
+    public long getInterval() {
+        return interval;
     }
 
     @Override
@@ -25,19 +32,19 @@ public abstract class SMineMessage implements MineMessage, SerializableObject {
 
     @Override
     public void setInterval(long every) {
-        this.every = every;
+        this.interval = every;
     }
 
     @Override
     public void deserialize(SerializedData serializedData) {
         this.id = serializedData.applyAs("id", int.class);
-        this.every = serializedData.applyAs("every", long.class);
+        this.interval = serializedData.applyAs("interval", long.class);
     }
 
     @Override
     public void serialize(SerializedData serializedData) {
         serializedData.write("id", id);
-        serializedData.write("every", every);
+        serializedData.write("interval", interval);
     }
 
     public static SMineMessage from(SerializedData data) {

@@ -8,9 +8,13 @@ import com.bgsoftware.superiorprison.api.data.player.rank.Rank;
 import com.bgsoftware.superiorprison.api.requirement.RequirementException;
 import com.bgsoftware.superiorprison.plugin.menu.access.AccessObject;
 import com.bgsoftware.superiorprison.plugin.menu.access.SortMethod;
+import com.bgsoftware.superiorprison.plugin.menu.settings.SettingsObject;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.mine.area.SArea;
+import com.bgsoftware.superiorprison.plugin.object.mine.messages.SMineActionBarMessage;
+import com.bgsoftware.superiorprison.plugin.object.mine.messages.SMineChatMessage;
 import com.bgsoftware.superiorprison.plugin.object.mine.messages.SMineMessage;
+import com.bgsoftware.superiorprison.plugin.object.mine.messages.SMineTitleMessage;
 import com.bgsoftware.superiorprison.plugin.object.mine.shop.SShopItem;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.object.player.booster.SBooster;
@@ -32,7 +36,6 @@ import static com.bgsoftware.superiorprison.plugin.util.TextUtil.beautifyDouble;
 public class PlaceholderController {
 
     private Map<Class<?>, Set<OPair<String, Function<Object, String>>>> placeholders = Maps.newHashMap();
-
     public PlaceholderController() {
         add(SNormalMine.class, "{mine_name}", SNormalMine::getName);
         add(SNormalMine.class, "{mine_prisoners_count}", mine -> mine.getPrisoners().size());
@@ -56,7 +59,6 @@ public class PlaceholderController {
         add(SPrisoner.class, "{prisoner_ladder_ranks}", prisoner -> listToString(prisoner.getLadderRanks().stream().map(Rank::getName).collect(Collectors.toList())));
         add(SPrisoner.class, "{prisoner_special_ranks}", prisoner -> listToString(prisoner.getSpecialRanks().stream().map(Rank::getName).collect(Collectors.toList())));
         add(SPrisoner.class, "{prisoner_prestiges}", prisoner -> listToString(prisoner.getPrestiges().stream().map(Prestige::getName).collect(Collectors.toList())));
-
 
         add(SNormalMine.class, "{mine_spawnpoint_x}", mine -> mine.getSpawnPoint().getBlockX());
         add(SNormalMine.class, "{mine_spawnpoint_y}", mine -> mine.getSpawnPoint().getBlockY());
@@ -82,7 +84,19 @@ public class PlaceholderController {
 
         add(SMineMessage.class, "{message_type}", message -> Helper.beautify(message.getType()));
         add(SMineMessage.class, "{message_id}", SMineMessage::getId);
-        add(SMineMessage.class, "{message_interval}", message -> TimeUtil.toString(message.getEvery()));
+        add(SMineMessage.class, "{message_interval}", message -> TimeUtil.toString(message.getInterval()));
+
+        add(SMineChatMessage.class, "{message_content}", message -> message.getContent() == null ? "None" : message.getContent());
+        add(SMineActionBarMessage.class, "{message_content}", message -> message.getContent() == null ? "None" : message.getContent());
+
+        add(SMineTitleMessage.class, "{message_title}", message -> message.getTitle().orElse("None"));
+        add(SMineTitleMessage.class, "{message_subTitle}", message -> message.getSubTitle().orElse("None"));
+        add(SMineTitleMessage.class, "{message_fadeIn}", SMineTitleMessage::getFadeIn);
+        add(SMineTitleMessage.class, "{message_stay}", SMineTitleMessage::getStay);
+        add(SMineTitleMessage.class, "{message_fadeOut}", SMineTitleMessage::getFadeOut);
+
+        add(SettingsObject.class, "{setting_name}", SettingsObject::id);
+        add(SettingsObject.class, "{setting_value}", obj -> Helper.beautify(obj.currentValue()));
     }
 
     private <T> void add(Class<T> type, String placeholder, Function<T, Object> handler) {

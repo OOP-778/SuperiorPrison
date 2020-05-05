@@ -38,8 +38,71 @@ public enum LocaleEnum {
     EDIT_SHOP_PRICE_NOT_NUMBER("Given value is not an number! ex: 5.5"),
     EDIT_SHOP_PRICE_SET("Price {item_name} was set to ${item_price}"),
 
+    EDIT_SETTINGS_LIMIT("Please write new limit for the mine"),
+    EDIT_SETTINGS_LIMIT_SUCCESS("Set the new player limit to {setting_value}"),
+
+    EDIT_SETTING_RESET_TYPE("Please write a reset type from given ones: Timed, Percentage"),
+    EDIT_SETTINGS_RESET_TYPE_SUCCESS("Set the new reset type to {setting_value}"),
+
+    EDIT_SETTINGS_RESET_VALUE("Please write new {setting_name} for resetting"),
+    EDIT_SETTINGS_RESET_VALUE_SUCCESS("Set the {setting_name} to {setting_value}"),
+
+    EDIT_SETTINGS_ERROR("Error while editing setting {setting_name}: &c{error}"),
+
     EDIT_MESSAGE_INTERVAL("Please write new interval! Example: 1h2m2s, 1m, 5m6s, 10s"),
-    EDIT_MESSAGE_INTERVAL_SET("New interval for msssage {message_id} set to {message_interval}"),
+    EDIT_MESSAGE_INTERVAL_SET("New interval for message {message_id} set to {message_interval}"),
+    EDIT_MESSAGE_CHAT_CONTENT(
+            new OChatMessage()
+                    .append("&7&l-----------------")
+                    .append("")
+                    .append("   &e&lCHAT MESSAGE EDITOR")
+                    .append("   &7Content: &e{message_content}")
+                    .append("")
+                    .append("   &6Available functions")
+                    .append("   &e&l* &7set (text) &6=>&f set the content of message")
+                    .append("   &e&l(!) &7When you're done write '&esave&7'")
+                    .append("")
+                    .append("&7&l-----------------")
+    ),
+    EDIT_MESSAGE_CONTENT_SUCCESS("Set the content of the message to {message_content}"),
+    EDIT_MESSAGE_ACTION_BAR_CONTENT(
+            new OChatMessage()
+                    .append("&7&l-----------------")
+                    .append("")
+                    .append("   &e&lACTION BAR MESSAGE EDITOR")
+                    .append("   &7Content: &e{message_content}")
+                    .append("")
+                    .append("   &6Available functions")
+                    .append("   &e&l* &7set (text) &6=>&f set the content of message")
+                    .append("   &e&l(!) &7When you're done write '&esave&7'")
+                    .append("")
+                    .append("&7&l-----------------")
+    ),
+    EDIT_MESSAGE_TITLE_CONTENT(
+            new OChatMessage()
+                    .append("&7&l-----------------")
+                    .append("")
+                    .append("   &e&lTITLE MESSAGE EDITOR")
+                    .append("   &7Title: &e{message_title}")
+                    .append("   &7Sub title: &e{message_subTitle}")
+                    .append("   &7Fade in, stay, fade out: &e{message_fadeIn}, {message_stay}, {message_fadeOut}")
+                    .append("")
+                    .append("   &6Available functions")
+                    .append("   &e&l* &7setTitle (text) &6=>&f set title of message")
+                    .append("   &e&l* &7setSubTitle (text) &6=>&f set subtitle of message")
+                    .append("   &e&l* &7setFadeIn (int) &6=>&f set fade in of message")
+                    .append("   &e&l* &7setStay (int) &6=>&f set stay of message")
+                    .append("   &e&l* &7setFadeOut (int) &6=>&f set fade out of message")
+                    .append("   &e&l(!) &7When you're done write '&esave&7'")
+                    .append("")
+                    .append("&7&l-----------------")
+    ),
+    EDIT_MESSAGE_TITLE_SUCCESS("Set title of the message to: {message_title}"),
+    EDIT_MESSAGE_TITLE_SUBTITLE_SUCCESS("Set sub title of the message to: {message_subTitle}"),
+    EDIT_MESSAGE_TITLE_FADEIN_SUCCESS("Set fade in of the message to: {message_fadeIn}"),
+    EDIT_MESSAGE_TITLE_STAY_SUCCESS("Set stay of the message to: {message_stay}"),
+    EDIT_MESSAGE_TITLE_FADEOUT_SUCCESS("Set fade out of the message to: {message_fadeOut}"),
+    EDIT_MESSAGE_SAVE("Saved message of id {message_id}"),
 
     EDIT_FLAGS_TOGGLE("You've &e{state} {flag} &7for &e{mine}&7"),
 

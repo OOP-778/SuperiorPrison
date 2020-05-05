@@ -7,6 +7,7 @@ import com.bgsoftware.superiorprison.plugin.menu.ShopEditMenu;
 import com.bgsoftware.superiorprison.plugin.menu.access.AccessEditMenu;
 import com.bgsoftware.superiorprison.plugin.menu.flags.AreaChooseMenu;
 import com.bgsoftware.superiorprison.plugin.menu.messages.MessagesListMenu;
+import com.bgsoftware.superiorprison.plugin.menu.settings.SettingsMenu;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.util.chatCmds.ChatCommands;
@@ -85,9 +86,12 @@ public class MineControlPanel extends OPagedMenu<OptionEnum> implements OMenu.Te
                         case MESSAGES:
                             previousMove = false;
                             new MessagesListMenu(getViewer(), getMine()).open(this);
+                            break;
 
                         case SETTINGS:
-                            // TODO: Implement
+                            previousMove = false;
+                            new SettingsMenu(getViewer(), getMine()).open(this);
+                            break;
                     }
                 });
     }

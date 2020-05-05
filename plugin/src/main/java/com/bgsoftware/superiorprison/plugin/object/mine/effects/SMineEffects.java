@@ -4,9 +4,11 @@ import com.bgsoftware.superiorprison.api.data.mine.effects.MineEffect;
 import com.bgsoftware.superiorprison.api.data.mine.effects.MineEffects;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.util.Attachable;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.oop.datamodule.SerializableObject;
 import com.oop.datamodule.SerializedData;
-import com.oop.datamodule.util.DataUtil;
 import lombok.Getter;
 import org.bukkit.potion.PotionEffectType;
 
@@ -62,17 +64,26 @@ public class SMineEffects implements MineEffects, SerializableObject, Attachable
 
     @Override
     public void serialize(SerializedData serializedData) {
-        serializedData.write("effects", effects);
+        JsonArray array = new JsonArray();
+        for (SMineEffect effect : effects.values()) {
+            JsonObject object = new JsonObject();
+            object.addProperty("type", effect.getType().getName());
+            object.addProperty("amplifier", effect.getAmplifier());
+        }
+        serializedData.getJsonObject().add("effects", array);
     }
 
     @Override
     public void deserialize(SerializedData serializedData) {
         serializedData
-                .applyAsMap("effects")
-                .forEach(pair -> {
-                    PotionEffectType type = DataUtil.fromElement(pair.getKey(), PotionEffectType.class);
-                    SMineEffect effect = DataUtil.fromElement(pair.getValue(), SMineEffect.class);
-                    effects.put(type, effect);
+                .getElement("effects")
+                .map(JsonElement::getAsJsonArray)
+                .ifPresent(array -> {
+                    for (JsonElement jsonElement : array) {
+                        JsonObject object = jsonElement.getAsJsonObject();
+                        SMineEffect effect = new SMineEffect(PotionEffectType.getByName(object.getAsJsonPrimitive("type").getAsString()), object.getAsJsonPrimitive("amplifier").getAsInt());
+                        effects.put(effect.getType(), effect);
+                    }
                 });
     }
 

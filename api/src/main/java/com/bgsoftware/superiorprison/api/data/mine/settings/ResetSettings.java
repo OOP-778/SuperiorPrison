@@ -6,8 +6,14 @@ import java.util.concurrent.TimeUnit;
 
 public interface ResetSettings {
 
+    ResetType getType();
+
+    long getValue();
+
+    void setValue(long value);
+
     default boolean isTimed() {
-        return getClass().isAssignableFrom(Timed.class);
+        return getType() == ResetType.TIMED;
     }
 
     default <T extends ResetSettings> T as(Class<T> type) {
@@ -22,26 +28,10 @@ public interface ResetSettings {
         return !isTimed() ? (Percentage) this : Objects.requireNonNull(null, "Tried to get reset settings as Percentage, but it's not instance of Percentage.");
     }
 
-    public static enum Type {
-
-        PERCENTAGE,
-        TIMED
-
-    }
-
     public static interface Timed extends ResetSettings {
         ZonedDateTime getResetDate();
-
-        long getInterval();
-
-        void setInterval(long interval, TimeUnit unit);
-
     }
 
     public static interface Percentage extends ResetSettings {
-        int getRequiredPercentage();
-
-        void setRequiredPercentage(int percentage);
     }
-
 }

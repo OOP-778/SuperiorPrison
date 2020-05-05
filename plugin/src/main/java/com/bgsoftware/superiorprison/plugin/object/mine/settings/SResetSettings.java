@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorprison.plugin.object.mine.settings;
 
 import com.bgsoftware.superiorprison.api.data.mine.settings.ResetSettings;
+import com.bgsoftware.superiorprison.api.data.mine.settings.ResetType;
 import com.bgsoftware.superiorprison.plugin.util.TimeUtil;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
@@ -14,8 +15,8 @@ import java.time.ZonedDateTime;
 import java.util.concurrent.TimeUnit;
 
 public class SResetSettings {
-    public static ResetSettings of(OPair<ResetSettings.Type, String> data) {
-        if (data.getFirst() == ResetSettings.Type.TIMED)
+    public static ResetSettings of(OPair<ResetType, String> data) {
+        if (data.getFirst() == ResetType.TIMED)
             return new STimed(TimeUtil.toSeconds(data.getSecond()));
 
         else
@@ -37,13 +38,28 @@ public class SResetSettings {
     }
 
     public static ResetSettings from(ResetSettings from) {
-        return from instanceof STimed ? STimed.from((STimed) from) : new SPercentage(from.asPercentage().getRequiredPercentage());
+        return from instanceof STimed ? STimed.from((STimed) from) : new SPercentage(from.asPercentage().getValue());
     }
 
     @Getter
     public static class STimed implements ResetSettings.Timed, SerializableObject {
 
         private long interval;
+
+        @Override
+        public ResetType getType() {
+            return ResetType.TIMED;
+        }
+
+        @Override
+        public long getValue() {
+            return interval;
+        }
+
+        @Override
+        public void setValue(long value) {
+            this.interval = value;
+        }
 
         @Setter
         private transient ZonedDateTime resetDate;
@@ -62,11 +78,6 @@ public class SResetSettings {
         }
 
         @Override
-        public void setInterval(long interval, TimeUnit unit) {
-            this.interval = unit.toSeconds(interval);
-        }
-
-        @Override
         public void serialize(SerializedData data) {
             data.write("interval", interval);
         }
@@ -81,14 +92,28 @@ public class SResetSettings {
     @Setter
     public static class SPercentage implements ResetSettings.Percentage, SerializableObject {
 
-        @SerializedName(value = "requiredPercentage")
-        private int requiredPercentage;
+        private long requiredPercentage;
 
         private SPercentage() {
         }
 
-        private SPercentage(int requiredPercentage) {
+        @Override
+        public ResetType getType() {
+            return ResetType.PERCENTAGE;
+        }
+
+        public SPercentage(long requiredPercentage) {
             this.requiredPercentage = requiredPercentage;
+        }
+
+        @Override
+        public long getValue() {
+            return requiredPercentage;
+        }
+
+        @Override
+        public void setValue(long value) {
+            this.requiredPercentage = value;
         }
 
         @Override

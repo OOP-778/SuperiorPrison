@@ -6,10 +6,10 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 public class ButtonClickEvent extends InventoryClickEvent {
 
     @Getter
-    private OMenuButton button;
+    private final OMenuButton button;
 
     @Getter
-    private OMenu menu;
+    private final OMenu menu;
 
     public ButtonClickEvent(InventoryClickEvent event, OMenuButton button) {
         super(event.getView(), event.getSlotType(), event.getRawSlot(), event.getClick(), event.getAction());

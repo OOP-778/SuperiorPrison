@@ -70,7 +70,7 @@ public class TextUtil {
     public static String beautifyDouble(Double d) {
         String stringD = String.valueOf(d);
         if (stringD.contains(".")) {
-            String split[] = stringD.split("\\.");
+            String[] split = stringD.split("\\.");
             if (split[1].contentEquals("0") && split[1].length() == 1)
                 return split[0];
 

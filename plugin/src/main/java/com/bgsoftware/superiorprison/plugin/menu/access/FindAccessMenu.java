@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class FindAccessMenu extends AccessMenu {
-    private SNormalMine mine;
+    private final SNormalMine mine;
 
     public FindAccessMenu(SPrisoner viewer, SNormalMine mine) {
         super("findAccess", viewer);
@@ -60,7 +60,6 @@ public class FindAccessMenu extends AccessMenu {
                 .filter(prestige -> !mine.getPrestiges().contains(prestige.getName()))
                 .map(AccessObject::new)
                 .forEach(accessObjects::add);
-
 
         return sorted(accessObjects
                 .stream()

@@ -15,8 +15,8 @@ import com.bgsoftware.superiorprison.plugin.object.player.rank.SLadderRank;
 import com.bgsoftware.superiorprison.plugin.object.player.rank.SRank;
 import com.bgsoftware.superiorprison.plugin.object.player.rank.SSpecialRank;
 import com.google.gson.JsonElement;
-import com.oop.datamodule.DataBody;
 import com.oop.datamodule.SerializedData;
+import com.oop.datamodule.body.SqlDataBody;
 import com.oop.orangeengine.main.util.data.set.OConcurrentSet;
 import lombok.Getter;
 import lombok.NonNull;
@@ -27,6 +27,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -35,7 +36,7 @@ import static com.bgsoftware.superiorprison.plugin.util.AccessUtil.findPrestige;
 import static com.bgsoftware.superiorprison.plugin.util.AccessUtil.findRank;
 
 @Accessors(chain = true)
-public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.Prisoner, DataBody {
+public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.Prisoner, SqlDataBody {
 
     @Setter
     private @NonNull UUID uuid;
@@ -59,19 +60,21 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
     @Setter
     private boolean autoPickup = false;
 
-    private Set<String> ranks = new OConcurrentSet<>();
-    private Set<String> prestiges = new OConcurrentSet<>();
+    private final Set<String> ranks = new OConcurrentSet<>();
+    private final Set<String> prestiges = new OConcurrentSet<>();
 
     @Setter
     @Getter
     private boolean fortuneBlocks = false;
 
-    private transient OfflinePlayer cachedOfflinePlayer;
+    private OfflinePlayer cachedOfflinePlayer;
 
-    private transient Player cachedPlayer;
+    private Player cachedPlayer;
 
     @Setter
-    private transient Pair<SuperiorMine, AreaEnum> currentMine;
+    private Pair<SuperiorMine, AreaEnum> currentMine;
+
+    private BigDecimal soldMoney = new BigDecimal(0);
 
     public SPrisoner() {
     }
@@ -204,18 +207,18 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
     }
 
     @Override
-    public double getPrice(ItemStack itemStack) {
-        final double[] price = {0};
+    public BigDecimal getPrice(ItemStack itemStack) {
+        final BigDecimal[] price = new BigDecimal[]{new BigDecimal(0)};
         for (SuperiorMine mine : getMines()) {
-            double minePrice = mine.getShop().getPrice(itemStack);
-            if (minePrice > price[0])
+            BigDecimal minePrice = mine.getShop().getPrice(itemStack);
+            if (minePrice.compareTo(price[0]) > 0)
                 price[0] = minePrice;
         }
 
-        if (price[0] == 0 && SuperiorPrisonPlugin.getInstance().getMainConfig().isShopGuiAsFallBack())
-            SuperiorPrisonPlugin.getInstance().getHookController().executeIfFound(() -> ShopGuiPlusHook.class, hook -> price[0] = hook.getPriceFor(itemStack, getPlayer()));
+        if (price[0].doubleValue() == 0 && SuperiorPrisonPlugin.getInstance().getMainConfig().isShopGuiAsFallBack())
+            SuperiorPrisonPlugin.getInstance().getHookController().executeIfFound(() -> ShopGuiPlusHook.class, hook -> price[0] = new BigDecimal(hook.getPriceFor(itemStack, getPlayer())));
 
-        getBoosters().findBoostersBy(MoneyBooster.class).forEach(booster -> price[0] = price[0] * booster.getRate());
+        getBoosters().findBoostersBy(MoneyBooster.class).forEach(booster -> price[0] = price[0] = price[0].multiply(BigDecimal.valueOf(booster.getRate())));
         return price[0];
     }
 
@@ -367,7 +370,7 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
                         .map(JsonElement::getAsString)
                         .collect(Collectors.toSet())
         );
-        this.logoutMine = data.getElement("logoutmine").map(JsonElement::getAsString).orElse(null);
+        this.logoutMine = data.getElement("logoutmine").map(jsonElement -> jsonElement.isJsonNull() ? null : jsonElement).map(JsonElement::getAsString).orElse(null);
         this.boosters = data.applyAs("boosters", SBoosters.class);
         this.boosters.attach(this);
     }

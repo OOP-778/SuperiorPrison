@@ -35,7 +35,7 @@ public class CmdRemove extends OCommand {
             if (all.isPresent() && rank instanceof LadderRank)
                 ranks.addAll(((LadderRank) rank).getAllPrevious());
 
-            prisoner.removeRank((String[]) ranks.stream().map(Rank::getName).toArray(String[]::new));
+            prisoner.removeRank(ranks.stream().map(Rank::getName).toArray(String[]::new));
             messageBuilder(LocaleEnum.SUCCESSFULLY_REMOVED_RANK.getWithPrefix())
                     .replace("{rank_name}", ranks.size() == 1 ? rank.getName() : Arrays.toString(ranks.stream().map(Rank::getName).toArray()))
                     .replace(prisoner, rank);

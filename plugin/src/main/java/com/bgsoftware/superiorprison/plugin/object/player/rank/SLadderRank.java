@@ -13,7 +13,7 @@ import java.util.Set;
 @Getter
 public class SLadderRank extends SRank implements LadderRank {
 
-    private int order;
+    private final int order;
 
     @Setter
     private SLadderRank nextRank;
@@ -21,7 +21,7 @@ public class SLadderRank extends SRank implements LadderRank {
     @Setter
     private SLadderRank previousRank;
 
-    private Set<RequirementData> requirements;
+    private final Set<RequirementData> requirements;
 
     public SLadderRank(int order, String name, String prefix, List<String> commands, List<String> permissions, Set<RequirementData> requirements, SLadderRank previousRank, SLadderRank nextRank) {
         super(name, prefix, commands, permissions);

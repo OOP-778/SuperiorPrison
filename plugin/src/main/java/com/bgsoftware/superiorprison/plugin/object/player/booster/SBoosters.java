@@ -22,7 +22,7 @@ public class SBoosters implements Boosters, Attachable<SPrisoner>, SerializableO
     @Getter
     private transient SPrisoner prisoner;
 
-    private Set<Booster> boosters = new OConcurrentSet<>();
+    private final Set<Booster> boosters = new OConcurrentSet<>();
 
     @Override
     public boolean hasActiveBoosters() {

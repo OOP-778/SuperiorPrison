@@ -1,48 +1,61 @@
 package com.bgsoftware.superiorprison.plugin.nms;
 
 import com.oop.orangeengine.material.OMaterial;
+import lombok.NonNull;
 import net.minecraft.server.v1_13_R2.*;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_13_R2.CraftChunk;
-import org.bukkit.craftbukkit.v1_13_R2.CraftWorld;
 import org.bukkit.craftbukkit.v1_13_R2.util.CraftMagicNumbers;
 
-import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.oop.orangeengine.main.Engine.getEngine;
-
-public class NmsHandler_v1_13_R2 implements ISuperiorNms {
+public class NmsHandler_v1_13_R2 implements SuperiorNms {
     @Override
-    public void setBlock(Location location, OMaterial material) {
+    public void setBlock(@NonNull Chunk chunk, @NonNull Location location, @NonNull OMaterial material) {
         org.bukkit.Material parsed = material.parseMaterial();
-        if (parsed == null) {
-            getEngine().getLogger().printError("Failed to find block data for material " + material.name());
-            return;
-        }
-
         IBlockData data = CraftMagicNumbers.getBlock(parsed).getBlockData();
-        net.minecraft.server.v1_13_R2.Chunk chunk = ((CraftChunk) location.getChunk()).getHandle();
+        net.minecraft.server.v1_13_R2.Chunk nmsChunk = ((CraftChunk) chunk).getHandle();
 
         int indexY = location.getBlockY() >> 4;
-        ChunkSection chunkSection = chunk.getSections()[indexY];
+        ChunkSection chunkSection = nmsChunk.getSections()[indexY];
 
         if (chunkSection == null)
-            chunkSection = chunk.getSections()[indexY] = new ChunkSection(indexY << 4, chunk.world.worldProvider.g());
+            chunkSection = nmsChunk.getSections()[indexY] = new ChunkSection(indexY << 4, !nmsChunk.world.worldProvider.g());
 
         chunkSection.setType(location.getBlockX() & 15, location.getBlockY() & 15, location.getBlockZ() & 15, data);
     }
 
     @Override
-    public void refreshChunks(World world, List<Chunk> chunkList) {
-        ChunkProviderServer cps = ((CraftWorld) world).getHandle().getChunkProvider();
-        for (Chunk chunk : chunkList) {
-            net.minecraft.server.v1_13_R2.Chunk nmsChunk = ((CraftChunk) chunk).getHandle();
+    public void refreshChunks(World world, Map<Chunk, Set<Location>> locations) {
+        locations.forEach((chunk, locs) -> {
+            int locsSize = locs.size();
+            short[] values = new short[locsSize];
+            net.minecraft.server.v1_13_R2.Chunk nmsChunk = ((CraftChunk)chunk).getHandle();
+            Location firstLocation = null;
+
             nmsChunk.initLighting();
 
-            Packet packet = new PacketPlayOutMapChunk(nmsChunk, 65535);
-            //cps.playerChunkMap.a(nmsChunk.getPos(), false).forEach(player -> player.playerConnection.sendPacket(packet));
-        }
+            AtomicInteger counter = new AtomicInteger(0);
+            for (Location location : locs) {
+                if (firstLocation == null)
+                    firstLocation = location;
+
+                values[counter.incrementAndGet()] = (short) ((location.getBlockX() & 15) << 12 | (location.getBlockZ() & 15) << 8 | location.getBlockY());
+            }
+
+            assert firstLocation != null;
+            AxisAlignedBB bb = new AxisAlignedBB(firstLocation.getX() - 60, firstLocation.getY() - 200, firstLocation.getZ() - 60,
+                    firstLocation.getX() + 60, firstLocation.getY() + 200, firstLocation.getZ() + 60);
+
+            PacketPlayOutMultiBlockChange packet = new PacketPlayOutMultiBlockChange(locsSize, values, nmsChunk);
+            for (Object entity : nmsChunk.getWorld().getEntities(null, bb)) {
+                if (entity instanceof EntityPlayer)
+                    ((EntityPlayer) entity).playerConnection.sendPacket(packet);
+            }
+        });
     }
 }

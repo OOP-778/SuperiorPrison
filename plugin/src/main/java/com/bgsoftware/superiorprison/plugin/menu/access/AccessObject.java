@@ -7,7 +7,7 @@ import com.bgsoftware.superiorprison.api.data.player.rank.SpecialRank;
 
 public class AccessObject {
 
-    private Object object;
+    private final Object object;
 
     public AccessObject(Object object) {
         this.object = object;

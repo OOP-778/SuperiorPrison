@@ -35,7 +35,7 @@ public class CmdRemove extends OCommand {
             if (all.isPresent())
                 prestiges.addAll(prestige.getAllPrevious());
 
-            prisoner.removePrestige((String[]) prestiges.stream().map(Prestige::getName).toArray(String[]::new));
+            prisoner.removePrestige(prestiges.stream().map(Prestige::getName).toArray(String[]::new));
             messageBuilder(LocaleEnum.SUCCESSFULLY_REMOVED_PRESTIGE.getWithPrefix())
                     .replace("{prestige_name}", prestiges.size() == 1 ? prestige.getName() : Arrays.toString(prestiges.stream().map(Prestige::getName).toArray()))
                     .replace(prisoner, prestige);

@@ -3,10 +3,16 @@ package com.bgsoftware.superiorprison.plugin.commands.mines.copy;
 import com.bgsoftware.superiorprison.plugin.commands.args.CopyTypeArg;
 import com.bgsoftware.superiorprison.plugin.commands.args.MinesArg;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
+import com.bgsoftware.superiorprison.plugin.menu.control.OptionEnum;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
+import com.bgsoftware.superiorprison.plugin.object.mine.area.SArea;
+import com.bgsoftware.superiorprison.plugin.object.mine.effects.SMineEffect;
+import com.bgsoftware.superiorprison.plugin.object.mine.messages.SMineMessage;
 import com.bgsoftware.superiorprison.plugin.object.mine.settings.SMineSettings;
 import com.bgsoftware.superiorprison.plugin.object.mine.shop.SShopItem;
 import com.oop.orangeengine.command.OCommand;
+
+import java.util.stream.Collectors;
 
 import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
 
@@ -21,7 +27,7 @@ public class CmdCopy extends OCommand {
         onCommand(command -> {
             SNormalMine from = command.getArgAsReq("from");
             SNormalMine to = command.getArgAsReq("to");
-            CopyType type = command.getArgAsReq("type");
+            OptionEnum type = command.getArgAsReq("type");
 
             switch (type) {
                 case SETTINGS:
@@ -47,6 +53,24 @@ public class CmdCopy extends OCommand {
                     to.getGenerator().getGeneratorMaterials().addAll(from.getGenerator().getGeneratorMaterials());
                     to.getGenerator().setMaterialsChanged(true);
                     break;
+
+                case ICON:
+                    to.setIcon(from.getIcon().clone());
+                    break;
+
+                case FLAGS:
+                    for (SArea area : to.getAreas().values()) {
+                        area.getFlags().clear();
+                        area.getFlags().putAll(from.getArea(area.getType()).getFlags());
+                    }
+                    break;
+
+                case EFFECTS:
+                    to.getEffects().clear();
+                    to.getEffects().addAll(from.getEffects().get().stream().map(effect -> new SMineEffect(effect.getType(), effect.getAmplifier())).collect(Collectors.toSet()));
+
+                case MESSAGES:
+                    from.getMessages().get().stream().map(message -> ((SMineMessage) message).clone()).forEach(message -> to.getMessages().add(message));
             }
 
             // Save changes made

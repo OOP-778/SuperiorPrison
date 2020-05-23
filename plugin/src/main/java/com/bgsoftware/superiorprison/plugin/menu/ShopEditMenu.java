@@ -5,25 +5,24 @@ import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.mine.shop.SShopItem;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.util.TextUtil;
+import com.bgsoftware.superiorprison.plugin.util.input.Input;
 import com.bgsoftware.superiorprison.plugin.util.menu.ClickHandler;
 import com.bgsoftware.superiorprison.plugin.util.menu.OMenu;
 import com.bgsoftware.superiorprison.plugin.util.menu.OMenuButton;
 import com.bgsoftware.superiorprison.plugin.util.menu.OPagedMenu;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.oop.orangeengine.eventssubscription.SubscriptionFactory;
-import com.oop.orangeengine.eventssubscription.SubscriptionProperties;
 import com.oop.orangeengine.material.OMaterial;
 import lombok.Getter;
-import org.apache.commons.lang.math.NumberUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
 import static com.bgsoftware.superiorprison.plugin.util.TextUtil.beautifyDouble;
@@ -31,7 +30,7 @@ import static com.bgsoftware.superiorprison.plugin.util.TextUtil.beautifyDouble;
 @Getter
 public class ShopEditMenu extends OPagedMenu<SShopItem> implements OMenu.Templateable {
 
-    private SNormalMine mine;
+    private final SNormalMine mine;
 
     public ShopEditMenu(SPrisoner viewer, SNormalMine mine) {
         super("shopEdit", viewer);
@@ -45,37 +44,27 @@ public class ShopEditMenu extends OPagedMenu<SShopItem> implements OMenu.Templat
                         getMine().getShop().removeItem(shopItem);
                         refreshMenus(ShopEditMenu.class, menu -> menu.getMine().getName().contentEquals(getMine().getName()));
 
-                        //TODO: Add remove message
                     } else {
                         previousMove = false;
                         event.getWhoClicked().closeInventory();
-                        LocaleEnum.EDIT_SHOP_WRITE_PRICE.getWithPrefix().send((Player) event.getWhoClicked());
+                        LocaleEnum.EDIT_SHOP_WRITE_PRICE.getWithPrefix().send(event.getWhoClicked());
 
-                        SubscriptionFactory.getInstance().subscribeTo(
-                                AsyncPlayerChatEvent.class,
-                                chatEvent -> {
-                                    double price = Double.parseDouble(chatEvent.getMessage());
-                                    chatEvent.setCancelled(true);
+                        Runnable onCancel = this::refresh;
+                        Input
+                                .bigDecimalInput(event.getWhoClicked())
+                                .onCancel(onCancel)
+                                .timeOut(TimeUnit.MINUTES, 2)
+                                .onInput((obj, input) -> {
+                                    shopItem.setPrice(input);
 
-                                    shopItem.setPrice(price);
-                                    LocaleEnum.EDIT_SHOP_PRICE_SET.getWithPrefix().send(ImmutableMap.of("{item_name}", TextUtil.beautifyName(shopItem.getItem()), "{item_price}", beautifyDouble(shopItem.getPrice())), (Player) event.getWhoClicked());
+                                    LocaleEnum.EDIT_SHOP_PRICE_SET.getWithPrefix().send(ImmutableMap.of("{item_name}", TextUtil.beautifyName(shopItem.getItem()), "{item_price}", shopItem.getPrice().toString()), event.getWhoClicked());
+                                    obj.cancel();
 
-                                    // Update
                                     mine.save(true);
                                     refreshMenus(ShopEditMenu.class, menu -> menu.getMine().getName().contentEquals(mine.getName()));
-                                },
-                                new SubscriptionProperties<AsyncPlayerChatEvent>()
-                                        .filter(chatEvent -> {
-                                            double value = NumberUtils.toDouble(chatEvent.getMessage(), -0.0);
-                                            chatEvent.setCancelled(true);
-                                            if (value == -0.0) {
-                                                LocaleEnum.EDIT_SHOP_PRICE_NOT_NUMBER.getWithErrorPrefix().send(chatEvent.getPlayer());
-                                            }
-
-                                            return value > -0.0;
-                                        }).timesToRun(1)
-                        );
-
+                                    onCancel.run();
+                                })
+                                .listen();
                     }
                 })
                 .apply(this);
@@ -122,7 +111,7 @@ public class ShopEditMenu extends OPagedMenu<SShopItem> implements OMenu.Templat
             return;
         }
 
-        mine.getShop().addItem(clone, 0);
+        mine.getShop().addItem(clone, new BigDecimal(0));
         mine.save(true);
         refreshMenus(ShopEditMenu.class, menu -> menu.getMine().getName().contentEquals(mine.getName()));
     }

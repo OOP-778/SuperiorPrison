@@ -23,7 +23,8 @@ import java.util.stream.Collectors;
 
 public class MineEffectsMenu extends OPagedMenu<PotionEffectType> implements OMenu.Templateable {
 
-    private SMineEffects effects;
+    private final SMineEffects effects;
+
     public MineEffectsMenu(SPrisoner viewer, SMineEffects effects) {
         super("mineEffects", viewer);
         this.effects = effects;

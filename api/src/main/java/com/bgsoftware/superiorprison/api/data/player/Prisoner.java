@@ -10,6 +10,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -49,7 +50,7 @@ public interface Prisoner {
 
     void save(boolean async);
 
-    double getPrice(ItemStack itemStack);
+    BigDecimal getPrice(ItemStack itemStack);
 
     Set<SuperiorMine> getMines();
 

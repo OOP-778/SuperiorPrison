@@ -3,23 +3,22 @@ package com.bgsoftware.superiorprison.plugin.menu.settings;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
+import com.bgsoftware.superiorprison.plugin.util.input.PlayerInput;
 import com.bgsoftware.superiorprison.plugin.util.menu.OMenu;
 import com.bgsoftware.superiorprison.plugin.util.menu.OMenuButton;
 import com.bgsoftware.superiorprison.plugin.util.menu.OPagedMenu;
-import com.oop.orangeengine.eventssubscription.SubscriptionFactory;
-import com.oop.orangeengine.eventssubscription.SubscriptionProperties;
-import com.oop.orangeengine.message.OMessage;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.entity.Player;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.TimeUnit;
 
 import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
 
 public class SettingsMenu extends OPagedMenu<SettingsObject> implements OMenu.Templateable {
 
-    private SNormalMine mine;
+    private final SNormalMine mine;
+
     public SettingsMenu(SPrisoner viewer, SNormalMine mine) {
         super("mineSettings", viewer);
         this.mine = mine;
@@ -34,32 +33,37 @@ public class SettingsMenu extends OPagedMenu<SettingsObject> implements OMenu.Te
                             .replace(viewer, mine, mine.getSettings(), settingsObject)
                             .send(event.getWhoClicked());
 
-                    AtomicReference<Object> mappedObject = new AtomicReference<>(null);
-                    SubscriptionFactory.getInstance().subscribeTo(AsyncPlayerChatEvent.class, chatEvent -> {
-                        chatEvent.setCancelled(true);
-                        
-                        Object o = mappedObject.get();
-                        if (o == null) return;
+                    Runnable onCancel = () -> {
+                        previousMove = true;
+                        refresh();
+                    };
 
-                        settingsObject.currentValue(o);
-                        settingsObject.onComplete().accept(o);
+                    new PlayerInput<>((Player) event.getWhoClicked())
+                            .parser(string -> {
+                                try {
+                                    return settingsObject.mapper().accept(string);
+                                } catch (Throwable throwable) {
+                                    throw new IllegalStateException(throwable.getMessage());
+                                }
+                            })
+                            .timeOut(TimeUnit.MINUTES, 2)
+                            .onInput((input, object) -> {
+                                settingsObject.currentValue(object);
+                                settingsObject.onComplete().accept(object);
 
-                        messageBuilder(settingsObject.completeMessage())
-                                .replace(viewer, mine, mine.getSettings(), settingsObject)
-                                .send(event.getWhoClicked());
-                    }, new SubscriptionProperties<AsyncPlayerChatEvent>().filter(chatEvent -> {
-                        try {
-                            Object accept = settingsObject.mapper().accept(chatEvent.getMessage());
-                            mappedObject.set(accept);
-                            return true;
-                        } catch (Throwable throwable) {
-                            messageBuilder(LocaleEnum.EDIT_SETTINGS_ERROR.getWithErrorPrefix())
+                                messageBuilder(settingsObject.completeMessage())
+                                        .replace(viewer, mine, mine.getSettings(), settingsObject)
+                                        .send(event.getWhoClicked());
+
+                                input.cancel();
+                                onCancel.run();
+                            })
+                            .onCancel(onCancel)
+                            .onError((input, err) -> messageBuilder(LocaleEnum.EDIT_SETTINGS_ERROR.getWithErrorPrefix())
                                     .replace("{setting_name}", settingsObject.id())
-                                    .replace("{error}", throwable.getMessage())
-                                    .send(chatEvent);
-                            return false;
-                        }
-                    }).timesToRun(1));
+                                    .replace("{error}", err.getMessage())
+                                    .send(input.player()))
+                            .listen();
                 });
     }
 

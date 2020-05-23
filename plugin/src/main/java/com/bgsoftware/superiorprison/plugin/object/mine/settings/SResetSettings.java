@@ -4,7 +4,6 @@ import com.bgsoftware.superiorprison.api.data.mine.settings.ResetSettings;
 import com.bgsoftware.superiorprison.api.data.mine.settings.ResetType;
 import com.bgsoftware.superiorprison.plugin.util.TimeUtil;
 import com.google.gson.JsonObject;
-import com.google.gson.annotations.SerializedName;
 import com.oop.datamodule.SerializableObject;
 import com.oop.datamodule.SerializedData;
 import com.oop.orangeengine.main.util.data.pair.OPair;
@@ -12,7 +11,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.ZonedDateTime;
-import java.util.concurrent.TimeUnit;
 
 public class SResetSettings {
     public static ResetSettings of(OPair<ResetType, String> data) {
@@ -45,22 +43,6 @@ public class SResetSettings {
     public static class STimed implements ResetSettings.Timed, SerializableObject {
 
         private long interval;
-
-        @Override
-        public ResetType getType() {
-            return ResetType.TIMED;
-        }
-
-        @Override
-        public long getValue() {
-            return interval;
-        }
-
-        @Override
-        public void setValue(long value) {
-            this.interval = value;
-        }
-
         @Setter
         private transient ZonedDateTime resetDate;
 
@@ -75,6 +57,21 @@ public class SResetSettings {
             STimed timed = new STimed();
             timed.interval = from.interval;
             return timed;
+        }
+
+        @Override
+        public ResetType getType() {
+            return ResetType.TIMED;
+        }
+
+        @Override
+        public long getValue() {
+            return interval;
+        }
+
+        @Override
+        public void setValue(long value) {
+            this.interval = value;
         }
 
         @Override
@@ -97,13 +94,13 @@ public class SResetSettings {
         private SPercentage() {
         }
 
+        public SPercentage(long requiredPercentage) {
+            this.requiredPercentage = requiredPercentage;
+        }
+
         @Override
         public ResetType getType() {
             return ResetType.PERCENTAGE;
-        }
-
-        public SPercentage(long requiredPercentage) {
-            this.requiredPercentage = requiredPercentage;
         }
 
         @Override
@@ -123,7 +120,7 @@ public class SResetSettings {
 
         @Override
         public void deserialize(SerializedData serializedData) {
-            this.requiredPercentage = serializedData.applyAs("rp", int.class);
+            this.requiredPercentage = serializedData.applyAs("rp", long.class);
         }
     }
 }

@@ -30,7 +30,7 @@ import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messag
 
 public class CmdCreate extends OCommand {
 
-    private Cache<UUID, Boolean> creating = CacheBuilder
+    private final Cache<UUID, Boolean> creating = CacheBuilder
             .newBuilder()
             .expireAfterWrite(5, TimeUnit.MINUTES)
             .build();
@@ -132,6 +132,7 @@ public class CmdCreate extends OCommand {
                             .replace(sNormalMine)
                             .send(command);
 
+                    sNormalMine.getGenerator().reset();
                     player.getInventory().remove(SuperiorPrisonPlugin.getInstance().getMainConfig().getAreaSelectionTool().getItemStack());
                     SuperiorPrisonPlugin.getInstance().getMineController().add(sNormalMine);
                     creating.invalidate(player.getUniqueId());

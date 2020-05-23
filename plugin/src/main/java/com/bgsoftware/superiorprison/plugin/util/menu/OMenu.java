@@ -37,16 +37,16 @@ public abstract class OMenu implements InventoryHolder {
     private final SPrisoner viewer;
     private final String identifier;
     protected boolean previousMove = true;
-    private Map<String, Object> data = Maps.newConcurrentMap();
+    private final Map<String, Object> data = Maps.newConcurrentMap();
     private OMenu previousMenu;
     private boolean refreshing = false;
 
     @Getter
-    private Map<Integer, OMenuButton> fillerItems = Maps.newHashMap();
+    private final Map<Integer, OMenuButton> fillerItems = Maps.newHashMap();
 
-    private Set<OMenuButton> miscButtons = Sets.newHashSet();
+    private final Set<OMenuButton> miscButtons = Sets.newHashSet();
 
-    private Map<String, ClickHandler> clickHandlers = Maps.newHashMap();
+    private final Map<String, ClickHandler> clickHandlers = Maps.newHashMap();
 
     @Setter
     private String title;
@@ -54,7 +54,7 @@ public abstract class OMenu implements InventoryHolder {
     @Setter
     private int menuRows;
 
-    private StateRequester stateRequester = new StateRequester();
+    private final StateRequester stateRequester = new StateRequester();
 
     public OMenu(String identifier, SPrisoner viewer) {
         this.identifier = identifier;
@@ -297,7 +297,7 @@ public abstract class OMenu implements InventoryHolder {
     /*
     For different types menu loadings
     */
-    public static interface Mappable {
+    public interface Mappable {
 
         OMenu getMenu();
 
@@ -306,7 +306,7 @@ public abstract class OMenu implements InventoryHolder {
         }
     }
 
-    public static interface Placeholderable extends Mappable {
+    public interface Placeholderable extends Mappable {
 
         // Placeholders are stored like so: placeholder=button char / action
         default HashBiMap<String, String> getPlaceholderMap() {
@@ -353,7 +353,7 @@ public abstract class OMenu implements InventoryHolder {
         }
     }
 
-    public static interface Templateable extends Mappable {
+    public interface Templateable extends Mappable {
 
         // Placeholders are stored like so: template=button char / action
         default HashBiMap<String, String> getTemplateMap() {
@@ -399,7 +399,7 @@ public abstract class OMenu implements InventoryHolder {
 
     public final static class StateRequester {
 
-        private Map<String, StateRequest> requestMap = Maps.newConcurrentMap();
+        private final Map<String, StateRequest> requestMap = Maps.newConcurrentMap();
 
         public StateRequester registerRequest(String identifier, StateRequest request) {
             requestMap.put(identifier, request);

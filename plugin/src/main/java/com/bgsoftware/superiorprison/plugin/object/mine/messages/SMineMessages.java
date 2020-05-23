@@ -13,7 +13,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class SMineMessages implements MineMesssages, SerializableObject, Attachable<SNormalMine> {
 
-    private Map<Integer, SMineMessage> messages = new HashMap<>();
+    private final Map<Integer, SMineMessage> messages = new HashMap<>();
 
     @Getter
     private SNormalMine mine;

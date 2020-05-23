@@ -22,8 +22,8 @@ public class RankController implements com.bgsoftware.superiorprison.api.control
 
     @Getter
     private boolean loaded = false;
-    private Map<Integer, SLadderRank> ladderRanks = Maps.newConcurrentMap();
-    private Set<SSpecialRank> specialRanks = Sets.newConcurrentHashSet();
+    private final Map<Integer, SLadderRank> ladderRanks = Maps.newConcurrentMap();
+    private final Set<SSpecialRank> specialRanks = Sets.newConcurrentHashSet();
     private SLadderRank defaultRank;
 
     public RankController(boolean first) {
@@ -55,7 +55,6 @@ public class RankController implements com.bgsoftware.superiorprison.api.control
                     section.ifValuePresent("requirements", List.class, list -> {
 
                         for (Object o : list) {
-                            System.out.println(o);
                             if (o.toString().trim().length() == 0) continue;
                             OPair<String, Optional<RequirementData>> data = rc.parse(o.toString());
                             if (data.getSecond().isPresent())

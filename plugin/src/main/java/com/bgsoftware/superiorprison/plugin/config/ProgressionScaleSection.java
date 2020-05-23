@@ -1,4 +1,4 @@
-package com.bgsoftware.superiorprison.plugin.config.main;
+package com.bgsoftware.superiorprison.plugin.config;
 
 import com.oop.orangeengine.yaml.ConfigSection;
 

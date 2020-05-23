@@ -67,4 +67,8 @@ command colors:
   second: "&3"
   markup: "&7"
 
+# How long will the blocks statistic cache blocks
 blocks cache time limit: "1h"
+
+# Sold blocks message interval
+sold blocks message interval: "1m"

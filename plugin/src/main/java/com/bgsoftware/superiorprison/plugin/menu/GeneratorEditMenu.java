@@ -4,36 +4,34 @@ import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
+import com.bgsoftware.superiorprison.plugin.util.input.Input;
 import com.bgsoftware.superiorprison.plugin.util.menu.ClickHandler;
 import com.bgsoftware.superiorprison.plugin.util.menu.OMenu;
 import com.bgsoftware.superiorprison.plugin.util.menu.OMenuButton;
 import com.bgsoftware.superiorprison.plugin.util.menu.OPagedMenu;
 import com.google.common.collect.ImmutableMap;
-import com.oop.orangeengine.eventssubscription.SubscriptionFactory;
-import com.oop.orangeengine.eventssubscription.SubscriptionProperties;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.material.OMaterial;
 import lombok.Getter;
-import org.apache.commons.lang.math.NumberUtils;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import static com.bgsoftware.superiorprison.plugin.util.TextUtil.beautify;
 import static com.bgsoftware.superiorprison.plugin.util.TextUtil.beautifyDouble;
 
 public class GeneratorEditMenu extends OPagedMenu<OPair<Double, OMaterial>> implements OMenu.Templateable {
 
-    private List<OPair<Double, OMaterial>> materials;
+    private final List<OPair<Double, OMaterial>> materials;
 
     @Getter
-    private SNormalMine mine;
+    private final SNormalMine mine;
 
     public GeneratorEditMenu(SPrisoner viewer, SNormalMine mine) {
         super("mineGenerator", viewer);
@@ -58,14 +56,14 @@ public class GeneratorEditMenu extends OPagedMenu<OPair<Double, OMaterial>> impl
                             .mapToDouble(Double::doubleValue)
                             .sum();
                     if (percentage < 100 || percentage > 100) {
-                        LocaleEnum.EDIT_GENERATOR_SAVE_FAILED_WRONG_PERCENTAGE.getWithErrorPrefix().send((Player) event.getWhoClicked());
+                        LocaleEnum.EDIT_GENERATOR_SAVE_FAILED_WRONG_PERCENTAGE.getWithErrorPrefix().send(event.getWhoClicked());
                         return;
                     }
 
                     mine.getGenerator().setGeneratorMaterials(materials);
                     mine.getGenerator().setMaterialsChanged(true);
                     mine.save(true);
-                    LocaleEnum.EDIT_GENERATOR_SAVE.getWithPrefix().send((Player) event.getWhoClicked());
+                    LocaleEnum.EDIT_GENERATOR_SAVE.getWithPrefix().send(event.getWhoClicked());
                 })
                 .apply(this);
 
@@ -80,36 +78,26 @@ public class GeneratorEditMenu extends OPagedMenu<OPair<Double, OMaterial>> impl
                     } else if (event.getClick() == ClickType.LEFT) {
                         previousMove = false;
                         event.getWhoClicked().closeInventory();
-                        LocaleEnum.EDIT_GENERATOR_WRITE_RATE.getWithPrefix().send((Player) event.getWhoClicked());
+                        LocaleEnum.EDIT_GENERATOR_WRITE_RATE.getWithPrefix().send(event.getWhoClicked());
 
-                        SubscriptionFactory.getInstance().subscribeTo(
-                                AsyncPlayerChatEvent.class,
-                                chatEvent -> {
-                                    double rate = Double.parseDouble(chatEvent.getMessage());
-                                    chatEvent.setCancelled(true);
-
+                        Runnable onCancel = this::refresh;
+                        Input.doubleInput(event.getWhoClicked())
+                                .timeOut(TimeUnit.MINUTES, 2)
+                                .onCancel(onCancel)
+                                .onInput((obj, input) -> {
                                     Optional<OPair<Double, OMaterial>> first = materials.stream()
                                             .filter(pair -> pair.getSecond() == materialPair.getValue())
                                             .findFirst();
+
                                     if (first.isPresent()) {
-                                        first.get().setFirst(rate);
-                                        LocaleEnum.EDIT_GENERATOR_RATE_SET.getWithPrefix().send(ImmutableMap.of("{material}", beautify(materialPair.getSecond().name()), "{rate}", beautifyDouble(rate)), chatEvent.getPlayer());
-
-                                        // Update
-                                        refresh();
+                                        first.get().setFirst(input);
+                                        LocaleEnum.EDIT_GENERATOR_RATE_SET.getWithPrefix().send(ImmutableMap.of("{material}", beautify(materialPair.getSecond().name()), "{rate}", beautifyDouble(input)), obj.player());
                                     }
-                                },
-                                new SubscriptionProperties<AsyncPlayerChatEvent>()
-                                        .filter(chatEvent -> {
-                                            double value = NumberUtils.toDouble(chatEvent.getMessage(), -0.0);
-                                            chatEvent.setCancelled(true);
-                                            if (value == -0.0) {
-                                                LocaleEnum.EDIT_GENERATOR_RATE_NOT_NUMBER.getWithErrorPrefix().send(chatEvent.getPlayer());
-                                            }
 
-                                            return value > -0.0;
-                                        }).timesToRun(1)
-                        );
+                                    mine.save(true);
+                                    refreshMenus(GeneratorEditMenu.class, menu -> menu.getMine().equals(mine));
+                                    onCancel.run();
+                                });
                     }
                 })
                 .apply(this);
@@ -147,12 +135,12 @@ public class GeneratorEditMenu extends OPagedMenu<OPair<Double, OMaterial>> impl
         event.setCancelled(true);
 
         if (!clone.getType().isBlock()) {
-            LocaleEnum.EDIT_GENERATOR_MATERIAL_IS_NOT_BLOCK.getWithErrorPrefix().send((Player) event.getWhoClicked());
+            LocaleEnum.EDIT_GENERATOR_MATERIAL_IS_NOT_BLOCK.getWithErrorPrefix().send(event.getWhoClicked());
             return;
         }
 
         if (materials.stream().anyMatch(pair -> pair.getSecond() == material)) {
-            LocaleEnum.EDIT_GENERATOR_MATERIAL_ALREADY_EXISTS.getWithErrorPrefix().send((Player) event.getWhoClicked());
+            LocaleEnum.EDIT_GENERATOR_MATERIAL_ALREADY_EXISTS.getWithErrorPrefix().send(event.getWhoClicked());
             return;
         }
 

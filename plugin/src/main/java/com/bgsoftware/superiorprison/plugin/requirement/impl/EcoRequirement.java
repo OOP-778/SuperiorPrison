@@ -10,7 +10,7 @@ import com.bgsoftware.superiorprison.plugin.hook.impl.VaultHook;
 
 public class EcoRequirement implements Requirement {
     private static final RequirementHandler<RequirementData> handler = new RequirementHandler<RequirementData>() {
-        VaultHook vaultHook = SuperiorPrisonPlugin.getInstance().getHookController().findHook(() -> VaultHook.class).get();
+        final VaultHook vaultHook = SuperiorPrisonPlugin.getInstance().getHookController().findHook(() -> VaultHook.class).get();
 
         @Override
         public boolean testIO(Prisoner prisoner, RequirementData requirementData) throws RequirementException {

@@ -2,6 +2,7 @@ package com.bgsoftware.superiorprison.plugin.tasks;
 
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.object.mine.settings.SResetSettings;
+import com.bgsoftware.superiorprison.plugin.util.ClassDebugger;
 import com.bgsoftware.superiorprison.plugin.util.TimeUtil;
 import com.oop.orangeengine.main.task.OTask;
 
@@ -16,11 +17,11 @@ public class MineResetTask extends OTask {
         runnable(() -> {
             if (SuperiorPrisonPlugin.disabling) return;
             SuperiorPrisonPlugin.getInstance().getDatabaseController().getMineHolder().getMines(mine -> mine.getSettings().getResetSettings().isTimed()).forEach(mine -> {
+                if (mine.getPrisoners().isEmpty()) return;
+
                 SResetSettings.STimed timed = mine.getSettings().getResetSettings().as(SResetSettings.STimed.class);
-                if (timed.getResetDate() == null) {
+                if (timed.getResetDate() == null)
                     timed.setResetDate(TimeUtil.getDate().plusSeconds(timed.getInterval()));
-                    return;
-                }
 
                 Duration duration = Duration.between(TimeUtil.getDate(), timed.getResetDate());
                 if (duration.getSeconds() <= 0) {

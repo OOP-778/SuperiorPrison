@@ -39,7 +39,7 @@ public class PapiRequirement implements Requirement {
     public static class Data extends RequirementData {
 
         @Getter
-        private String placeholder;
+        private final String placeholder;
 
         Data(Map<String, String> data) {
             super(data);

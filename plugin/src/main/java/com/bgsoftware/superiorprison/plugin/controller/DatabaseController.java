@@ -1,6 +1,6 @@
 package com.bgsoftware.superiorprison.plugin.controller;
 
-import com.bgsoftware.superiorprison.plugin.config.main.MainConfig;
+import com.bgsoftware.superiorprison.plugin.config.MainConfig;
 import com.bgsoftware.superiorprison.plugin.data.SMineHolder;
 import com.bgsoftware.superiorprison.plugin.data.SPrisonerHolder;
 import com.bgsoftware.superiorprison.plugin.data.SStatisticHolder;
@@ -8,7 +8,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.oop.datamodule.DataHelper;
-import com.oop.datamodule.StorageController;
+import com.oop.datamodule.StorageHolder;
+import com.oop.datamodule.database.DatabaseWrapper;
 import com.oop.orangeengine.main.task.StaticTask;
 import com.oop.orangeengine.nbt.NBTContainer;
 import com.oop.orangeengine.nbt.NBTItem;
@@ -20,17 +21,19 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Getter
-public class DatabaseController extends StorageController {
+public class DatabaseController extends StorageHolder {
 
     private final String UNICODE_REGEX = "\\\\u([0-9a-f]{4})";
     private final Pattern UNICODE_PATTERN = Pattern.compile("\\\\u([0-9a-f]{4})");
 
-    private SPrisonerHolder prisonerHolder;
-    private SMineHolder mineHolder;
-    private SStatisticHolder statisticHolder;
+    private final SPrisonerHolder prisonerHolder;
+    private final SMineHolder mineHolder;
+    private final SStatisticHolder statisticHolder;
+
+    private final DatabaseWrapper database;
 
     public DatabaseController(MainConfig config) {
-        setDatabase(config.getDatabase().getDatabase());
+        database = config.getDatabase().getDatabase();
 
         // Runners
         DataHelper.RUN_ASYNC = runnable -> StaticTask.getInstance().async(runnable);

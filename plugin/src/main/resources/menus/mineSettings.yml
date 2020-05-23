@@ -52,4 +52,26 @@ buttons:
       material: lever
       display name: "&ePlayer Limit"
       lore:
-        - "&eClick to edit"
+        - "&e&l* &7Click to edit"
+        - "&e&l* &7Current: &e{setting_value}"
+
+    reset-type:
+      material: lever
+      display name: "&eReset Type"
+      lore:
+        - "&e&l* &7Click to edit"
+        - "&e&l* &7Current: &e{setting_value}"
+
+    percentage:
+      material: lever
+      display name: "&eReset Percentage"
+      lore:
+        - "&e&l* &7Click to edit"
+        - "&e&l* &7Current: &e{setting_value}"
+
+    interval:
+      material: lever
+      display name: "&eReset Interval"
+      lore:
+        - "&e&l* &7Click to edit"
+        - "&e&l* &7Current: &e{setting_value}"

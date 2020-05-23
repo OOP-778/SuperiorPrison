@@ -17,7 +17,8 @@ public class SMineEffect implements MineEffect, SerializableObject {
     private PotionEffectType type;
     private int amplifier;
 
-    public SMineEffect() {}
+    public SMineEffect() {
+    }
 
     @Override
     public void serialize(SerializedData serializedData) {

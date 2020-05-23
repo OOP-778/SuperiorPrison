@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 public class HookController {
-    private Map<Class<?>, SHook> hooks = new HashMap<>();
+    private final Map<Class<?>, SHook> hooks = new HashMap<>();
 
     public HookController() {
     }

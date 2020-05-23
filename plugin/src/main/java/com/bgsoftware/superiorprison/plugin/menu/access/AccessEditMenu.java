@@ -14,7 +14,7 @@ import java.util.Optional;
 
 public class AccessEditMenu extends AccessMenu {
 
-    private SNormalMine mine;
+    private final SNormalMine mine;
 
     public AccessEditMenu(SPrisoner viewer, SNormalMine mine) {
         super("mineAccess", viewer);
@@ -72,6 +72,7 @@ public class AccessEditMenu extends AccessMenu {
     @Override
     public OMenuButton toButton(AccessObject obj) {
         Optional<OMenuButton> accessTemplate = getTemplateButtonFromTemplate("access template");
+        System.out.println(obj.getName());
         if (!accessTemplate.isPresent()) return null;
 
         OMenuButton button = accessTemplate.get().clone();

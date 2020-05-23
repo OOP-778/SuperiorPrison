@@ -7,6 +7,7 @@ import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 
@@ -41,6 +42,18 @@ public class VaultHook extends SHook {
     public void addPermissions(SPrisoner prisoner, List<String> permissions) {
         Objects.requireNonNull(permProvider, "Failed to add permission, missing permission provider!");
         permissions.forEach(perm -> permProvider.playerAdd(null, prisoner.getOfflinePlayer(), perm));
+    }
+
+    public void depositPlayer(SPrisoner prisoner, BigDecimal amount) {
+        BigDecimal currentPrice = amount;
+        while (currentPrice.compareTo(new BigDecimal(0)) > 0) {
+            if (currentPrice.compareTo(BigDecimal.valueOf(Double.MAX_VALUE)) > 0) {
+                getEcoProvider().depositPlayer(prisoner.getOfflinePlayer(), Double.MAX_VALUE);
+                currentPrice = currentPrice.subtract(new BigDecimal(Double.MAX_VALUE));
+
+            } else
+                getEcoProvider().depositPlayer(prisoner.getOfflinePlayer(), currentPrice.doubleValue());
+        }
     }
 
     @Override

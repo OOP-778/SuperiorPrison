@@ -1,19 +1,20 @@
 package com.bgsoftware.superiorprison.plugin.util;
 
 import com.oop.orangeengine.main.task.OTask;
+import com.oop.orangeengine.main.util.data.pair.OPair;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 
-import java.util.LinkedList;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 public class Cuboid {
 
     private final Vector minimumPoint, maximumPoint;
-    private String worldName;
+    private final String worldName;
 
     public Cuboid(Cuboid cuboid) {
         this(cuboid.worldName, cuboid.minimumPoint.getX(), cuboid.minimumPoint.getY(), cuboid.minimumPoint.getZ(), cuboid.maximumPoint.getX(), cuboid.maximumPoint.getY(), cuboid.maximumPoint.getZ());
@@ -126,6 +127,37 @@ public class Cuboid {
         World world = Bukkit.getServer().getWorld(this.worldName);
         if (world == null) throw new NullPointerException("World '" + this.worldName + "' is not loaded.");
         return world;
+    }
+
+    public CompletableFuture<Map<OPair<Integer, Integer>, Set<SPLocation>>> getFutureArrayWithChunks() {
+        CompletableFuture<Map<OPair<Integer, Integer>, Set<SPLocation>>> future = new CompletableFuture<>();
+
+        // Here we gather all the blocks within mine in an async task
+        new OTask()
+                .sync(false)
+                .runnable(() -> {
+                    Map<OPair<Integer, Integer>, Set<SPLocation>> map = new HashMap<>();
+
+                    World world = this.getWorld();
+                    if (world != null) {
+                        for (int x = this.minimumPoint.getBlockX(); x <= this.maximumPoint.getBlockX(); x++) {
+                            int chunkX = x >> 4;
+                            for (int y = this.minimumPoint.getBlockY(); y <= this.maximumPoint.getBlockY() && y <= world.getMaxHeight(); y++) {
+                                for (int z = this.minimumPoint.getBlockZ(); z <= this.maximumPoint.getBlockZ(); z++) {
+                                    int chunkZ = z >> 4;
+
+                                    map
+                                            .computeIfAbsent(new OPair<>(chunkX, chunkZ), pair -> new HashSet<>())
+                                            .add(new SPLocation(x, y, z, worldName));
+                                }
+                            }
+                        }
+                    }
+                    future.complete(map);
+                })
+                .execute();
+
+        return future;
     }
 
     public CompletableFuture<SPLocation[]> getFutureArray() {

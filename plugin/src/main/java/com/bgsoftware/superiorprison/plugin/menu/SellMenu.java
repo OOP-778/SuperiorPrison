@@ -10,6 +10,8 @@ import com.bgsoftware.superiorprison.plugin.util.menu.OMenu;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
+import java.math.BigDecimal;
+
 import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
 
 public class SellMenu extends OMenu {
@@ -19,12 +21,12 @@ public class SellMenu extends OMenu {
         ClickHandler
                 .of("sell")
                 .handle(event -> {
-                    double total = 0;
+                    BigDecimal total = new BigDecimal(0);
                     for (SPair<Integer, ItemStack> bukkitItem : getBukkitItems(event.getClickedInventory())) {
-                        double price = viewer.getPrice(bukkitItem.getValue());
-                        if (price == 0) continue;
+                        BigDecimal price = viewer.getPrice(bukkitItem.getValue());
+                        if (price.doubleValue() == 0) continue;
 
-                        total = total + price;
+                        total = total.add(price);
                         event.getClickedInventory().setItem(bukkitItem.getKey(), new ItemStack(Material.AIR));
                     }
 
@@ -32,8 +34,8 @@ public class SellMenu extends OMenu {
                             .replace("{total}", total)
                             .replace(viewer)
                             .send(event.getWhoClicked());
-                    double finalTotal = total;
-                    SuperiorPrisonPlugin.getInstance().getHookController().executeIfFound(() -> VaultHook.class, hook -> hook.getEcoProvider().depositPlayer(viewer.getOfflinePlayer(), finalTotal));
+                    final BigDecimal finalTotal = total;
+                    SuperiorPrisonPlugin.getInstance().getHookController().executeIfFound(() -> VaultHook.class, hook -> hook.depositPlayer(viewer, finalTotal));
                 })
                 .apply(this);
 

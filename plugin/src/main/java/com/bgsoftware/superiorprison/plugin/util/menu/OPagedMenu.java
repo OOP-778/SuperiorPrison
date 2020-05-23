@@ -2,19 +2,17 @@ package com.bgsoftware.superiorprison.plugin.util.menu;
 
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.oop.orangeengine.item.custom.OItem;
 import com.oop.orangeengine.material.OMaterial;
 import org.bukkit.inventory.Inventory;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public abstract class OPagedMenu<T> extends OMenu {
 
-    private Map<Integer, T> items = new HashMap<>();
-    private Map<Integer, OMenuButton> buttons = new HashMap<>();
+    private final Map<Integer, T> items = new HashMap<>();
+    private final Map<Integer, OMenuButton> buttons = new HashMap<>();
     private List<Integer> emptySlots = new ArrayList<>();
 
     private int currentPage = 1;
@@ -77,7 +75,6 @@ public abstract class OPagedMenu<T> extends OMenu {
             if (objectIndex >= allItems.size()) break;
 
             Optional<OMenuButton> pagedButton = Optional.ofNullable(toButton(allItems.get(objectIndex)));
-            System.out.println("slot: " + emptySlots.get(i) + ", available?: " + pagedButton.isPresent() + ", obj: " + allItems.get(objectIndex));
 
             if (pagedButton.isPresent()) {
                 pagedButton.get().slot(emptySlots.get(i));
@@ -121,7 +118,7 @@ public abstract class OPagedMenu<T> extends OMenu {
 
     private int getPages() {
         double pagesNotRounded = (float) requestObjects().size() / emptySlots.size();
-        String split[] = String.valueOf(pagesNotRounded).split("\\.");
+        String[] split = String.valueOf(pagesNotRounded).split("\\.");
         int pages = (int) pagesNotRounded;
 
         if (split.length == 2 && Integer.parseInt(String.valueOf(split[1].toCharArray()[0])) > 0)

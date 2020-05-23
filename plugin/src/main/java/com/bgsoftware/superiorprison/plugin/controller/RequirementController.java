@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class RequirementController implements com.bgsoftware.superiorprison.api.controller.RequirementController {
 
-    private Map<String, Requirement> requirements = Maps.newHashMap();
+    private final Map<String, Requirement> requirements = Maps.newHashMap();
 
     public Optional<Requirement> findRequirement(String id) {
         return Optional.ofNullable(requirements.get(id.toUpperCase()));
@@ -30,7 +30,7 @@ public class RequirementController implements com.bgsoftware.superiorprison.api.
 
     public OPair<String, Optional<RequirementData>> parse(String toParse) {
         Map<String, String> allData = new HashMap<>();
-        String allSplit[] = toParse.split("}");
+        String[] allSplit = toParse.split("}");
 
         String value = allSplit[1];
         allData.put("value", value.startsWith(" ") ? value.substring(1) : value);
@@ -39,7 +39,7 @@ public class RequirementController implements com.bgsoftware.superiorprison.api.
         if (splitPart1.startsWith(" "))
             splitPart1 = splitPart1.substring(1);
 
-        String dataSplit[] = splitPart1.split(",");
+        String[] dataSplit = splitPart1.split(",");
         allData.put("type", dataSplit[0].startsWith("{") ? dataSplit[0].substring(1) : dataSplit[0]);
 
         String key = null;

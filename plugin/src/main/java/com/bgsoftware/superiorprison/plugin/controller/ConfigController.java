@@ -1,7 +1,7 @@
 package com.bgsoftware.superiorprison.plugin.controller;
 
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
-import com.bgsoftware.superiorprison.plugin.config.main.MainConfig;
+import com.bgsoftware.superiorprison.plugin.config.MainConfig;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.google.common.collect.Maps;
 import com.oop.orangeengine.file.OFile;
@@ -22,7 +22,7 @@ public class ConfigController implements OComponent<SuperiorPrisonPlugin> {
     private Config minesRewardsConfig;
     private Config ranksConfig;
     private Config prestigesConfig;
-    private Map<String, Config> menus = Maps.newHashMap();
+    private final Map<String, Config> menus = Maps.newHashMap();
 
     public ConfigController() {
     }

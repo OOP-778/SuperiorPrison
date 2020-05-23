@@ -24,7 +24,8 @@ import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messag
 
 public class MessagesListMenu extends OPagedMenu<SMineMessage> implements OMenu.Templateable {
 
-    private SNormalMine mine;
+    private final SNormalMine mine;
+
     public MessagesListMenu(SPrisoner viewer, SNormalMine mine) {
         super("mineMessages", viewer);
         this.mine = mine;
@@ -73,6 +74,9 @@ public class MessagesListMenu extends OPagedMenu<SMineMessage> implements OMenu.
                                     .send(chatEvent2);
                             chatEvent2.setCancelled(true);
 
+                            previousMove = false;
+                            new MessageEditMenu(viewer, mine.getMessages(), message).open(this);
+
                         }, new SubscriptionProperties<AsyncPlayerChatEvent>().timesToRun(1));
                     }, new SubscriptionProperties<AsyncPlayerChatEvent>().timesToRun(1).filter(chatEvent1 -> chatEvent1.getMessage().equalsIgnoreCase("actionbar") || chatEvent1.getMessage().equalsIgnoreCase("title") || chatEvent1.getMessage().equalsIgnoreCase("chat")));
                 });
@@ -90,7 +94,6 @@ public class MessagesListMenu extends OPagedMenu<SMineMessage> implements OMenu.
 
     @Override
     public OMenuButton toButton(SMineMessage obj) {
-        System.out.println("Building for " + obj);
         Optional<OMenuButton> messageTemplate = getTemplateButtonFromTemplate("message");
         if (!messageTemplate.isPresent()) return null;
 

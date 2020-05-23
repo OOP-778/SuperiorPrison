@@ -18,4 +18,6 @@ public interface MineEffects {
     boolean has(PotionEffectType type);
 
     Set<MineEffect> get();
+
+    void clear();
 }

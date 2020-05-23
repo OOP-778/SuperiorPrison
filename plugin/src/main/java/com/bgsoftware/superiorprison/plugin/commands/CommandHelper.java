@@ -16,7 +16,6 @@ import lombok.NonNull;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.bukkit.command.CommandSender;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerEvent;
 
 import java.util.*;
@@ -55,7 +54,7 @@ public class CommandHelper {
     }
 
     public static class MessageBuilder {
-        private Sendable sendable;
+        private final Sendable sendable;
 
         private MessageBuilder(Sendable sendable) {
             this.sendable = sendable;
@@ -110,7 +109,7 @@ public class CommandHelper {
         @Setter
         private Set<Object> placeholderObjects = Sets.newHashSet();
 
-        private Map<Class, Set<OPair<String, Function<Object, String>>>> placeholders = Maps.newHashMap();
+        private final Map<Class, Set<OPair<String, Function<Object, String>>>> placeholders = Maps.newHashMap();
 
         public ListedBuilder<T> addObject(T... objects) {
             this.objects.addAll(Arrays.asList(objects));

@@ -3,6 +3,7 @@ package com.bgsoftware.superiorprison.plugin.menu.settings.impl;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.menu.settings.SettingsObject;
 import com.bgsoftware.superiorprison.plugin.object.mine.settings.SMineSettings;
+import com.bgsoftware.superiorprison.plugin.object.mine.settings.SResetSettings;
 import com.bgsoftware.superiorprison.plugin.util.TimeUtil;
 
 public class ResetValueSetting extends SettingsObject<Long> {
@@ -27,6 +28,10 @@ public class ResetValueSetting extends SettingsObject<Long> {
         onComplete(value -> {
             settings.getResetSettings().setValue(value);
             settings.getMine().save(true);
+            if (settings.getResetSettings().isTimed()) {
+                SResetSettings.STimed timed = (SResetSettings.STimed) settings.getResetSettings().asTimed();
+                timed.setResetDate(null);
+            }
         });
     }
 }

@@ -6,7 +6,6 @@ import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.hook.impl.PapiHook;
 import com.oop.datamodule.SerializedData;
 import com.oop.orangeengine.main.Helper;
-import com.oop.orangeengine.main.util.OActionBar;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.command.CommandSender;
@@ -14,7 +13,8 @@ import org.bukkit.entity.Player;
 
 public class SMineChatMessage extends SMineMessage implements MineChatMessage {
 
-    @Getter @Setter
+    @Getter
+    @Setter
     private String content;
 
     public SMineChatMessage() {
@@ -49,7 +49,7 @@ public class SMineChatMessage extends SMineMessage implements MineChatMessage {
         if (content == null) return;
         if (!(sender instanceof Player)) return;
 
-        String content[] = new String[]{this.content};
+        String[] content = new String[]{this.content};
         SuperiorPrisonPlugin.getInstance().getHookController().executeIfFound(() -> PapiHook.class, hook -> content[0] = hook.parse(sender, content[0]));
         sender.sendMessage(Helper.color(content[0]));
     }

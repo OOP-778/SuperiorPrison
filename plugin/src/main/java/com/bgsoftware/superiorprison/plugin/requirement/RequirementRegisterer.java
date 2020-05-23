@@ -12,7 +12,7 @@ import java.util.Set;
 
 public class RequirementRegisterer {
 
-    private Set<Requirement> reqs = Sets.newHashSet();
+    private final Set<Requirement> reqs = Sets.newHashSet();
 
     public RequirementRegisterer() {
         add(new XpLevelRequirement(), new XpRequirement(), new RankRequirement());

@@ -3,17 +3,16 @@ package com.bgsoftware.superiorprison.plugin.object.mine;
 import com.bgsoftware.superiorprison.api.data.mine.MineEnum;
 import com.bgsoftware.superiorprison.api.data.mine.area.Area;
 import com.bgsoftware.superiorprison.api.data.mine.area.AreaEnum;
-import com.bgsoftware.superiorprison.api.data.mine.effects.MineEffects;
 import com.bgsoftware.superiorprison.api.data.mine.sign.Sign;
 import com.bgsoftware.superiorprison.api.data.player.Prestige;
 import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 import com.bgsoftware.superiorprison.api.data.player.rank.Rank;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
-import com.bgsoftware.superiorprison.plugin.config.main.MineDefaultsSection;
+import com.bgsoftware.superiorprison.plugin.config.MineDefaultsSection;
+import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.data.SMineHolder;
 import com.bgsoftware.superiorprison.plugin.object.mine.area.SArea;
 import com.bgsoftware.superiorprison.plugin.object.mine.effects.SMineEffects;
-import com.bgsoftware.superiorprison.plugin.object.mine.messages.SMineMessage;
 import com.bgsoftware.superiorprison.plugin.object.mine.messages.SMineMessages;
 import com.bgsoftware.superiorprison.plugin.object.mine.settings.SMineSettings;
 import com.bgsoftware.superiorprison.plugin.object.mine.shop.SShop;
@@ -24,8 +23,8 @@ import com.google.common.collect.Maps;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.oop.datamodule.DataBody;
 import com.oop.datamodule.SerializedData;
+import com.oop.datamodule.body.SqlDataBody;
 import com.oop.datamodule.util.DataUtil;
 import com.oop.orangeengine.item.ItemBuilder;
 import com.oop.orangeengine.main.task.StaticTask;
@@ -44,9 +43,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.type.NormalMine, Serializable, DataBody {
+public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.type.NormalMine, Serializable, SqlDataBody {
 
-    private Set<Prisoner> prisoners = ConcurrentHashMap.newKeySet();
+    private final Set<Prisoner> prisoners = ConcurrentHashMap.newKeySet();
 
     @Setter
     private String name;
@@ -61,9 +60,9 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
     @Setter
     private SShop shop;
 
-    private Set<String> ranks = new OConcurrentSet<>();
+    private final Set<String> ranks = new OConcurrentSet<>();
 
-    private Set<String> prestiges = new OConcurrentSet<>();
+    private final Set<String> prestiges = new OConcurrentSet<>();
 
     @Getter
     @Setter
@@ -81,10 +80,9 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
     @Getter
     private SMineMessages messages;
 
-    private Set<SSign> signs = new OConcurrentSet<>();
+    private final Set<SSign> signs = new OConcurrentSet<>();
 
-    private SNormalMine() {
-    }
+    private SNormalMine() {}
 
     public SNormalMine(@NonNull String name, @NonNull SPLocation regionPos1, @NonNull SPLocation regionPos2, @NonNull SPLocation minePos1, @NonNull SPLocation minePos2) {
         this.name = name;
@@ -105,7 +103,6 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
         defaults.getMaterials().forEach(material -> generator.getGeneratorMaterials().add(material));
         generator.setMine(this);
         generator.setMineArea((SArea) getArea(AreaEnum.MINE));
-        generator.initBlockChanger();
 
         defaults.getShopPrices().forEach(item -> shop.addItem(item.getFirst().parseItem(), item.getSecond()));
         StaticTask.getInstance().async(() -> generator.initCache(() -> generator.generate()));
@@ -220,7 +217,7 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
 
     @Override
     public Set<Prestige> getPrestigesMapped() {
-        return ranks
+        return prestiges
                 .stream()
                 .map(name -> SuperiorPrisonPlugin.getInstance().getPrestigeController().getPrestige(name).orElse(null))
                 .filter(Objects::nonNull)
@@ -235,7 +232,7 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
     @Override
     public boolean canEnter(Prisoner prisoner) {
         boolean hasRanks = getRanks().isEmpty() || getRanks().stream().anyMatch(name -> prisoner.getRanks().stream().anyMatch(name2 -> name.contentEquals(name2.getName())));
-        boolean hasPrestiges = getPrestiges().isEmpty() || getRanks().stream().anyMatch(name -> prisoner.getPrestiges().stream().anyMatch(name2 -> name.contentEquals(name2.getName())));
+        boolean hasPrestiges = getPrestiges().isEmpty() || getPrestiges().stream().anyMatch(name -> prisoner.getPrestiges().stream().anyMatch(name2 -> name.contentEquals(name2.getName())));
         return prisoner.getPlayer().hasPermission("superiorprison.bypass") || (hasPrestiges && hasRanks);
     }
 
@@ -323,9 +320,12 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
 
     @Override
     public void onReset() {
-        for (Prisoner prisoner : getPrisoners()) {
-            prisoner.getPlayer().teleport(getSpawnPoint());
-        }
+        StaticTask.getInstance().sync(() -> {
+            for (Prisoner prisoner : getPrisoners()) {
+                prisoner.getPlayer().teleport(getSpawnPoint());
+                LocaleEnum.MINE_RESETTING.getWithPrefix().send(prisoner.getPlayer());
+            }
+        });
     }
 
     @Override

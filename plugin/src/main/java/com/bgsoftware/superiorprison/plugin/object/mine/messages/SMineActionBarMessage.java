@@ -6,7 +6,6 @@ import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.hook.impl.PapiHook;
 import com.oop.datamodule.SerializedData;
 import com.oop.orangeengine.main.util.OActionBar;
-import com.oop.orangeengine.message.impl.OActionBarMessage;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.command.CommandSender;
@@ -14,7 +13,8 @@ import org.bukkit.entity.Player;
 
 public class SMineActionBarMessage extends SMineMessage implements MineActionBarMessage {
 
-    @Getter @Setter
+    @Getter
+    @Setter
     private String content;
 
     public SMineActionBarMessage() {
@@ -49,7 +49,7 @@ public class SMineActionBarMessage extends SMineMessage implements MineActionBar
         if (content == null) return;
         if (!(sender instanceof Player)) return;
 
-        String content[] = new String[]{this.content};
+        String[] content = new String[]{this.content};
         SuperiorPrisonPlugin.getInstance().getHookController().executeIfFound(() -> PapiHook.class, hook -> content[0] = hook.parse(sender, content[0]));
         OActionBar.sendActionBar(content[0], (Player) sender);
     }

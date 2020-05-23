@@ -7,7 +7,7 @@ public enum SortMethod {
     PRESTIGE_FIRST(3),
     INPUT(4);
 
-    private int order;
+    private final int order;
 
     SortMethod(int order) {
         this.order = order;

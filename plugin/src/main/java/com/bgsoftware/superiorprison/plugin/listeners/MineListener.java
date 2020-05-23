@@ -3,11 +3,15 @@ package com.bgsoftware.superiorprison.plugin.listeners;
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
 import com.bgsoftware.superiorprison.api.data.mine.area.AreaEnum;
 import com.bgsoftware.superiorprison.api.data.player.Prisoner;
+import com.bgsoftware.superiorprison.api.data.player.rank.LadderRank;
+import com.bgsoftware.superiorprison.api.data.player.rank.Rank;
+import com.bgsoftware.superiorprison.api.event.mine.MineBlockBreakEvent;
 import com.bgsoftware.superiorprison.api.event.mine.MineEnterEvent;
 import com.bgsoftware.superiorprison.api.event.mine.MineLeaveEvent;
 import com.bgsoftware.superiorprison.api.event.mine.area.MineAreaChangeEvent;
 import com.bgsoftware.superiorprison.api.util.Pair;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
+import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.data.SMineHolder;
 import com.bgsoftware.superiorprison.plugin.data.SPrisonerHolder;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
@@ -16,49 +20,52 @@ import com.bgsoftware.superiorprison.plugin.util.SPair;
 import com.oop.orangeengine.main.events.SyncEvents;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.util.Vector;
 
+import java.util.Comparator;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
 import static com.oop.orangeengine.main.events.AsyncEvents.async;
 
 public class MineListener {
-
     public MineListener() {
         SMineHolder mineHolder = SuperiorPrisonPlugin.getInstance().getDatabaseController().getMineHolder();
         SPrisonerHolder prisonerHolder = SuperiorPrisonPlugin.getInstance().getDatabaseController().getPrisonerHolder();
 
         // Disallow block place event if no perm
-        SyncEvents.listen(BlockBreakEvent.class, EventPriority.LOWEST, event -> {
+        SyncEvents.listen(MineBlockBreakEvent.class, EventPriority.LOWEST, event -> {
             if (event.isCancelled()) return;
+            Player player = event.getPrisoner().getPlayer();
 
             // World check if should make it a bit lighter
-            if (!mineHolder.getMinesWorlds().contains(event.getPlayer().getLocation().getWorld().getName()))
+            if (!mineHolder.getMinesWorlds().contains(player.getLocation().getWorld().getName()))
                 return;
 
             // If prisoner isn't in a mine return
-            Prisoner prisoner = prisonerHolder.getInsertIfAbsent(event.getPlayer());
+            Prisoner prisoner = prisonerHolder.getInsertIfAbsent(player);
             if (!prisoner.getCurrentMine().isPresent()) return;
 
             SNormalMine superiorMine = (SNormalMine) prisoner.getCurrentMine().get().getKey();
             AreaEnum areaTypeAt = superiorMine.getAreaTypeAt(event.getBlock().getLocation());
+            Material blockType = event.getBlock().getType();
 
-            if (areaTypeAt == AreaEnum.MINE) {
-                superiorMine.getGenerator().setNonEmptyBlocks(superiorMine.getGenerator().getNonEmptyBlocks() - 1);
+            if (areaTypeAt == AreaEnum.MINE && !superiorMine.getGenerator().isCaching()) {
+                superiorMine.getGenerator().getBlockData().decrease(blockType, 1);
                 superiorMine.save(true);
 
                 if (superiorMine.getSettings().getResetSettings().isTimed()) return;
                 async(() -> {
-                    int percentageOfFullBlocks = superiorMine.getGenerator().getPercentageOfFullBlocks();
+                    int percentageOfFullBlocks = superiorMine.getGenerator().getBlockData().getPercentageLeft();
                     long percentageRequired = superiorMine.getSettings().getResetSettings().asPercentage().getValue();
 
                     if (percentageOfFullBlocks <= percentageRequired) {
-                        superiorMine.getGenerator().setNonEmptyBlocks(superiorMine.getGenerator().getCachedMaterials().length);
                         superiorMine.getGenerator().reset();
                     }
                 });
@@ -116,7 +123,7 @@ public class MineListener {
                     if (enterEvent.isCancelled()) {
                         event.setCancelled(true);
                         Vector vector = event.getPlayer().getLocation().toVector().subtract(event.getTo().toVector()).normalize();
-                        event.getPlayer().setVelocity(vector.multiply(1));
+                        event.getPlayer().setVelocity(vector.multiply(0.5));
                         return;
                     }
 
@@ -172,6 +179,13 @@ public class MineListener {
             });
         });
 
-        SyncEvents.listen(MineEnterEvent.class, EventPriority.LOWEST, event -> event.setCancelled(!event.getMine().canEnter(event.getPrisoner())));
+        SyncEvents.listen(MineEnterEvent.class, EventPriority.LOWEST, event -> {
+            if (!event.getMine().canEnter(event.getPrisoner())) {
+                event.setCancelled(true);
+                messageBuilder(LocaleEnum.CANNOT_ENTER_MINE_MISSING_RANK.getWithErrorPrefix())
+                        .replace("{rank}", event.getMine().getRanksMapped().stream().filter(rank -> rank instanceof LadderRank).map(rank -> (LadderRank) rank).min(Comparator.comparingInt(LadderRank::getOrder)).map(Rank::getName).orElse("None"))
+                        .send(event.getPrisoner().getPlayer());
+            }
+        });
     }
 }

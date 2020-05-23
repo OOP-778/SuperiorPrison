@@ -36,7 +36,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 
 import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
 import static com.bgsoftware.superiorprison.plugin.util.TextUtil.mergeText;
@@ -44,7 +43,7 @@ import static com.bgsoftware.superiorprison.plugin.util.TextUtil.mergeText;
 @Getter
 public class MineControlPanel extends OPagedMenu<OptionEnum> implements OMenu.Templateable {
 
-    private SNormalMine mine;
+    private final SNormalMine mine;
 
     public MineControlPanel(SPrisoner viewer, SNormalMine mine) {
         super("mineControlPanel", viewer);
@@ -103,7 +102,6 @@ public class MineControlPanel extends OPagedMenu<OptionEnum> implements OMenu.Te
         Optional<OMenuButton.ButtonItemBuilder> soon = getTemplateButtonFromTemplate("option").map(button -> button.getStateItem("soon"));
         if (!soon.isPresent()) return inventory;
 
-        System.out.println(getEmptySlots().stream().map(Object::toString).collect(Collectors.joining(", ")));
         for (int slot : getEmptySlots()) {
             inventory.setItem(slot, soon.get().getItemStack());
         }
@@ -129,7 +127,7 @@ public class MineControlPanel extends OPagedMenu<OptionEnum> implements OMenu.Te
 
             OMessage clone = LocaleEnum.EDIT_ICON_MAIN_MESSAGE.getMessage().clone();
             clone.replace("%item%", new LineContent(Helper.beautify(OMaterial.matchMaterial(itemBuilder.getItemStack()))).hoverItem().item(itemBuilder.getItemStack()).parent());
-            clone.send((Player) event.getWhoClicked());
+            clone.send(event.getWhoClicked());
         });
 
         chatCommands.appendCommand("cancel", (player, args) -> {
@@ -160,7 +158,7 @@ public class MineControlPanel extends OPagedMenu<OptionEnum> implements OMenu.Te
 
             OMessage clone = LocaleEnum.EDIT_ICON_MAIN_MESSAGE.getMessage().clone();
             clone.replace("%item%", new LineContent(Helper.beautify(OMaterial.matchMaterial(itemBuilder.getItemStack()))).hoverItem().item(itemBuilder.getItemStack()).parent());
-            clone.send((Player) event.getWhoClicked());
+            clone.send(event.getWhoClicked());
         });
 
         chatCommands.appendCommand("add lore", (player, args) -> {
@@ -174,7 +172,7 @@ public class MineControlPanel extends OPagedMenu<OptionEnum> implements OMenu.Te
 
             OMessage clone = LocaleEnum.EDIT_ICON_MAIN_MESSAGE.getMessage().clone();
             clone.replace("%item%", new LineContent(Helper.beautify(OMaterial.matchMaterial(itemBuilder.getItemStack()))).hoverItem().item(itemBuilder.getItemStack()).parent());
-            clone.send((Player) event.getWhoClicked());
+            clone.send(event.getWhoClicked());
         });
 
         chatCommands.appendCommand("clear lore", (player, args) -> {
@@ -183,7 +181,7 @@ public class MineControlPanel extends OPagedMenu<OptionEnum> implements OMenu.Te
 
             OMessage clone = LocaleEnum.EDIT_ICON_MAIN_MESSAGE.getMessage().clone();
             clone.replace("%item%", new LineContent(Helper.beautify(OMaterial.matchMaterial(itemBuilder.getItemStack()))).hoverItem().item(itemBuilder.getItemStack()).parent());
-            clone.send((Player) event.getWhoClicked());
+            clone.send(event.getWhoClicked());
         });
 
         chatCommands.appendCommand("remove lore", (player, args) -> {
@@ -197,7 +195,7 @@ public class MineControlPanel extends OPagedMenu<OptionEnum> implements OMenu.Te
 
             OMessage clone = LocaleEnum.EDIT_ICON_MAIN_MESSAGE.getMessage().clone();
             clone.replace("%item%", new LineContent(Helper.beautify(OMaterial.matchMaterial(itemBuilder.getItemStack()))).hoverItem().item(itemBuilder.getItemStack()).parent());
-            clone.send((Player) event.getWhoClicked());
+            clone.send(event.getWhoClicked());
         });
 
         chatCommands.appendCommand("material", (player, args) -> {
@@ -213,7 +211,7 @@ public class MineControlPanel extends OPagedMenu<OptionEnum> implements OMenu.Te
 
             OMessage clone = LocaleEnum.EDIT_ICON_MAIN_MESSAGE.getMessage().clone();
             clone.replace("%item%", new LineContent(Helper.beautify(OMaterial.matchMaterial(itemBuilder.getItemStack()))).hoverItem().item(itemBuilder.getItemStack()).parent());
-            clone.send((Player) event.getWhoClicked());
+            clone.send(event.getWhoClicked());
         });
 
         SubscriptionFactory.getInstance().subscribeTo(
@@ -236,7 +234,7 @@ public class MineControlPanel extends OPagedMenu<OptionEnum> implements OMenu.Te
 
         OMessage clone = LocaleEnum.EDIT_ICON_MAIN_MESSAGE.getMessage().clone();
         clone.replace("%item%", new LineContent(Helper.beautify(OMaterial.matchMaterial(itemBuilder.getItemStack()))).hoverItem().item(itemBuilder.getItemStack()).parent());
-        clone.send((Player) event.getWhoClicked());
+        clone.send(event.getWhoClicked());
     }
 
     @Override

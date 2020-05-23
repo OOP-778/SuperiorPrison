@@ -223,12 +223,19 @@ public enum LocaleEnum {
 
     MINE_MESSAGES_CREATE_TYPE("What type of message you want to create? Available: actionbar, title, chat"),
     MINE_MESSAGES_CREATE_INTERVAL("Now write interval of message. Example: 1h2m2s, 1m, 3s, 10m10s"),
-    MINE_MESSAGES_CREATE_SUCCESS("Successfully create mine message of type {message_type}");
+    MINE_MESSAGES_CREATE_SUCCESS("Successfully create mine message of type {message_type}"),
 
-    private OMessage[] cache = new OMessage[2];
+    AUTO_PICKUP_PRISONER_INVENTORY_FULL("Your inventory is full!"),
+    CANNOT_ENTER_MINE_MISSING_RANK("You cannot enter the mine! You're missing at least {rank}"),
+    CANNOT_ENTER_MINE_MINE_NOT_READY("Cannot enter the mine! It's either resetting or initializing..."),
+    MINE_RESETTING("You've been teleported out! Because mine is resetting!"),
+
+    SOLD_BLOCKS_MESSAGE("You've made {money} out of {blocks} blocks in the past {time}");
+
+    private final OMessage[] cache = new OMessage[2];
 
     @Getter
-    private OMessage message;
+    private final OMessage message;
 
     LocaleEnum(String text) {
         message = new OChatMessage(text);

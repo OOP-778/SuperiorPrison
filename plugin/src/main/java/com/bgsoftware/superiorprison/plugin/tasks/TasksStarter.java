@@ -8,5 +8,6 @@ public class TasksStarter {
         new BoosterTask();
         new MessagesTask();
         new StatisticSaveTask();
+        new ResetQueueTask();
     }
 }

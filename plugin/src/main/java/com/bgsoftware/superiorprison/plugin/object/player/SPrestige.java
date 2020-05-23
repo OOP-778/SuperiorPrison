@@ -16,21 +16,23 @@ import java.util.Set;
 public class SPrestige implements Prestige, Access {
     @Getter
     private
-    @NonNull String name;
+    @NonNull
+    final String name;
     @Getter
-    private @NonNull String prefix;
+    private @NonNull
+    final String prefix;
 
     @Getter
-    private int order;
+    private final int order;
 
     @Getter
-    private List<String> commands;
+    private final List<String> commands;
 
     @Getter
-    private List<String> permissions;
+    private final List<String> permissions;
 
     @Getter
-    private Set<RequirementData> requirements;
+    private final Set<RequirementData> requirements;
 
     @Setter
     private SPrestige nextPrestige;

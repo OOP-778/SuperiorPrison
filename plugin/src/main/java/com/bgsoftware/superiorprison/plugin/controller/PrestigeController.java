@@ -21,7 +21,7 @@ public class PrestigeController implements com.bgsoftware.superiorprison.api.con
     @Getter
     private boolean loaded = false;
 
-    private Map<Integer, SPrestige> prestigeMap = Maps.newConcurrentMap();
+    private final Map<Integer, SPrestige> prestigeMap = Maps.newConcurrentMap();
 
     public PrestigeController(boolean first) {
         // We have to load delayed so other plugins can register requirements

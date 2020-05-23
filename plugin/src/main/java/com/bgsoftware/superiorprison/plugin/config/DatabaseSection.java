@@ -1,4 +1,4 @@
-package com.bgsoftware.superiorprison.plugin.config.main;
+package com.bgsoftware.superiorprison.plugin.config;
 
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.oop.datamodule.database.DatabaseWrapper;
@@ -10,7 +10,7 @@ import lombok.Getter;
 @Getter
 public class DatabaseSection {
 
-    private String type;
+    private final String type;
     private String database = "data";
     private String hostname = "127.0.0.1";
     private int port = 3306;

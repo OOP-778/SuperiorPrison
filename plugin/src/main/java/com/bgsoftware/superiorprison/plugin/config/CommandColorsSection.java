@@ -1,11 +1,11 @@
-package com.bgsoftware.superiorprison.plugin.config.main;
+package com.bgsoftware.superiorprison.plugin.config;
 
 import com.oop.orangeengine.command.ColorScheme;
 import com.oop.orangeengine.yaml.ConfigSection;
 
 public class CommandColorsSection {
 
-    private ColorScheme scheme;
+    private final ColorScheme scheme;
 
     public CommandColorsSection(ConfigSection section) {
         scheme = new ColorScheme();

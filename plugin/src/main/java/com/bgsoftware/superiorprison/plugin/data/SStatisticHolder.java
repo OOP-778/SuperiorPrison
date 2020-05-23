@@ -4,19 +4,19 @@ import com.bgsoftware.superiorprison.api.controller.StatisticsController;
 import com.bgsoftware.superiorprison.plugin.controller.DatabaseController;
 import com.bgsoftware.superiorprison.plugin.object.statistic.SStatisticsContainer;
 import com.google.common.collect.Maps;
-import com.oop.datamodule.DataStorage;
+import com.oop.datamodule.storage.SqlStorage;
 
 import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-public class SStatisticHolder extends DataStorage<SStatisticsContainer> implements StatisticsController {
+public class SStatisticHolder extends SqlStorage<SStatisticsContainer> implements StatisticsController {
 
-    private Map<UUID, SStatisticsContainer> containers = Maps.newConcurrentMap();
+    private final Map<UUID, SStatisticsContainer> containers = Maps.newConcurrentMap();
 
     public SStatisticHolder(DatabaseController databaseController) {
-        super(databaseController);
+        super(databaseController, databaseController.getDatabase());
     }
 
     @Override

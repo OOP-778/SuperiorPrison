@@ -3,7 +3,7 @@ package com.bgsoftware.superiorprison.plugin;
 import com.bgsoftware.superiorprison.api.SuperiorPrison;
 import com.bgsoftware.superiorprison.api.SuperiorPrisonAPI;
 import com.bgsoftware.superiorprison.plugin.commands.CommandsRegister;
-import com.bgsoftware.superiorprison.plugin.config.main.MainConfig;
+import com.bgsoftware.superiorprison.plugin.config.MainConfig;
 import com.bgsoftware.superiorprison.plugin.controller.*;
 import com.bgsoftware.superiorprison.plugin.data.SMineHolder;
 import com.bgsoftware.superiorprison.plugin.data.SPrisonerHolder;
@@ -15,7 +15,7 @@ import com.bgsoftware.superiorprison.plugin.listeners.FlagsListener;
 import com.bgsoftware.superiorprison.plugin.listeners.MineListener;
 import com.bgsoftware.superiorprison.plugin.listeners.PrisonerListener;
 import com.bgsoftware.superiorprison.plugin.listeners.StatisticsListener;
-import com.bgsoftware.superiorprison.plugin.nms.ISuperiorNms;
+import com.bgsoftware.superiorprison.plugin.nms.SuperiorNms;
 import com.bgsoftware.superiorprison.plugin.requirement.RequirementRegisterer;
 import com.bgsoftware.superiorprison.plugin.tasks.TasksStarter;
 import com.bgsoftware.superiorprison.plugin.util.menu.MenuListener;
@@ -44,7 +44,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
     private HookController hookController;
     private DatabaseController databaseController;
     private SStatisticHolder statisticsController;
-    private ISuperiorNms nms;
+    private SuperiorNms nms;
 
     public static SuperiorPrisonPlugin getInstance() {
         return instance;
@@ -60,6 +60,8 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
                 Bukkit.getPluginManager().disablePlugin(this);
                 return;
             }
+
+            getOLogger().setDebugMode(true);
 
             new MenuListener();
             this.configController = new ConfigController();
@@ -141,7 +143,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
         String version = getServer().getClass().getPackage().getName().split("\\.")[3];
         try {
             Object o = Class.forName("com.bgsoftware.superiorprison.plugin.nms.NmsHandler_" + version).newInstance();
-            this.nms = (ISuperiorNms) o;
+            this.nms = (SuperiorNms) o;
             getOLogger().print("Server version: " + version.replace("_", " .") + ". Fully compatible!");
             return true;
         } catch (ClassNotFoundException e) {

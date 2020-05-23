@@ -14,7 +14,7 @@ import java.util.Optional;
 
 public class FlagsEditMenu extends OPagedMenu<Flag> implements OMenu.Templateable {
 
-    private SArea area;
+    private final SArea area;
 
     public FlagsEditMenu(SPrisoner viewer, SArea area) {
         super("areaFlags", viewer);
@@ -66,7 +66,7 @@ public class FlagsEditMenu extends OPagedMenu<Flag> implements OMenu.Templateabl
                         "{state}", current ? "disabled" : "enabled",
                         "{flag}", flag.name().toLowerCase(),
                         "{mine}", area.getMine().getName()
-                ), (Player) event.getWhoClicked());
+                ), event.getWhoClicked());
         refresh();
     }
 

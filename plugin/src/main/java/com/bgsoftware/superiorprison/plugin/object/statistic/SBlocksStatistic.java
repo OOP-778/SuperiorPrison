@@ -33,9 +33,9 @@ public class SBlocksStatistic implements BlocksStatistic, Attachable<SStatistics
     @Getter
     private transient long lastUpdated = 0;
 
-    private Map<OMaterial, Long> minedBlocks = Maps.newConcurrentMap();
+    private final Map<OMaterial, Long> minedBlocks = Maps.newConcurrentMap();
 
-    private transient Cache<Long, OPair<OMaterial, Long>> timedCache = CacheBuilder.newBuilder()
+    private final transient Cache<Long, OPair<OMaterial, Long>> timedCache = CacheBuilder.newBuilder()
             .concurrencyLevel(4)
             .expireAfterAccess(SuperiorPrisonPlugin.getInstance().getMainConfig().getCacheTime(), TimeUnit.SECONDS)
             .build();
@@ -50,7 +50,7 @@ public class SBlocksStatistic implements BlocksStatistic, Attachable<SStatistics
         minedBlocks.merge(material, amount, Long::sum);
 
         lastUpdated = getDate().toEpochSecond();
-        OPair<OMaterial, Long> data = timedCache.get(lastUpdated, () -> new OPair<>(material, amount));
+        OPair<OMaterial, Long> data = timedCache.get(lastUpdated, () -> new OPair<>(material, 0L));
         data.setSecond(data.getSecond() + amount);
     }
 

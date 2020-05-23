@@ -19,7 +19,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class RankupTask extends OTask {
-    private Cache<UUID, String> cache = CacheBuilder.newBuilder()
+    private final Cache<UUID, String> cache = CacheBuilder.newBuilder()
             .expireAfterWrite(5, TimeUnit.MINUTES)
             .build();
 

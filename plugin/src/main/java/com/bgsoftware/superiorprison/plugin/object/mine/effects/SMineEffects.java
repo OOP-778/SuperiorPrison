@@ -12,6 +12,7 @@ import com.oop.datamodule.SerializedData;
 import lombok.Getter;
 import org.bukkit.potion.PotionEffectType;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -23,7 +24,7 @@ public class SMineEffects implements MineEffects, SerializableObject, Attachable
     @Getter
     private SNormalMine mine;
 
-    private Map<PotionEffectType, SMineEffect> effects = new ConcurrentHashMap<>();
+    private final Map<PotionEffectType, SMineEffect> effects = new ConcurrentHashMap<>();
 
     @Override
     public Optional<MineEffect> get(PotionEffectType type) {
@@ -69,6 +70,7 @@ public class SMineEffects implements MineEffects, SerializableObject, Attachable
             JsonObject object = new JsonObject();
             object.addProperty("type", effect.getType().getName());
             object.addProperty("amplifier", effect.getAmplifier());
+            array.add(object);
         }
         serializedData.getJsonObject().add("effects", array);
     }
@@ -95,5 +97,16 @@ public class SMineEffects implements MineEffects, SerializableObject, Attachable
     @Override
     public Set<MineEffect> get() {
         return effects.values().stream().map(effect -> (MineEffect) effect).collect(Collectors.toSet());
+    }
+
+    @Override
+    public void clear() {
+        effects.clear();
+    }
+
+    public void addAll(Collection<MineEffect> effects) {
+        for (MineEffect effect : effects) {
+            this.effects.put(effect.getType(), (SMineEffect) effect);
+        }
     }
 }

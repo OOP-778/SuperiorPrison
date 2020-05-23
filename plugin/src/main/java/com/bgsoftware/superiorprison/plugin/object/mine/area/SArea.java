@@ -28,7 +28,7 @@ public class SArea implements Area, Attachable<SNormalMine>, SerializableObject 
     private SPLocation highPoint;
 
     @Getter
-    private Map<Flag, Boolean> flags = Maps.newConcurrentMap();
+    private final Map<Flag, Boolean> flags = Maps.newConcurrentMap();
     private AreaEnum type;
 
     private SArea() {
@@ -69,6 +69,16 @@ public class SArea implements Area, Attachable<SNormalMine>, SerializableObject 
         int x2 = Math.max(getMinPoint().getBlockX(), getHighPoint().getBlockX());
         int z2 = Math.max(getMinPoint().getBlockZ(), getHighPoint().getBlockZ());
         return location.x() >= x1 && location.x() <= x2 && location.z() >= z1 && location.z() <= z2;
+    }
+
+    public boolean isInsideWithY(SPLocation location) {
+        int x1 = Math.min(getMinPoint().getBlockX(), getHighPoint().getBlockX());
+        int z1 = Math.min(getMinPoint().getBlockZ(), getHighPoint().getBlockZ());
+        int x2 = Math.max(getMinPoint().getBlockX(), getHighPoint().getBlockX());
+        int z2 = Math.max(getMinPoint().getBlockZ(), getHighPoint().getBlockZ());
+        int y1 = Math.min(getMinPoint().getBlockY(), getHighPoint().getBlockY());
+        int y2 = Math.max(getMinPoint().getBlockY(), getHighPoint().getBlockY());
+        return location.x() >= x1 && location.x() <= x2 && location.z() >= z1 && location.z() <= z2 && location.y() >= y1 && location.y() <= y2;
     }
 
     public boolean isInside(Location location) {

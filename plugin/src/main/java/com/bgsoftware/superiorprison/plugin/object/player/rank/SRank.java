@@ -11,10 +11,12 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 public class SRank implements Rank, Access {
-    private @NonNull String name;
-    private @NonNull String prefix;
+    private @NonNull
+    final String name;
+    private @NonNull
+    final String prefix;
 
-    private List<String> commands;
+    private final List<String> commands;
 
-    private List<String> permissions;
+    private final List<String> permissions;
 }

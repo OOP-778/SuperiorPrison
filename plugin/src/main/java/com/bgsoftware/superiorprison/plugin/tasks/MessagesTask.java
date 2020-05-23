@@ -28,7 +28,6 @@ public class MessagesTask extends OTask {
 
                         Duration between = Duration.between(getDate(), message.getTimeToRun());
                         if (between.getSeconds() <= 0) {
-                            System.out.println("Sending " + message.getId());
                             mine.getPrisoners().stream().filter(Prisoner::isOnline).forEach(prisoner -> message.send(prisoner.getPlayer()));
                             message.setTimeToRun(getDate().plusSeconds(message.getInterval()));
                         }

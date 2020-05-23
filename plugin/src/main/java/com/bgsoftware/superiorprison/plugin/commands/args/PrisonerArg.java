@@ -12,7 +12,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class PrisonerArg extends CommandArgument<SPrisoner> {
-    private boolean offline;
+    private final boolean offline;
 
     public PrisonerArg(boolean offline) {
         this.offline = offline;

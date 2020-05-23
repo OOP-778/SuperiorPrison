@@ -4,6 +4,8 @@ import com.bgsoftware.superiorprison.api.data.mine.flags.Flag;
 import org.bukkit.Location;
 import org.bukkit.World;
 
+import java.util.Map;
+
 public interface Area {
 
     Location getMinPoint();
@@ -19,5 +21,7 @@ public interface Area {
     void setFlagState(Flag flag, boolean enabled);
 
     AreaEnum getType();
+
+    Map<Flag, Boolean> getFlags();
 
 }

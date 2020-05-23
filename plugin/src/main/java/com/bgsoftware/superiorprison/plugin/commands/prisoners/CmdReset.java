@@ -17,7 +17,7 @@ public class CmdReset extends OCommand {
 
         onCommand(command -> {
             Prisoner prisoner = command.getArgAsReq("prisoner");
-            ((SPrisoner) prisoner).remove();
+            prisoner.remove();
 
             if (prisoner.isOnline())
                 prisoner.getPlayer().kickPlayer("&cReseting your data...");

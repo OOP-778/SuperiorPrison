@@ -13,7 +13,7 @@ import java.util.function.Consumer;
 public class ClickHandler {
 
     private String action;
-    private Set<ClickType> acceptsTypes = Sets.newHashSet(ClickType.values());
+    private final Set<ClickType> acceptsTypes = Sets.newHashSet(ClickType.values());
 
     private Consumer<ButtonClickEvent> consumer;
 
@@ -50,10 +50,7 @@ public class ClickHandler {
         if (!acceptsTypes.contains(event.getClick()))
             return false;
 
-        if (action != null && !event.getButton().action().equalsIgnoreCase(action))
-            return false;
-
-        return true;
+        return action == null || event.getButton().action().equalsIgnoreCase(action);
     }
 
     public ClickHandler handle(Consumer<ButtonClickEvent> consumer) {

@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorprison.plugin.nms;
 
 import com.oop.orangeengine.material.OMaterial;
+import lombok.NonNull;
 import net.minecraft.server.v1_15_R1.*;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -9,28 +10,22 @@ import org.bukkit.craftbukkit.v1_15_R1.CraftChunk;
 import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_15_R1.util.CraftMagicNumbers;
 
-import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.oop.orangeengine.main.Engine.getEngine;
-
-public class NmsHandler_v1_15_R1 implements ISuperiorNms {
+public class NmsHandler_v1_15_R1 implements SuperiorNms {
     @Override
-    public void setBlock(Location location, OMaterial material) {
-
+    public void setBlock(@NonNull Chunk chunk, @NonNull Location location, @NonNull OMaterial material) {
         org.bukkit.Material parsed = material.parseMaterial();
-        if (parsed == null) {
-            getEngine().getLogger().printError("Failed to find block data for material " + material.name());
-            return;
-        }
-
-        IBlockData data = CraftMagicNumbers.getBlock(parsed, material.getData());
-        net.minecraft.server.v1_15_R1.Chunk chunk = ((CraftChunk) location.getChunk()).getHandle();
+        IBlockData data = CraftMagicNumbers.getBlock(parsed).getBlockData();
+        net.minecraft.server.v1_15_R1.Chunk nmsChunk = ((CraftChunk) chunk).getHandle();
 
         int indexY = location.getBlockY() >> 4;
-        ChunkSection chunkSection = chunk.getSections()[indexY];
+        ChunkSection chunkSection = nmsChunk.getSections()[indexY];
 
         if (chunkSection == null)
-            chunkSection = chunk.getSections()[indexY] = new ChunkSection(indexY << 4);
+            chunkSection = nmsChunk.getSections()[indexY] = new ChunkSection(indexY << 4);
 
         chunkSection.setType(location.getBlockX() & 15, location.getBlockY() & 15, location.getBlockZ() & 15, data);
 
@@ -43,13 +38,20 @@ public class NmsHandler_v1_15_R1 implements ISuperiorNms {
     }
 
     @Override
-    public void refreshChunks(World world, List<Chunk> chunkList) {
+    public void refreshChunks(World world, Map<Chunk, Set<Location>> locations) {
         ChunkProviderServer cps = ((CraftWorld) world).getHandle().getChunkProvider();
-        for (Chunk chunk : chunkList) {
+        locations.forEach((chunk, locs) -> {
+            int locsSize = locs.size();
+            short[] values = new short[locsSize];
             net.minecraft.server.v1_15_R1.Chunk nmsChunk = ((CraftChunk) chunk).getHandle();
-            Packet packet = new PacketPlayOutMapChunk(nmsChunk, 65535);
 
+            AtomicInteger counter = new AtomicInteger(0);
+            for (Location location : locs) {
+                values[counter.incrementAndGet()] = (short) ((location.getBlockX() & 15) << 12 | (location.getBlockZ() & 15) << 8 | location.getBlockY());
+            }
+
+            PacketPlayOutMultiBlockChange packet = new PacketPlayOutMultiBlockChange(locsSize, values, nmsChunk);
             cps.playerChunkMap.a(nmsChunk.getPos(), false).forEach(player -> player.playerConnection.sendPacket(packet));
-        }
+        });
     }
 }

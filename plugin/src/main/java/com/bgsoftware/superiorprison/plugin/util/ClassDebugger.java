@@ -6,11 +6,15 @@ public class ClassDebugger {
 
     public static void debug(Object object) {
         Class<?> clazz = null;
+        String methodName = null;
         try {
-            clazz = Class.forName(Thread.currentThread().getStackTrace()[2].getClassName());
+            StackTraceElement ste = Thread.currentThread().getStackTrace()[2];
+            clazz = Class.forName(ste.getClassName());
+            methodName = ste.getMethodName();
+
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-        getEngine().getLogger().printDebug("<" + clazz.getSimpleName() + "> " + object.toString());
+        getEngine().getLogger().printDebug("<{}:{}>: {}", clazz.getSimpleName(), methodName, object);
     }
 }

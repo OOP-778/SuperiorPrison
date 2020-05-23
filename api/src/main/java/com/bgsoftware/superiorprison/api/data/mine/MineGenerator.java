@@ -15,11 +15,6 @@ public interface MineGenerator {
     List<OPair<Double, OMaterial>> getGeneratorMaterials();
 
     /*
-    Generates AIR between pos1 and pos2
-    */
-    void generateAir();
-
-    /*
     Generates shuffled materials between pos1 and pos2
     */
     void generate();
@@ -29,10 +24,7 @@ public interface MineGenerator {
     */
     void reset();
 
-    /*
-    Returns how much blocks left in percentage
-    */
-    int getPercentageOfFullBlocks();
+    MineBlockData getBlockData();
 
     /*
     When did last reset happen?
@@ -44,4 +36,8 @@ public interface MineGenerator {
     Returns current time if mine reset mode is at PERCENTAGE
     */
     Instant getWhenNextReset();
+
+    boolean isCaching();
+
+    boolean isResetting();
 }

@@ -13,7 +13,7 @@ import java.util.function.BiConsumer;
 public class ChatCommands {
 
     // command label = command
-    private Map<String, BiConsumer<Player, String[]>> commandMap = Maps.newHashMap();
+    private final Map<String, BiConsumer<Player, String[]>> commandMap = Maps.newHashMap();
 
     @Setter
     private BiConsumer<Player, Throwable> exceptionHandler;

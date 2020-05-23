@@ -41,7 +41,7 @@ public abstract class AccessMenu extends OPagedMenu<AccessObject> implements OMe
                     if (next == SortMethod.INPUT) {
                         previousMove = false;
                         event.getWhoClicked().closeInventory();
-                        LocaleEnum.MINE_RANK_FIND_INPUT.getWithPrefix().send((Player) event.getWhoClicked());
+                        LocaleEnum.MINE_RANK_FIND_INPUT.getWithPrefix().send(event.getWhoClicked());
 
                         SubscriptionFactory.getInstance().subscribeTo(AsyncPlayerChatEvent.class, inputEvent -> {
                             inputEvent.setCancelled(true);

@@ -13,6 +13,7 @@ import lombok.Getter;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
+import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -21,7 +22,7 @@ import java.util.Set;
 public class SShop implements MineShop, Attachable<SNormalMine>, SerializableObject {
 
     private transient SNormalMine mine;
-    private Set<SShopItem> items = new OConcurrentSet<>();
+    private final Set<SShopItem> items = new OConcurrentSet<>();
 
     public SShop() {
     }
@@ -42,7 +43,7 @@ public class SShop implements MineShop, Attachable<SNormalMine>, SerializableObj
     }
 
     @Override
-    public void addItem(ItemStack itemStack, double price) {
+    public void addItem(ItemStack itemStack, BigDecimal price) {
         if (itemStack.getType() == Material.AIR) return;
 
         SShopItem shopItem = new SShopItem(itemStack, price);
@@ -59,12 +60,12 @@ public class SShop implements MineShop, Attachable<SNormalMine>, SerializableObj
     }
 
     @Override
-    public double getPrice(ItemStack itemStack) {
+    public BigDecimal getPrice(ItemStack itemStack) {
         return getItems()
                 .stream()
                 .filter(shopItem -> shopItem.getItem().isSimilar(itemStack))
                 .findFirst().map(ShopItem::getPrice)
-                .orElse(0.0);
+                .orElse(new BigDecimal(0));
     }
 
     @Override

@@ -4,14 +4,14 @@ import com.bgsoftware.superiorprison.api.data.statistic.StatisticsContainer;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.data.SStatisticHolder;
 import com.google.common.collect.Sets;
-import com.oop.datamodule.DataBody;
 import com.oop.datamodule.SerializedData;
+import com.oop.datamodule.body.SqlDataBody;
 import lombok.Getter;
 
 import java.util.Set;
 import java.util.UUID;
 
-public class SStatisticsContainer implements StatisticsContainer, DataBody {
+public class SStatisticsContainer implements StatisticsContainer, SqlDataBody {
 
     @Getter
     private UUID uuid;

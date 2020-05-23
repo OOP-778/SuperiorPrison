@@ -9,18 +9,19 @@ import lombok.NonNull;
 import lombok.Setter;
 import org.bukkit.inventory.ItemStack;
 
+import java.math.BigDecimal;
+
 @Setter
-@EqualsAndHashCode
 public class SShopItem implements ShopItem, SerializableObject {
     @Getter
     private ItemStack item;
+
     @Getter
-    private double price;
+    private BigDecimal price;
 
-    private SShopItem() {
-    }
+    private SShopItem() {}
 
-    protected SShopItem(@NonNull ItemStack item, double price) {
+    protected SShopItem(@NonNull ItemStack item, BigDecimal price) {
         this.item = item;
         this.price = price;
     }
@@ -47,19 +48,14 @@ public class SShopItem implements ShopItem, SerializableObject {
     }
 
     @Override
-    public double getPrice() {
-        return price;
-    }
-
-    @Override
     public void serialize(SerializedData serializedData) {
         serializedData.write("item", item);
-        serializedData.write("price", price);
+        serializedData.write("price", price.toString());
     }
 
     @Override
     public void deserialize(SerializedData serializedData) {
         this.item = serializedData.applyAs("item", ItemStack.class);
-        this.price = serializedData.applyAs("price", double.class);
+        this.price = new BigDecimal(serializedData.applyAs("price", String.class));
     }
 }

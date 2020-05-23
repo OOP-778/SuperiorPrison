@@ -2,7 +2,7 @@ package com.bgsoftware.superiorprison.plugin.object.mine.settings;
 
 import com.bgsoftware.superiorprison.api.data.mine.settings.ResetSettings;
 import com.bgsoftware.superiorprison.api.data.mine.settings.ResetType;
-import com.bgsoftware.superiorprison.plugin.config.main.MineDefaultsSection;
+import com.bgsoftware.superiorprison.plugin.config.MineDefaultsSection;
 import com.bgsoftware.superiorprison.plugin.menu.settings.SettingsObject;
 import com.bgsoftware.superiorprison.plugin.menu.settings.impl.PlayerLimitSetting;
 import com.bgsoftware.superiorprison.plugin.menu.settings.impl.ResetTypeSetting;
@@ -33,7 +33,8 @@ public class SMineSettings implements Attachable<SNormalMine>, com.bgsoftware.su
 
     private transient SNormalMine mine;
 
-    SMineSettings() {}
+    SMineSettings() {
+    }
 
     public SMineSettings(MineDefaultsSection defaults) {
         this.playerLimit = defaults.getLimit();

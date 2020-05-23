@@ -23,8 +23,8 @@ import static com.bgsoftware.superiorprison.plugin.util.TextUtil.mergeText;
 
 public class MessageEditMenu extends OMenu {
 
-    private SMineMessage message;
-    private SMineMessages messages;
+    private final SMineMessage message;
+    private final SMineMessages messages;
 
     public MessageEditMenu(SPrisoner viewer, SMineMessages messages, SMineMessage message) {
         super("mineMessageEdit", viewer);
@@ -38,7 +38,7 @@ public class MessageEditMenu extends OMenu {
                     previousMove = false;
                     event.getWhoClicked().closeInventory();
 
-                    SubscriptionFactory.getInstance().subscribeTo(AsyncPlayerChatEvent.class, chatEvent ->{
+                    SubscriptionFactory.getInstance().subscribeTo(AsyncPlayerChatEvent.class, chatEvent -> {
                         long seconds = TimeUtil.toSeconds(chatEvent.getMessage());
                         newInterval.set(seconds);
                         message.setInterval(seconds);
@@ -47,8 +47,8 @@ public class MessageEditMenu extends OMenu {
                                 .send(chatEvent);
 
                         chatEvent.setCancelled(true);
-                        previousMove = true;
                         refresh();
+                        previousMove = true;
                     }, new SubscriptionProperties<AsyncPlayerChatEvent>().timeOut(TimeUnit.MINUTES, 2).runTill(chatEvent -> newInterval.get() != -1));
                 });
 
@@ -127,9 +127,9 @@ public class MessageEditMenu extends OMenu {
                     chatCommands.appendCommand("save", (player, args) -> {
                         messageBuilder(LocaleEnum.EDIT_MESSAGE_SAVE.getWithPrefix()).replace(message).send(player);
                         messages.getMine().save(true);
-                        previousMove = true;
                         message.setTimeToRun(null);
                         refresh();
+                        previousMove = true;
                         cancel.set(true);
                     });
 

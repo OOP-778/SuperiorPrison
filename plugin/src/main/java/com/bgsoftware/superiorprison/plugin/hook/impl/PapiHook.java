@@ -1,18 +1,24 @@
 package com.bgsoftware.superiorprison.plugin.hook.impl;
 
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
-import com.bgsoftware.superiorprison.api.data.mine.area.AreaEnum;
-import com.bgsoftware.superiorprison.api.data.mine.settings.ResetSettings;
 import com.bgsoftware.superiorprison.api.data.player.Prestige;
 import com.bgsoftware.superiorprison.api.data.player.rank.LadderRank;
 import com.bgsoftware.superiorprison.api.data.player.rank.Rank;
+import com.bgsoftware.superiorprison.api.data.statistic.StatisticsContainer;
 import com.bgsoftware.superiorprison.api.util.Pair;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.hook.SHook;
+import com.bgsoftware.superiorprison.plugin.hook.impl.parser.ObjectCache;
+import com.bgsoftware.superiorprison.plugin.hook.impl.parser.PlaceholderParser;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
+import com.bgsoftware.superiorprison.plugin.object.player.SPrestige;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
+import com.bgsoftware.superiorprison.plugin.object.player.rank.SLadderRank;
+import com.bgsoftware.superiorprison.plugin.object.statistic.SBlocksStatistic;
 import com.bgsoftware.superiorprison.plugin.object.statistic.SStatisticsContainer;
 import com.bgsoftware.superiorprison.plugin.util.TimeUtil;
+import com.oop.orangeengine.main.Helper;
+import com.oop.orangeengine.material.OMaterial;
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.Bukkit;
@@ -20,12 +26,99 @@ import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
-import java.util.Arrays;
+import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
+import static com.bgsoftware.superiorprison.plugin.util.TimeUtil.getDate;
+
 public class PapiHook extends SHook {
+    private final PlaceholderParser<Object, Object> parser = new PlaceholderParser<>()
+            // Prisoner placeholders
+            .add("prisoner", SPrisoner.class)
+            .mapper((none, none0, crawler) -> {
+                String identifier = crawler.hasNext() ? crawler.next() : "";
+                if (identifier.matches("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[34][0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}"))
+                    return (SPrisoner) SuperiorPrisonPlugin.getInstance().getPrisonerController().getPrisoner(UUID.fromString(identifier)).orElse(null);
+
+                else
+                    return identifier.trim().length() == 0 ? null : (SPrisoner) SuperiorPrisonPlugin.getInstance().getPrisonerController().getPrisoner(identifier).orElse(null);
+            })
+            .parse("autosell", prisoner -> booleanToState(prisoner.isAutoSell()))
+            .parse("autopickup", prisoner -> booleanToState(prisoner.isAutoPickup()))
+            .parse("autoburn", prisoner -> booleanToState(prisoner.isAutoBurn()))
+            .parse("currentmine", prisoner -> prisoner.getCurrentMine().map(Pair::getKey).map(SuperiorMine::getName).orElse("none"))
+            .parse("fortuneblocks", prisoner -> booleanToState(prisoner.isFortuneBlocks()))
+
+            .add("prestige", SPrestige.class)
+            .mapper((none, prisoner, crawler) -> (SPrestige) prisoner.getCurrentPrestige().orElse(null))
+            .parse("prefix/order/name", (none, prestige, crawler) -> getFromAccess(prestige, crawler.current()))
+
+            .add("next", SPrestige.class)
+            .mapper((none, prestige, crawler) -> (SPrestige) prestige.getNext().orElse(null))
+            .parse("prefix/order/name", (none, prestige, crawler) -> getFromAccess(prestige, crawler.current()))
+            .parent(SPrestige.class, SPrisoner.class)
+
+            .add("previous", SPrestige.class)
+            .mapper((none, prestige, crawler) -> (SPrestige) prestige.getPrevious().orElse(null))
+            .parse("prefix/order/name", (none, prestige, crawler) -> getFromAccess(prestige, crawler.current()))
+            .parent(SPrestige.class, SPrisoner.class)
+
+            .parent(SPrisoner.class, Object.class)
+            .add("ladderrank", SLadderRank.class)
+            .mapper((none, prisoner, crawler) -> (SLadderRank) prisoner.getCurrentLadderRank())
+            .parse("prefix/order/name", (rank, none, crawler) -> getFromAccess(rank, crawler.current()))
+
+            .add("next", SLadderRank.class)
+            .mapper((none, rank, crawler) -> (SLadderRank) rank.getNext().orElse(null))
+            .parse("prefix/order/name", (rank, none, crawler) -> getFromAccess(rank, crawler.current()))
+            .parent(SLadderRank.class, SPrisoner.class)
+
+            .add("previous", SLadderRank.class)
+            .mapper((none, rank, crawler) -> (SLadderRank) rank.getPrevious().orElse(null))
+            .parse("prefix/order/name", (rank, none, crawler) -> getFromAccess(rank, crawler.current()))
+            .parent(SLadderRank.class, SPrisoner.class)
+
+            .parent(SPrisoner.class, Object.class)
+
+            .add("statistics", SStatisticsContainer.class)
+            .mapper((none, prisoner, crawler) -> SuperiorPrisonPlugin.getInstance().getStatisticsController().getContainer(prisoner.getUUID()))
+            .add("blocks", SBlocksStatistic.class)
+            .mapper((none, statistics, crawler) -> statistics.getBlocksStatistic())
+            .parse("total", (statistic, crawler) -> {
+                if (crawler.hasNext()) {
+                    return statistic.get(OMaterial.matchMaterial(crawler.next()));
+
+                } else
+                    return statistic.getTotal();
+            })
+
+            // Placeholder: withinTime_ago_material
+            .parse("withinTime", (statistic, crawler) -> {
+                if (crawler.hasNext()) {
+                    ZonedDateTime start = getDate();
+                    ZonedDateTime end = getDate();
+                    if (crawler.hasNext()) {
+                        long seconds = TimeUtil.toSeconds(crawler.next());
+                        start = start.minusSeconds(seconds);
+                        if (crawler.hasNext())
+                            return statistic.getBlockWithinTimeFrame(start, end, OMaterial.matchMaterial(crawler.next()));
+                    }
+
+                    return statistic.getTotalBlocksWithinTimeFrame(start, end);
+                } else
+                    return null;
+            })
+            .parent(StatisticsContainer.class, SPrisoner.class)
+            .parent(SPrisoner.class, Object.class)
+            .parent(Object.class, Object.class)
+
+            // Mine Placeholders
+            .add("mine", SNormalMine.class)
+            .mapper((none, none0, crawler) -> crawler.hasNext() ? (SNormalMine) SuperiorPrisonPlugin.getInstance().getMineController().getMine(crawler.next()).orElse(null) : null)
+            .parse("type", mine -> Helper.beautify(mine.getType().name()))
+            .parent(Object.class, Object.class);
+
     public PapiHook() {
         super(null);
         new Expansion();
@@ -50,13 +143,6 @@ public class PapiHook extends SHook {
 
     public List<String> parse(OfflinePlayer player, List<String> lore) {
         return PlaceholderAPI.setPlaceholders(player, lore);
-    }
-
-    private String[] cutArray(String[] array, int amount) {
-        if (array.length <= amount)
-            return new String[0];
-        else
-            return Arrays.copyOfRange(array, amount, array.length);
     }
 
     public String getFromLocation(Location location, String identifier) {
@@ -86,7 +172,14 @@ public class PapiHook extends SHook {
         if (identifier.equalsIgnoreCase("order"))
             return object instanceof LadderRank ? ((LadderRank) object).getOrder() + "" : ((Prestige) object).getOrder() + "";
 
+        if (identifier.equalsIgnoreCase("name"))
+            return object instanceof LadderRank ? ((LadderRank) object).getName() : ((Prestige) object).getName();
+
         return "invalid identifier";
+    }
+
+    private Object booleanToState(boolean bool) {
+        return bool ? "enabled" : "disabled";
     }
 
     public class Expansion extends PlaceholderExpansion {
@@ -118,163 +211,10 @@ public class PapiHook extends SHook {
         @Override
         public String onRequest(OfflinePlayer p, String params) {
             String[] split = params.split("_");
-            if (split[0].equalsIgnoreCase("prisoner") && split.length >= 2) {
-                SPrisoner prisoner;
-                if (p == null) {
-                    String prisonerIdentifier = split[1];
-                    if (prisonerIdentifier.matches("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[34][0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}"))
-                        prisoner = (SPrisoner) SuperiorPrisonPlugin.getInstance().getPrisonerController().getPrisoner(UUID.fromString(prisonerIdentifier)).orElse(null);
-
-                    else
-                        prisoner = (SPrisoner) SuperiorPrisonPlugin.getInstance().getPrisonerController().getPrisoner(prisonerIdentifier).orElse(null);
-                } else {
-                    prisoner = (SPrisoner) SuperiorPrisonPlugin.getInstance().getPrisonerController().getPrisoner(p.getUniqueId()).orElse(null);
-                    split = addToArray(split, 1, "");
-                }
-                if (prisoner == null) return "Invalid prisoner";
-
-                if (split[2].equalsIgnoreCase("autosell"))
-                    return prisoner.isAutoSell() ? "enabled" : "disabled";
-
-                else if (split[2].equalsIgnoreCase("currentmine")) {
-                    Optional<Pair<SuperiorMine, AreaEnum>> currentMine = prisoner.getCurrentMine();
-                    if (currentMine.isPresent()) {
-                        if (split.length > 3 && split[2].equalsIgnoreCase("area"))
-                            return currentMine.get().getValue().name().toLowerCase();
-
-                        return currentMine.get().getKey().getName();
-                    } else
-                        return "None";
-
-                } else if (split[2].equalsIgnoreCase("autopickup"))
-                    return prisoner.isAutoPickup() ? "enabled" : "disabled";
-
-                else if (split[2].equalsIgnoreCase("autoburn"))
-                    return prisoner.isAutoBurn() ? "enabled" : "disabled";
-
-                else if (split[2].equalsIgnoreCase("fortuneblocks"))
-                    return prisoner.isFortuneBlocks() ? "enabled" : "disabled";
-
-                else if (split[2].equalsIgnoreCase("ladderrank")) {
-                    LadderRank currentLadderRank = prisoner.getCurrentLadderRank();
-                    if (split.length >= 4) {
-                        if (split[3].equalsIgnoreCase("previous") || split[3].equalsIgnoreCase("next")) {
-                            LadderRank obj = split[3].equalsIgnoreCase("previous") ? currentLadderRank.getPrevious().orElse(null) : currentLadderRank.getNext().orElse(null);
-                            if (obj == null) return "none";
-
-                            if (split.length == 5)
-                                return getFromAccess(obj, split[4]);
-
-                            else
-                                return obj.getName();
-                        } else
-                            return getFromAccess(currentLadderRank, split[3]);
-
-                    } else
-                        return currentLadderRank.getName();
-
-                } else if (split[2].equalsIgnoreCase("prestige")) {
-                    Prestige prestige = prisoner.getCurrentPrestige().orElse(null);
-                    if (prestige == null) return "none";
-
-                    if (split.length >= 4) {
-                        if (split[3].equalsIgnoreCase("previous") || split[3].equalsIgnoreCase("next")) {
-                            Prestige obj = split[3].equalsIgnoreCase("previous") ? prestige.getPrevious().orElse(null) : prestige.getNext().orElse(null);
-                            if (obj == null) return "none";
-
-                            if (split.length == 5)
-                                return getFromAccess(obj, split[4]);
-
-                            else
-                                return obj.getName();
-                        } else
-                            return getFromAccess(prestige, split[3]);
-
-                    } else
-                        return prestige.getName();
-
-                } else if (split[2].equalsIgnoreCase("statistic")) {
-                    SStatisticsContainer statisticsContainer = SuperiorPrisonPlugin.getInstance().getStatisticsController().getContainer(prisoner.getUUID());
-                    if (split[3].equalsIgnoreCase("blocks")) {
-                        if (split.length == 5 && split[4].equalsIgnoreCase("total")) {
-                            return statisticsContainer.getBlocksStatistic().getTotal() + "";
-                        }
-                    }
-                }
-            } else if (split[0].equalsIgnoreCase("mine") && split.length > 2) {
-                SNormalMine mine = (SNormalMine) SuperiorPrisonPlugin.getInstance().getMineController().getMine(split[1]).orElse(null);
-                if (mine == null) return "invalid mine";
-
-                if (split[2].equalsIgnoreCase("type"))
-                    return mine.getType().name().toLowerCase();
-
-                else if (split[2].equalsIgnoreCase("spawnpoint"))
-                    if (split.length == 4)
-                        return getFromLocation(mine.getSpawnPoint(), split[3]);
-
-                    else
-                        return "none";
-
-                else if (split[2].equalsIgnoreCase("region")) {
-                    if (split.length == 5) {
-                        if (split[3].equalsIgnoreCase("minpoint"))
-                            return getFromLocation(mine.getArea(AreaEnum.REGION).getMinPoint(), split[4]);
-
-                        else if (split[3].equalsIgnoreCase("highpoint"))
-                            return getFromLocation(mine.getArea(AreaEnum.REGION).getHighPoint(), split[4]);
-                    }
-                } else if (split[2].equalsIgnoreCase("minpoint")) {
-                    if (split.length == 4)
-                        return getFromLocation(mine.getArea(AreaEnum.MINE).getMinPoint(), split[3]);
-
-                } else if (split[2].equalsIgnoreCase("highpoint")) {
-                    if (split.length == 4)
-                        return getFromLocation(mine.getArea(AreaEnum.MINE).getHighPoint(), split[3]);
-
-                } else if (split[2].equalsIgnoreCase("prisoners"))
-                    return mine.getPrisoners().size() + "";
-
-                else if (split[2].equalsIgnoreCase("reset")) {
-                    ResetSettings resetSettings = mine.getSettings().getResetSettings();
-                    if (split.length == 4) {
-                        if (split[3].equalsIgnoreCase("type"))
-                            return resetSettings.isTimed() ? "timed" : "percentage";
-
-                        else if (split[3].equalsIgnoreCase("percentage")) {
-                            if (resetSettings.isTimed()) return "none";
-                            return resetSettings.asPercentage().getValue() + "";
-
-                        } else if (split[3].equalsIgnoreCase("timeleft")) {
-                            if (!resetSettings.isTimed()) return "none";
-                            return TimeUtil.leftToString(resetSettings.asTimed().getResetDate());
-
-                        } else if (split[3].equalsIgnoreCase("currentpercentage"))
-                            return mine.getGenerator().getPercentageOfFullBlocks() + "";
-
-                        else if (split[3].equalsIgnoreCase("lastreset"))
-                            return mine.getGenerator().getLastReset() == null ? "none" : TimeUtil.leftToString(TimeUtil.getDate(mine.getGenerator().getLastReset().getEpochSecond()), true);
-                    }
-                }
-            }
-            return "";
-        }
-
-        private String[] addToArray(String[] split, int index, String s) {
-            String[] newArray = new String[split.length + 1];
-            boolean found = false;
-            for (int i = 0; i < split.length + 1; i++) {
-                if (i == index) {
-                    found = true;
-                    newArray[i] = s;
-                } else {
-                    if (!found)
-                        newArray[i] = split[i];
-                    else
-                        newArray[i] = split[i - 1];
-                }
-            }
-
-            return newArray;
+            ObjectCache cache = new ObjectCache();
+            if (p != null)
+                SuperiorPrisonPlugin.getInstance().getPrisonerController().getPrisoner(p.getUniqueId()).ifPresent(cache::add);
+            return parser.parse(split, cache);
         }
     }
 }

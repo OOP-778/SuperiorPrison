@@ -35,7 +35,8 @@ import static com.bgsoftware.superiorprison.plugin.util.TextUtil.beautifyDouble;
 
 public class PlaceholderController {
 
-    private Map<Class<?>, Set<OPair<String, Function<Object, String>>>> placeholders = Maps.newHashMap();
+    private final Map<Class<?>, Set<OPair<String, Function<Object, String>>>> placeholders = Maps.newHashMap();
+
     public PlaceholderController() {
         add(SNormalMine.class, "{mine_name}", SNormalMine::getName);
         add(SNormalMine.class, "{mine_prisoners_count}", mine -> mine.getPrisoners().size());
@@ -65,7 +66,7 @@ public class PlaceholderController {
         add(SNormalMine.class, "{mine_spawnpoint_z}", mine -> mine.getSpawnPoint().getBlockZ());
 
         // Placeholders for shop
-        add(SShopItem.class, "{item_price}", item -> beautifyDouble(item.getPrice()));
+        add(SShopItem.class, "{item_price}", item -> item.getPrice().toString());
         add(SShopItem.class, "{item_name}", item -> TextUtil.beautifyName(item.getItem()));
         add(SortMethod.class, "{sort_method}", method -> TextUtil.beautify(method.name()));
 
@@ -121,7 +122,7 @@ public class PlaceholderController {
         Set<OPair<String, Function<Object, String>>> found = Sets.newHashSet();
         placeholders.forEach((k, v) -> {
             if (k.isAssignableFrom(clazz))
-                found.addAll(v.stream().map(pair -> new OPair<>(pair.getFirst(), (Function<Object, String>) pair.getSecond())).collect(Collectors.toList()));
+                found.addAll(v.stream().map(pair -> new OPair<>(pair.getFirst(), pair.getSecond())).collect(Collectors.toList()));
 
         });
         return found;

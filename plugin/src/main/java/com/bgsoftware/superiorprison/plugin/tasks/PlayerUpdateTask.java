@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 // Later to replace event if it low performs
 public class PlayerUpdateTask extends OTask {
 
-    private Cache<Player, Location> cache = CacheBuilder.newBuilder()
+    private final Cache<Player, Location> cache = CacheBuilder.newBuilder()
             .expireAfterAccess(10, TimeUnit.SECONDS)
             .build();
 

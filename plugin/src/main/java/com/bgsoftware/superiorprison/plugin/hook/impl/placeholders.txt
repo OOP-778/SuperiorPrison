@@ -20,6 +20,10 @@ prisoner_%uuid/name%/none_
   - order
 - autoburn
 - fortuneblocks
+- statistics
+  - blocks
+    - last_10m_material
+    - total
 
 mine_%name%
 - type

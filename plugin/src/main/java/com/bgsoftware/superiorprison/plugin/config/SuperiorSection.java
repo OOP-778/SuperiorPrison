@@ -1,4 +1,4 @@
-package com.bgsoftware.superiorprison.plugin.config.main;
+package com.bgsoftware.superiorprison.plugin.config;
 
 import com.oop.orangeengine.yaml.Config;
 import com.oop.orangeengine.yaml.ConfigSection;
@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter
 public abstract class SuperiorSection {
 
-    private Config configuration;
+    private final Config configuration;
     private ConfigSection section;
 
     @Setter

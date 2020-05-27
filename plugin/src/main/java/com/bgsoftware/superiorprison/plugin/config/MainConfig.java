@@ -18,6 +18,7 @@ public class MainConfig {
     private boolean shopGuiAsFallBack = false;
 
     private long cacheTime = TimeUnit.HOURS.toMillis(1);
+    private long soldMessageInterval = TimeUnit.MINUTES.toMillis(3);
     private DatabaseSection database;
     private MineDefaultsSection mineDefaults;
     private CommandColorsSection commandColors;
@@ -46,6 +47,7 @@ public class MainConfig {
         configuration.ifSectionPresent("command colors", section -> commandColors = new CommandColorsSection(section));
 
         cacheTime = TimeUtil.toSeconds(configuration.getAs("blocks cache time limit", String.class, () -> "1h"));
+        soldMessageInterval = TimeUtil.toSeconds(configuration.getAs("sold message interval", String.class, () -> "3m"));
         configuration.save();
     }
 }

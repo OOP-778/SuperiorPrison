@@ -71,4 +71,4 @@ command colors:
 blocks cache time limit: "1h"
 
 # Sold blocks message interval
-sold blocks message interval: "1m"
+sold message interval: "1m"

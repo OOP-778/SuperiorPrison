@@ -12,7 +12,6 @@ public class ArgsCrawler {
     }
 
     public boolean hasNext() {
-        System.out.println("args: " + args.length + ", i: " + index + 1);
         return args.length > index + 1;
     }
 

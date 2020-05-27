@@ -148,7 +148,7 @@ public class Cuboid {
 
                                     map
                                             .computeIfAbsent(new OPair<>(chunkX, chunkZ), pair -> new HashSet<>())
-                                            .add(new SPLocation(x, y, z, worldName));
+                                            .add(new SPLocation(worldName, x, y, z));
                                 }
                             }
                         }
@@ -174,7 +174,7 @@ public class Cuboid {
                         for (int x = this.minimumPoint.getBlockX(); x <= this.maximumPoint.getBlockX(); x++) {
                             for (int y = this.minimumPoint.getBlockY(); y <= this.maximumPoint.getBlockY() && y <= world.getMaxHeight(); y++) {
                                 for (int z = this.minimumPoint.getBlockZ(); z <= this.maximumPoint.getBlockZ(); z++) {
-                                    blocks.add(new SPLocation(x, y, z, worldName));
+                                    blocks.add(new SPLocation(worldName, x, y, z));
                                 }
                             }
                         }

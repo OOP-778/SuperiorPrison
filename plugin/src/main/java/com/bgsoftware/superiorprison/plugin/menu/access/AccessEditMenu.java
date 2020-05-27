@@ -72,7 +72,6 @@ public class AccessEditMenu extends AccessMenu {
     @Override
     public OMenuButton toButton(AccessObject obj) {
         Optional<OMenuButton> accessTemplate = getTemplateButtonFromTemplate("access template");
-        System.out.println(obj.getName());
         if (!accessTemplate.isPresent()) return null;
 
         OMenuButton button = accessTemplate.get().clone();

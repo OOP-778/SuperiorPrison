@@ -18,6 +18,7 @@ public class VaultHook extends SHook {
 
     private Economy ecoProvider;
     private Permission permProvider;
+    private static final BigDecimal MAX_DOUBLE = BigDecimal.valueOf(Double.MAX_VALUE);
 
     public VaultHook() {
         super(null);
@@ -46,13 +47,15 @@ public class VaultHook extends SHook {
 
     public void depositPlayer(SPrisoner prisoner, BigDecimal amount) {
         BigDecimal currentPrice = amount;
-        while (currentPrice.compareTo(new BigDecimal(0)) > 0) {
-            if (currentPrice.compareTo(BigDecimal.valueOf(Double.MAX_VALUE)) > 0) {
+        while (currentPrice.compareTo(BigDecimal.ZERO) > 0) {
+            if (currentPrice.compareTo(MAX_DOUBLE) > 0) {
                 getEcoProvider().depositPlayer(prisoner.getOfflinePlayer(), Double.MAX_VALUE);
-                currentPrice = currentPrice.subtract(new BigDecimal(Double.MAX_VALUE));
+                currentPrice = currentPrice.subtract(MAX_DOUBLE);
 
-            } else
+            } else {
                 getEcoProvider().depositPlayer(prisoner.getOfflinePlayer(), currentPrice.doubleValue());
+                break;
+            }
         }
     }
 

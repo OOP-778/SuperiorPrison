@@ -17,6 +17,7 @@ import com.bgsoftware.superiorprison.plugin.object.mine.area.SArea;
 import com.bgsoftware.superiorprison.plugin.object.mine.effects.SMineEffect;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.util.SPLocation;
+import com.bgsoftware.superiorprison.plugin.util.SPair;
 import com.oop.orangeengine.item.custom.OItem;
 import com.oop.orangeengine.main.Helper;
 import com.oop.orangeengine.main.events.SyncEvents;
@@ -171,6 +172,9 @@ public class PrisonerListener {
 
                                 SuperiorPrisonPlugin.getInstance().getHookController().executeIfFound(() -> VaultHook.class, vault -> vault.depositPlayer(prisoner, price));
                                 drops.remove(drop);
+                                SPair<BigDecimal, Long> soldData = prisoner.getSoldData();
+                                soldData.setKey(soldData.getKey().add(price));
+                                soldData.setValue(soldData.getValue() + drop.getAmount());
                             }
                         }
                     });

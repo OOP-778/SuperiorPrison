@@ -266,6 +266,7 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
             array.add(object);
         }
         serializedData.getJsonObject().add("materials", array);
+        serializedData.write("blockData", blockData);
     }
 
     @Override
@@ -278,6 +279,7 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
                     OMaterial.valueOf(object.get("m").getAsString())
             ));
         }
+        blockData = serializedData.applyAs("blockData", SMineBlockData.class, () -> new SMineBlockData());
         blockData.attach(this);
     }
 }

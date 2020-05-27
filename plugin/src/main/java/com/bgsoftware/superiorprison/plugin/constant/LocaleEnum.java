@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorprison.plugin.constant;
 
 import com.oop.orangeengine.message.OMessage;
+import com.oop.orangeengine.message.impl.OActionBarMessage;
 import com.oop.orangeengine.message.impl.OChatMessage;
 import com.oop.orangeengine.message.impl.chat.ChatLine;
 import com.oop.orangeengine.message.impl.chat.LineContent;
@@ -230,7 +231,7 @@ public enum LocaleEnum {
     CANNOT_ENTER_MINE_MINE_NOT_READY("Cannot enter the mine! It's either resetting or initializing..."),
     MINE_RESETTING("You've been teleported out! Because mine is resetting!"),
 
-    SOLD_BLOCKS_MESSAGE("You've made {money} out of {blocks} blocks in the past {time}");
+    SOLD_BLOCKS_MESSAGE(new OActionBarMessage().text("&eYou've sold &6{blocks} &eblocks in the past &6{time}&e and earned &6{money}"));
 
     private final OMessage[] cache = new OMessage[2];
 

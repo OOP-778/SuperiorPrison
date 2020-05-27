@@ -14,7 +14,6 @@ public class StatisticsListener {
     public StatisticsListener() {
         DatabaseController databaseController = SuperiorPrisonPlugin.getInstance().getDatabaseController();
         SyncEvents.listen(MineBlockBreakEvent.class, EventPriority.LOWEST, event -> {
-            System.out.println(event.isCancelled());
             if (event.isCancelled()) return;
 
             SStatisticsContainer statisticsContainer = databaseController.getStatisticHolder().getContainer(event.getPrisoner().getUUID());

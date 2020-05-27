@@ -24,8 +24,7 @@ public class ConfigController implements OComponent<SuperiorPrisonPlugin> {
     private Config prestigesConfig;
     private final Map<String, Config> menus = Maps.newHashMap();
 
-    public ConfigController() {
-    }
+    public ConfigController() {}
 
     @Override
     public boolean load() {

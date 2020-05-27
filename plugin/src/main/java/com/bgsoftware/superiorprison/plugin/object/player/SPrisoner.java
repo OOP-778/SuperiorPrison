@@ -14,6 +14,7 @@ import com.bgsoftware.superiorprison.plugin.object.player.booster.SBoosters;
 import com.bgsoftware.superiorprison.plugin.object.player.rank.SLadderRank;
 import com.bgsoftware.superiorprison.plugin.object.player.rank.SRank;
 import com.bgsoftware.superiorprison.plugin.object.player.rank.SSpecialRank;
+import com.bgsoftware.superiorprison.plugin.util.SPair;
 import com.google.gson.JsonElement;
 import com.oop.datamodule.SerializedData;
 import com.oop.datamodule.body.SqlDataBody;
@@ -74,7 +75,8 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
     @Setter
     private Pair<SuperiorMine, AreaEnum> currentMine;
 
-    private BigDecimal soldMoney = new BigDecimal(0);
+    @Setter @Getter
+    private SPair<BigDecimal, Long> soldData = new SPair<>(new BigDecimal(0), 0L);
 
     public SPrisoner() {
     }

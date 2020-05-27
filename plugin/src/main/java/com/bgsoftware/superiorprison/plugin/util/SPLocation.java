@@ -21,22 +21,32 @@ public class SPLocation implements Cloneable, SerializableObject {
     private double y;
     private double z;
     private String worldName;
+    private float pitch = 0;
+    private float yaw = 0;
 
-    protected SPLocation() {
+    protected SPLocation() {}
+
+    public SPLocation(String worldName, double x, double y, double z) {
+        this.worldName = worldName;
+        this.x = x;
+        this.y = y;
+        this.z = z;
     }
 
     public SPLocation(Location location) {
         this.x = location.getBlockX();
         this.z = location.getBlockZ();
         this.y = location.getBlockY();
-        worldName = location.getWorld().getName();
+        this.worldName = location.getWorld().getName();
+        this.pitch = location.getPitch();
+        this.yaw = location.getYaw();
     }
 
     public Location toBukkit() {
         World world = getWorld();
         if (world == null) return null;
 
-        return new Location(world, x, y, z);
+        return new Location(world, x, y, z, yaw, pitch);
     }
 
     public SPLocation add(double x, double y, double z) {
@@ -83,6 +93,8 @@ public class SPLocation implements Cloneable, SerializableObject {
         data.write("x", x);
         data.write("y", y);
         data.write("z", z);
+        data.write("yaw", yaw);
+        data.write("pitch", pitch);
     }
 
     @Override
@@ -91,5 +103,7 @@ public class SPLocation implements Cloneable, SerializableObject {
         this.x = data.applyAs("x", double.class);
         this.y = data.applyAs("y", double.class);
         this.z = data.applyAs("z", double.class);
+        this.yaw = data.applyAs("yaw", float.class, () -> 0f);
+        this.pitch = data.applyAs("pitch", float.class, () -> 0f);
     }
 }

@@ -53,7 +53,7 @@ public class SettingsMenu extends OPagedMenu<SettingsObject> implements OMenu.Te
 
                                 messageBuilder(settingsObject.completeMessage())
                                         .replace(viewer, mine, mine.getSettings(), settingsObject)
-                                        .send(event.getWhoClicked());
+                                        .send(input.player());
 
                                 input.cancel();
                                 onCancel.run();

@@ -9,5 +9,6 @@ public class TasksStarter {
         new MessagesTask();
         new StatisticSaveTask();
         new ResetQueueTask();
+        new SellMessageTask();
     }
 }

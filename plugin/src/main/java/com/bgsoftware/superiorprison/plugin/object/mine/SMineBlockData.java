@@ -3,6 +3,10 @@ package com.bgsoftware.superiorprison.plugin.object.mine;
 import com.bgsoftware.superiorprison.api.data.mine.MineBlockData;
 import com.bgsoftware.superiorprison.plugin.util.Attachable;
 import com.bgsoftware.superiorprison.plugin.util.ClassDebugger;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.oop.datamodule.SerializableObject;
+import com.oop.datamodule.SerializedData;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.material.OMaterial;
 import lombok.Getter;
@@ -12,7 +16,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class SMineBlockData implements Attachable<SMineGenerator>, MineBlockData {
+public class SMineBlockData implements Attachable<SMineGenerator>, MineBlockData, SerializableObject {
 
     private SMineGenerator generator;
 
@@ -73,5 +77,35 @@ public class SMineBlockData implements Attachable<SMineGenerator>, MineBlockData
     @Override
     public int getPercentageLeft() {
         return (int) (blocksLeft * 100.0 / generator.getBlocksInRegion());
+    }
+
+    @Override
+    public void serialize(SerializedData serializedData) {
+        JsonArray array = new JsonArray();
+        materials.forEach((key, value) -> {
+            JsonObject jsonObject = new JsonObject();
+            jsonObject.addProperty("material", key.name());
+            jsonObject.addProperty("left", value.getFirst());
+            jsonObject.addProperty("was", value.getSecond());
+            array.add(jsonObject);
+        });
+        serializedData.write("data", array);
+    }
+
+    @Override
+    public void deserialize(SerializedData serializedData) {
+        serializedData
+                .applyAsCollection("data")
+                .forEach(element -> {
+                    JsonObject object = element.getAsJsonObject();
+                    OMaterial material = OMaterial.valueOf(object.get("material").getAsString());
+                    long left = object.get("left").getAsLong();
+                    long was = object.get("was").getAsLong();
+                    materials.put(material, new OPair<>(left, was));
+                });
+        blocksLeft = materials.values()
+                .stream()
+                .mapToLong(OPair::getFirst)
+                .sum();
     }
 }

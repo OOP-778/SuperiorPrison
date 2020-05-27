@@ -16,7 +16,7 @@ apply plugin: 'base'
 
 allprojects {
 
-    version = '0.0.3-ALPHA'
+    version = '0.0.5-BETA'
     apply plugin: 'java'
     apply plugin: 'com.github.johnrengelman.shadow'
 
@@ -84,6 +84,17 @@ allprojects {
         relocate("com.oop.orangeengine", "com.bgsoftware.superiorprison.engine")
     }
 
+    processResources {
+        eachFile { details ->
+            if (details.name.contentEquals('plugin.yml')) {
+                filter { String line ->
+                    line.replaceAll('\\$\\{project.version\\}', version)
+                }
+            }
+        }
+    }
+
+    tasks.build.dependsOn tasks.processResources
     tasks.build.dependsOn tasks.shadowJar
 }
 
@@ -99,16 +110,6 @@ shadowJar {
     }
 }
 
-processResources {
-    eachFile { details ->
-        if (details.name.contentEquals('plugin.yml')) {
-            filter { String line ->
-                line.replaceAll('\\$\\{project.version\\}', version)
-            }
-        }
-    }
-}
-
 task copyJarToServer {
     doLast {
         copy {
@@ -118,7 +119,7 @@ task copyJarToServer {
     }
 }
 
-task buildJar(dependsOn: [build, processResources, shadowJar, copyJarToServer])
+task buildJar(dependsOn: [build, shadowJar, copyJarToServer])
 
 shadowJar.dependsOn(subprojects.shadowJar)
 shadowJar.finalizedBy copyJarToServer

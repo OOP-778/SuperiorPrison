@@ -22,9 +22,8 @@ public class AreaChooseMenu extends OPagedMenu<SArea> implements OMenu.Templatea
         ClickHandler
                 .of("area click")
                 .handle(event -> {
-                    previousMove = false;
                     SArea sArea = requestObject(event.getRawSlot());
-                    new FlagsEditMenu(getViewer(), sArea).open(this);
+                    move(new FlagsEditMenu(getViewer(), sArea));
                 })
                 .apply(this);
     }

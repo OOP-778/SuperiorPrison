@@ -219,7 +219,7 @@ public enum LocaleEnum {
     SHOP_EDIT_ALREADY_HAS_ITEM("Shop already has this item"),
     COPIED_OPTION("Copied {option_name} from {from_name} to {to_name}"),
 
-    SOLD_EVERYTHING("Sold everything for {total}"),
+    SOLD_EVERYTHING("Sold everything for {total}$"),
     MINE_IS_FULL("Mine is currently full."),
 
     MINE_MESSAGES_CREATE_TYPE("What type of message you want to create? Available: actionbar, title, chat"),

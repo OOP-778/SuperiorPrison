@@ -16,8 +16,6 @@ public class MenuListener {
             if (!(event.getWhoClicked().getOpenInventory().getTopInventory().getHolder() instanceof OMenu)) return;
 
             OMenu menu = (OMenu) event.getWhoClicked().getOpenInventory().getTopInventory().getHolder();
-            event.setCancelled(true);
-
             if (!(event.getClickedInventory().getHolder() instanceof OMenu)) {
                 menu.handleBottomClick(event);
                 return;

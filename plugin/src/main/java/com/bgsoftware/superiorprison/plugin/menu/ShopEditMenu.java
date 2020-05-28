@@ -14,7 +14,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.oop.orangeengine.material.OMaterial;
 import lombok.Getter;
-import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -25,7 +24,6 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
-import static com.bgsoftware.superiorprison.plugin.util.TextUtil.beautifyDouble;
 
 @Getter
 public class ShopEditMenu extends OPagedMenu<SShopItem> implements OMenu.Templateable {
@@ -45,8 +43,7 @@ public class ShopEditMenu extends OPagedMenu<SShopItem> implements OMenu.Templat
                         refreshMenus(ShopEditMenu.class, menu -> menu.getMine().getName().contentEquals(getMine().getName()));
 
                     } else {
-                        previousMove = false;
-                        event.getWhoClicked().closeInventory();
+                        forceClose();
                         LocaleEnum.EDIT_SHOP_WRITE_PRICE.getWithPrefix().send(event.getWhoClicked());
 
                         Runnable onCancel = this::refresh;
@@ -56,13 +53,11 @@ public class ShopEditMenu extends OPagedMenu<SShopItem> implements OMenu.Templat
                                 .timeOut(TimeUnit.MINUTES, 2)
                                 .onInput((obj, input) -> {
                                     shopItem.setPrice(input);
+                                    mine.save(true);
 
                                     LocaleEnum.EDIT_SHOP_PRICE_SET.getWithPrefix().send(ImmutableMap.of("{item_name}", TextUtil.beautifyName(shopItem.getItem()), "{item_price}", shopItem.getPrice().toString()), event.getWhoClicked());
-                                    obj.cancel();
-
-                                    mine.save(true);
                                     refreshMenus(ShopEditMenu.class, menu -> menu.getMine().getName().contentEquals(mine.getName()));
-                                    onCancel.run();
+                                    obj.cancel();
                                 })
                                 .listen();
                     }

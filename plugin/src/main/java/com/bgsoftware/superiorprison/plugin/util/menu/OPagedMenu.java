@@ -27,8 +27,7 @@ public abstract class OPagedMenu<T> extends OMenu {
                         return;
 
                     currentPage += 1;
-                    previousMove = false;
-                    open(getPreviousMenu());
+                    refresh();
                 })
                 .apply(this);
 
@@ -39,8 +38,7 @@ public abstract class OPagedMenu<T> extends OMenu {
                         return;
 
                     currentPage -= 1;
-                    previousMove = false;
-                    open(getPreviousMenu());
+                    refresh();
                 })
                 .apply(this);
     }

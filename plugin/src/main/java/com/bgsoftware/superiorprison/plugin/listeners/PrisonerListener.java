@@ -96,12 +96,21 @@ public class PrisonerListener {
             Pair<SuperiorMine, AreaEnum> minePair = prisoner.getCurrentMine().get();
 
             SArea area = (SArea) minePair.getKey().getArea(minePair.getValue());
+
+            // Prisoner is modifying region environment
             if (area.getType() != AreaEnum.MINE && !event.getPlayer().hasPermission("superiorprison.flags.bypass")) {
                 event.setCancelled(true);
                 return;
             }
 
-            if (!area.isInsideWithY(new SPLocation(event.getBlock().getLocation()))) {
+            // Check if prisoner is breaking under the mine
+            if (!area.isInsideWithY(new SPLocation(event.getBlock().getLocation()), true)) {
+                event.setCancelled(true);
+                return;
+            }
+
+            // Check when prisoner mines in a different area
+            if (minePair.getKey().getArea(event.getBlock().getLocation()).getType() != area.getType()) {
                 event.setCancelled(true);
                 return;
             }

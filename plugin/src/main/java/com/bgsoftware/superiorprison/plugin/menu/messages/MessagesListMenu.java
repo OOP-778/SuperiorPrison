@@ -34,8 +34,7 @@ public class MessagesListMenu extends OPagedMenu<SMineMessage> implements OMenu.
                 .handle(event -> {
                     SMineMessage message = requestObject(event.getRawSlot());
                     if (event.getClick().isLeftClick()) {
-                        previousMove = false;
-                        new MessageEditMenu(viewer, mine.getMessages(), message).open(this);
+                        move(new MessageEditMenu(viewer, mine.getMessages(), message));
 
                     } else {
                         mine.getMessages().remove(message);
@@ -74,8 +73,7 @@ public class MessagesListMenu extends OPagedMenu<SMineMessage> implements OMenu.
                                     .send(chatEvent2);
                             chatEvent2.setCancelled(true);
 
-                            previousMove = false;
-                            new MessageEditMenu(viewer, mine.getMessages(), message).open(this);
+                            move(new MessageEditMenu(viewer, mine.getMessages(), message));
 
                         }, new SubscriptionProperties<AsyncPlayerChatEvent>().timesToRun(1));
                     }, new SubscriptionProperties<AsyncPlayerChatEvent>().timesToRun(1).filter(chatEvent1 -> chatEvent1.getMessage().equalsIgnoreCase("actionbar") || chatEvent1.getMessage().equalsIgnoreCase("title") || chatEvent1.getMessage().equalsIgnoreCase("chat")));

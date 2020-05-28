@@ -25,7 +25,6 @@ import com.oop.orangeengine.message.OMessage;
 import com.oop.orangeengine.message.impl.OChatMessage;
 import com.oop.orangeengine.message.impl.chat.LineContent;
 import lombok.Getter;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.inventory.Inventory;
@@ -54,8 +53,7 @@ public class MineControlPanel extends OPagedMenu<OptionEnum> implements OMenu.Te
                     OptionEnum optionEnum = requestObject(event.getSlot());
                     switch (optionEnum) {
                         case ACCESS:
-                            previousMove = false;
-                            new AccessEditMenu(getViewer(), mine).open(this);
+                            move(new AccessEditMenu(getViewer(), mine));
                             break;
 
                         case ICON:
@@ -63,33 +61,27 @@ public class MineControlPanel extends OPagedMenu<OptionEnum> implements OMenu.Te
                             break;
 
                         case GENERATOR:
-                            previousMove = false;
-                            new GeneratorEditMenu(getViewer(), getMine()).open(this);
+                            move(new GeneratorEditMenu(getViewer(), getMine()));
                             break;
 
                         case FLAGS:
-                            previousMove = false;
-                            new AreaChooseMenu(getViewer(), getMine()).open(this);
+                            move(new AreaChooseMenu(getViewer(), getMine()));
                             break;
 
                         case SHOP:
-                            previousMove = false;
-                            new ShopEditMenu(getViewer(), getMine()).open(this);
+                            move(new ShopEditMenu(getViewer(), getMine()));
                             break;
 
                         case EFFECTS:
-                            previousMove = false;
-                            new MineEffectsMenu(getViewer(), getMine().getEffects()).open(this);
+                            move(new MineEffectsMenu(getViewer(), getMine().getEffects()));
                             break;
 
                         case MESSAGES:
-                            previousMove = false;
-                            new MessagesListMenu(getViewer(), getMine()).open(this);
+                            move(new MessagesListMenu(getViewer(), getMine()));
                             break;
 
                         case SETTINGS:
-                            previousMove = false;
-                            new SettingsMenu(getViewer(), getMine()).open(this);
+                            move(new SettingsMenu(getViewer(), getMine()));
                             break;
                     }
                 });
@@ -110,8 +102,7 @@ public class MineControlPanel extends OPagedMenu<OptionEnum> implements OMenu.Te
     }
 
     private void handleIconClick(ButtonClickEvent event) {
-        previousMove = false;
-        event.getWhoClicked().closeInventory();
+        forceClose();
         OItem itemBuilder = new OItem(mine.getIcon().clone());
         AtomicBoolean cancel = new AtomicBoolean(false);
 

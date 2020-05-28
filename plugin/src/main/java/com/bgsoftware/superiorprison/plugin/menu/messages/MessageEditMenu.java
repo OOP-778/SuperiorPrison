@@ -5,21 +5,22 @@ import com.bgsoftware.superiorprison.plugin.object.mine.messages.*;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.util.TimeUtil;
 import com.bgsoftware.superiorprison.plugin.util.chatCmds.ChatCommands;
+import com.bgsoftware.superiorprison.plugin.util.input.PlayerInput;
 import com.bgsoftware.superiorprison.plugin.util.menu.OMenu;
 import com.oop.orangeengine.eventssubscription.SubscriptionFactory;
 import com.oop.orangeengine.eventssubscription.SubscriptionProperties;
 import com.oop.orangeengine.message.OMessage;
 import com.oop.orangeengine.message.impl.OChatMessage;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
-import static com.bgsoftware.superiorprison.plugin.util.TextUtil.mergeText;
+import static com.bgsoftware.superiorprison.plugin.util.TextUtil.*;
 
 public class MessageEditMenu extends OMenu {
 
@@ -34,28 +35,29 @@ public class MessageEditMenu extends OMenu {
         clickHandler("interval")
                 .handle(event -> {
                     LocaleEnum.EDIT_MESSAGE_INTERVAL.getWithPrefix().send(event.getWhoClicked());
-                    AtomicLong newInterval = new AtomicLong(-1);
-                    previousMove = false;
-                    event.getWhoClicked().closeInventory();
+                    forceClose();
 
-                    SubscriptionFactory.getInstance().subscribeTo(AsyncPlayerChatEvent.class, chatEvent -> {
-                        long seconds = TimeUtil.toSeconds(chatEvent.getMessage());
-                        newInterval.set(seconds);
-                        message.setInterval(seconds);
-                        messageBuilder(LocaleEnum.EDIT_MESSAGE_INTERVAL_SET.getWithPrefix())
-                                .replace(message)
-                                .send(chatEvent);
+                    Runnable onCancel = this::refresh;
+                    new PlayerInput<Long>((Player) event.getWhoClicked())
+                            .timeOut(TimeUnit.MINUTES, 2)
+                            .parser(TimeUtil::toSeconds)
+                            .onCancel(onCancel)
+                            .onInput((obj, input) -> {
 
-                        chatEvent.setCancelled(true);
-                        refresh();
-                        previousMove = true;
-                    }, new SubscriptionProperties<AsyncPlayerChatEvent>().timeOut(TimeUnit.MINUTES, 2).runTill(chatEvent -> newInterval.get() != -1));
+                                messageBuilder(LocaleEnum.EDIT_MESSAGE_INTERVAL_SET.getWithPrefix())
+                                        .replace(message)
+                                        .send(event.getWhoClicked());
+
+                                message.setInterval(input);
+                                messages.getMine().save(true);
+                                obj.cancel();
+                            })
+                            .listen();
                 });
 
         clickHandler("content")
                 .handle(event -> {
-                    previousMove = false;
-                    event.getWhoClicked().closeInventory();
+                    forceClose();
 
                     AtomicBoolean cancel = new AtomicBoolean(false);
                     ChatCommands chatCommands = new ChatCommands();
@@ -80,6 +82,7 @@ public class MessageEditMenu extends OMenu {
                                     .send(player);
                             sendMessage.run();
                         });
+
                     } else if (message instanceof SMineTitleMessage) {
                         localeMessage.set(LocaleEnum.EDIT_MESSAGE_TITLE_CONTENT.getMessage());
                         chatCommands.appendCommand("setTitle", (player, args) -> {

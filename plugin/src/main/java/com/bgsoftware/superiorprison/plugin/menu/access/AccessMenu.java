@@ -11,7 +11,6 @@ import com.bgsoftware.superiorprison.plugin.util.menu.OPagedMenu;
 import com.oop.orangeengine.eventssubscription.SubscriptionFactory;
 import com.oop.orangeengine.eventssubscription.SubscriptionProperties;
 import lombok.Getter;
-import org.bukkit.entity.Player;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import java.util.Comparator;
@@ -39,8 +38,7 @@ public abstract class AccessMenu extends OPagedMenu<AccessObject> implements OMe
                         next = sortMethod.getPrevious();
 
                     if (next == SortMethod.INPUT) {
-                        previousMove = false;
-                        event.getWhoClicked().closeInventory();
+                        forceClose();
                         LocaleEnum.MINE_RANK_FIND_INPUT.getWithPrefix().send(event.getWhoClicked());
 
                         SubscriptionFactory.getInstance().subscribeTo(AsyncPlayerChatEvent.class, inputEvent -> {
@@ -48,7 +46,6 @@ public abstract class AccessMenu extends OPagedMenu<AccessObject> implements OMe
                             input = inputEvent.getMessage().toLowerCase();
 
                             refresh();
-                            previousMove = true;
                         }, new SubscriptionProperties<AsyncPlayerChatEvent>().timesToRun(1));
                     }
 

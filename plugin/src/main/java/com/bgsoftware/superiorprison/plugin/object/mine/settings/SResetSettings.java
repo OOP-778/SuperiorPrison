@@ -2,6 +2,8 @@ package com.bgsoftware.superiorprison.plugin.object.mine.settings;
 
 import com.bgsoftware.superiorprison.api.data.mine.settings.ResetSettings;
 import com.bgsoftware.superiorprison.api.data.mine.settings.ResetType;
+import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
+import com.bgsoftware.superiorprison.plugin.util.Attachable;
 import com.bgsoftware.superiorprison.plugin.util.TimeUtil;
 import com.google.gson.JsonObject;
 import com.oop.datamodule.SerializableObject;
@@ -40,9 +42,11 @@ public class SResetSettings {
     }
 
     @Getter
-    public static class STimed implements ResetSettings.Timed, SerializableObject {
+    public static class STimed implements ResetSettings.Timed, SerializableObject, Attachable<SNormalMine> {
 
+        private SNormalMine mine;
         private long interval;
+
         @Setter
         private transient ZonedDateTime resetDate;
 
@@ -57,6 +61,16 @@ public class SResetSettings {
             STimed timed = new STimed();
             timed.interval = from.interval;
             return timed;
+        }
+
+        @Override
+        public String getValueHumanified() {
+            return TimeUtil.toString(interval);
+        }
+
+        @Override
+        public String getCurrentHumanified() {
+            return TimeUtil.leftToString(resetDate);
         }
 
         @Override
@@ -83,12 +97,18 @@ public class SResetSettings {
         public void deserialize(SerializedData data) {
             this.interval = data.applyAs("interval", long.class);
         }
+
+        @Override
+        public void attach(SNormalMine obj) {
+            this.mine = obj;
+        }
     }
 
     @Getter
     @Setter
-    public static class SPercentage implements ResetSettings.Percentage, SerializableObject {
+    public static class SPercentage implements ResetSettings.Percentage, SerializableObject, Attachable<SNormalMine> {
 
+        private SNormalMine mine;
         private long requiredPercentage;
 
         private SPercentage() {
@@ -101,6 +121,16 @@ public class SResetSettings {
         @Override
         public ResetType getType() {
             return ResetType.PERCENTAGE;
+        }
+
+        @Override
+        public String getValueHumanified() {
+            return requiredPercentage + "";
+        }
+
+        @Override
+        public String getCurrentHumanified() {
+            return getMine().getGenerator().getBlockData().getPercentageLeft() + "";
         }
 
         @Override
@@ -121,6 +151,11 @@ public class SResetSettings {
         @Override
         public void deserialize(SerializedData serializedData) {
             this.requiredPercentage = serializedData.applyAs("rp", long.class);
+        }
+
+        @Override
+        public void attach(SNormalMine obj) {
+            this.mine = obj;
         }
     }
 }

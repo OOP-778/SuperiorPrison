@@ -99,5 +99,8 @@ public class PlayerInput<T> {
         for (SubscribedEvent event : events) {
             event.end();
         }
+
+        if (onCancel != null)
+            onCancel.run();
     }
 }

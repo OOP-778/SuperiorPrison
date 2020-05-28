@@ -1,4 +1,4 @@
-package com.bgsoftware.superiorprison.plugin.commands.mines.copy;
+package com.bgsoftware.superiorprison.plugin.commands.mines;
 
 import com.bgsoftware.superiorprison.plugin.commands.args.CopyTypeArg;
 import com.bgsoftware.superiorprison.plugin.commands.args.MinesArg;

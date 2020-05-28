@@ -25,19 +25,14 @@ public class SettingsMenu extends OPagedMenu<SettingsObject> implements OMenu.Te
 
         clickHandler("setting")
                 .handle(event -> {
-                    SettingsObject settingsObject = requestObject(event.getRawSlot());
-                    previousMove = false;
-                    event.getWhoClicked().closeInventory();
+                    forceClose();
 
+                    SettingsObject settingsObject = requestObject(event.getRawSlot());
                     messageBuilder(settingsObject.requestMessage())
                             .replace(viewer, mine, mine.getSettings(), settingsObject)
                             .send(event.getWhoClicked());
 
-                    Runnable onCancel = () -> {
-                        previousMove = true;
-                        refresh();
-                    };
-
+                    Runnable onCancel = this::refresh;
                     new PlayerInput<>((Player) event.getWhoClicked())
                             .parser(string -> {
                                 try {
@@ -56,7 +51,6 @@ public class SettingsMenu extends OPagedMenu<SettingsObject> implements OMenu.Te
                                         .send(input.player());
 
                                 input.cancel();
-                                onCancel.run();
                             })
                             .onCancel(onCancel)
                             .onError((input, err) -> messageBuilder(LocaleEnum.EDIT_SETTINGS_ERROR.getWithErrorPrefix())

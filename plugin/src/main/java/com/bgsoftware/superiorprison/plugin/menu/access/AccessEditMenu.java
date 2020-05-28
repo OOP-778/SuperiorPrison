@@ -44,10 +44,7 @@ public class AccessEditMenu extends AccessMenu {
 
         ClickHandler
                 .of("find access")
-                .handle(event -> {
-                    previousMove = false;
-                    new FindAccessMenu(getViewer(), mine).open(this);
-                })
+                .handle(event -> move(new FindAccessMenu(getViewer(), mine)))
                 .apply(this);
     }
 

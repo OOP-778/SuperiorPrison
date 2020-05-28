@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorprison.plugin.hook.impl;
 
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
+import com.bgsoftware.superiorprison.api.data.mine.settings.ResetSettings;
 import com.bgsoftware.superiorprison.api.data.player.Prestige;
 import com.bgsoftware.superiorprison.api.data.player.rank.LadderRank;
 import com.bgsoftware.superiorprison.api.data.player.rank.Rank;
@@ -11,6 +12,7 @@ import com.bgsoftware.superiorprison.plugin.hook.SHook;
 import com.bgsoftware.superiorprison.plugin.hook.impl.parser.ObjectCache;
 import com.bgsoftware.superiorprison.plugin.hook.impl.parser.PlaceholderParser;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
+import com.bgsoftware.superiorprison.plugin.object.mine.settings.SMineSettings;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrestige;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.object.player.rank.SLadderRank;
@@ -27,6 +29,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -117,6 +120,18 @@ public class PapiHook extends SHook {
             .add("mine", SNormalMine.class)
             .mapper((none, none0, crawler) -> crawler.hasNext() ? (SNormalMine) SuperiorPrisonPlugin.getInstance().getMineController().getMine(crawler.next()).orElse(null) : null)
             .parse("type", mine -> Helper.beautify(mine.getType().name()))
+            .parse("accessranks", mine -> Arrays.toString(mine.getRanks().toArray()))
+
+            .add("settings", SMineSettings.class)
+            .mapper((none, mine, crawler) -> mine.getSettings())
+            .add("reset", ResetSettings.class)
+            .mapper((none, settings, crawler) -> settings.getResetSettings())
+            .parse("type", reset -> reset.getType().name().toLowerCase())
+            .parse("value", ResetSettings::getValueHumanified)
+            .parse("current", ResetSettings::getCurrentHumanified)
+
+            .parent(ResetSettings.class, SMineSettings.class)
+            .parent(SMineSettings.class, SNormalMine.class)
             .parent(Object.class, Object.class);
 
     public PapiHook() {

@@ -32,7 +32,7 @@ public class NmsHandler_v1_14_R1 implements SuperiorNms {
         chunkSection.setType(location.getBlockX() & 15, location.getBlockY() & 15, location.getBlockZ() & 15, data);
 
         // Updating light
-        WorldServer world = (WorldServer) chunk.getWorld();
+        WorldServer world = ((CraftWorld) chunk.getWorld()).getHandle();
 
         BlockPosition pos = new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ());
         world.getChunkProvider().getLightEngine().a(pos);

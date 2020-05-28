@@ -71,14 +71,14 @@ public class SArea implements Area, Attachable<SNormalMine>, SerializableObject 
         return location.x() >= x1 && location.x() <= x2 && location.z() >= z1 && location.z() <= z2;
     }
 
-    public boolean isInsideWithY(SPLocation location) {
+    public boolean isInsideWithY(SPLocation location, boolean yDownwards) {
         int x1 = Math.min(getMinPoint().getBlockX(), getHighPoint().getBlockX());
         int z1 = Math.min(getMinPoint().getBlockZ(), getHighPoint().getBlockZ());
         int x2 = Math.max(getMinPoint().getBlockX(), getHighPoint().getBlockX());
         int z2 = Math.max(getMinPoint().getBlockZ(), getHighPoint().getBlockZ());
         int y1 = Math.min(getMinPoint().getBlockY(), getHighPoint().getBlockY());
         int y2 = Math.max(getMinPoint().getBlockY(), getHighPoint().getBlockY());
-        return location.x() >= x1 && location.x() <= x2 && location.z() >= z1 && location.z() <= z2 && location.y() >= y1 && location.y() <= y2;
+        return location.x() >= x1 && location.x() <= x2 && location.z() >= z1 && location.z() <= z2 && (!yDownwards ? location.y() >= y1 && location.y() <= y2 : location.y() >= y1);
     }
 
     public boolean isInside(Location location) {

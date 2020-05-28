@@ -5,7 +5,7 @@ import com.bgsoftware.superiorprison.plugin.commands.mines.CmdCreate;
 import com.bgsoftware.superiorprison.plugin.commands.mines.CmdDelete;
 import com.bgsoftware.superiorprison.plugin.commands.mines.CmdReload;
 import com.bgsoftware.superiorprison.plugin.commands.mines.CmdReset;
-import com.bgsoftware.superiorprison.plugin.commands.mines.copy.CmdCopy;
+import com.bgsoftware.superiorprison.plugin.commands.mines.CmdCopy;
 import com.bgsoftware.superiorprison.plugin.commands.pcp.CmdPrisonerCP;
 import com.bgsoftware.superiorprison.plugin.commands.prisoners.CmdTeleport;
 import com.bgsoftware.superiorprison.plugin.commands.prisoners.boosters.CmdBoosters;

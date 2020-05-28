@@ -39,7 +39,6 @@ public abstract class OMenu implements InventoryHolder {
     protected boolean previousMove = true;
     private final Map<String, Object> data = Maps.newConcurrentMap();
     private OMenu previousMenu;
-    private boolean refreshing = false;
 
     @Getter
     private final Map<Integer, OMenuButton> fillerItems = Maps.newHashMap();
@@ -56,6 +55,9 @@ public abstract class OMenu implements InventoryHolder {
 
     private final StateRequester stateRequester = new StateRequester();
 
+    private OMenu moving;
+    private MenuAction currentAction;
+
     public OMenu(String identifier, SPrisoner viewer) {
         this.identifier = identifier;
         this.viewer = viewer;
@@ -63,45 +65,31 @@ public abstract class OMenu implements InventoryHolder {
 
         ClickHandler
                 .of("return")
-                .handle(event -> {
-                    if (previousMenu == null)
-                        return;
-
-                    previousMove = false;
-                    open(previousMenu);
-                })
+                .handle(event -> executeAction(MenuAction.RETURN))
                 .apply(this);
     }
 
     public static <T extends OMenu> void refreshMenus(Class<T> menuClazz) {
-        runActionOnMenus(menuClazz, menu -> true, ((player, menu) -> {
-            menu.previousMove = false;
-            menu.open(menu);
-        }));
+        runActionOnMenus(menuClazz, null, ((player, menu) -> menu.open()));
     }
 
     public static <T extends OMenu> void refreshMenus(Class<T> menuClazz, Predicate<T> filter) {
-        runActionOnMenus(menuClazz, menu -> true, ((player, menu) -> {
-            if (!filter.test((T) menu)) return;
-
-            menu.previousMove = false;
-            menu.refresh();
-        }));
+        runActionOnMenus(menuClazz, filter, ((player, menu) -> menu.refresh()));
     }
 
     public static <T extends OMenu> void closeMenus(Class<T> menuClazz) {
-        closeMenus(menuClazz, OMenu -> true);
+        closeMenus(menuClazz, null);
     }
 
     public static <T extends OMenu> void closeMenus(Class<T> menuClazz, Predicate<T> predicate) {
-        runActionOnMenus(menuClazz, predicate, ((player, OMenu) -> player.closeInventory()));
+        runActionOnMenus(menuClazz, predicate, ((player, menu) -> menu.forceClose()));
     }
 
     private static <T extends OMenu> void runActionOnMenus(Class<T> menuClazz, Predicate<T> predicate, MenuCallback callback) {
         for (Player player : Bukkit.getOnlinePlayers()) {
             InventoryHolder inventoryHolder = player.getOpenInventory().getTopInventory().getHolder();
 
-            if (menuClazz.isInstance(inventoryHolder) && predicate.test((T) inventoryHolder)) {
+            if (menuClazz.isInstance(inventoryHolder) && (predicate == null || predicate.test((T) inventoryHolder))) {
                 OMenu OMenu = (OMenu) inventoryHolder;
                 callback.run(player, OMenu);
             }
@@ -154,50 +142,99 @@ public abstract class OMenu implements InventoryHolder {
     }
 
     public void handleBottomClick(InventoryClickEvent event) {
+        event.setCancelled(true);
+    }
+
+    public void forceClose() {
+        executeAction(MenuAction.CLOSE);
+    }
+
+    public void move(OMenu menu) {
+        moving = menu;
+        menu.previousMenu = this;
+        executeAction(MenuAction.MOVE);
+    }
+
+    protected void executeAction(MenuAction action) {
+        executeAction(action, null);
+    }
+
+    protected void executeAction(MenuAction action, Runnable callback) {
+        if (action == MenuAction.REFRESH) {
+            currentAction = action;
+            open(this, () -> {
+                currentAction = null;
+                if (callback != null)
+                    callback.run();
+            });
+        }
+
+        else if (action == MenuAction.MOVE && moving != null) {
+            currentAction = action;
+            open(moving, () -> {
+                moving = null;
+                currentAction = null;
+                if (callback != null)
+                    callback.run();
+            });
+
+        } else if (action == MenuAction.RETURN && previousMenu != null) {
+            currentAction = action;
+            open(previousMenu, () -> {
+                currentAction = null;
+                if (callback != null)
+                    callback.run();
+            });
+
+        } else if (action == MenuAction.CLOSE) {
+            currentAction = action;
+            StaticTask.getInstance().ensureSync(() -> getViewer().getPlayer().closeInventory(), () -> {
+                currentAction = null;
+                if (callback != null)
+                    callback.run();
+            });
+        }
+    }
+
+    public void open() {
+        executeAction(MenuAction.REFRESH);
     }
 
     public void open(OMenu menu) {
-        open(menu, null);
+        if (this == menu)
+            executeAction(MenuAction.REFRESH);
+
+        else
+            move(menu);
     }
 
-    public void open(OMenu menu, Runnable callback) {
+    public void open(@NonNull OMenu menu, Runnable callback) {
         if (Bukkit.isPrimaryThread()) {
             StaticTask.getInstance().async(() -> open(menu, callback));
             return;
         }
 
-        Inventory inventory = getInventory();
+        Inventory inventory = menu.getInventory();
 
         StaticTask.getInstance().sync(() -> {
             Player player = viewer.getPlayer();
             if (player == null)
                 return;
 
-            OMenu currentMenu = null;
-            InventoryHolder inventoryHolder = player.getOpenInventory().getTopInventory().getHolder();
-            if (inventoryHolder instanceof OMenu)
-                currentMenu = (OMenu) inventoryHolder;
-
             player.openInventory(inventory);
 
             if (callback != null)
                 callback.run();
-
-            refreshing = false;
-            this.previousMenu = menu != null ? menu : previousMove ? currentMenu : null;
         });
     }
 
     public void closeInventory(InventoryCloseEvent event) {
-        if (((Player) event.getPlayer()).isSneaking()) return;
-        if (previousMenu != null) {
-            StaticTask.getInstance().sync(() -> {
-                if (previousMove)
-                    previousMenu.open(previousMenu.previousMenu);
+        if (previousMenu != null && currentAction == null) {
+            if (previousMove)
+                executeAction(MenuAction.RETURN);
 
-                else
-                    previousMove = true;
-            });
+            else
+                previousMove = true;
         }
     }
 
@@ -207,6 +244,7 @@ public abstract class OMenu implements InventoryHolder {
 
     public void handleClick(InventoryClickEvent event) {
         if (event.getCurrentItem() != null) {
+            event.setCancelled(true);
             Optional<OMenuButton> menuButton = getButtons()
                     .stream()
                     .filter(button -> button.slot() == event.getRawSlot())
@@ -249,7 +287,7 @@ public abstract class OMenu implements InventoryHolder {
         return new ArrayList<>(fillerItems.values());
     }
 
-    private Optional<ClickHandler> clickHandlerFor(ButtonClickEvent event) {
+    protected Optional<ClickHandler> clickHandlerFor(ButtonClickEvent event) {
         return clickHandlers.values()
                 .stream()
                 .filter(ch -> ch.doesAcceptEvent(event))
@@ -261,8 +299,7 @@ public abstract class OMenu implements InventoryHolder {
     }
 
     public void refresh() {
-        previousMove = false;
-        open(previousMenu);
+        open(this);
     }
 
     public List<SPair<Integer, ItemStack>> getBukkitItems(@NonNull Inventory inventory) {

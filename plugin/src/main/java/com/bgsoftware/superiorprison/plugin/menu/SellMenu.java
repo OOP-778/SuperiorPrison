@@ -5,12 +5,15 @@ import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.hook.impl.VaultHook;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.util.SPair;
-import com.bgsoftware.superiorprison.plugin.util.menu.ClickHandler;
-import com.bgsoftware.superiorprison.plugin.util.menu.OMenu;
+import com.bgsoftware.superiorprison.plugin.util.menu.*;
 import org.bukkit.Material;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
 
@@ -26,8 +29,8 @@ public class SellMenu extends OMenu {
                         BigDecimal price = viewer.getPrice(bukkitItem.getValue());
                         if (price.doubleValue() == 0) continue;
 
-                        total = total.add(price);
-                        event.getClickedInventory().setItem(bukkitItem.getKey(), new ItemStack(Material.AIR));
+                        total = total.add(price.multiply(new BigDecimal(bukkitItem.getValue().getAmount())));
+                        event.getClickedInventory().setItem(bukkitItem.getKey(), null);
                     }
 
                     messageBuilder(LocaleEnum.SOLD_EVERYTHING.getWithPrefix())
@@ -38,6 +41,23 @@ public class SellMenu extends OMenu {
                     SuperiorPrisonPlugin.getInstance().getHookController().executeIfFound(() -> VaultHook.class, hook -> hook.depositPlayer(viewer, finalTotal));
                 })
                 .apply(this);
+    }
+
+    @Override
+    public void handleClick(InventoryClickEvent event) {
+        OMenuButton menuButton = getFillerItems().get(event.getSlot());
+        if (menuButton == null) return;
+
+        event.setCancelled(true);
+        ButtonClickEvent buttonClickEvent = new ButtonClickEvent(event, menuButton);
+        Optional<ClickHandler> clickHandler = clickHandlerFor(buttonClickEvent);
+        if (!clickHandler.isPresent()) return;
+
+        clickHandler.get().handle(buttonClickEvent);
+    }
+
+    @Override
+    public void handleBottomClick(InventoryClickEvent event) {
 
     }
 }

@@ -13,7 +13,6 @@ import com.google.common.collect.ImmutableMap;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.material.OMaterial;
 import lombok.Getter;
-import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
@@ -73,15 +72,18 @@ public class GeneratorEditMenu extends OPagedMenu<OPair<Double, OMaterial>> impl
                     OPair<Double, OMaterial> materialPair = requestObject(event.getRawSlot());
                     if (event.getClick() == ClickType.RIGHT) {
                         materials.remove(materialPair);
-                        refresh();
+                        refreshMenus(GeneratorEditMenu.class, menu -> menu.getMine().equals(mine));
 
                     } else if (event.getClick() == ClickType.LEFT) {
-                        previousMove = false;
-                        event.getWhoClicked().closeInventory();
+                        forceClose();
                         LocaleEnum.EDIT_GENERATOR_WRITE_RATE.getWithPrefix().send(event.getWhoClicked());
 
-                        Runnable onCancel = this::refresh;
-                        Input.doubleInput(event.getWhoClicked())
+                        Runnable onCancel = () -> {
+                            refreshMenus(GeneratorEditMenu.class, menu -> menu.getMine().equals(mine));
+                            refresh();
+                        };
+                        Input
+                                .doubleInput(event.getWhoClicked())
                                 .timeOut(TimeUnit.MINUTES, 2)
                                 .onCancel(onCancel)
                                 .onInput((obj, input) -> {
@@ -95,9 +97,9 @@ public class GeneratorEditMenu extends OPagedMenu<OPair<Double, OMaterial>> impl
                                     }
 
                                     mine.save(true);
-                                    refreshMenus(GeneratorEditMenu.class, menu -> menu.getMine().equals(mine));
-                                    onCancel.run();
-                                });
+                                    obj.cancel();
+                                })
+                                .listen();
                     }
                 })
                 .apply(this);

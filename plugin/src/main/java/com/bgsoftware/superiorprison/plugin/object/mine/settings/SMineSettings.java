@@ -25,12 +25,8 @@ import java.util.concurrent.TimeUnit;
 @AllArgsConstructor
 public class SMineSettings implements Attachable<SNormalMine>, com.bgsoftware.superiorprison.api.data.mine.settings.MineSettings, SerializableObject {
 
-    @SerializedName(value = "playerLimit")
     private int playerLimit;
-
-    @SerializedName(value = "resetSettings")
     private ResetSettings resetSettings;
-
     private transient SNormalMine mine;
 
     SMineSettings() {
@@ -51,6 +47,7 @@ public class SMineSettings implements Attachable<SNormalMine>, com.bgsoftware.su
     @Override
     public void attach(SNormalMine obj) {
         this.mine = obj;
+        ((Attachable<SNormalMine>) resetSettings).attach(mine);
     }
 
     @Override

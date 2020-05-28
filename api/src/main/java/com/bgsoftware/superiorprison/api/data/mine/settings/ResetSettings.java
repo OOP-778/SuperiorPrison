@@ -12,6 +12,9 @@ public interface ResetSettings {
 
     void setValue(long value);
 
+    String getValueHumanified();
+    String getCurrentHumanified();
+
     default boolean isTimed() {
         return getType() == ResetType.TIMED;
     }

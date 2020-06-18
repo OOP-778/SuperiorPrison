@@ -37,7 +37,14 @@ public interface MineGenerator {
     */
     Instant getWhenNextReset();
 
+    /*
+    Check if mine is caching
+    When mine is caching, it's not interactable
+    */
     boolean isCaching();
 
+    /*
+    Check if mine is resetting
+    */
     boolean isResetting();
 }

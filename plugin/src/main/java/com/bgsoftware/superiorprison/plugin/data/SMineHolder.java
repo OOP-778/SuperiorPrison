@@ -110,6 +110,7 @@ public class SMineHolder extends SqlStorage<SNormalMine> implements MineHolder {
         if (matchedChunk.isPresent()) {
             data = matchedChunk.get();
             data.add(location, material, onComplete);
+            
         } else {
             data = new ChunkResetData(location.getWorld(), chunkX, chunkZ);
             data.add(location, material, onComplete);

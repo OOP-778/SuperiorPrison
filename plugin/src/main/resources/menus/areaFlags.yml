@@ -1,4 +1,4 @@
-title: "&eEditing &6{mine_name} -> {area_name}&e flags!"
+title: "&dEditing &5{mine_name} -> {area_name}&d flags!"
 
 layout:
   - "$ $ $ $ $ $ $ $ $"
@@ -19,25 +19,25 @@ buttons:
   "P":
     shown:
       material: arrow
-      display name: "&e<<"
+      display name: "&d<<"
       lore:
         - "&7Click to go to"
         - "&7The previous page!"
 
     hidden:
-      material: yellow_stained_glass_pane
+      material: pink_stained_glass_pane
       display name: "&r"
 
   "N":
     shown:
       material: arrow
-      display name: "&e>>"
+      display name: "&d>>"
       lore:
         - "&7Click to go to"
         - "&7The next page!"
 
     hidden:
-      material: yellow_stained_glass_pane
+      material: pink_stained_glass_pane
       display name: "&r"
 
   "F":

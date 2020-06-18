@@ -8,9 +8,12 @@ import java.util.Optional;
 public interface PrestigeController {
     boolean isLoaded();
 
+    // Get list of all available prestiges
     List<Prestige> getPrestiges();
 
+    // Get a prestige by name (ignore-case)
     Optional<Prestige> getPrestige(String name);
 
+    // Get a prestige by order
     Optional<Prestige> getPrestige(int order);
 }

@@ -3,6 +3,7 @@ package com.bgsoftware.superiorprison.plugin.object.mine.area;
 import com.bgsoftware.superiorprison.api.data.mine.area.Area;
 import com.bgsoftware.superiorprison.api.data.mine.area.AreaEnum;
 import com.bgsoftware.superiorprison.api.data.mine.flags.Flag;
+import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.util.Attachable;
 import com.bgsoftware.superiorprison.plugin.util.SPLocation;
@@ -129,7 +130,11 @@ public class SArea implements Area, Attachable<SNormalMine>, SerializableObject 
                     JsonElement key = pair.getKey();
                     JsonElement value = pair.getValue();
 
-                    flags.put(Flag.valueOf(key.getAsString()), DataUtil.fromElement(value, boolean.class));
+                    try {
+                        flags.put(Flag.valueOf(key.getAsString()), DataUtil.fromElement(value, boolean.class));
+                    } catch (Exception ex) {
+                        SuperiorPrisonPlugin.getInstance().getOLogger().printWarning("Failed to find a flag by {}, ignoring it...", key.getAsString());
+                    }
                 });
     }
 }

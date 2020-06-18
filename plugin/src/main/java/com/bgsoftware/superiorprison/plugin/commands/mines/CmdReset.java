@@ -11,7 +11,7 @@ import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messag
 public class CmdReset extends OCommand {
     public CmdReset() {
         label("reset");
-        description("Reset a mine!");
+        description("Reset a mine");
         permission("superiorprison.reset");
         argument(new MinesArg().setRequired(true));
         onCommand(command -> {

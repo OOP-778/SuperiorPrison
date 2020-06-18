@@ -3,6 +3,7 @@ package com.bgsoftware.superiorprison.plugin.util.menu;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.controller.ConfigController;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
+import com.bgsoftware.superiorprison.plugin.util.ClassDebugger;
 import com.bgsoftware.superiorprison.plugin.util.SPair;
 import com.bgsoftware.superiorprison.plugin.util.TextUtil;
 import com.google.common.collect.HashBiMap;
@@ -299,7 +300,7 @@ public abstract class OMenu implements InventoryHolder {
     }
 
     public void refresh() {
-        open(this);
+        executeAction(MenuAction.REFRESH);
     }
 
     public List<SPair<Integer, ItemStack>> getBukkitItems(@NonNull Inventory inventory) {

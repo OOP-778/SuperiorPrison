@@ -18,6 +18,7 @@ prisoner_%uuid/name%/none_
  - next
   - prefix
   - order
+- canenter_%mine%
 - autoburn
 - fortuneblocks
 - statistics
@@ -27,32 +28,11 @@ prisoner_%uuid/name%/none_
 
 mine_%name%
 - type
-- minpoint
- - world
- - x
- - y
- - z
-- highpoint
- - world
- - x
- - y
- - z
 - spawnpoint
  - world
  - x
  - y
  - z
-- region
- - minpoint
-  - world
-  - x
-  - y
-  - z
- - highpoint
-  - world
-  - x
-  - y
-  - z
 - prisoners
 - reset
  - type

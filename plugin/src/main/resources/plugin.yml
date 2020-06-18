@@ -1,6 +1,10 @@
 name: SuperiorPrison
 main: com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin
 version: ${project.version}
+api-version: 1.13
+website: https://bg-software.com/
+author: OOP-778
+description: Feature packed Prison core.
 depend:
   - Vault
 
@@ -8,3 +12,108 @@ softdepend:
   - Multiverse
   - PlaceholderAPI
   - Essentials
+  - CMI
+
+permissions:
+  prison.*:
+    default: op
+    description: "Permissions for Prison"
+    children:
+      prison.prisoner.*:
+        description: "All permissions for prisoners"
+        children:
+          prison.prisoner.feature.*:
+            description: "All permissions for prisoner features"
+            children:
+              prison.prisoner.feature.autoburn:
+                description: "Access to auto burn feature"
+              prison.prisoner.feature.autopickup:
+                description: "Access to auto pickup feature"
+              prison.prisoner.feature.autosell:
+                description: "Access to auto sell feature"
+              prison.prisoner.feature.fortuneblocks:
+                description: "Access to fortune blocks feature"
+
+          prison.prisoner.cmds.*:
+            description: "Access to all prisoner commands"
+            children:
+              prison.prisoner.cmds.rankup:
+                description: "Rankup"
+
+              prison.prisoner.cmds.sell.*:
+                children:
+                  prison.prisoner.cmds.sell.gui:
+                    description: "Drop items into a gui to sell them"
+                  prison.prisoner.cmds.sell.inventory:
+                    description: "Sell your whole inventory"
+                  prison.prisoner.cmds.sell.hand:
+                    description: "Sell your inventory matched by hand"
+
+              prison.prisoner.cmds.pcp:
+                description: "Prisoner Control Panel"
+
+              prison.prisoner.cmds.mines:
+                description: "Access to mines gui"
+
+      prison.admin.*:
+        children:
+          prison.admin.cmds.*:
+            description: "Access to all admin commands"
+            children:
+              prison.admin.cmds.mines.*:
+                children:
+                  prison.admin.cmds.mines.reload:
+                    description: "reload the plugin"
+                  prison.admin.cmds.mines.create:
+                    description: "Create a mine"
+                  prison.admin.cmds.mines.reset:
+                    description: "Reset a mine"
+                  prison.admin.cmds.mines.copy:
+                    description: "Copy things from one mine to another"
+                  prison.admin.cmds.mines.delete:
+                    description: "Delete a mine"
+                  prison.admin.editmine:
+                    description: "Edit a mine"
+
+              prison.admin.cmds.prisoner.*:
+                children:
+                  prison.admin.cmds.prisoner.ranks.*:
+                    children:
+                      prison.admin.cmds.prisoner.ranks.add:
+                        description: "Add a rank to prisoner"
+                      prison.admin.cmds.prisoner.ranks.clear:
+                        description: "Clear ranks from prisoner"
+                      prison.admin.cmds.prisoner.ranks.list:
+                        description: "View prisoner ranks"
+                      prison.admin.cmds.prisoner.ranks.remove:
+                        description: "Remove a rank from prisoner"
+                      prison.admin.cmds.prisoner.teleport:
+                        description: "teleport a prisoner into mine"
+
+                  prison.admin.cmds.prisoner.boosters.*:
+                    children:
+                      prison.admin.cmds.prisoner.boosters.add:
+                        description: "Add a booster"
+                      prison.admin.cmds.prisoner.boosters.clear:
+                        description: "Clear boosters"
+                      prison.admin.cmds.prisoner.boosters.list:
+                        description: "Show a list of boosters"
+                      prison.admin.cmds.prisoner.boosters.remove:
+                        description: "Remove a booster"
+
+                  prison.admin.cmds.prisoner.prestiges.*:
+                    children:
+                      prison.admin.cmds.prisoner.prestiges.add:
+                        description: "Add a prestige to prisoner"
+                      prison.admin.cmds.prisoner.prestiges.clear:
+                        description: "Clear prestiges from prisoner"
+                      prison.admin.cmds.prisoner.prestiges.list:
+                        description: "View prisoner prestiges"
+                      prison.admin.cmds.prisoner.prestiges.remove:
+                        description: "Remove a prestige from prisoner"
+
+                  prison.admin.cmds.prisoner.reset:
+                    description: "Reset prisoners data"
+
+          prison.admin.bypass:
+            description: "Bypass block break check for region area"

@@ -1,4 +1,4 @@
-title: "&e&l{mine_name} &8&l> &6Settings"
+title: "&d&l{mine_name} &8&l> &5Settings"
 
 templates:
   - "setting:S"
@@ -20,13 +20,13 @@ buttons:
     display name: "&r"
 
   "#":
-    material: orange_stained_glass_pane
+    material: pink_stained_glass_pane
     display name: "&r"
 
   "P":
     shown:
       material: arrow
-      display name: "&e<<"
+      display name: "&d<<"
       lore:
         - "&7Click to go to"
         - "&7The previous page!"
@@ -38,7 +38,7 @@ buttons:
   "N":
     shown:
       material: arrow
-      display name: "&e>>"
+      display name: "&d>>"
       lore:
         - "&7Click to go to"
         - "&7The next page!"
@@ -50,28 +50,28 @@ buttons:
   "S":
     player-limit:
       material: lever
-      display name: "&ePlayer Limit"
+      display name: "&dPlayer Limit"
       lore:
-        - "&e&l* &7Click to edit"
-        - "&e&l* &7Current: &e{setting_value}"
+        - "&d&l* &7Click to edit"
+        - "&d&l* &7Current: &d{setting_value}"
 
     reset-type:
       material: lever
-      display name: "&eReset Type"
+      display name: "&dReset Type"
       lore:
-        - "&e&l* &7Click to edit"
-        - "&e&l* &7Current: &e{setting_value}"
+        - "&d&l* &7Click to edit"
+        - "&d&l* &7Current: &d{setting_value}"
 
     percentage:
       material: lever
-      display name: "&eReset Percentage"
+      display name: "&dReset Percentage"
       lore:
-        - "&e&l* &7Click to edit"
-        - "&e&l* &7Current: &e{setting_value}"
+        - "&d&l* &7Click to edit"
+        - "&d&l* &7Current: &d{setting_value}"
 
     interval:
       material: lever
-      display name: "&eReset Interval"
+      display name: "&dReset Interval"
       lore:
-        - "&e&l* &7Click to edit"
-        - "&e&l* &7Current: &e{setting_value}"
+        - "&d&l* &7Click to edit"
+        - "&d&l* &7Current: &d{setting_value}"

@@ -62,11 +62,6 @@ progression scale:
   completed color: "&e"
   not found: "none"
 
-command colors:
-  main: "&e"
-  second: "&3"
-  markup: "&7"
-
 # How long will the blocks statistic cache blocks
 blocks cache time limit: "1h"
 

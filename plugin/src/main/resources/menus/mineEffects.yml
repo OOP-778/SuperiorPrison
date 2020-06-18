@@ -1,4 +1,4 @@
-title: "&e&l{mine_name} &8&l> &6Effects"
+title: "&d&l{mine_name} &8&l> &5Effects"
 
 templates:
   - "effect:E"
@@ -20,13 +20,13 @@ buttons:
     display name: "&r"
 
   "#":
-    material: orange_stained_glass_pane
+    material: pink_stained_glass_pane
     display name: "&r"
 
   "P":
     shown:
       material: arrow
-      display name: "&e<<"
+      display name: "&d<<"
       lore:
         - "&7Click to go to"
         - "&7The previous page!"
@@ -38,7 +38,7 @@ buttons:
   "N":
     shown:
       material: arrow
-      display name: "&e>>"
+      display name: "&d>>"
       lore:
         - "&7Click to go to"
         - "&7The next page!"
@@ -48,10 +48,10 @@ buttons:
       display name: "&r"
 
   "E":
-    display name: "&e{potion_type}"
+    display name: "&d{potion_type}"
     material: potion
     lore:
-      - "&e&l* &7Amplifier: &e{potion_amplifier}"
+      - "&d&l* &7Amplifier: &d{potion_amplifier}"
       - ""
       - "&aLeft-Click to increase"
       - "&cRight-Click to decrease"

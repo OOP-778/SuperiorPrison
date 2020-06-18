@@ -1,4 +1,4 @@
-title: "&e&l{mine_name} &8&l> &6Control Panel"
+title: "&d&l{mine_name} &8&l> &5Control Panel"
 
 layout:
   - "@ @ @ @ @ @ @ @ @"
@@ -20,13 +20,13 @@ buttons:
     display name: "&r"
 
   "#":
-    material: orange_stained_glass_pane
+    material: pink_stained_glass_pane
     display name: "&r"
 
   "P":
     shown:
       material: arrow
-      display name: "&e<<"
+      display name: "&d<<"
       lore:
         - "&7Click to go to"
         - "&7The previous page!"
@@ -38,7 +38,7 @@ buttons:
   "N":
     shown:
       material: arrow
-      display name: "&e>>"
+      display name: "&d>>"
       lore:
         - "&7Click to go to"
         - "&7The next page!"
@@ -53,51 +53,51 @@ buttons:
   "O":
     access-option:
       material: iron_bars
-      display name: "&eAccess"
+      display name: "&dAccess"
       lore:
-        - "&e&l* &7Click to edit"
+        - "&d&l* &7Click to edit"
 
     icon-option:
       material: sign
-      display name: "&eIcon"
+      display name: "&dIcon"
       lore:
-        - "&e&l* &7Click to edit the icon"
+        - "&d&l* &7Click to edit the icon"
 
     generator-option:
       material: command_block
-      display name: "&eGenerator"
+      display name: "&dGenerator"
       lore:
-        - "&e&l* &7Click to modify generator"
+        - "&d&l* &7Click to modify generator"
 
     flags-option:
       material: white_wool
-      display name: "&eFlags"
+      display name: "&dFlags"
       lore:
-        - "&e&l* &7Click to edit!"
+        - "&d&l* &7Click to edit!"
 
     shop-option:
       material: chest
-      display name: "&eShop"
+      display name: "&dShop"
       lore:
-        - "&e&l* &7Click to edit!"
+        - "&d&l* &7Click to edit!"
 
     effects-option:
       material: potion
-      display name: "&eEffects"
+      display name: "&dEffects"
       lore:
-        - "&e&l* &7Click to edit!"
+        - "&d&l* &7Click to edit!"
 
     settings-option:
       material: repeater
-      display name: "&eSettings"
+      display name: "&dSettings"
       lore:
-        - "&e&l* &7Click to edit!"
+        - "&d&l* &7Click to edit!"
 
     messages-option:
       material: paper
-      display name: "&eMessages"
+      display name: "&dMessages"
       lore:
-        - "&e&l* &7Click to edit!"
+        - "&d&l* &7Click to edit!"
 
     soon:
       material: barrier

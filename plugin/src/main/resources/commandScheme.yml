@@ -1,0 +1,92 @@
+# Edit how commands look!
+# In order to change scheme for your wanted command
+# Just add "command label":
+
+# To use a template in scheme
+# Wrap your template in brackets like so {template}
+
+default:
+  sub list:
+    scheme:
+      - "&5&l----< &d&l{command_label} &fHelp"
+      - "{required} {optional}"
+      - " "
+      - "{sub_command_template}"
+
+    templates:
+      optional: "&7[] - Optional"
+      required: "&7<> - Required"
+
+      sub command:
+        type: chat
+        content:
+          1: "&5&l- "
+          2:
+            text: "&d{command_label} "
+            hover: "{command_description}"
+            suggestion: "/{command_full_label}"
+          3: "{command_required_args}"
+          4: "{command_optional_args}"
+
+      required arg:
+        type: chat
+        content:
+          1: "&d<"
+          2:
+            text: "&f{arg_identifier}"
+            hover: "&d{arg_description}"
+          3: "&d>"
+
+      optional arg:
+        type: chat
+        content:
+          1: "&5["
+          2:
+            text: "&f{arg_identifier}"
+            hover: "&5{arg_description}"
+          3: "&5]"
+
+  proper usage:
+    scheme:
+      - "&d&lUSAGE: {command_usage}"
+      - "&5&l* &7Description: {command_description}"
+      - "&5&l* &7Permission: {command_permission}"
+
+    templates:
+      command usage:
+        type: chat
+        content:
+          1:
+            text: "&d/{command_full_label} "
+            hover: "{command_description}"
+            suggestion: "/{command_full_label}"
+          2: "{command_required_args}"
+          3: "{command_optional_args}"
+
+      required arg:
+        type: chat
+        content:
+          1: "&d<"
+          2:
+            text: "&f{arg_identifier}"
+            hover: "&d{arg_description}"
+          3: "&d>"
+
+      optional arg:
+        type: chat
+        content:
+          1: "&5["
+          2:
+            text: "&f{arg_identifier}"
+            hover: "&5{arg_description}"
+          3: "&5]"
+
+  error:
+    scheme:
+      - "&cAn error occurred while executing {command_label} command!"
+      - "&c&l* &7Cause: &4{error_cause}"
+
+  no permission:
+    scheme:
+      - "&cYou don't have the permission to use this command!"
+      - "&c&l* &7Permission: {command_permission}"

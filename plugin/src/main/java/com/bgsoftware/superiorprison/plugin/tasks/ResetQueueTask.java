@@ -13,7 +13,7 @@ import org.bukkit.Location;
 public class ResetQueueTask extends OTask {
     private double lastTps = 0;
     private int skip = 0;
-    private final boolean cancel = false;
+    private boolean cancel = false;
     private boolean running = false;
 
     private ChunkResetData currentChunk;
@@ -30,10 +30,12 @@ public class ResetQueueTask extends OTask {
                 return;
             }
 
+
             if (currentChunk == null || currentChunk.getData().isEmpty()) {
                 currentChunk = SuperiorPrisonPlugin.getInstance().getMineController().getQueue().next();
                 bukkitChunk = null;
-                if (currentChunk == null) return;
+                if (currentChunk == null)
+                    return;
             }
 
             // Get current tps
@@ -43,6 +45,7 @@ public class ResetQueueTask extends OTask {
                 if (diff > 0 && diff >= 0.3) {
                     skip = 20 * 3;
                     lastTps = 0;
+                    cancel = true;
                     SuperiorPrisonPlugin.getInstance().getOLogger().printDebug("Tps has gone down skipping 3 seconds");
                     return;
                 }

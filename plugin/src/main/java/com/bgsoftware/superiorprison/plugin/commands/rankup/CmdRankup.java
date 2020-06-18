@@ -6,6 +6,7 @@ import com.bgsoftware.superiorprison.api.requirement.Requirement;
 import com.bgsoftware.superiorprison.api.requirement.RequirementData;
 import com.bgsoftware.superiorprison.api.requirement.RequirementException;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
+import com.bgsoftware.superiorprison.plugin.commands.PermissionsInitializer;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrestige;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
@@ -94,6 +95,7 @@ public class CmdRankup extends OCommand {
                         .send(command);
             }
         });
+        PermissionsInitializer.registerPrisonerCommand(this);
     }
 
     public List<RequirementException> testRequirements(Set<RequirementData> datas, SPrisoner prisoner) {

@@ -1,4 +1,4 @@
-title: "&6Mines List &8(&e{current_page}&7/&e{pages_available}&8)"
+title: "&5Mines List &8(&d{current_page}&7/&d{pages_available}&8)"
 
 layout:
   - "$ $ $ $ $ $ $ $ $"
@@ -16,40 +16,40 @@ templates:
 
 buttons:
   "&":
-    material: yellow_stained_glass_pane
+    material: pink_stained_glass_pane
     display name: "&r"
 
   "P":
     shown:
       material: arrow
-      display name: "&e<<"
+      display name: "&d<<"
       lore:
         - "&7Click to go to"
         - "&7The previous page!"
 
     hidden:
-      material: yellow_stained_glass_pane
+      material: pink_stained_glass_pane
       display name: "&r"
 
   "N":
     shown:
       material: arrow
-      display name: "&e>>"
+      display name: "&d>>"
       lore:
         - "&7Click to go to"
         - "&7The next page!"
 
     hidden:
-      material: yellow_stained_glass_pane
+      material: pink_stained_glass_pane
       display name: "&r"
 
   "T":
     material: stone
-    display name: "&e{mine_name}"
+    display name: "&d{mine_name}"
     lore:
       - ""
-      - "&e&l* &7Click to teleport!"
-      - "<hp=superior.admin>"
+      - "&d&l* &7Click to teleport!"
+      - "<hp=prison.admin.editmine>"
       - "&c&l* &7Shift-Click to edit mine!"
       - "</hp>"
 

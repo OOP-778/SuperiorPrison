@@ -1,4 +1,4 @@
-title: "&eEditing {mine_name} generator!"
+title: "&dEditing {mine_name} generator!"
 
 actions:
   - "next page:N"
@@ -18,7 +18,7 @@ layout:
 
 buttons:
   "&":
-    material: yellow_stained_glass_pane
+    material: pink_stained_glass_pane
     display name: "&r"
 
   "*":
@@ -26,7 +26,7 @@ buttons:
 
   "I":
     material: book
-    display name: "&eInformation"
+    display name: "&dInformation"
     lore:
       - "&cHere you can set chances of specific materials"
       - "&cRemember the chances cannot be over or lower than 100%"
@@ -36,45 +36,45 @@ buttons:
   "P":
     shown:
       material: arrow
-      display name: "&e<<"
+      display name: "&d<<"
       lore:
         - "&7Click to go to"
         - "&7The previous page!"
 
     hidden:
-      material: yellow_stained_glass_pane
+      material: pink_stained_glass_pane
       display name: "&r"
 
   "N":
     shown:
       material: arrow
-      display name: "&e>>"
+      display name: "&d>>"
       lore:
         - "&7Click to go to"
         - "&7The next page!"
 
     hidden:
-      material: yellow_stained_glass_pane
+      material: pink_stained_glass_pane
       display name: "&r"
 
   "M":
     material: stone
-    display name: "&e{material_name}"
+    display name: "&d{material_name}"
     lore:
-      - "&e&nRATE:&6 {material_rate}%"
+      - "&d&nRATE:&5 {material_rate}%"
       - ""
       - "&aLeft-Click to edit"
       - "&cRight-Click to remove"
 
   "R":
     material: BOOK
-    display name: "&eReset"
+    display name: "&dReset"
     lore:
       - "&7Click to reset"
       - "&7The materials to default!"
 
   "S":
     material: BOOK
-    display name: "&eSave"
+    display name: "&dSave"
     lore:
       - "&7Click to save changes"

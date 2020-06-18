@@ -36,6 +36,7 @@ public class CmdCreate extends OCommand {
             .build();
 
     public CmdCreate() {
+        description("Create a mine");
         label("create")
                 .ableToExecute(Player.class)
                 .permission("superiorprison.admin")
@@ -132,7 +133,6 @@ public class CmdCreate extends OCommand {
                             .replace(sNormalMine)
                             .send(command);
 
-                    sNormalMine.getGenerator().reset();
                     player.getInventory().remove(SuperiorPrisonPlugin.getInstance().getMainConfig().getAreaSelectionTool().getItemStack());
                     SuperiorPrisonPlugin.getInstance().getMineController().add(sNormalMine);
                     creating.invalidate(player.getUniqueId());

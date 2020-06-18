@@ -6,15 +6,22 @@ import java.util.concurrent.TimeUnit;
 
 public interface ResetSettings {
 
+    // Get reset type (either percentage or timed)
     ResetType getType();
 
+    // Get value (if percentage it's gonna return percentage required if timed interval in seconds)
     long getValue();
 
+    // Set value (If percentage a value between 0-100, if timed interval in seconds)
     void setValue(long value);
 
+    // Get (percentage or interval) in human readable string (2h5m3s)
     String getValueHumanified();
+
+    // Get current (percentage or time left) in human readable string (2m2s)
     String getCurrentHumanified();
 
+    // If reset settings is timed
     default boolean isTimed() {
         return getType() == ResetType.TIMED;
     }
@@ -31,10 +38,10 @@ public interface ResetSettings {
         return !isTimed() ? (Percentage) this : Objects.requireNonNull(null, "Tried to get reset settings as Percentage, but it's not instance of Percentage.");
     }
 
-    public static interface Timed extends ResetSettings {
+    interface Timed extends ResetSettings {
         ZonedDateTime getResetDate();
     }
 
-    public static interface Percentage extends ResetSettings {
+    interface Percentage extends ResetSettings {
     }
 }

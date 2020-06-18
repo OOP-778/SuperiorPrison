@@ -1,4 +1,4 @@
-title: "&eChoose area!"
+title: "&dChoose area!"
 
 templates:
   - "area template:R"
@@ -15,27 +15,27 @@ buttons:
   "P":
     shown:
       material: arrow
-      display name: "&e<<"
+      display name: "&d<<"
       lore:
         - "&7Click to go to"
         - "&7The previous page!"
 
     hidden:
-      material: yellow_stained_glass_pane
+      material: pink_stained_glass_pane
       display name: "&r"
 
   "N":
     shown:
       material: arrow
-      display name: "&e>>"
+      display name: "&d>>"
       lore:
         - "&7Click to go to"
         - "&7The next page!"
 
     hidden:
-      material: yellow_stained_glass_pane
+      material: pink_stained_glass_pane
       display name: "&r"
 
   "R":
     material: WOODEN_AXE
-    display name: "&e{area_name}"
+    display name: "&d{area_name}"

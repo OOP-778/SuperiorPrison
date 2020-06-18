@@ -20,7 +20,6 @@ public class StatisticsListener {
             statisticsContainer.getBlocksStatistic().update(OMaterial.matchMaterial(event.getBlock()), 1);
 
             long totalBlocksWithinTimeFrame = statisticsContainer.getBlocksStatistic().getTotalBlocksWithinTimeFrame(getDate().minusSeconds(10), getDate());
-            event.getPrisoner().getPlayer().sendMessage(event.getMine().getGenerator().getBlockData().getPercentageLeft() + "/100 left");
         });
     }
 }

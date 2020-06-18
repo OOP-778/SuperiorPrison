@@ -45,6 +45,7 @@ public class ConfigController implements OComponent<SuperiorPrisonPlugin> {
                 menus.put(menuFile.getName().replace(".yml", "").toLowerCase(), new Config(menuFile));
 
             SuperiorPrisonPlugin.getInstance().setMainConfig(new MainConfig());
+
             Locale.load(SuperiorPrisonPlugin.getInstance().getMainConfig().getLocale());
             LocaleEnum.load();
         } catch (Throwable thrw) {

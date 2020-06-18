@@ -8,7 +8,6 @@ import com.bgsoftware.superiorprison.api.data.mine.messages.MineMessage;
 import com.bgsoftware.superiorprison.api.data.mine.messages.MineMesssages;
 import com.bgsoftware.superiorprison.api.data.mine.settings.MineSettings;
 import com.bgsoftware.superiorprison.api.data.mine.shop.MineShop;
-import com.bgsoftware.superiorprison.api.data.mine.sign.Sign;
 import com.bgsoftware.superiorprison.api.data.player.Prestige;
 import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 import com.bgsoftware.superiorprison.api.data.player.rank.Rank;
@@ -76,10 +75,19 @@ public interface SuperiorMine {
     */
     Set<String> getRanks();
 
+    /*
+    Get all the ranks that can access the mine mapped
+    */
     Set<Rank> getRanksMapped();
 
+    /*
+    Get all the prestiges that can access the mine!
+    */
     Set<String> getPrestiges();
 
+    /*
+    Get all the prestiges that can access the mine mapped
+    */
     Set<Prestige> getPrestigesMapped();
 
     /*
@@ -92,6 +100,12 @@ public interface SuperiorMine {
     */
     MineSettings getSettings();
 
+    // Get messages of the mine
+    MineMesssages getMessages();
+
+    /*
+    Get Mine Effects
+    */
     MineEffects getEffects();
 
     /*
@@ -110,38 +124,36 @@ public interface SuperiorMine {
     */
     World getWorld();
 
+    /*
+    Check if prisoner can enter the mine
+    Checks for ranks & prestiges & admin permissions
+    */
     boolean canEnter(Prisoner prisoner);
 
+    // Save the mine
     void save(boolean async);
 
-    @Nullable
-    Sign getSignAt(Location location);
+    // Remove an rank from the mine
+    void removeRank(String... rank);
 
-    Set<Sign> getSigns();
+    // Remove an rank from the mine
+    void removeRank(Rank... rank);
 
-    Set<Sign> getSigns(Predicate<Sign> sign);
+    // Remove an prestige from the mine
+    void removePrestige(String... prestige);
 
-    void removeSign(Location location);
+    // Remove an prestige from the mine
+    void removePrestige(Prestige... prestige);
 
-    void removeSign(Sign sign);
+    // Add an rank to the mine
+    void addRank(String... rank);
 
-    void removeRank(String ...rank);
+    // Add an rank to the mine
+    void addRank(Rank... rank);
 
-    void removeRank(Rank ...rank);
+    // Add an prestige to the mine
+    void addPrestige(String... prestige);
 
-    void removePrestige(String ...prestige);
-
-    void removePrestige(Prestige ...prestige);
-
-    void addRank(String ...rank);
-
-    void addRank(Rank ...rank);
-
-    void addPrestige(String ...prestige);
-
-    void addPrestige(Prestige ...prestige);
-
-    void onReset();
-
-    MineMesssages getMessages();
+    // Add an prestige to the mine
+    void addPrestige(Prestige... prestige);
 }

@@ -43,7 +43,6 @@ public class MessageEditMenu extends OMenu {
                             .parser(TimeUtil::toSeconds)
                             .onCancel(onCancel)
                             .onInput((obj, input) -> {
-
                                 messageBuilder(LocaleEnum.EDIT_MESSAGE_INTERVAL_SET.getWithPrefix())
                                         .replace(message)
                                         .send(event.getWhoClicked());
@@ -93,6 +92,7 @@ public class MessageEditMenu extends OMenu {
                                     .send(player);
                             sendMessage.run();
                         });
+
                         chatCommands.appendCommand("setSubTitle", (player, args) -> {
                             String content = mergeText(args);
                             ((SMineTitleMessage) message).setSubTitle(content);
@@ -101,6 +101,7 @@ public class MessageEditMenu extends OMenu {
                                     .send(player);
                             sendMessage.run();
                         });
+
                         chatCommands.appendCommand("setFadeIn", (player, args) -> {
                             int fadeIn = Integer.parseInt(args[0]);
                             ((SMineTitleMessage) message).setFadeIn(fadeIn);
@@ -109,6 +110,7 @@ public class MessageEditMenu extends OMenu {
                                     .send(player);
                             sendMessage.run();
                         });
+
                         chatCommands.appendCommand("setStay", (player, args) -> {
                             int stay = Integer.parseInt(args[0]);
                             ((SMineTitleMessage) message).setStay(stay);
@@ -117,6 +119,7 @@ public class MessageEditMenu extends OMenu {
                                     .send(player);
                             sendMessage.run();
                         });
+
                         chatCommands.appendCommand("setFadeOut", (player, args) -> {
                             int fadeOut = Integer.parseInt(args[0]);
                             ((SMineTitleMessage) message).setFadeOut(fadeOut);
@@ -127,12 +130,15 @@ public class MessageEditMenu extends OMenu {
                         });
                     }
 
+                    chatCommands.appendCommand("cancel", (player, args) -> {
+                        refresh();
+                        cancel.set(true);
+                    });
+
                     chatCommands.appendCommand("save", (player, args) -> {
                         messageBuilder(LocaleEnum.EDIT_MESSAGE_SAVE.getWithPrefix()).replace(message).send(player);
                         messages.getMine().save(true);
-                        message.setTimeToRun(null);
                         refresh();
-                        previousMove = true;
                         cancel.set(true);
                     });
 

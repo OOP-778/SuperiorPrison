@@ -23,7 +23,7 @@ import com.oop.orangeengine.command.CommandController;
 import com.oop.orangeengine.main.Helper;
 import com.oop.orangeengine.main.plugin.EnginePlugin;
 import com.oop.orangeengine.main.task.ClassicTaskController;
-import com.oop.orangeengine.main.task.ITaskController;
+import com.oop.orangeengine.main.task.TaskController;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
@@ -61,8 +61,6 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
                 return;
             }
 
-            getOLogger().setDebugMode(true);
-
             new MenuListener();
             this.configController = new ConfigController();
             getPluginComponentController()
@@ -80,7 +78,6 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
                 getDataFolder().mkdirs();
 
             this.databaseController = new DatabaseController(mainConfig);
-
             this.statisticsController = databaseController.getStatisticHolder();
             this.prestigeController = new PrestigeController(true);
             this.rankController = new RankController(true);
@@ -101,13 +98,8 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
             // Initialize tasks
             new TasksStarter();
 
-            CommandController commandController = new CommandController(this);
-            if (getMainConfig().getCommandColors() != null)
-                commandController.setColorScheme(getMainConfig().getCommandColors().getScheme());
-
-            CommandsRegister.register(commandController);
-
-            getOLogger().printWarning("SuperiorPrison is in alpha mode, running publicly is not recommended!");
+            // Register commands
+            CommandsRegister.register();
         } catch (Throwable thrw) {
             throw new IllegalStateException("Failed to start SuperiorPrison", thrw);
         }
@@ -116,16 +108,14 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
     @Override
     public void disable() {
         if (getDatabaseController() != null && getDatabaseController().getDatabase() != null)
-            getDatabaseController().save();
+            getDatabaseController().save(false);
 
         Bukkit.getOnlinePlayers().forEach(player -> player.kickPlayer(Helper.color("&cPrison shutting down...")));
-
         instance = null;
-        disabling = true;
     }
 
     @Override
-    public ITaskController provideTaskController() {
+    public TaskController provideTaskController() {
         return new ClassicTaskController(this);
     }
 

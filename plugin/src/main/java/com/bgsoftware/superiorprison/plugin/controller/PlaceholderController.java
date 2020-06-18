@@ -90,7 +90,7 @@ public class PlaceholderController {
         add(SMineChatMessage.class, "{message_content}", message -> message.getContent() == null ? "None" : message.getContent());
         add(SMineActionBarMessage.class, "{message_content}", message -> message.getContent() == null ? "None" : message.getContent());
 
-        add(SMineTitleMessage.class, "{message_title}", message -> message.getTitle().orElse("None"));
+        add(SMineTitleMessage.class, "{message_title}", SMineTitleMessage::getTitle);
         add(SMineTitleMessage.class, "{message_subTitle}", message -> message.getSubTitle().orElse("None"));
         add(SMineTitleMessage.class, "{message_fadeIn}", SMineTitleMessage::getFadeIn);
         add(SMineTitleMessage.class, "{message_stay}", SMineTitleMessage::getStay);

@@ -10,12 +10,16 @@ buildscript {
     }
 }
 
+def props = new Properties()
+file("version.properties").withInputStream { props.load(it) }
+
+def global_version = props.getProperty("version").toString()
+
 group 'SuperiorPrison'
 apply plugin: 'maven'
 apply plugin: 'base'
 
 allprojects {
-    version = '0.0.7-BETA'
     apply plugin: 'java'
     apply plugin: 'com.github.johnrengelman.shadow'
 
@@ -87,7 +91,7 @@ allprojects {
         eachFile { details ->
             if (details.name.contentEquals('plugin.yml')) {
                 filter { String line ->
-                    line.replaceAll('\\$\\{project.version\\}', version)
+                    line.replaceAll('\\$\\{project.version\\}', global_version)
                 }
             }
         }

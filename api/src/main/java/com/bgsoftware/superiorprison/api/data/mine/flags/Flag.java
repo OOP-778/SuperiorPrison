@@ -8,7 +8,6 @@ import java.util.Set;
 public enum Flag {
 
     PVP(false, "Should players be able to hit each other"),
-    NIGHT_VISION(true, "Apply night vision to prisoners"),
     FALL_DAMAGE(false, "Toggle fall damage"),
     HUNGER(true, "Toggle hunger");
 

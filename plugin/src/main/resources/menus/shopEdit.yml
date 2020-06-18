@@ -1,4 +1,4 @@
-title: "&eEditing &6{mine_name}&e shop!"
+title: "&dEditing &5{mine_name}&d shop!"
 
 templates:
   - "shop item:S"
@@ -16,38 +16,38 @@ layout:
 
 buttons:
   "&":
-    material: yellow_stained_glass_pane
+    material: pink_stained_glass_pane
     display name: "&r"
 
   "P":
     shown:
       material: arrow
-      display name: "&e<<"
+      display name: "&d<<"
       lore:
         - "&7Click to go to"
         - "&7The previous page!"
 
     hidden:
-      material: yellow_stained_glass_pane
+      material: pink_stained_glass_pane
       display name: "&r"
 
   "N":
     shown:
       material: arrow
-      display name: "&e>>"
+      display name: "&d>>"
       lore:
         - "&7Click to go to"
         - "&7The next page!"
 
     hidden:
-      material: yellow_stained_glass_pane
+      material: pink_stained_glass_pane
       display name: "&r"
 
   "S":
     material: red_stained_glass_pane
-    display name: "&e{item_name}"
+    display name: "&d{item_name}"
     lore:
-      - "&e&l* &7Price: &e{item_price}$"
+      - "&d&l* &7Price: &d{item_price}$"
       - ""
       - "&aLeft-Click to edit"
       - "&cRight-Click to remove"

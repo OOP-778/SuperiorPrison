@@ -44,7 +44,7 @@ import static com.oop.orangeengine.main.Engine.getEngine;
 @EqualsAndHashCode
 public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mine.MineGenerator, Attachable<SuperiorMine>, SerializableObject {
 
-    private transient SuperiorMine mine;
+    private transient SNormalMine mine;
 
     private List<OPair<Double, OMaterial>> generatorMaterials = new ArrayList<>();
     private transient Instant lastReset;
@@ -109,7 +109,6 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
 
         World world = getMine().getWorld();
         ZonedDateTime dateTime = getDate();
-
         Set<ChunkResetData> data = new HashSet<>();
 
         for (int index = 0; index < blocksInRegion; index++) {
@@ -120,7 +119,9 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
             ChunkResetData chunkResetData = SuperiorPrisonPlugin.getInstance().getMineController().addResetBlock(location, material,
                     () -> {
                         long l = blocksRegenerated.incrementAndGet();
+                        //System.out.println("Completed " + l + "/" + blocksInRegion);
                         if (l >= blocksInRegion) {
+                            ClassDebugger.debug("Finished mine resetting. Prisoners count: " + mine.getPrisoners().size());
                             SuperiorPrisonPlugin.getInstance().getNms().refreshChunks(world, cachedLocations, mine.getPrisoners().stream().filter(Prisoner::isOnline).map(Prisoner::getPlayer).collect(Collectors.toSet()));
                             blocksRegenerated.set(0);
                             blockData.reset();
@@ -128,6 +129,7 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
                             SuperiorPrisonPlugin.getInstance().getOLogger().printDebug("Finished reseting mine. Took " + (Duration.between(dateTime, getDate()).getSeconds() + "s"));
                             locationsQueue.reset();
                             resetting = false;
+                            data.clear();
                         }
                     });
             data.add(chunkResetData);
@@ -223,7 +225,7 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
 
     @Override
     public void attach(SuperiorMine obj) {
-        this.mine = obj;
+        this.mine = (SNormalMine) obj;
         this.mineArea = (SArea) obj.getArea(AreaEnum.MINE);
         this.blockData.attach(this);
         initCache(null);

@@ -21,7 +21,6 @@ public class MainConfig {
     private long soldMessageInterval = TimeUnit.MINUTES.toMillis(3);
     private DatabaseSection database;
     private MineDefaultsSection mineDefaults;
-    private CommandColorsSection commandColors;
 
     private OItem areaSelectionTool;
 
@@ -44,7 +43,6 @@ public class MainConfig {
         this.areaSelectionTool = new OItem().load(configuration.getSection("area selection tool").get());
 
         configuration.ifValuePresent("shopgui fall back", boolean.class, b -> shopGuiAsFallBack = b);
-        configuration.ifSectionPresent("command colors", section -> commandColors = new CommandColorsSection(section));
 
         cacheTime = TimeUtil.toSeconds(configuration.getAs("blocks cache time limit", String.class, () -> "1h"));
         soldMessageInterval = TimeUtil.toSeconds(configuration.getAs("sold message interval", String.class, () -> "3m"));

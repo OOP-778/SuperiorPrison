@@ -29,6 +29,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
@@ -68,6 +69,17 @@ public class PrisonerListener {
                     );
         });
 
+        SyncEvents.listen(EntityDamageEvent.class, event -> {
+           if (!(event.getEntity() instanceof Player)) return;
+           Player player = (Player) event.getEntity();
+
+           SPrisoner prisoner = SuperiorPrisonPlugin.getInstance().getPrisonerController().getInsertIfAbsent(player);
+           if (!prisoner.getCurrentMine().isPresent()) return;
+
+           if (event.getCause().name().contains("FALL"))
+               event.setCancelled(true);
+        });
+
         SyncEvents.listen(PlayerQuitEvent.class, event -> {
             SPrisoner prisoner = SuperiorPrisonPlugin.getInstance().getDatabaseController().getPrisonerHolder().getInsertIfAbsent(event.getPlayer());
             prisoner.getCurrentMine().ifPresent(mine -> {
@@ -98,8 +110,9 @@ public class PrisonerListener {
             SArea area = (SArea) minePair.getKey().getArea(minePair.getValue());
 
             // Prisoner is modifying region environment
-            if (area.getType() != AreaEnum.MINE && !event.getPlayer().hasPermission("superiorprison.flags.bypass")) {
-                event.setCancelled(true);
+            if (area.getType() == AreaEnum.REGION) {
+                if (!event.getPlayer().hasPermission("prison.admin.bypass"))
+                    event.setCancelled(true);
                 return;
             }
 
@@ -140,7 +153,7 @@ public class PrisonerListener {
                     drops.add(new ItemStack(event.getBlock().getType(), 1, event.getBlock().getData()));
 
                 else
-                    drops.addAll(event.getBlock().getDrops());
+                    drops.addAll(event.getBlock().getDrops(new ItemStack(tool.getItemStack())));
 
                 // Handle auto burn
                 if (prisoner.isAutoBurn()) {

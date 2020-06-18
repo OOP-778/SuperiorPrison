@@ -1,4 +1,4 @@
-title: "&eEditing &6{mine_name}&e access!"
+title: "&dEditing &5{mine_name}&d access!"
 
 templates:
   - "access template:R"
@@ -16,42 +16,42 @@ layout:
 
 buttons:
   "&":
-    material: yellow_stained_glass_pane
+    material: pink_stained_glass_pane
     display name: "&r"
 
   "P":
     shown:
       material: arrow
-      display name: "&e<<"
+      display name: "&d<<"
       lore:
         - "&7Click to go to"
         - "&7The previous page!"
 
     hidden:
-      material: yellow_stained_glass_pane
+      material: pink_stained_glass_pane
       display name: "&r"
 
   "N":
     shown:
       material: arrow
-      display name: "&e>>"
+      display name: "&d>>"
       lore:
         - "&7Click to go to"
         - "&7The next page!"
 
     hidden:
-      material: yellow_stained_glass_pane
+      material: pink_stained_glass_pane
       display name: "&r"
 
   "F":
     material: BOOK
-    display name: "&eFind"
+    display name: "&dFind"
 
   "S":
     material: LEVER
-    display name: "&eSort"
+    display name: "&dSort"
     lore:
-      - "&e&l* &7Sorted: {sort_method}"
+      - "&d&l* &7Sorted: {sort_method}"
       - ""
       - "&a&l(!)&7 Click to change"
       - "&7Sort method"
@@ -60,7 +60,7 @@ buttons:
     material: DIAMOND
     display name: "{access_name}"
     lore:
-      - "&e&l* &7Type: &e{access_type}"
-      - "&e&l* &7Prefix: &e{access_prefix}"
+      - "&d&l* &7Type: &d{access_type}"
+      - "&d&l* &7Prefix: &d{access_prefix}"
       - ""
       - "&c&l(!)&7 Click to remove"

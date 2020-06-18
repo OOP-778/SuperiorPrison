@@ -1,4 +1,4 @@
-title: "&e&l{mine_name} &8&l> &6Message: #{message_id}"
+title: "&d&l{mine_name} &8&l> &5Message: #{message_id}"
 
 actions:
   - "interval:I"
@@ -15,24 +15,24 @@ buttons:
     display name: "&r"
 
   "#":
-    material: orange_stained_glass_pane
+    material: pink_stained_glass_pane
     display name: "&r"
 
   "M":
     material: paper
-    display name: "&eMessage #{message_id}"
+    display name: "&dMessage #{message_id}"
     lore:
-      - "&e&l* &7Type: &e{message_type}"
-      - "&e&l* &7Interval: &e{message_interval}"
+      - "&d&l* &7Type: &d{message_type}"
+      - "&d&l* &7Interval: &d{message_interval}"
 
   "C":
     material: book
-    display name: "&eContent"
+    display name: "&dContent"
     lore:
-      - "&e&l* &7Click to edit"
+      - "&d&l* &7Click to edit"
 
   "I":
     material: clock
-    display name: "&eInterval"
+    display name: "&dInterval"
     lore:
-      - "&e&l* &7Click to edit"
+      - "&d&l* &7Click to edit"

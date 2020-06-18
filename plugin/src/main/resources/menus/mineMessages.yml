@@ -1,4 +1,4 @@
-title: "&e&l{mine_name} &8&l> &6Messages"
+title: "&d&l{mine_name} &8&l> &5Messages"
 
 templates:
   - "message:M"
@@ -21,13 +21,13 @@ buttons:
     display name: "&r"
 
   "#":
-    material: orange_stained_glass_pane
+    material: pink_stained_glass_pane
     display name: "&r"
 
   "P":
     shown:
       material: arrow
-      display name: "&e<<"
+      display name: "&d<<"
       lore:
         - "&7Click to go to"
         - "&7The previous page!"
@@ -39,7 +39,7 @@ buttons:
   "N":
     shown:
       material: arrow
-      display name: "&e>>"
+      display name: "&d>>"
       lore:
         - "&7Click to go to"
         - "&7The next page!"
@@ -50,22 +50,22 @@ buttons:
 
   "I":
     material: book
-    display name: "&eInfo"
+    display name: "&dInfo"
     lore:
       - "&cSoon."
 
   "C":
     material: paper
-    display name: "&eCreate New"
+    display name: "&dCreate New"
     lore:
       - "&7Create new message"
 
   "M":
     material: paper
-    display name: "&e#{message_id}"
+    display name: "&d#{message_id}"
     lore:
-      - "&e&l* &7Type: &e{message_type}"
-      - "&e&l* &7Every: &e{message_interval}"
+      - "&d&l* &7Type: &d{message_type}"
+      - "&d&l* &7Every: &d{message_interval}"
       - ""
       - "&aLeft-Click to edit"
       - "&cRight-Click to remove"

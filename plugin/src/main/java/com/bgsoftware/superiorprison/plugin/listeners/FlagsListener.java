@@ -60,13 +60,6 @@ public class FlagsListener {
 
         // Hunger flag
         SyncEvents.listen(FoodLevelChangeEvent.class, event -> check((Player) event.getEntity(), Flag.HUNGER, event.getEntity().getLocation(), event));
-
-        // Night Vision flag
-        SyncEvents.listen(MineEnterEvent.class, event -> {
-            Area area = event.getArea();
-            if (area.getFlagState(Flag.NIGHT_VISION))
-                event.getPrisoner().getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 999999999, 1, false, false));
-        });
     }
 
     public void check(Player player, Flag flag, Location location, Cancellable event) {

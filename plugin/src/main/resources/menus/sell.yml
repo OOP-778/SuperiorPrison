@@ -1,4 +1,4 @@
-title: "&6Add your items to sell"
+title: "&5Add your items to sell"
 
 actions:
   - "sell:S"
@@ -16,7 +16,7 @@ buttons:
 
   "S":
     material: book
-    display name: "&eSell"
+    display name: "&dSell"
     lore:
       - "&7Click to sell"
       - "&7All the items!"

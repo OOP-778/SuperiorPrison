@@ -1,6 +1,6 @@
 package com.bgsoftware.superiorprison.api.event;
 
-import com.bgsoftware.superiorprison.api.data.mine.shop.ShopItemWrapped;
+import com.bgsoftware.superiorprison.api.data.mine.shop.ShopItemMutable;
 import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 import lombok.Getter;
 import org.bukkit.event.Cancellable;
@@ -15,11 +15,11 @@ public class AutoSellEvent extends PrisonerEvent implements Cancellable {
     private ItemStack itemStack;
 
     @Getter
-    private ShopItemWrapped shopItem;
+    private ShopItemMutable shopItem;
 
     private boolean cancelled = false;
 
-    public AutoSellEvent(Prisoner prisoner, ItemStack itemStack, ShopItemWrapped shopItem) {
+    public AutoSellEvent(Prisoner prisoner, ItemStack itemStack, ShopItemMutable shopItem) {
         super(prisoner);
         this.itemStack = itemStack;
         this.shopItem = shopItem;

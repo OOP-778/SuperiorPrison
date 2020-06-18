@@ -79,7 +79,7 @@ public class GeneratorEditMenu extends OPagedMenu<OPair<Double, OMaterial>> impl
                         LocaleEnum.EDIT_GENERATOR_WRITE_RATE.getWithPrefix().send(event.getWhoClicked());
 
                         Runnable onCancel = () -> {
-                            refreshMenus(GeneratorEditMenu.class, menu -> menu.getMine().equals(mine));
+                            //refreshMenus(GeneratorEditMenu.class, menu -> menu.getMine().equals(mine));
                             refresh();
                         };
                         Input

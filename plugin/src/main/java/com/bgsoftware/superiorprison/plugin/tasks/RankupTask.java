@@ -36,6 +36,8 @@ public class RankupTask extends OTask {
                     .filter(prisoner -> cache.getIfPresent(prisoner.getUUID()) == null || !cache.getIfPresent(prisoner.getUUID()).contentEquals(prisoner.getCurrentLadderRank().getName()))
                     .filter(prisoner -> {
                         LadderRank rank = prisoner.getCurrentLadderRank();
+                        if (rank == null) return false;
+
                         Optional<SLadderRank> next = rank.getNext().map(r -> (SLadderRank) r);
                         if (!next.isPresent()) return false;
 

@@ -10,6 +10,7 @@ import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messag
 public class CmdDelete extends OCommand {
     public CmdDelete() {
         label("delete");
+        description("Delete a mine");
         argument(new MinesArg().setRequired(true));
         onCommand(command -> {
             SNormalMine mine = (SNormalMine) command.getArg("mine").get();

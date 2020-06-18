@@ -29,7 +29,10 @@ public class SMineTitleMessage extends SMineMessage implements MineTitleMessage 
     private int stay;
 
     @Getter
-    private Optional<String> title, subTitle;
+    private String title;
+
+    @Getter
+    private Optional<String> subTitle;
 
     public SMineTitleMessage() {
         super(0);
@@ -40,7 +43,7 @@ public class SMineTitleMessage extends SMineMessage implements MineTitleMessage 
         this.fadeIn = fadeIn;
         this.fadeOut = fadeOut;
         this.stay = stay;
-        this.title = Optional.ofNullable(title);
+        this.title = title;
         this.subTitle = Optional.ofNullable(subTitle);
     }
 
@@ -54,7 +57,7 @@ public class SMineTitleMessage extends SMineMessage implements MineTitleMessage 
         super.serialize(serializedData);
         serializedData.write("type", "title");
 
-        title.ifPresent(s -> serializedData.write("title", s));
+        serializedData.write("title", title);
         subTitle.ifPresent(s -> serializedData.write("subtitle", s));
 
         serializedData.write("fadeIn", fadeIn);
@@ -65,7 +68,7 @@ public class SMineTitleMessage extends SMineMessage implements MineTitleMessage 
     @Override
     public void deserialize(SerializedData serializedData) {
         super.deserialize(serializedData);
-        title = serializedData.getElement("title").map(JsonElement::getAsString);
+        title = serializedData.getElement("title").map(JsonElement::getAsString).get();
         subTitle = serializedData.getElement("subtitle").map(JsonElement::getAsString);
         fadeIn = serializedData.applyAs("fadeIn", int.class);
         stay = serializedData.applyAs("stay", int.class);
@@ -74,10 +77,10 @@ public class SMineTitleMessage extends SMineMessage implements MineTitleMessage 
 
     @Override
     public void send(CommandSender sender) {
-        if (!title.isPresent() && !subTitle.isPresent()) return;
+        if (title == null && !subTitle.isPresent()) return;
         if (!(sender instanceof Player)) return;
 
-        String[] title = new String[]{this.title.orElse("")};
+        String[] title = new String[]{this.title};
         String[] subTitle = new String[]{this.subTitle.orElse("")};
 
         SuperiorPrisonPlugin.getInstance().getHookController().executeIfFound(() -> PapiHook.class, hook -> {
@@ -93,6 +96,6 @@ public class SMineTitleMessage extends SMineMessage implements MineTitleMessage 
     }
 
     public void setTitle(String title) {
-        this.title = Optional.ofNullable(title);
+        this.title = title;
     }
 }

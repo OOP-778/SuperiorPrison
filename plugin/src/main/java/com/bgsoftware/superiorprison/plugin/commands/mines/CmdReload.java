@@ -10,15 +10,15 @@ public class CmdReload extends OCommand {
 
     public CmdReload() {
         label("reload");
+        description("reload the plugin");
         permission("superiorprison.reload");
-        ableToExecute(Player.class);
 
         onCommand(command -> {
             try {
                 SuperiorPrisonPlugin.getInstance().getPluginComponentController().reload();
-                LocaleEnum.PLUGIN_RELOADED.getWithPrefix().send(command.getSenderAsPlayer());
+                LocaleEnum.PLUGIN_RELOADED.getWithPrefix().send(command.getSender());
             } catch (Throwable thrw) {
-                LocaleEnum.PLUGIN_FAILED_RELOAD.getWithErrorPrefix().send(command.getSenderAsPlayer());
+                LocaleEnum.PLUGIN_FAILED_RELOAD.getWithErrorPrefix().send(command.getSender());
                 Bukkit.getPluginManager().disablePlugin(SuperiorPrisonPlugin.getInstance());
                 throw new IllegalStateException("Failed to reload SuperiorPrison", thrw);
             }

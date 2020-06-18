@@ -26,7 +26,7 @@ public class MinesListMenu extends OPagedMenu<SNormalMine> implements OMenu.Temp
                         SNormalMine mine = requestObject(event.getRawSlot());
                         event.getWhoClicked().teleport(mine.getSpawnPoint());
 
-                    } else if (event.getClick().name().contains("SHIFT") && event.getWhoClicked().hasPermission("superiorprison.admin"))
+                    } else if (event.getClick().name().contains("SHIFT") && event.getWhoClicked().hasPermission("prison.admin.editmine"))
                         move(new MineControlPanel(getViewer(), requestObject(event.getRawSlot())));
                 })
                 .apply(this);

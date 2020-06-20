@@ -61,6 +61,8 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
                 return;
             }
 
+            getOLogger().setDebugMode(true);
+
             new MenuListener();
             this.configController = new ConfigController();
             getPluginComponentController()

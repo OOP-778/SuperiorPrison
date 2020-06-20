@@ -4,6 +4,7 @@ import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.menu.control.MineControlPanel;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
+import com.bgsoftware.superiorprison.plugin.util.ClassDebugger;
 import com.bgsoftware.superiorprison.plugin.util.menu.ClickHandler;
 import com.bgsoftware.superiorprison.plugin.util.menu.OMenu;
 import com.bgsoftware.superiorprison.plugin.util.menu.OMenuButton;
@@ -20,6 +21,9 @@ public class MinesListMenu extends OPagedMenu<SNormalMine> implements OMenu.Temp
         ClickHandler
                 .of("mine click")
                 .handle(event -> {
+
+                    ClassDebugger.debug("Has Permission?: " + event.getWhoClicked().hasPermission("prison.admin.editmine"));
+
                     // If normal click
                     if (event.getClick() == ClickType.RIGHT || event.getClick() == ClickType.LEFT) {
                         //TODO: Add teleport timer and move check

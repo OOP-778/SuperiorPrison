@@ -171,7 +171,7 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
                 worldLoadWait = false;
                 initCache(whenFinished);
 
-            }, new SubscriptionProperties<WorldLoadEvent>().timeOut(TimeUnit.SECONDS, 3).filter(event -> event.getWorld().getName().equals(mineArea.getMinPoint().getWorld().getName())));
+            }, new SubscriptionProperties<WorldLoadEvent>().timeOut(TimeUnit.SECONDS, 3).filter(event -> event.getWorld().getName().equals(mineArea.getMinPointSP().worldName())));
             return;
         }
 

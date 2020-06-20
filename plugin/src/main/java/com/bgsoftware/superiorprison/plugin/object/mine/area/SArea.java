@@ -52,6 +52,14 @@ public class SArea implements Area, Attachable<SNormalMine>, SerializableObject 
         return minPoint.toBukkit();
     }
 
+    public SPLocation getMinPointSP() {
+        return minPoint;
+    }
+
+    public SPLocation getHighPointSP() {
+        return highPoint;
+    }
+
     @Override
     public Location getHighPoint() {
         return highPoint.toBukkit();

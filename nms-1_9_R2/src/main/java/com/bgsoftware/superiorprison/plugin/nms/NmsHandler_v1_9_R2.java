@@ -25,7 +25,7 @@ public class NmsHandler_v1_9_R2 implements SuperiorNms {
         ChunkSection chunkSection = nmsChunk.getSections()[indexY];
 
         if (chunkSection == null)
-            chunkSection = nmsChunk.getSections()[indexY] = new ChunkSection(indexY << 4, nmsChunk.world.worldProvider.m());
+            chunkSection = nmsChunk.getSections()[indexY] = new ChunkSection(indexY << 4, !nmsChunk.world.worldProvider.m());
 
         chunkSection.setType(location.getBlockX() & 15, location.getBlockY() & 15, location.getBlockZ() & 15, data);
     }

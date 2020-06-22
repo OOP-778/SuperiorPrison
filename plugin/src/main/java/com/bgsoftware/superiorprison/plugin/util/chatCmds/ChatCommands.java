@@ -3,6 +3,7 @@ package com.bgsoftware.superiorprison.plugin.util.chatCmds;
 import com.google.common.collect.Maps;
 import com.oop.orangeengine.main.Helper;
 import lombok.Setter;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
@@ -27,7 +28,7 @@ public class ChatCommands {
         event.setCancelled(true);
         if (commandMap.isEmpty()) return;
 
-        String message = event.getMessage();
+        String message = ChatColor.stripColor(event.getMessage());
         event.setMessage("");
 
         // Try to find labels
@@ -35,6 +36,7 @@ public class ChatCommands {
                 .stream()
                 .filter(label -> message.toLowerCase().startsWith(label.toLowerCase()))
                 .findFirst();
+
         if (!first.isPresent()) {
             try {
                 throw new IllegalStateException("Failed to find command by " + message);
@@ -47,6 +49,7 @@ public class ChatCommands {
             }
             return;
         }
+
         BiConsumer<Player, String[]> cmd = commandMap.get(first.get());
         String[] noLabelMessage = message.split(first.get());
         String[] args = new String[0];

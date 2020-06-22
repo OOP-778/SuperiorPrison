@@ -22,6 +22,7 @@ public class ConfigController implements OComponent<SuperiorPrisonPlugin> {
     private Config minesRewardsConfig;
     private Config ranksConfig;
     private Config prestigesConfig;
+    private Config chatConfig;
     private final Map<String, Config> menus = Maps.newHashMap();
 
     public ConfigController() {}
@@ -35,7 +36,9 @@ public class ConfigController implements OComponent<SuperiorPrisonPlugin> {
             OFile localeFile = new OFile(dataFolder, "locale.yml").createIfNotExists();
             OFile ranksFile = new OFile(dataFolder, "ranks.yml").createIfNotExists(true);
             OFile prestigesFile = new OFile(dataFolder, "prestiges.yml").createIfNotExists(true);
+            OFile chatFile = new OFile(dataFolder, "chat.yml").createIfNotExists(true);
 
+            this.chatConfig = new Config(chatFile);
             this.localeConfig = new Config(localeFile);
             this.ranksConfig = new Config(ranksFile);
             this.prestigesConfig = new Config(prestigesFile);

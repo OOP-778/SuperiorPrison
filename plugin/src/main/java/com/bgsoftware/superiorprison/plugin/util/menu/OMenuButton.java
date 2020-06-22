@@ -3,6 +3,7 @@ package com.bgsoftware.superiorprison.plugin.util.menu;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.hook.impl.PapiHook;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
+import com.bgsoftware.superiorprison.plugin.util.ClassDebugger;
 import com.google.common.collect.Maps;
 import com.oop.orangeengine.item.ItemBuilder;
 import com.oop.orangeengine.item.custom.OItem;
@@ -168,6 +169,7 @@ public class OMenuButton implements Cloneable {
                 if (line.startsWith("<hp=")) {
                     inTags = true;
                     hasPerm = player.hasPermission(extractPermission(line));
+                    ClassDebugger.debug(player.getName() + " Has Permission " + extractPermission(line) + ": " + hasPerm);
                     continue;
 
                 } else if (inTags && line.equalsIgnoreCase("</hp>")) {

@@ -1,0 +1,32 @@
+# Chat formatting
+enabled: true
+
+formats:
+  "default":
+    format:
+      content:
+        1: "&8[%prison_prisoner_ladderrank_prefix%&8] "
+        2:
+          text: "&d%player_name% "
+          hover:
+            - "&5&l----------"
+            - " "
+            - "&d&l* &7Balance: %vault_eco_balance%"
+            - " "
+            - "&5&l----------"
+        3: "&7> %message%"
+
+  "vip":
+    order: 9999
+    permission: "prison.vip"
+    format:
+      content:
+        2:
+          text: "&d%player_name% "
+          hover:
+            - "&5&l----------"
+            - " "
+            - "&d&l* &7Balance: %vault_eco_balance%"
+            - " "
+            - "&5&l----------"
+        3: "&7> &b%message%"

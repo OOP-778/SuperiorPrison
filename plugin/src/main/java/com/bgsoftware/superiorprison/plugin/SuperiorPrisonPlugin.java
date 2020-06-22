@@ -44,6 +44,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
     private HookController hookController;
     private DatabaseController databaseController;
     private SStatisticHolder statisticsController;
+    private ChatController chatController;
     private SuperiorNms nms;
 
     public static SuperiorPrisonPlugin getInstance() {
@@ -60,8 +61,6 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
                 Bukkit.getPluginManager().disablePlugin(this);
                 return;
             }
-
-            getOLogger().setDebugMode(true);
 
             new MenuListener();
             this.configController = new ConfigController();
@@ -83,9 +82,13 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
             this.statisticsController = databaseController.getStatisticHolder();
             this.prestigeController = new PrestigeController(true);
             this.rankController = new RankController(true);
+            this.chatController = new ChatController();
+            chatController.load();
+
             getPluginComponentController()
                     .add(rankController, true)
-                    .add(prestigeController, true);
+                    .add(prestigeController, true)
+                    .add(chatController, true);
 
             this.placeholderController = new PlaceholderController();
             this.requirementController = new RequirementController();

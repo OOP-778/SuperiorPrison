@@ -11,7 +11,9 @@ import com.bgsoftware.superiorprison.api.event.mine.area.MineAreaChangeEvent;
 import com.bgsoftware.superiorprison.api.util.Pair;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
+import com.bgsoftware.superiorprison.plugin.hook.impl.PapiHook;
 import com.bgsoftware.superiorprison.plugin.hook.impl.VaultHook;
+import com.bgsoftware.superiorprison.plugin.object.chat.ChatFormat;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.mine.area.SArea;
 import com.bgsoftware.superiorprison.plugin.object.mine.effects.SMineEffect;
@@ -23,6 +25,7 @@ import com.oop.orangeengine.main.Helper;
 import com.oop.orangeengine.main.events.SyncEvents;
 import com.oop.orangeengine.main.task.OTask;
 import com.oop.orangeengine.material.OMaterial;
+import com.oop.orangeengine.message.OMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -30,6 +33,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
@@ -70,14 +74,14 @@ public class PrisonerListener {
         });
 
         SyncEvents.listen(EntityDamageEvent.class, event -> {
-           if (!(event.getEntity() instanceof Player)) return;
-           Player player = (Player) event.getEntity();
+            if (!(event.getEntity() instanceof Player)) return;
+            Player player = (Player) event.getEntity();
 
-           SPrisoner prisoner = SuperiorPrisonPlugin.getInstance().getPrisonerController().getInsertIfAbsent(player);
-           if (!prisoner.getCurrentMine().isPresent()) return;
+            SPrisoner prisoner = SuperiorPrisonPlugin.getInstance().getPrisonerController().getInsertIfAbsent(player);
+            if (!prisoner.getCurrentMine().isPresent()) return;
 
-           if (event.getCause().name().contains("FALL"))
-               event.setCancelled(true);
+            if (event.getCause().name().contains("FALL"))
+                event.setCancelled(true);
         });
 
         SyncEvents.listen(PlayerQuitEvent.class, event -> {
@@ -86,6 +90,8 @@ public class PrisonerListener {
                 prisoner.setLogoutMine(mine.getKey().getName());
                 prisoner.save(true);
             });
+
+            prisoner.clearCache();
         });
 
         SyncEvents.listen(BlockBreakEvent.class, EventPriority.LOWEST, event -> {
@@ -244,6 +250,22 @@ public class PrisonerListener {
                 event.setCancelled(true);
                 LocaleEnum.CANNOT_ENTER_MINE_MINE_NOT_READY.getWithPrefix().send(event.getPrisoner().getPlayer());
             }
+        });
+
+        SyncEvents.listen(AsyncPlayerChatEvent.class, EventPriority.HIGHEST, event -> {
+            if (!SuperiorPrisonPlugin.getInstance().getChatController().isEnabled()) return;
+            if (event.isCancelled()) return;
+
+            ChatFormat chatFormat = SuperiorPrisonPlugin.getInstance().getChatController().findHighest(SuperiorPrisonPlugin.getInstance().getPrisonerController().getInsertIfAbsent(event.getPlayer()));
+            if (chatFormat == null) return;
+
+            event.setCancelled(true);
+
+            OMessage clone = chatFormat.getFormat().clone();
+            clone.replace("%message%", event.getMessage());
+            SuperiorPrisonPlugin.getInstance().getHookController().executeIfFound(() -> PapiHook.class, hook -> clone.replace(in -> hook.parse(event.getPlayer(), (String) in)));
+
+            clone.send(Helper.getOnlinePlayers().toArray(new Player[0]));
         });
 
         SyncEvents.listen(MineLeaveEvent.class, EventPriority.LOWEST, event -> event.getMine().getEffects().get().forEach(effect -> event.getPrisoner().getPlayer().removePotionEffect(effect.getType())));

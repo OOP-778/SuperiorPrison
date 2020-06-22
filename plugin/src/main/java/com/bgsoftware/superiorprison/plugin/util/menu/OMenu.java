@@ -9,12 +9,14 @@ import com.bgsoftware.superiorprison.plugin.util.TextUtil;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.oop.orangeengine.main.task.OTask;
 import com.oop.orangeengine.main.task.StaticTask;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.yaml.Config;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
+import net.minecraft.server.v1_12_R1.CancelledPacketHandleException;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -26,6 +28,7 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -168,9 +171,7 @@ public abstract class OMenu implements InventoryHolder {
                 if (callback != null)
                     callback.run();
             });
-        }
-
-        else if (action == MenuAction.MOVE && moving != null) {
+        } else if (action == MenuAction.MOVE && moving != null) {
             currentAction = action;
             open(moving, () -> {
                 moving = null;
@@ -216,12 +217,11 @@ public abstract class OMenu implements InventoryHolder {
         }
 
         Inventory inventory = menu.getInventory();
+        Player player = viewer.getPlayer();
+        if (player == null)
+            return;
 
-        StaticTask.getInstance().sync(() -> {
-            Player player = viewer.getPlayer();
-            if (player == null)
-                return;
-
+        StaticTask.getInstance().ensureSync(() -> {
             player.openInventory(inventory);
 
             if (callback != null)

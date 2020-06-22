@@ -138,7 +138,8 @@ public class CmdCreate extends OCommand {
                     creating.invalidate(player.getUniqueId());
                     posSelectEvent.get().end();
                 }
-            }, new SubscriptionProperties<PlayerInteractEvent>().timeOut(TimeUnit.MINUTES, 5)
+            }, new SubscriptionProperties<PlayerInteractEvent>()
+                    .timeOut(TimeUnit.MINUTES, 5)
                     .priority(EventPriority.HIGHEST)
                     .timesToRun(-1)
                     .filter(posEvent -> posEvent.getPlayer().equals(player) && MutliVerUtil.isPrimaryHand(posEvent) && SuperiorPrisonPlugin.getInstance().getMainConfig().getAreaSelectionTool().getItemStack().equals(posEvent.getItem()) && posEvent.getClickedBlock() != null)));

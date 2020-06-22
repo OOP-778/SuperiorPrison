@@ -386,4 +386,8 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
     public void save(boolean async) {
         SuperiorPrisonPlugin.getInstance().getDatabaseController().getStorage(SPrisonerHolder.class).save(this, async);
     }
+
+    public void clearCache() {
+        cachedPlayer = null;
+    }
 }

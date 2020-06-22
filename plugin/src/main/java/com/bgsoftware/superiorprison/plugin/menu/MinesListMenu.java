@@ -9,6 +9,7 @@ import com.bgsoftware.superiorprison.plugin.util.menu.ClickHandler;
 import com.bgsoftware.superiorprison.plugin.util.menu.OMenu;
 import com.bgsoftware.superiorprison.plugin.util.menu.OMenuButton;
 import com.bgsoftware.superiorprison.plugin.util.menu.OPagedMenu;
+import com.oop.orangeengine.item.custom.OItem;
 import com.oop.orangeengine.material.OMaterial;
 import org.bukkit.event.inventory.ClickType;
 
@@ -30,8 +31,10 @@ public class MinesListMenu extends OPagedMenu<SNormalMine> implements OMenu.Temp
                         SNormalMine mine = requestObject(event.getRawSlot());
                         event.getWhoClicked().teleport(mine.getSpawnPoint());
 
-                    } else if (event.getClick().name().contains("SHIFT") && event.getWhoClicked().hasPermission("prison.admin.editmine"))
+                    } else if (event.getClick().name().contains("SHIFT") && event.getWhoClicked().hasPermission("prison.admin.editmine")) {
+                        System.out.println("Moving");
                         move(new MineControlPanel(getViewer(), requestObject(event.getRawSlot())));
+                    }
                 })
                 .apply(this);
     }

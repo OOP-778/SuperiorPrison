@@ -117,3 +117,6 @@ permissions:
 
           prison.admin.bypass:
             description: "Bypass block break check for region area"
+
+          prison.admin.updates:
+            description: "Receive updates for new versions!"

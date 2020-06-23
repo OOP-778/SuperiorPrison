@@ -105,6 +105,13 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
 
             // Register commands
             CommandsRegister.register();
+
+            if (Updater.isOutdated()) {
+                getOLogger().printWarning("");
+                getOLogger().printWarning("A new version is available {}!", Updater.getLatestVersion());
+                getOLogger().printWarning("Version's Description: {}", Updater.getVersionDescription());
+                getOLogger().printWarning("");
+            }
         } catch (Throwable thrw) {
             throw new IllegalStateException("Failed to start SuperiorPrison", thrw);
         }

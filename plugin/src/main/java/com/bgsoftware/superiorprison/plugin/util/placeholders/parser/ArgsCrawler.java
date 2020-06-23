@@ -26,6 +26,7 @@ public class ArgsCrawler {
     }
 
     public String current() {
+        if (index == -1) index = 0;
         return args[index];
     }
 

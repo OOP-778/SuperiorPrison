@@ -1,0 +1,35 @@
+global options:
+  # If a backpack is bound to only one player
+  # If set to true, when others will try to open the backpack, it's gonna be empty
+  player bound: false
+
+"minerBackPack":
+  item:
+    material: chest
+    display name: "&cMiner's Backpack ({backpack_level})"
+    lore:
+      - "&5Store your mined blocks"
+      - "&d&l* &7Capacity: &d{backpack_capacity}"
+      - "&d&l* &7Used: &d{backpack_used}"
+
+  # How much rows the backpack has?
+  # The rows + menu design cannot exceed the minecraft limit of inventory size!
+  rows: 2
+
+  # How many pages will the backpack have?
+  pages: 1
+
+  # Upgrades for the backpack
+  # The default backpack is level 1, so next is 2
+  upgrades:
+    "2":
+      rows: 2
+      pages: 2
+      description:
+        - "&cGain +1 page"
+
+    "3":
+      rows: 2
+      pages: 3
+      description:
+        - "&cGain +1 page"

@@ -20,9 +20,8 @@ public class Updater {
         setLatestVersion();
     }
 
-    //Just so no one would be able to call the constructor
-    private Updater() {
-    }
+    // Just so no one would be able to call the constructor
+    private Updater() {}
 
     public static boolean isOutdated() {
         return !plugin.getDescription().getVersion().equals(latestVersion);

@@ -9,8 +9,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 @Getter
 public abstract class SHook {
-    private @NonNull
-    final JavaPlugin plugin;
+    private @NonNull final JavaPlugin plugin;
     private boolean loaded;
 
     @Setter

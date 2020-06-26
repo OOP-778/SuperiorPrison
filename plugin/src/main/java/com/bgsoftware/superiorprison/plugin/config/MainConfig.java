@@ -21,8 +21,9 @@ public class MainConfig {
     private long soldMessageInterval = TimeUnit.MINUTES.toMillis(3);
     private DatabaseSection database;
     private MineDefaultsSection mineDefaults;
-
     private OItem areaSelectionTool;
+
+    private long rankupMessageInterval;
 
     public MainConfig() {
         load();
@@ -46,6 +47,7 @@ public class MainConfig {
 
         cacheTime = TimeUtil.toSeconds(configuration.getAs("blocks cache time limit", String.class, () -> "1h"));
         soldMessageInterval = TimeUtil.toSeconds(configuration.getAs("sold message interval", String.class, () -> "3m"));
+        rankupMessageInterval = TimeUtil.toSeconds(configuration.getAs("rankup message interval", String.class, () -> "6s"));
         configuration.save();
     }
 }

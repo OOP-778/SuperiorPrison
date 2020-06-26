@@ -15,6 +15,10 @@ public class ClassDebugger {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-        getEngine().getLogger().printDebug("<{}:{}>: {}", clazz.getSimpleName(), methodName, object);
+        try {
+            getEngine().getLogger().printDebug("<{}:{}>: {}", clazz.getSimpleName(), methodName, object);
+        } catch (InternalError error) {
+            getEngine().getLogger().printDebug("<{}>: {}", "Malformed", object);
+        }
     }
 }

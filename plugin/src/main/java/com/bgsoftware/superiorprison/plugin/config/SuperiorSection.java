@@ -5,6 +5,8 @@ import com.oop.orangeengine.yaml.ConfigSection;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Map;
+
 @Getter
 public abstract class SuperiorSection {
 

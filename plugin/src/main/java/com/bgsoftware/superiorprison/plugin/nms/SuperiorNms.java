@@ -13,7 +13,5 @@ import java.util.Set;
 public interface SuperiorNms {
     void setBlock(Chunk chunk, Location location, OMaterial material);
 
-    default void refreshChunks(World world, Map<Chunk, Set<Location>> locations) {}
-
-    default void refreshChunks(World world, Map<Chunk, Set<Location>> locations, Collection<Player> players) {}
+    void refreshChunks(World world, Map<Chunk, Set<Location>> locations, Collection<Player> players);
 }

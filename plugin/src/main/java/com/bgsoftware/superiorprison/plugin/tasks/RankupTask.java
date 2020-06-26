@@ -25,7 +25,7 @@ public class RankupTask extends OTask {
 
     public RankupTask() {
         sync(false);
-        delay(TimeUnit.SECONDS, 6);
+        delay(TimeUnit.SECONDS, SuperiorPrisonPlugin.getInstance().getMainConfig().getRankupMessageInterval());
         repeat(true);
         runnable(() -> {
             if (SuperiorPrisonPlugin.disabling) return;
@@ -33,6 +33,7 @@ public class RankupTask extends OTask {
                     .stream()
                     .parallel()
                     .filter(SPrisoner::isOnline)
+                    .filter(prisoner -> prisoner.getCurrentMine().isPresent())
                     .filter(prisoner -> cache.getIfPresent(prisoner.getUUID()) == null || !cache.getIfPresent(prisoner.getUUID()).contentEquals(prisoner.getCurrentLadderRank().getName()))
                     .filter(prisoner -> {
                         LadderRank rank = prisoner.getCurrentLadderRank();

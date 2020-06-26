@@ -146,7 +146,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
         try {
             Object o = Class.forName("com.bgsoftware.superiorprison.plugin.nms.NmsHandler_" + version).newInstance();
             this.nms = (SuperiorNms) o;
-            getOLogger().print("Server version: " + version.replace("_", " .") + ". Fully compatible!");
+            getOLogger().print("Server version: " + version.replace("_", ".") + ". Fully compatible!");
             return true;
         } catch (ClassNotFoundException e) {
             getOLogger().printError("Unsupported version " + version + ". Failed to find NmsHandler, contact author!");

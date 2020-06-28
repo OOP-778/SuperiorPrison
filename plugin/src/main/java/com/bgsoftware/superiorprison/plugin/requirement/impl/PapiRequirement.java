@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorprison.plugin.requirement.impl;
 
+import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 import com.bgsoftware.superiorprison.api.requirement.Requirement;
 import com.bgsoftware.superiorprison.api.requirement.RequirementData;
 import com.bgsoftware.superiorprison.api.requirement.RequirementException;
@@ -12,12 +13,20 @@ import java.util.Map;
 import java.util.Objects;
 
 public class PapiRequirement implements Requirement {
-    private static final RequirementHandler<Data> handler = (prisoner, data) -> {
-        String currentValue = PlaceholderAPI.setPlaceholders(prisoner.getPlayer(), data.getPlaceholder());
-        if (!currentValue.contentEquals(data.getValue()))
-            throw new RequirementException(data, currentValue);
+    private static final RequirementHandler<Data> handler = new RequirementHandler<Data>() {
+        @Override
+        public boolean testIO(Prisoner prisoner, Data data) throws RequirementException {
+            String currentValue = PlaceholderAPI.setPlaceholders(prisoner.getPlayer(), data.getPlaceholder());
+            if (!currentValue.contentEquals(data.getValue()))
+                throw new RequirementException(data, currentValue);
 
-        return true;
+            return true;
+        }
+
+        @Override
+        public int getPercentage(Prisoner prisoner, Data data) {
+            return 100;
+        }
     };
 
     @Nullable

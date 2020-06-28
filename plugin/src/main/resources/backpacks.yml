@@ -25,6 +25,10 @@ global options:
     "2":
       rows: 2
       pages: 2
+
+      requirements:
+        - "{ECO} 1000"
+
       description:
         - "&cGain +1 page"
 

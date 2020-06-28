@@ -8,8 +8,6 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface RankController {
-    boolean isLoaded();
-
     // Get default Ladder Rank (first rank that people get assigned to when joined)
     LadderRank getDefault();
 

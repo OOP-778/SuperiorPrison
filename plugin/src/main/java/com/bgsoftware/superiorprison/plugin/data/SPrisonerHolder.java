@@ -6,6 +6,7 @@ import com.bgsoftware.superiorprison.plugin.controller.DatabaseController;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.google.common.collect.Maps;
 import com.oop.datamodule.storage.SqlStorage;
+import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -18,12 +19,12 @@ import java.util.stream.Stream;
 
 public class SPrisonerHolder extends SqlStorage<SPrisoner> implements PrisonerHolder {
 
+    @Getter
     private final Map<UUID, SPrisoner> prisonerMap = Maps.newConcurrentMap();
-    private final DatabaseController controller;
+
 
     public SPrisonerHolder(DatabaseController controller) {
         super(controller, controller.getDatabase());
-        this.controller = controller;
     }
 
     @Override

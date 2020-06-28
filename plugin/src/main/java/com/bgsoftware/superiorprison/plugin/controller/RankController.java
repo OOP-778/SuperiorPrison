@@ -6,6 +6,7 @@ import com.bgsoftware.superiorprison.api.requirement.RequirementData;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.object.player.rank.SLadderRank;
 import com.bgsoftware.superiorprison.plugin.object.player.rank.SSpecialRank;
+import com.bgsoftware.superiorprison.plugin.requirement.LoadingRequirementData;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.oop.orangeengine.main.plugin.OComponent;
@@ -20,22 +21,9 @@ import java.util.concurrent.TimeUnit;
 
 public class RankController implements com.bgsoftware.superiorprison.api.controller.RankController, OComponent<SuperiorPrisonPlugin> {
 
-    @Getter
-    private boolean loaded = false;
     private final Map<Integer, SLadderRank> ladderRanks = Maps.newConcurrentMap();
     private final Set<SSpecialRank> specialRanks = Sets.newConcurrentHashSet();
     private SLadderRank defaultRank;
-
-    public RankController(boolean first) {
-        // We have to load delayed so other plugins can register requirements
-        if (first) {
-            new OTask()
-                    .delay(TimeUnit.SECONDS, 3)
-                    .runnable(this::load)
-                    .execute();
-        } else
-            load();
-    }
 
     @Override
     public boolean load() {
@@ -53,15 +41,19 @@ public class RankController implements com.bgsoftware.superiorprison.api.control
                 if (section.isValuePresent("order")) {
                     Set<RequirementData> reqs = Sets.newHashSet();
                     section.ifValuePresent("requirements", List.class, list -> {
-
                         for (Object o : list) {
                             if (o.toString().trim().length() == 0) continue;
-                            OPair<String, Optional<RequirementData>> data = rc.parse(o.toString());
-                            if (data.getSecond().isPresent())
-                                reqs.add(data.getSecond().get());
 
-                            else
-                                getPlugin().getOLogger().printWarning("Failed to find rankup requirement by id: " + data.getFirst() + " in " + section.getKey() + " rank!");
+                            OPair<String, RequirementData> data = rc.parse(o.toString());
+                            reqs.add(data.getSecond());
+
+                            if (data.getSecond() instanceof LoadingRequirementData) {
+                                getPlugin().getOLogger().printWarning("Requirement by id {} is not found, converting the requirement to loading requirement...", data.getSecond().getType());
+                                ((LoadingRequirementData) data.getSecond()).setOnLoad(reqData -> {
+                                    reqs.remove(data.getSecond());
+                                    reqs.add(reqData);
+                                });
+                            }
                         }
                     });
 
@@ -103,7 +95,6 @@ public class RankController implements com.bgsoftware.superiorprison.api.control
             });
 
             defaultRank = ladderRanks.get(1);
-            loaded = true;
         } catch (Throwable thrw) {
             thrw.printStackTrace();
             throw new IllegalStateException("Failed to load RankController cause " + thrw.getMessage(), thrw);

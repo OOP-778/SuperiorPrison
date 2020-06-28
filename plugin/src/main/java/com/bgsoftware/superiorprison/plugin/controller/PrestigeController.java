@@ -4,6 +4,7 @@ import com.bgsoftware.superiorprison.api.data.player.Prestige;
 import com.bgsoftware.superiorprison.api.requirement.RequirementData;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrestige;
+import com.bgsoftware.superiorprison.plugin.requirement.LoadingRequirementData;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.oop.orangeengine.main.plugin.OComponent;
@@ -18,21 +19,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class PrestigeController implements com.bgsoftware.superiorprison.api.controller.PrestigeController, OComponent<SuperiorPrisonPlugin> {
-    @Getter
-    private boolean loaded = false;
-
     private final Map<Integer, SPrestige> prestigeMap = Maps.newConcurrentMap();
-
-    public PrestigeController(boolean first) {
-        // We have to load delayed so other plugins can register requirements
-        if (first) {
-            new OTask()
-                    .delay(TimeUnit.SECONDS, 3)
-                    .runnable(this::load)
-                    .execute();
-        } else
-            load();
-    }
 
     @Override
     public List<Prestige> getPrestiges() {
@@ -69,12 +56,17 @@ public class PrestigeController implements com.bgsoftware.superiorprison.api.con
                     section.ifValuePresent("requirements", List.class, list -> {
                         for (Object o : list) {
                             if (o.toString().trim().length() == 0) continue;
-                            OPair<String, Optional<RequirementData>> data = rc.parse(o.toString());
-                            if (data.getSecond().isPresent())
-                                reqs.add(data.getSecond().get());
 
-                            else
-                                getPlugin().getOLogger().printWarning("Failed to find rankup requirement by id: " + data.getFirst() + " in " + section.getKey() + " rank!");
+                            OPair<String, RequirementData> data = rc.parse(o.toString());
+                            reqs.add(data.getSecond());
+
+                            if (data.getSecond() instanceof LoadingRequirementData) {
+                                getPlugin().getOLogger().printWarning("Requirement by id {} is not found, converting the requirement to loading requirement...", data.getSecond().getType());
+                                ((LoadingRequirementData) data.getSecond()).setOnLoad(reqData -> {
+                                    reqs.remove(data.getSecond());
+                                    reqs.add(reqData);
+                                });
+                            }
                         }
                     });
 
@@ -104,8 +96,6 @@ public class PrestigeController implements com.bgsoftware.superiorprison.api.con
                     Optional.ofNullable(prestigeMap.get(next)).ifPresent(prestige::setNextPrestige);
                 });
             }
-
-            loaded = true;
         } catch (Throwable thrw) {
             throw new IllegalStateException("Failed to load PrestigeController", thrw);
         }

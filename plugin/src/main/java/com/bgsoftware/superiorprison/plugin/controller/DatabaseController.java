@@ -17,8 +17,11 @@ import lombok.Getter;
 import lombok.NonNull;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.oop.orangeengine.main.Engine.getEngine;
 
 @Getter
 public class DatabaseController extends StorageHolder {
@@ -50,7 +53,14 @@ public class DatabaseController extends StorageHolder {
         registerStorage(mineHolder);
         registerStorage(statisticHolder);
 
-        load(false);
+        AtomicInteger integer = new AtomicInteger();
+        load(false, () -> {
+            integer.incrementAndGet();
+            if (integer.get() == getStorages().size()) {
+                getEngine().getLogger().print("Loaded {} mines", getMineHolder().getMines().size());
+                getEngine().getLogger().print("Loaded {} prisoners", getPrisonerHolder().getPrisonerMap().size());
+            }
+        });
     }
 
     public ItemStack deserialize(JsonElement jsonElement) throws JsonParseException {

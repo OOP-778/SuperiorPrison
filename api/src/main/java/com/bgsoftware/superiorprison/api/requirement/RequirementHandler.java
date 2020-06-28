@@ -15,4 +15,6 @@ public interface RequirementHandler<O extends RequirementData> {
     }
 
     default void take(Prisoner prisoner, O o) {}
+
+    int getPercentage(Prisoner prisoner, O o);
 }

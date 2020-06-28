@@ -49,11 +49,6 @@ import java.util.concurrent.ThreadLocalRandom;
 public class PrisonerListener {
     public PrisonerListener() {
         SyncEvents.listen(PlayerJoinEvent.class, event -> {
-            if (!SuperiorPrisonPlugin.getInstance().getRankController().isLoaded()) {
-                event.getPlayer().kickPlayer(Helper.color("&cPrison Ranks aren't loaded yet, please wait a bit."));
-                return;
-            }
-
             // Check for teleport!
             SuperiorPrisonPlugin.getInstance().getPrisonerController().getPrisoner(event.getPlayer().getUniqueId())
                     .map(prisoner -> (SPrisoner) prisoner)

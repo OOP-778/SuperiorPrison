@@ -11,10 +11,7 @@ import com.bgsoftware.superiorprison.plugin.data.SStatisticHolder;
 import com.bgsoftware.superiorprison.plugin.hook.impl.PapiHook;
 import com.bgsoftware.superiorprison.plugin.hook.impl.ShopGuiPlusHook;
 import com.bgsoftware.superiorprison.plugin.hook.impl.VaultHook;
-import com.bgsoftware.superiorprison.plugin.listeners.FlagsListener;
-import com.bgsoftware.superiorprison.plugin.listeners.MineListener;
-import com.bgsoftware.superiorprison.plugin.listeners.PrisonerListener;
-import com.bgsoftware.superiorprison.plugin.listeners.StatisticsListener;
+import com.bgsoftware.superiorprison.plugin.listeners.*;
 import com.bgsoftware.superiorprison.plugin.nms.SuperiorNms;
 import com.bgsoftware.superiorprison.plugin.requirement.RequirementRegisterer;
 import com.bgsoftware.superiorprison.plugin.tasks.TasksStarter;
@@ -42,6 +39,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
     private PrestigeController prestigeController;
     private RankController rankController;
     private HookController hookController;
+    private SBackPackController backPackController;
     private DatabaseController databaseController;
     private SStatisticHolder statisticsController;
     private ChatController chatController;
@@ -63,10 +61,6 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
             }
 
             new MenuListener();
-            this.configController = new ConfigController();
-            getPluginComponentController()
-                    .add(configController, true)
-                    .load();
 
             this.hookController = new HookController();
             hookController.registerHooks(() -> VaultHook.class, () -> ShopGuiPlusHook.class, () -> PapiHook.class);
@@ -78,27 +72,32 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
             if (!getDataFolder().exists())
                 getDataFolder().mkdirs();
 
-            this.databaseController = new DatabaseController(mainConfig);
-            this.statisticsController = databaseController.getStatisticHolder();
-            this.prestigeController = new PrestigeController(true);
-            this.rankController = new RankController(true);
-            this.chatController = new ChatController();
-            chatController.load();
-
-            getPluginComponentController()
-                    .add(rankController, true)
-                    .add(prestigeController, true)
-                    .add(chatController, true);
-
-            this.placeholderController = new PlaceholderController();
             this.requirementController = new RequirementController();
             new RequirementRegisterer();
+
+            this.configController = new ConfigController();
+            this.chatController = new ChatController();
+            this.backPackController = new SBackPackController();
+            this.prestigeController = new PrestigeController();
+            this.rankController = new RankController();
+            getPluginComponentController()
+                    .add(configController, true)
+                    .add(rankController, true)
+                    .add(prestigeController, true)
+                    .add(chatController, true)
+                    .add(backPackController, true)
+                    .load();
+
+            this.databaseController = new DatabaseController(mainConfig);
+            this.statisticsController = databaseController.getStatisticHolder();
+            this.placeholderController = new PlaceholderController();
 
             // Initialize listeners
             new FlagsListener();
             new MineListener();
             new PrisonerListener();
             new StatisticsListener();
+            new BackPackListener();
 
             // Initialize tasks
             new TasksStarter();

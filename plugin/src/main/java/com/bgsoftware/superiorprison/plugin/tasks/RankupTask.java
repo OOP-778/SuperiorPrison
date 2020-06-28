@@ -31,7 +31,6 @@ public class RankupTask extends OTask {
             if (SuperiorPrisonPlugin.disabling) return;
             SuperiorPrisonPlugin.getInstance().getPrisonerController()
                     .stream()
-                    .parallel()
                     .filter(SPrisoner::isOnline)
                     .filter(prisoner -> prisoner.getCurrentMine().isPresent())
                     .filter(prisoner -> cache.getIfPresent(prisoner.getUUID()) == null || !cache.getIfPresent(prisoner.getUUID()).contentEquals(prisoner.getCurrentLadderRank().getName()))

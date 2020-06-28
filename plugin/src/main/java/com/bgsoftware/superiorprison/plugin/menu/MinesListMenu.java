@@ -22,9 +22,6 @@ public class MinesListMenu extends OPagedMenu<SNormalMine> implements OMenu.Temp
         ClickHandler
                 .of("mine click")
                 .handle(event -> {
-
-                    ClassDebugger.debug("Has Permission?: " + event.getWhoClicked().hasPermission("prison.admin.editmine"));
-
                     // If normal click
                     if (event.getClick() == ClickType.RIGHT || event.getClick() == ClickType.LEFT) {
                         //TODO: Add teleport timer and move check
@@ -32,7 +29,6 @@ public class MinesListMenu extends OPagedMenu<SNormalMine> implements OMenu.Temp
                         event.getWhoClicked().teleport(mine.getSpawnPoint());
 
                     } else if (event.getClick().name().contains("SHIFT") && event.getWhoClicked().hasPermission("prison.admin.editmine")) {
-                        System.out.println("Moving");
                         move(new MineControlPanel(getViewer(), requestObject(event.getRawSlot())));
                     }
                 })

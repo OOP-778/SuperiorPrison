@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface PrestigeController {
-    boolean isLoaded();
 
     // Get list of all available prestiges
     List<Prestige> getPrestiges();

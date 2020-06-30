@@ -6,12 +6,18 @@ import com.google.gson.JsonObject;
 import com.oop.datamodule.DataHelper;
 import com.oop.datamodule.SerializableObject;
 import com.oop.datamodule.SerializedData;
+import com.oop.orangeengine.item.ItemStackUtil;
+import com.oop.orangeengine.main.util.data.pair.OPair;
+import com.oop.orangeengine.main.util.data.pair.OTriplePair;
 import lombok.Getter;
 import lombok.NonNull;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Getter
 public class BackPackData implements SerializableObject {
@@ -20,8 +26,13 @@ public class BackPackData implements SerializableObject {
     public Map<Integer, Map<Integer, ItemStack>> stored = new HashMap<>();
 
     public int level;
-
     public @NonNull String configId;
+    public @NonNull Player owner;
+    private @NonNull SBackPack holder;
+
+    public BackPackData(SBackPack holder) {
+        this.holder = holder;
+    }
 
     @Override
     public void serialize(SerializedData serializedData) {
@@ -60,5 +71,45 @@ public class BackPackData implements SerializableObject {
             stored.put(page, pageData);
             page++;
         }
+    }
+
+    public OTriplePair<Integer, Integer, ItemStack> findSimilar(ItemStack to, boolean amountCheck) {
+        AtomicReference<OTriplePair<Integer, Integer, ItemStack>> ref = new AtomicReference<>(null);
+        stored.forEach((page, slotData) -> {
+            if (ref.get() != null) return;
+
+            slotData.forEach((slot, item) -> {
+                if (ref.get() != null) return;
+                if (item == null) return;
+
+                if (ItemStackUtil.isSimilar(item, to) && (amountCheck && item.getAmount() != item.getMaxStackSize()))
+                    ref.set(new OTriplePair<>(page, slot, item));
+            });
+        });
+        return ref.get();
+    }
+
+    public OPair<Integer, Integer> firstEmpty() {
+        AtomicReference<OPair<Integer, Integer>> ref = new AtomicReference<>(null);
+        stored.forEach((page, slotData) -> {
+            if (ref.get() == null) return;
+            slotData.forEach((slot, item) -> {
+                if (ref.get() == null) return;
+                if (item == null) {
+                    ref.set(new OPair<>(page, slot));
+                }
+            });
+        });
+        return ref.get();
+    }
+
+    public void setItem(int page, int slot, ItemStack itemStack) {
+        Map<Integer, ItemStack> slotData = Objects.requireNonNull(stored.get(page), "Page given is too big! " + page + "/ " + stored.size());
+        slotData.remove(slot);
+
+        if (itemStack == null || itemStack.getAmount() == 0)
+            itemStack = null;
+
+        slotData.put(slot, itemStack);
     }
 }

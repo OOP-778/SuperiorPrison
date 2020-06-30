@@ -10,6 +10,7 @@ import com.oop.orangeengine.nbt.NBTItem;
 import com.oop.orangeengine.yaml.Config;
 import com.oop.orangeengine.yaml.ConfigSection;
 import lombok.NonNull;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
@@ -28,9 +29,9 @@ public class SBackPackController implements BackPackController, OComponent<Super
     }
 
     @Override
-    public BackPack getBackPack(@NonNull ItemStack itemStack) throws IllegalArgumentException {
+    public BackPack getBackPack(@NonNull ItemStack itemStack, Player player) throws IllegalArgumentException {
         try {
-            SBackPack backPack = new SBackPack(itemStack);
+            SBackPack backPack = new SBackPack(itemStack, player);
             return backPack;
         } catch (Throwable throwable) {
             throw new IllegalStateException("Failed to get the backpack", throwable);

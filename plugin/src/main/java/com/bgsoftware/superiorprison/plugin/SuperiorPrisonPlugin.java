@@ -4,6 +4,7 @@ import com.bgsoftware.superiorprison.api.SuperiorPrison;
 import com.bgsoftware.superiorprison.api.SuperiorPrisonAPI;
 import com.bgsoftware.superiorprison.plugin.commands.CommandsRegister;
 import com.bgsoftware.superiorprison.plugin.config.MainConfig;
+import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.controller.*;
 import com.bgsoftware.superiorprison.plugin.data.SMineHolder;
 import com.bgsoftware.superiorprison.plugin.data.SPrisonerHolder;
@@ -121,7 +122,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
         if (getDatabaseController() != null && getDatabaseController().getDatabase() != null)
             getDatabaseController().save(false);
 
-        Bukkit.getOnlinePlayers().forEach(player -> player.kickPlayer(Helper.color("&cPrison shutting down...")));
+        Bukkit.getOnlinePlayers().forEach(player -> player.kickPlayer(Helper.color(LocaleEnum.PRISON_SHUTDOWN.getMessage().raw()[0])));
         instance = null;
     }
 

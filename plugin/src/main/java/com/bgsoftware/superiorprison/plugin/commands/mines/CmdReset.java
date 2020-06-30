@@ -23,5 +23,4 @@ public class CmdReset extends OCommand {
                     .send(command);
         });
     }
-
 }

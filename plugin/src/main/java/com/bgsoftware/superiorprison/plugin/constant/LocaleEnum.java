@@ -237,7 +237,9 @@ public enum LocaleEnum {
     SOLD_BLOCKS_MESSAGE(new OActionBarMessage().text("&dYou've sold &5{blocks} &dblocks in the past &5{time}&d and earned &5{money}")),
 
     SELL_HAND_MUST_HOLD_SOMETHING("You must hold something to execute this command!"),
-    SELL_INVENTORY_WORTHLESS("Your inventory is worthless...");
+    SELL_INVENTORY_WORTHLESS("Your inventory is worthless..."),
+
+    PRISON_SHUTDOWN("&cPrison is shutting down.");
 
     private final OMessage[] cache = new OMessage[2];
 

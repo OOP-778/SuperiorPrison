@@ -11,7 +11,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class MinesArg extends CommandArgument<SNormalMine> {
-
     public MinesArg() {
         setDescription("A mine");
         setIdentity("mine");

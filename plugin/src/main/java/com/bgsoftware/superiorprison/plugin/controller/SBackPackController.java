@@ -5,6 +5,7 @@ import com.bgsoftware.superiorprison.api.data.backpack.BackPack;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.config.backpack.BackPackConfig;
 import com.bgsoftware.superiorprison.plugin.object.backpack.SBackPack;
+import com.oop.orangeengine.main.Engine;
 import com.oop.orangeengine.main.plugin.OComponent;
 import com.oop.orangeengine.nbt.NBTItem;
 import com.oop.orangeengine.yaml.Config;
@@ -65,6 +66,11 @@ public class SBackPackController implements BackPackController, OComponent<Super
             }
         }
 
+        Engine.getInstance().getLogger().print("Loaded {} backpacks", backpackConfigs.size());
         return true;
+    }
+
+    public Map<String, BackPackConfig> getConfigs() {
+        return backpackConfigs;
     }
 }

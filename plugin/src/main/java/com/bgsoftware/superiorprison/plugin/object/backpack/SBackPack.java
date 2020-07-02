@@ -4,6 +4,8 @@ import com.bgsoftware.superiorprison.api.SuperiorPrison;
 import com.bgsoftware.superiorprison.api.data.backpack.BackPack;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.config.backpack.BackPackConfig;
+import com.bgsoftware.superiorprison.plugin.menu.backpack.BackPackViewMenu;
+import com.bgsoftware.superiorprison.plugin.util.menu.OMenuButton;
 import com.google.common.base.Preconditions;
 import com.google.gson.JsonObject;
 import com.oop.datamodule.DataHelper;
@@ -14,6 +16,7 @@ import com.oop.orangeengine.main.util.data.pair.OTriplePair;
 import com.oop.orangeengine.nbt.NBTItem;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.SneakyThrows;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -27,31 +30,69 @@ import static com.bgsoftware.superiorprison.plugin.controller.SBackPackControlle
 @AllArgsConstructor
 public class SBackPack implements BackPack {
 
-    private ItemStack itemStack;
+    @Getter
     private BackPackConfig config;
-    private BackPackData data;
 
+    @Getter
+    private BackPackData data;
     private NBTItem nbtItem;
+    private ItemStack itemStack;
 
     @Getter
     private Player owner;
 
     private JsonObject oldData;
 
+    @Setter @Getter
+    private BackPackViewMenu currentView;
+
+    private SBackPack() {}
+
+    public static SBackPack of(BackPackConfig config, Player player) {
+        SBackPack backPack = new SBackPack();
+        backPack.config = config;
+        backPack.oldData = new JsonObject();
+        backPack.owner = player;
+        backPack.itemStack = config.getItem().getItemStack().clone();
+        backPack.data = new BackPackData(backPack);
+        backPack.nbtItem = new NBTItem(backPack.itemStack);
+
+        for (int i = 1; i < backPack.config.getPages() + 1; i++) {
+            Map<Integer, ItemStack> itemStackMap = new HashMap<>();
+            backPack.data.stored.put(i, itemStackMap);
+
+            for (int slot = 0; slot < config.getRows() * 9; slot++)
+                itemStackMap.put(slot, null);
+        }
+
+        backPack.updateNbt();
+        backPack.save();
+        return backPack;
+    }
+
     @SneakyThrows
     public SBackPack(@Nonnull ItemStack itemStack, Player player) {
         this.owner = player;
-        NBTItem nbtItem = new NBTItem(itemStack);
+        this.itemStack = itemStack;
+        this.nbtItem = new NBTItem(itemStack);
         Preconditions.checkArgument(nbtItem.hasKey(NBT_KEY), "The given item is not an backpack");
 
         String serialized = nbtItem.getString(NBT_KEY);
         oldData = DataHelper.gson().fromJson(serialized, JsonObject.class);
 
         // Check if this is an outdated bool nbt value
-        if (SuperiorPrisonPlugin.getInstance().getBackPackController().isPlayerBound() && oldData.has("global")) {
-            oldData = oldData.getAsJsonObject("global");
-        } else if (!SuperiorPrisonPlugin.getInstance().getBackPackController().isPlayerBound() && !oldData.has("global"))
-            oldData = oldData.getAsJsonObject(player.getUniqueId().toString());
+        if (SuperiorPrisonPlugin.getInstance().getBackPackController().isPlayerBound()) {
+            if (oldData.has("global"))
+                oldData = oldData.getAsJsonObject("global");
+            else
+                oldData = oldData.getAsJsonObject(player.getUniqueId().toString());
+
+        } else if (!SuperiorPrisonPlugin.getInstance().getBackPackController().isPlayerBound()) {
+            if (!oldData.has("global"))
+                oldData = oldData.getAsJsonObject(player.getUniqueId().toString());
+            else
+                oldData = oldData.getAsJsonObject("global");
+        }
 
         data = new BackPackData(this);
         if (oldData != null)
@@ -59,12 +100,13 @@ public class SBackPack implements BackPack {
         else
             oldData = new JsonObject();
 
-        config = SuperiorPrisonPlugin.getInstance().getBackPackController().getConfig(data.configId).orElseThrow(() -> new IllegalStateException("Failed to find backPack by id " + data.configId + " level " + data.level));
+        config = SuperiorPrisonPlugin.getInstance().getBackPackController().getConfig(data.configId).orElseThrow(() -> new IllegalStateException("Failed to find backPack by id " + data.configId + " level " + data.level)).getByLevel(data.level);
+        data.updateInventoryData();
     }
 
     @Override
     public int getCapacity() {
-        return config.getPages() * config.getRows();
+        return config.getPages() * (config.getRows() * 9 * 64);
     }
 
     @Override
@@ -76,6 +118,7 @@ public class SBackPack implements BackPack {
     public int getUsed() {
         return getStored()
                 .stream()
+                .filter(Objects::nonNull)
                 .mapToInt(ItemStack::getAmount)
                 .sum();
     }
@@ -89,12 +132,23 @@ public class SBackPack implements BackPack {
     }
 
     @Override
+    public String getId() {
+        return config.getId();
+    }
+
+    public void updateNbt() {
+        this.nbtItem = new NBTItem(new OMenuButton.ButtonItemBuilder(config.getItem().makeUnstackable())
+                .getItemStackWithPlaceholdersMulti(this));
+    }
+
+    @Override
     public ItemStack getItem() {
         return nbtItem.getItem();
     }
 
     @Override
     public void save() {
+        updateNbt();
         SerializedData serializedData = new SerializedData();
         data.serialize(serializedData);
 
@@ -187,5 +241,27 @@ public class SBackPack implements BackPack {
         }
 
         return notRemoved;
+    }
+
+    @Override
+    public void update() {
+        // Update the inventory
+        int first = owner.getInventory().first(itemStack);
+        owner.getInventory().setItem(first, nbtItem.getItem());
+
+        // Update the menu
+        if (currentView != null)
+            currentView.refresh();
+    }
+
+    @Override
+    public void upgrade(int level) {
+        config = config.getByLevel(level);
+        data.level = level;
+        data.updateInventoryData();
+        save();
+
+        if (currentView != null)
+            currentView.onUpgrade();
     }
 }

@@ -7,5 +7,10 @@ public class CmdRanks extends OCommand {
         label("ranks");
         description("Add, remove, clear, view ranks");
         permission("superiorprison.admin");
+
+        subCommand(new CmdAdd());
+        subCommand(new CmdClear());
+        subCommand(new CmdList());
+        subCommand(new CmdRemove());
     }
 }

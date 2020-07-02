@@ -12,4 +12,6 @@ public interface SuperiorPrison {
     RequirementController getRequirementController();
 
     StatisticsController getStatisticsController();
+
+    BackPackController getBackPackController();
 }

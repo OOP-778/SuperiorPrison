@@ -16,6 +16,7 @@ import com.bgsoftware.superiorprison.plugin.object.mine.effects.SMineEffects;
 import com.bgsoftware.superiorprison.plugin.object.mine.messages.SMineMessages;
 import com.bgsoftware.superiorprison.plugin.object.mine.settings.SMineSettings;
 import com.bgsoftware.superiorprison.plugin.object.mine.shop.SShop;
+import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.util.AccessUtil;
 import com.bgsoftware.superiorprison.plugin.util.SPLocation;
 import com.google.common.collect.Maps;
@@ -292,6 +293,14 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
     }
 
     public void onReset() {
+        getPrisoners().removeIf(prisoner -> {
+            boolean online = true;
+            if (!prisoner.isOnline()) {
+                ((SPrisoner)prisoner).setLogoutMine(getName());
+                online = false;
+            }
+            return online;
+        });
         StaticTask.getInstance().sync(() -> {
             getPrisoners().stream().filter(prisoner -> prisoner.getCurrentMine().get().getValue() == AreaEnum.MINE).forEach(prisoner -> {
                 prisoner.getPlayer().teleport(getSpawnPoint());

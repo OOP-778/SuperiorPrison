@@ -9,6 +9,7 @@ import com.bgsoftware.superiorprison.api.requirement.RequirementException;
 import com.bgsoftware.superiorprison.plugin.menu.access.AccessObject;
 import com.bgsoftware.superiorprison.plugin.menu.access.SortMethod;
 import com.bgsoftware.superiorprison.plugin.menu.settings.SettingsObject;
+import com.bgsoftware.superiorprison.plugin.object.backpack.SBackPack;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.mine.area.SArea;
 import com.bgsoftware.superiorprison.plugin.object.mine.messages.SMineActionBarMessage;
@@ -30,8 +31,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import static com.bgsoftware.superiorprison.plugin.util.TextUtil.beautifyDouble;
 
 public class PlaceholderController {
 
@@ -98,6 +97,11 @@ public class PlaceholderController {
 
         add(SettingsObject.class, "{setting_name}", SettingsObject::id);
         add(SettingsObject.class, "{setting_value}", obj -> Helper.beautify(obj.currentValue()));
+
+        add(SBackPack.class, "{backpack_level}", SBackPack::getCurrentLevel);
+        add(SBackPack.class, "{backpack_id}", SBackPack::getId);
+        add(SBackPack.class, "{backpack_used}", SBackPack::getUsed);
+        add(SBackPack.class, "{backpack_capacity}", SBackPack::getCapacity);
     }
 
     private <T> void add(Class<T> type, String placeholder, Function<T, Object> handler) {

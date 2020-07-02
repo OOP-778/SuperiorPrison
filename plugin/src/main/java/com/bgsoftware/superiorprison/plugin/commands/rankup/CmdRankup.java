@@ -102,6 +102,7 @@ public class CmdRankup extends OCommand {
         List<RequirementException> failed = new ArrayList<>();
         datas.forEach(data -> {
             Optional<Requirement> requirement = SuperiorPrisonPlugin.getInstance().getRequirementController().findRequirement(data.getType());
+            if (!requirement.isPresent()) return;
             try {
                 requirement.get().getHandler().testIO(prisoner, data);
             } catch (RequirementException ex) {
@@ -109,5 +110,15 @@ public class CmdRankup extends OCommand {
             }
         });
         return failed;
+    }
+
+    public void takeRequirements(Set<RequirementData> datas, SPrisoner prisoner) {
+        datas.forEach(data -> {
+            Optional<Requirement> requirement = SuperiorPrisonPlugin.getInstance().getRequirementController().findRequirement(data.getType());
+            if (!requirement.isPresent()) return;
+            if (!data.isTake()) return;
+
+            requirement.get().getHandler().take(prisoner, data);
+        });
     }
 }

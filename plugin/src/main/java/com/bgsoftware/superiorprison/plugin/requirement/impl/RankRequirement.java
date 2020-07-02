@@ -31,6 +31,11 @@ public class RankRequirement implements Requirement {
             }
             return 100;
         }
+
+        @Override
+        public String getCurrent(Prisoner prisoner, RequirementData requirementData) {
+            return prisoner.getCurrentLadderRank().getName();
+        }
     };
 
     @Override

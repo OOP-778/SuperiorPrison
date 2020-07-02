@@ -1,0 +1,46 @@
+title: "&dOpened backpack &5{current_page}&8/&5{pages_available}"
+
+# You can only edit the top & bottom
+layout:
+  - "TOP:& & & & & & & & &"
+  - "BOTTOM:U & & P & N & & &"
+
+actions:
+  - "upgrade:U"
+  - "previous page:P"
+  - "next page:N"
+
+buttons:
+  "&":
+    material: pink_stained_glass_pane
+    display name: "&r"
+
+  "P":
+    shown:
+      material: arrow
+      display name: "&d<<"
+      lore:
+        - "&7Click to go to"
+        - "&7The previous page!"
+
+    hidden:
+      material: pink_stained_glass_pane
+      display name: "&r"
+
+  "N":
+    shown:
+      material: arrow
+      display name: "&d>>"
+      lore:
+        - "&7Click to go to"
+        - "&7The next page!"
+
+    hidden:
+      material: pink_stained_glass_pane
+      display name: "&r"
+
+  "U":
+    material: diamond
+    display name: "&dUpgrade"
+    lore:
+      - "&7Click to view upgrades!"

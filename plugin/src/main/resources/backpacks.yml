@@ -23,7 +23,7 @@ global options:
   # The default backpack is level 1, so next is 2
   upgrades:
     "2":
-      rows: 2
+      rows: 3
       pages: 2
 
       requirements:

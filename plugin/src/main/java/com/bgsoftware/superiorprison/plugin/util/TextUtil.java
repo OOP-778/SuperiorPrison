@@ -53,7 +53,7 @@ public class TextUtil {
 
     public static String beautify(Object object) {
         if (object instanceof Double || object.getClass() == double.class)
-            return beautifyDouble(Double.parseDouble(object.toString()));
+            return beautifyNumber(Double.parseDouble(object.toString()));
 
         else
             return beautify(object.toString());
@@ -67,8 +67,20 @@ public class TextUtil {
         return beautify((item.hasItemMeta() && item.getItemMeta().hasDisplayName()) ? item.getItemMeta().getDisplayName() : OMaterial.matchMaterial(item).name());
     }
 
-    public static String beautifyDouble(Double d) {
+    public static String beautifyNumber(Number d) {
         String stringD = String.valueOf(d);
+        if (stringD.contains(".")) {
+            String[] split = stringD.split("\\.");
+            if (split[1].contentEquals("0") && split[1].length() == 1)
+                return split[0];
+
+            else
+                return stringD;
+        }
+        return stringD;
+    }
+
+    public static String beautifyNumber(String stringD) {
         if (stringD.contains(".")) {
             String[] split = stringD.split("\\.");
             if (split[1].contentEquals("0") && split[1].length() == 1)

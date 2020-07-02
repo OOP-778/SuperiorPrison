@@ -41,7 +41,7 @@ public class OMenuButton implements Cloneable {
 
     private final char identifier;
 
-    @Setter(value = AccessLevel.PROTECTED)
+    @Setter
     private int slot = -1;
 
     public OMenuButton(char identifier) {

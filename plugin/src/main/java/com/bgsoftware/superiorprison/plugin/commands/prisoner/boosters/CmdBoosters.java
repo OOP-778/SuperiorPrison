@@ -7,5 +7,10 @@ public class CmdBoosters extends OCommand {
         label("boosters");
         description("view, add, remove boosters");
         permission("superiorprison.admin");
+
+        subCommand(new CmdAdd());
+        subCommand(new CmdClear());
+        subCommand(new CmdList());
+        subCommand(new CmdRemove());
     }
 }

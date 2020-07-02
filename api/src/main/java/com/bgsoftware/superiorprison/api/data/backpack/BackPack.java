@@ -23,6 +23,9 @@ public interface BackPack {
     */
     List<ItemStack> getStored();
 
+    // Get configuration id of the backpack
+    String getId();
+
     // Get the backpack item
     ItemStack getItem();
 
@@ -43,4 +46,13 @@ public interface BackPack {
     Returns an map of items that weren't fully removed
     */
     Map<ItemStack, Integer> remove(ItemStack ...itemStacks);
+
+    /*
+    Update the backpack in the player inventory
+    Also if the player is currently viewing the backpack it will also update the menu
+    */
+    void update();
+
+    // Upgrade the backpack to the specified level
+    void upgrade(int level);
 }

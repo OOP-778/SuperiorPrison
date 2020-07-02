@@ -33,6 +33,11 @@ public class EcoRequirement implements Requirement {
             double required = Double.parseDouble(requirementData.getValue());
             return (int) Math.min(balance * 100 / required, 100);
         }
+
+        @Override
+        public String getCurrent(Prisoner prisoner, RequirementData requirementData) {
+            return vaultHook.getEcoProvider().getBalance(prisoner.getOfflinePlayer()) + "";
+        }
     };
 
     @Override

@@ -23,7 +23,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import static com.bgsoftware.superiorprison.plugin.util.TextUtil.beautify;
-import static com.bgsoftware.superiorprison.plugin.util.TextUtil.beautifyDouble;
+import static com.bgsoftware.superiorprison.plugin.util.TextUtil.beautifyNumber;
 
 public class GeneratorEditMenu extends OPagedMenu<OPair<Double, OMaterial>> implements OMenu.Templateable {
 
@@ -93,7 +93,7 @@ public class GeneratorEditMenu extends OPagedMenu<OPair<Double, OMaterial>> impl
 
                                     if (first.isPresent()) {
                                         first.get().setFirst(input);
-                                        LocaleEnum.EDIT_GENERATOR_RATE_SET.getWithPrefix().send(ImmutableMap.of("{material}", beautify(materialPair.getSecond().name()), "{rate}", beautifyDouble(input)), obj.player());
+                                        LocaleEnum.EDIT_GENERATOR_RATE_SET.getWithPrefix().send(ImmutableMap.of("{material}", beautify(materialPair.getSecond().name()), "{rate}", beautifyNumber(input)), obj.player());
                                     }
 
                                     mine.save(true);
@@ -121,7 +121,7 @@ public class GeneratorEditMenu extends OPagedMenu<OPair<Double, OMaterial>> impl
                 .setMaterial(obj.getSecond().parseMaterial())
                 .setDurability(obj.getSecond().getData())
                 .replaceDisplayName("{material_name}", beautify(obj.getValue().name()))
-                .replaceInLore("{material_rate}", beautifyDouble(obj.getFirst()));
+                .replaceInLore("{material_rate}", beautifyNumber(obj.getFirst()));
         return button.currentItem(clone.getItemStackWithPlaceholdersMulti(getViewer(), mine));
     }
 

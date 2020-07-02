@@ -32,6 +32,11 @@ public class XpLevelRequirement implements Requirement {
             int requiredXpLevel = XPUtil.getTotalExperience(Integer.parseInt(requirementData.getValue()));
             return Math.min((int) Math.round(currentXpAtLevel * 100.0 / requiredXpLevel), 100);
         }
+
+        @Override
+        public String getCurrent(Prisoner prisoner, RequirementData requirementData) {
+            return XPUtil.getTotalExperience(prisoner.getPlayer()) + "";
+        }
     };
 
     @Override

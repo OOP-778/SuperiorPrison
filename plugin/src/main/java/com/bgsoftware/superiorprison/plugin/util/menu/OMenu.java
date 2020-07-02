@@ -33,6 +33,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import static com.oop.orangeengine.main.Engine.getEngine;
 import static java.util.stream.Collectors.toList;
 
 @Getter
@@ -104,7 +105,7 @@ public abstract class OMenu implements InventoryHolder {
         return Stream.of(arr1, arr2).flatMap(Stream::of).toArray();
     }
 
-    private void _init() {
+    protected void _init() {
         ConfigController cc = SuperiorPrisonPlugin.getInstance().getConfigController();
         Config configuration = cc.getMenus().get(identifier.toLowerCase());
 
@@ -124,25 +125,29 @@ public abstract class OMenu implements InventoryHolder {
             title = TextUtil.replaceText(object, title, placeholders);
         }
 
-        Inventory inventory = Bukkit.createInventory(this, menuRows * 9, title);
-        Object[] finalObjects = objects;
-        fillerItems.forEach((slot, button) -> {
-            if (button.requiredPermission().trim().length() == 0) {
-                ItemStack item = button.currentItem(stateRequester.request(button).getItemStackWithPlaceholdersMulti(finalObjects)).currentItem();
-                inventory.setItem(slot, item);
-            } else if (getViewer().getPlayer().hasPermission(button.requiredPermission()))
-                inventory.setItem(slot, button.currentItem(stateRequester.request(button).getItemStackWithPlaceholdersMulti(finalObjects)).currentItem());
+        try {
+            Inventory inventory = Bukkit.createInventory(this, menuRows * 9, title);
+            Object[] finalObjects = objects;
+            fillerItems.forEach((slot, button) -> {
+                if (button.requiredPermission().trim().length() == 0) {
+                    ItemStack item = button.currentItem(stateRequester.request(button).getItemStackWithPlaceholdersMulti(finalObjects)).currentItem();
+                    inventory.setItem(slot, item);
+                } else if (getViewer().getPlayer().hasPermission(button.requiredPermission()))
+                    inventory.setItem(slot, button.currentItem(stateRequester.request(button).getItemStackWithPlaceholdersMulti(finalObjects)).currentItem());
 
-            else {
-                OMenuButton.ButtonItemBuilder no_permission = button.getStateItem("no permission");
-                if (no_permission == null) return;
+                else {
+                    OMenuButton.ButtonItemBuilder no_permission = button.getStateItem("no permission");
+                    if (no_permission == null) return;
 
-                no_permission.itemBuilder().replaceInLore("{permission}", button.requiredPermission());
-                inventory.setItem(slot, button.currentItem(no_permission.getItemStackWithPlaceholders(getViewer())).currentItem());
-            }
-        });
-
-        return inventory;
+                    no_permission.itemBuilder().replaceInLore("{permission}", button.requiredPermission());
+                    inventory.setItem(slot, button.currentItem(no_permission.getItemStackWithPlaceholders(getViewer())).currentItem());
+                }
+            });
+            return inventory;
+        } catch (Exception exception) {
+            getEngine().getLogger().error(exception);
+            return null;
+        }
     }
 
     public void handleBottomClick(InventoryClickEvent event) {
@@ -297,6 +302,10 @@ public abstract class OMenu implements InventoryHolder {
 
     public Object[] getBuildPlaceholders() {
         return new Object[0];
+    }
+
+    public void refresh(Runnable callback) {
+        executeAction(MenuAction.REFRESH, callback);
     }
 
     public void refresh() {

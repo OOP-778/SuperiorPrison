@@ -1,0 +1,39 @@
+title: "&dUpgrading backpack"
+
+layout:
+  - "X X X X X X X X X"
+  - "X C X X I X X A X"
+  - "X X X X X X X X X"
+
+actions:
+  - "return:C"
+  - "continue:A"
+  - "info:I"
+
+buttons:
+  "C":
+    material: red wool
+    display name: "&cCancel"
+
+  "A":
+    material: lime wool
+    display name: "&aContinue"
+
+  "I":
+    upgrade available:
+      material: sign
+      display name: "&dInfo"
+      lore:
+        - "&7Upgrade to level {backpack_nextlevel}"
+        - ""
+        - "&d&l* &7You get"
+        - "{backpack_nextlevel_description}"
+        - ""
+        - "&d&l* &7Requirements"
+        - "{REQUIREMENT}&5&l- &7{type} {current}&8/&d{needed} &7(&5{percentage}%&7)"
+
+    max:
+      material: sign
+      display name: "&dInfo"
+      lore:
+        - "&7Your backpack is maxed out!"

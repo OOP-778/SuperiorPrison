@@ -7,5 +7,10 @@ public class CmdPrestiges extends OCommand {
         label("prestiges");
         description("Add, remove, clear, view prestiges");
         permission("superiorprison.admin");
+
+        subCommand(new CmdAdd());
+        subCommand(new CmdClear());
+        subCommand(new CmdList());
+        subCommand(new CmdRemove());
     }
 }

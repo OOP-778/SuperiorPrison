@@ -32,6 +32,11 @@ public class BackPackData implements SerializableObject {
 
     public BackPackData(SBackPack holder) {
         this.holder = holder;
+
+        if (holder.getConfig() != null) {
+            this.level = holder.getConfig().getLevel();
+            this.configId = holder.getConfig().getId();
+        }
     }
 
     @Override
@@ -92,9 +97,9 @@ public class BackPackData implements SerializableObject {
     public OPair<Integer, Integer> firstEmpty() {
         AtomicReference<OPair<Integer, Integer>> ref = new AtomicReference<>(null);
         stored.forEach((page, slotData) -> {
-            if (ref.get() == null) return;
+            if (ref.get() != null) return;
             slotData.forEach((slot, item) -> {
-                if (ref.get() == null) return;
+                if (ref.get() != null) return;
                 if (item == null) {
                     ref.set(new OPair<>(page, slot));
                 }
@@ -111,5 +116,17 @@ public class BackPackData implements SerializableObject {
             itemStack = null;
 
         slotData.put(slot, itemStack);
+    }
+
+    public void updateInventoryData() {
+        for (int i = 1; i < holder.getConfig().getPages() + 1; i++) {
+            Map<Integer, ItemStack> pageData = stored.computeIfAbsent(i, page -> new HashMap<>());
+
+            for (int slot = 0; slot < holder.getConfig().getRows() * 9; slot++) {
+                if (pageData.containsKey(slot)) continue;
+
+                pageData.put(slot, null);
+            }
+        }
     }
 }

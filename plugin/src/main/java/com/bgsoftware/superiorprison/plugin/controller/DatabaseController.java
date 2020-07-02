@@ -5,6 +5,7 @@ import com.bgsoftware.superiorprison.plugin.data.SMineHolder;
 import com.bgsoftware.superiorprison.plugin.data.SPrisonerHolder;
 import com.bgsoftware.superiorprison.plugin.data.SStatisticHolder;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.oop.datamodule.DataHelper;
@@ -64,11 +65,11 @@ public class DatabaseController extends StorageHolder {
     }
 
     public ItemStack deserialize(JsonElement jsonElement) throws JsonParseException {
-        return NBTItem.convertNBTtoItem(new NBTContainer(utf8(jsonElement.getAsString())));
+        return jsonElement.isJsonNull() ? null : NBTItem.convertNBTtoItem(new NBTContainer(utf8(jsonElement.getAsString())));
     }
 
-    public JsonElement serialize(@NonNull ItemStack itemStack) {
-        return new JsonPrimitive(NBTItem.convertItemtoNBT(itemStack).asNBTString());
+    public JsonElement serialize(ItemStack itemStack) {
+        return itemStack == null ? JsonNull.INSTANCE : new JsonPrimitive(NBTItem.convertItemtoNBT(itemStack).asNBTString());
     }
 
     public String utf8(String text) {

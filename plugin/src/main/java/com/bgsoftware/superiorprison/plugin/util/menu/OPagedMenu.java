@@ -5,17 +5,23 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.oop.orangeengine.item.custom.OItem;
 import com.oop.orangeengine.material.OMaterial;
+import lombok.Getter;
 import org.bukkit.inventory.Inventory;
 
 import java.util.*;
+
+import static com.oop.orangeengine.main.Engine.getEngine;
 
 public abstract class OPagedMenu<T> extends OMenu {
 
     private final Map<Integer, T> items = new HashMap<>();
     private final Map<Integer, OMenuButton> buttons = new HashMap<>();
-    private List<Integer> emptySlots = new ArrayList<>();
 
+    @Getter
     private int currentPage = 1;
+
+    @Getter
+    private SwitchEnum switchAction = null;
 
     public OPagedMenu(String identifier, SPrisoner viewer) {
         super(identifier, viewer);
@@ -27,7 +33,8 @@ public abstract class OPagedMenu<T> extends OMenu {
                         return;
 
                     currentPage += 1;
-                    refresh();
+                    switchAction = SwitchEnum.NEXT;
+                    refresh(() -> switchAction = null);
                 })
                 .apply(this);
 
@@ -38,7 +45,8 @@ public abstract class OPagedMenu<T> extends OMenu {
                         return;
 
                     currentPage -= 1;
-                    refresh();
+                    switchAction = SwitchEnum.PREVIOUS;
+                    refresh(() -> switchAction = null);
                 })
                 .apply(this);
     }
@@ -48,10 +56,9 @@ public abstract class OPagedMenu<T> extends OMenu {
         items.clear();
         buttons.clear();
 
-        if (emptySlots.isEmpty())
-            emptySlots = getEmptySlots();
+        Inventory inventory = Objects
+                .requireNonNull(buildInventory(getTitle().replace("{current_page}", currentPage + "").replace("{pages_available}", getPages() + ""), getViewer()), "Invalid Inventory");
 
-        Inventory inventory = buildInventory(getTitle().replace("{current_page}", currentPage + "").replace("{pages_available}", getPages() + ""), getViewer());
         List<T> allItems = requestObjects();
         if (allItems.isEmpty()) {
             buttonOf(button -> button.action().contentEquals("next page")).ifPresent(button -> {
@@ -68,6 +75,7 @@ public abstract class OPagedMenu<T> extends OMenu {
             return inventory;
         }
 
+        List<Integer> emptySlots = getEmptySlots();
         for (int i = 0; i < emptySlots.size(); i++) {
             int objectIndex = i + (emptySlots.size() * (currentPage - 1));
             if (objectIndex >= allItems.size()) break;
@@ -115,7 +123,7 @@ public abstract class OPagedMenu<T> extends OMenu {
     }
 
     private int getPages() {
-        double pagesNotRounded = (float) requestObjects().size() / emptySlots.size();
+        double pagesNotRounded = (float) requestObjects().size() / getEmptySlots().size();
         String[] split = String.valueOf(pagesNotRounded).split("\\.");
         int pages = (int) pagesNotRounded;
 
@@ -164,5 +172,10 @@ public abstract class OPagedMenu<T> extends OMenu {
 
     public T requestObject(int slot) {
         return items.get(slot);
+    }
+
+    public static enum SwitchEnum {
+        NEXT,
+        PREVIOUS
     }
 }

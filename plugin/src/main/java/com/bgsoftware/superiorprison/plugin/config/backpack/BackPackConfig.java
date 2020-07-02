@@ -1,16 +1,18 @@
 package com.bgsoftware.superiorprison.plugin.config.backpack;
 import com.bgsoftware.superiorprison.plugin.object.backpack.BackPackData;
+import com.bgsoftware.superiorprison.plugin.object.backpack.SBackPack;
+import com.oop.orangeengine.item.ItemStackUtil;
 import com.oop.orangeengine.item.custom.OItem;
 import com.oop.orangeengine.yaml.ConfigSection;
 import com.oop.orangeengine.yaml.ConfigValue;
 import lombok.Getter;
 import lombok.SneakyThrows;
+import org.bukkit.entity.Player;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.BiConsumer;
+
+import static com.oop.orangeengine.main.Engine.getEngine;
 
 public class BackPackConfig implements Cloneable {
 
@@ -39,6 +41,9 @@ public class BackPackConfig implements Cloneable {
     @Getter
     private String id;
 
+    @Getter
+    private int level = 1;
+
     public BackPackConfig(ConfigSection section) {
         this.id = section.getKey();
         applyUpgrades(section);
@@ -49,14 +54,15 @@ public class BackPackConfig implements Cloneable {
                     for (ConfigSection upgradeSection : upgradesSection.getSections().values()) {
                         BackPackConfig clone = lastClone.clone();
                         clone.applyUpgrades(upgradeSection);
-                        upgrades.put(Integer.parseInt(upgradeSection.getKey()), new BackPackUpgrade(upgradeSection, clone));
+                        clone.level = Integer.parseInt(upgradeSection.getKey());
+                        upgrades.put(clone.level, new BackPackUpgrade(upgradeSection, clone));
 
                         lastClone = clone;
                     }
                 });
     }
 
-    public void applyUpgrades(ConfigSection section) {
+    private void applyUpgrades(ConfigSection section) {
         upgradeHandlers.forEach((key, consumer) -> {
             Optional<ConfigSection> optSection = section.getSection(key);
             Optional<ConfigValue> optValue = section.get(key);
@@ -75,11 +81,27 @@ public class BackPackConfig implements Cloneable {
         return clone;
     }
 
+    public BackPackUpgrade getUpgrade(int level) {
+        return level == 1 ? null : Objects.requireNonNull(upgrades.get(level), "Failed to find BackPack " + id + " level by " + level);
+    }
+
     public BackPackConfig getByLevel(int level) {
         return level == 1 ? this : Objects.requireNonNull(upgrades.get(level), "Failed to find BackPack " + id + " level by " + level).getConfig();
     }
 
     public BackPackConfig getByData(BackPackData data) {
         return data.level == 1 ? this : Objects.requireNonNull(upgrades.get(data.level), "Failed to find BackPack " + id + " level by " + data.level).getConfig();
+    }
+
+    public int getMaxLevel() {
+        return upgrades.keySet().stream().mapToInt(integer -> integer).max().orElse(1);
+    }
+
+    public SBackPack build(Player player) {
+        return SBackPack.of(this, player);
+    }
+
+    public boolean hasUpgrade() {
+        return upgrades.containsKey(level + 1);
     }
 }

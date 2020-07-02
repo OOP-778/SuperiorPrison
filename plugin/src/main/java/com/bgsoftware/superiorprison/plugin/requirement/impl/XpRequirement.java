@@ -13,7 +13,7 @@ public class XpRequirement implements Requirement {
         @Override
         public boolean testIO(Prisoner prisoner, RequirementData requirementData) throws RequirementException {
             int currentXp = XPUtil.getTotalExperience(prisoner.getPlayer());
-            int requiredXp = XPUtil.getTotalExperience(Integer.parseInt(requirementData.getValue()));
+            int requiredXp = Integer.parseInt(requirementData.getValue());
 
             if (currentXp < requiredXp)
                 throw new RequirementException(requirementData, currentXp);
@@ -24,7 +24,7 @@ public class XpRequirement implements Requirement {
         @Override
         public void take(Prisoner prisoner, RequirementData requirementData) {
             int currentXp = XPUtil.getTotalExperience(prisoner.getPlayer());
-            int requiredXp = XPUtil.getTotalExperience(Integer.parseInt(requirementData.getValue()));
+            int requiredXp = Integer.parseInt(requirementData.getValue());
 
             XPUtil.setTotalExperience(prisoner.getPlayer(), (currentXp - requiredXp));
         }
@@ -32,8 +32,13 @@ public class XpRequirement implements Requirement {
         @Override
         public int getPercentage(Prisoner prisoner, RequirementData requirementData) {
             int currentXp = XPUtil.getTotalExperience(prisoner.getPlayer());
-            int requiredXp = XPUtil.getTotalExperience(Integer.parseInt(requirementData.getValue()));
+            int requiredXp = Integer.parseInt(requirementData.getValue());
             return Math.min((int) Math.round(currentXp * 100.0 / requiredXp), 100);
+        }
+
+        @Override
+        public String getCurrent(Prisoner prisoner, RequirementData requirementData) {
+            return "" + XPUtil.getTotalExperience(prisoner.getPlayer());
         }
     };
 

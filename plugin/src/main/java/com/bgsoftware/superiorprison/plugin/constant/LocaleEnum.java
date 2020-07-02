@@ -239,7 +239,9 @@ public enum LocaleEnum {
     SELL_HAND_MUST_HOLD_SOMETHING("You must hold something to execute this command!"),
     SELL_INVENTORY_WORTHLESS("Your inventory is worthless..."),
 
-    PRISON_SHUTDOWN("&cPrison is shutting down.");
+    PRISON_SHUTDOWN("&cPrison is shutting down."),
+    BACKPACK_DROPPED_INVENTORY_FULL("Your backpack was dropped on the ground, because your inventory is full!"),
+    BACKPACK_UPGRADE_DONT_MEET_REQUIREMENTS("You cannot upgrade this backpack, because you don't meet the requirements!");
 
     private final OMessage[] cache = new OMessage[2];
 

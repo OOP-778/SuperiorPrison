@@ -115,6 +115,12 @@ permissions:
                   prison.admin.cmds.prisoner.reset:
                     description: "Reset prisoners data"
 
+                  prison.admin.cmds.backpacks.*:
+                    description: "Access to all commands of backpacks"
+                    children:
+                      prison.admin.cmds.backpacks.give:
+                        description: "Give an backpack"
+
           prison.admin.bypass:
             description: "Bypass block break check for region area"
 

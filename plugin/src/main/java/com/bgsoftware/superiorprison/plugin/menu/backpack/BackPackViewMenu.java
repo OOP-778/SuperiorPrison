@@ -18,6 +18,8 @@ import org.bukkit.inventory.ItemStack;
 import java.util.*;
 import java.util.function.Function;
 
+import static com.oop.orangeengine.main.Engine.getEngine;
+
 @Getter
 public class BackPackViewMenu extends OPagedMenu<ItemStack> {
 
@@ -45,6 +47,7 @@ public class BackPackViewMenu extends OPagedMenu<ItemStack> {
         int plus = (isEmpty(top) ? 0 : 1) + (isEmpty(bottom) ? 0 : 1) + backPack.getConfig().getRows();
         setMenuRows(Math.min(plus, 6));
 
+        getItems().clear();
         getFillerItems().clear();
         getEmptySlots().clear();
 
@@ -142,6 +145,7 @@ public class BackPackViewMenu extends OPagedMenu<ItemStack> {
 
     @Override
     public List<ItemStack> requestObjects() {
+        getEngine().getLogger().print("Stored {} items", backPack.getStored().size());
         return backPack.getStored();
     }
 

@@ -7,7 +7,7 @@ import com.bgsoftware.superiorprison.plugin.commands.prisoner.CmdPrisoner;
 import com.bgsoftware.superiorprison.plugin.commands.rankup.CmdRankup;
 import com.bgsoftware.superiorprison.plugin.commands.sell.SellCommand;
 import com.oop.orangeengine.command.CommandController;
-import com.oop.orangeengine.command.newVersion.SchemeHolder;
+import com.oop.orangeengine.command.scheme.SchemeHolder;
 import com.oop.orangeengine.file.OFile;
 import com.oop.orangeengine.yaml.Config;
 
@@ -15,7 +15,6 @@ import static com.oop.orangeengine.main.Engine.getEngine;
 
 public class CommandsRegister {
     public static void register() {
-
         OFile schemesFile = new OFile(getEngine().getOwning().getDataFolder(), "commandScheme.yml").createIfNotExists(true);
         Config config = new Config(schemesFile);
         SchemeHolder schemeHolder = new SchemeHolder(config);

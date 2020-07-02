@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.block.Block;
 import org.bukkit.event.Cancellable;
+import org.bukkit.inventory.ItemStack;
 
 @Getter
 public class MineBlockBreakEvent extends MineEvent implements Cancellable {

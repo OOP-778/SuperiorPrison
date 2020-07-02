@@ -22,6 +22,9 @@ permissions:
       prison.prisoner.*:
         description: "All permissions for prisoners"
         children:
+          prison.prisoner.ignoredurability:
+            description: "When applied, the durability from tools won't decrease"
+
           prison.prisoner.feature.*:
             description: "All permissions for prisoner features"
             children:

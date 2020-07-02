@@ -29,6 +29,8 @@ import com.oop.orangeengine.material.OMaterial;
 import com.oop.orangeengine.message.OMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftItem;
+import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
@@ -236,6 +238,11 @@ public class PrisonerListener {
 
                 event.setCancelled(true);
                 event.getBlock().setType(Material.AIR);
+
+                if (!player.hasPermission("prison.prisoner.ignoredurability")) {
+                    ItemStack itemInHand = event.getPrisoner().getPlayer().getItemInHand();
+                    itemInHand.setDurability((short) (itemInHand.getDurability() + 1));
+                }
 
                 drops.forEach(item -> event.getBlock().getLocation().getWorld().dropItem(event.getBlock().getLocation().add(0.5, 0, 0.5), item));
             }

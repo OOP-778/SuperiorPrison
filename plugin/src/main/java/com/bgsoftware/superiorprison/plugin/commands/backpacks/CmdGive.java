@@ -32,7 +32,6 @@ public class CmdGive extends OCommand {
             StaticTask.getInstance().ensureSync(() -> {
                 for (int i = 0; i < amount; i++) {
                     SBackPack backpack = finalBackPackConfig.build(receiver);
-                    backpack.add(new ItemStack(Material.DIAMOND, 32), new ItemStack(Material.DIAMOND, 32));
                     backpack.save();
                     if (receiver.getInventory().firstEmpty() == -1)
                         receiver.getWorld().dropItem(receiver.getLocation(), backpack.getItem());

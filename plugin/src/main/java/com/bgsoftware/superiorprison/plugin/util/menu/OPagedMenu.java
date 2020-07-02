@@ -14,6 +14,7 @@ import static com.oop.orangeengine.main.Engine.getEngine;
 
 public abstract class OPagedMenu<T> extends OMenu {
 
+    @Getter
     private final Map<Integer, T> items = new HashMap<>();
     private final Map<Integer, OMenuButton> buttons = new HashMap<>();
 
@@ -23,13 +24,15 @@ public abstract class OPagedMenu<T> extends OMenu {
     @Getter
     private SwitchEnum switchAction = null;
 
+    private int pages;
+
     public OPagedMenu(String identifier, SPrisoner viewer) {
         super(identifier, viewer);
 
         ClickHandler
                 .of("next page")
                 .handle(event -> {
-                    if (getPages() == currentPage)
+                    if (pages == currentPage)
                         return;
 
                     currentPage += 1;
@@ -56,10 +59,11 @@ public abstract class OPagedMenu<T> extends OMenu {
         items.clear();
         buttons.clear();
 
-        Inventory inventory = Objects
-                .requireNonNull(buildInventory(getTitle().replace("{current_page}", currentPage + "").replace("{pages_available}", getPages() + ""), getViewer()), "Invalid Inventory");
-
         List<T> allItems = requestObjects();
+        pages = getPages();
+        Inventory inventory = Objects
+                .requireNonNull(buildInventory(getTitle().replace("{current_page}", currentPage + "").replace("{pages_available}", pages + ""), getViewer()), "Invalid Inventory");
+
         if (allItems.isEmpty()) {
             buttonOf(button -> button.action().contentEquals("next page")).ifPresent(button -> {
                 if (!button.containsState("hidden")) return;
@@ -97,7 +101,7 @@ public abstract class OPagedMenu<T> extends OMenu {
 
         if (nextPageButton.isPresent()) {
             OMenuButton button = nextPageButton.get();
-            if (currentPage == getPages()) {
+            if (currentPage == pages) {
                 if (button.containsState("hidden"))
                     inventory.setItem(button.slot(), button.currentItem(button.getStateItem("hidden").getItemStackWithPlaceholdersMulti(getViewer())).currentItem());
 
@@ -118,11 +122,11 @@ public abstract class OPagedMenu<T> extends OMenu {
             else
                 inventory.setItem(button.slot(), button.currentItem(button.getStateItem("shown").getItemStackWithPlaceholders(getViewer())).currentItem());
         }
-
         return inventory;
     }
 
     private int getPages() {
+        getEngine().getLogger().print("getting pages");
         double pagesNotRounded = (float) requestObjects().size() / getEmptySlots().size();
         String[] split = String.valueOf(pagesNotRounded).split("\\.");
         int pages = (int) pagesNotRounded;
@@ -132,7 +136,6 @@ public abstract class OPagedMenu<T> extends OMenu {
 
         if (pages == 0)
             return 1;
-
         return pages;
     }
 

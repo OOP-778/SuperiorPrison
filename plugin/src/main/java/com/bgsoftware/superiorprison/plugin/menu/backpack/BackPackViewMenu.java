@@ -145,7 +145,6 @@ public class BackPackViewMenu extends OPagedMenu<ItemStack> {
 
     @Override
     public List<ItemStack> requestObjects() {
-        getEngine().getLogger().print("Stored {} items", backPack.getStored().size());
         return backPack.getStored();
     }
 

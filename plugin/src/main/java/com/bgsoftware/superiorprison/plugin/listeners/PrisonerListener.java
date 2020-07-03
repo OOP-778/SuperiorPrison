@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorprison.plugin.listeners;
 
+import com.bgsoftware.superiorprison.api.data.backpack.BackPack;
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
 import com.bgsoftware.superiorprison.api.data.mine.area.AreaEnum;
 import com.bgsoftware.superiorprison.api.data.player.Prisoner;
@@ -42,10 +43,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class PrisonerListener {
@@ -224,15 +222,39 @@ public class PrisonerListener {
 
                 // Handle auto pickup
                 if (prisoner.isAutoPickup()) {
-                    HashMap<Integer, ItemStack> left = player.getInventory().addItem(drops.toArray(new ItemStack[0]));
-                    if (left.isEmpty())
-                        drops.clear();
+                    Set<BackPack> backpacks = SuperiorPrisonPlugin.getInstance().getBackPackController().findBackPacks(player);
+                    for (BackPack backpack : backpacks) {
+                        Map<ItemStack, Integer> add = backpack.add(drops.toArray(new ItemStack[0]));
 
-                    else {
-                        drops.clear();
-                        drops.addAll(left.values());
+                        Runnable modify = () -> {
+                            if (!backpack.isModified()) return;
+                            backpack.save();
+                            backpack.update();
+                        };
 
-                        LocaleEnum.AUTO_PICKUP_PRISONER_INVENTORY_FULL.getWithErrorPrefix().send(player);
+                        if (add.isEmpty()) {
+                            drops.clear();
+                            modify.run();
+                            break;
+
+                        } else {
+                            modify.run();
+                            drops.clear();
+                            drops.addAll(add.keySet());
+                        }
+                    }
+
+                    if (!drops.isEmpty()) {
+                        HashMap<Integer, ItemStack> left = player.getInventory().addItem(drops.toArray(new ItemStack[0]));
+                        if (left.isEmpty())
+                            drops.clear();
+
+                        else {
+                            drops.clear();
+                            drops.addAll(left.values());
+
+                            LocaleEnum.AUTO_PICKUP_PRISONER_INVENTORY_FULL.getWithErrorPrefix().send(player);
+                        }
                     }
                 }
 

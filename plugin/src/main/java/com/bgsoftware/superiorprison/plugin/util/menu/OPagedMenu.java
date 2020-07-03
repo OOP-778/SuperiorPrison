@@ -126,7 +126,6 @@ public abstract class OPagedMenu<T> extends OMenu {
     }
 
     private int getPages() {
-        getEngine().getLogger().print("getting pages");
         double pagesNotRounded = (float) requestObjects().size() / getEmptySlots().size();
         String[] split = String.valueOf(pagesNotRounded).split("\\.");
         int pages = (int) pagesNotRounded;

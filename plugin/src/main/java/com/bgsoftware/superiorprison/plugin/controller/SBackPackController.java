@@ -11,12 +11,11 @@ import com.oop.orangeengine.nbt.NBTItem;
 import com.oop.orangeengine.yaml.Config;
 import com.oop.orangeengine.yaml.ConfigSection;
 import lombok.NonNull;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class SBackPackController implements BackPackController, OComponent<SuperiorPrisonPlugin> {
 
@@ -46,6 +45,16 @@ public class SBackPackController implements BackPackController, OComponent<Super
     @Override
     public boolean isPlayerBound() {
         return false;
+    }
+
+    @Override
+    public Set<BackPack> findBackPacks(Player player) {
+        Set<BackPack> backPacks = new HashSet<>();
+        for (ItemStack content : player.getInventory().getContents()) {
+            if (content == null || content.getType() == Material.AIR) continue;
+            if (isBackPack(content)) backPacks.add(getBackPack(content, player));
+        }
+        return backPacks;
     }
 
     @Override

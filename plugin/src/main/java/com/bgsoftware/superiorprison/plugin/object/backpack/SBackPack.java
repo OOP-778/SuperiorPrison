@@ -26,6 +26,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.bgsoftware.superiorprison.plugin.controller.SBackPackController.NBT_KEY;
+import static com.oop.orangeengine.main.Engine.getEngine;
 
 @AllArgsConstructor
 public class SBackPack implements BackPack {
@@ -45,6 +46,8 @@ public class SBackPack implements BackPack {
 
     @Setter @Getter
     private BackPackViewMenu currentView;
+
+    private int hashcode;
 
     private SBackPack() {}
 
@@ -67,7 +70,12 @@ public class SBackPack implements BackPack {
 
         backPack.updateNbt();
         backPack.save();
+        backPack.updateHash();
         return backPack;
+    }
+
+    private void updateHash() {
+        this.hashcode = data.hashCode();
     }
 
     @SneakyThrows
@@ -102,6 +110,7 @@ public class SBackPack implements BackPack {
 
         config = SuperiorPrisonPlugin.getInstance().getBackPackController().getConfig(data.configId).orElseThrow(() -> new IllegalStateException("Failed to find backPack by id " + data.configId + " level " + data.level)).getByLevel(data.level);
         data.updateInventoryData();
+        updateHash();
     }
 
     @Override
@@ -148,6 +157,7 @@ public class SBackPack implements BackPack {
 
     @Override
     public void save() {
+        if (!isModified()) return;
         updateNbt();
         SerializedData serializedData = new SerializedData();
         data.serialize(serializedData);
@@ -162,15 +172,20 @@ public class SBackPack implements BackPack {
         }
 
         nbtItem.setString(NBT_KEY, DataHelper.gson().toJson(oldData));
+        updateHash();
     }
 
     @Override
     public Map<ItemStack, Integer> add(ItemStack... itemStacks) {
         OPair<Integer, Integer> firstEmpty = data.firstEmpty();
         if (firstEmpty == null && getCapacity() == getUsed())
-            return Arrays.stream(itemStacks).collect(Collectors.toMap(item -> item, ItemStack::getAmount));
+            return Arrays.stream(itemStacks).collect(Collectors.toMap(item -> item, item -> 0));
 
+        Map<ItemStack, Integer> addedItems = new HashMap<>();
         for (ItemStack itemStack : itemStacks) {
+            int startingAmount = itemStack.getAmount();
+            int added = 0;
+
             while (itemStack.getAmount() != 0) {
                 OTriplePair<Integer, Integer, ItemStack> similar = data.findSimilar(itemStack, true);
                 if (similar != null) {
@@ -181,6 +196,7 @@ public class SBackPack implements BackPack {
 
                     if (canAdd >= itemStack.getAmount()) {
                         slotItem.setAmount(slotItem.getAmount() + itemStack.getAmount());
+                        added += itemStack.getAmount();
                         itemStack.setAmount(0);
                         break;
 
@@ -188,40 +204,43 @@ public class SBackPack implements BackPack {
                         int adding = itemStack.getAmount() - canAdd;
                         slotItem.setAmount(slotItem.getAmount() + adding);
                         itemStack.setAmount(adding);
+                        added += canAdd;
                     }
                 } else {
                     firstEmpty = data.firstEmpty();
                     if (firstEmpty == null) break;
 
+                    added += itemStack.getAmount();
                     data.setItem(firstEmpty.getFirst(), firstEmpty.getSecond(), itemStack.clone());
+                    getEngine().getLogger().print("Page {} Slot {} Item {}", firstEmpty.getFirst(), firstEmpty.getSecond(), itemStack);
                     itemStack.setAmount(0);
                 }
             }
+            if (added != startingAmount)
+                addedItems.put(itemStack, added);
         }
-
-        Map<ItemStack, Integer> notAdded = new HashMap<>();
-        for (ItemStack stack : itemStacks) {
-            if (stack.getAmount() == 0) continue;
-            notAdded.put(stack, stack.getAmount());
-        }
-
-        return notAdded;
+        return addedItems;
     }
 
     @Override
     public Map<ItemStack, Integer> remove(ItemStack... itemStacks) {
+        Map<ItemStack, Integer> removedItems = new HashMap<>();
         for (ItemStack itemStack : itemStacks) {
-            while (itemStack.getAmount() != 0) {
+            int startingAmount = itemStack.getAmount();
+            int removed = 0;
+            while (itemStack.getAmount() > 0) {
                 OTriplePair<Integer, Integer, ItemStack> similar = data.findSimilar(itemStack, false);
                 if (similar == null) break;
 
                 ItemStack slotItem = similar.getThird();
                 if (slotItem.getAmount() == itemStack.getAmount()) {
+                    removed += itemStack.getAmount();
                     itemStack.setAmount(0);
                     data.setItem(similar.getFirst(), similar.getSecond(), null);
 
                 } else if (slotItem.getAmount() > itemStack.getAmount()) {
                     int removing = slotItem.getAmount() - itemStack.getAmount();
+                    removed = itemStack.getAmount();
                     slotItem.setAmount(removing);
                     itemStack.setAmount(0);
 
@@ -232,15 +251,11 @@ public class SBackPack implements BackPack {
                     itemStack.setAmount(canRemove);
                 }
             }
+            if (startingAmount != removed)
+                removedItems.put(itemStack, removed);
         }
 
-        Map<ItemStack, Integer> notRemoved = new HashMap<>();
-        for (ItemStack stack : itemStacks) {
-            if (stack.getAmount() == 0) continue;
-            notRemoved.put(stack, stack.getAmount());
-        }
-
-        return notRemoved;
+        return removedItems;
     }
 
     @Override
@@ -248,6 +263,7 @@ public class SBackPack implements BackPack {
         // Update the inventory
         int first = owner.getInventory().first(itemStack);
         owner.getInventory().setItem(first, nbtItem.getItem());
+        owner.updateInventory();
 
         // Update the menu
         if (currentView != null)
@@ -263,5 +279,10 @@ public class SBackPack implements BackPack {
 
         if (currentView != null)
             currentView.onUpgrade();
+    }
+
+    @Override
+    public boolean isModified() {
+        return data.hashCode() != hashcode;
     }
 }

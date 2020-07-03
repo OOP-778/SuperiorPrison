@@ -87,7 +87,7 @@ public class BackPackData implements SerializableObject {
                 if (ref.get() != null) return;
                 if (item == null) return;
 
-                if (ItemStackUtil.isSimilar(item, to) && (amountCheck && item.getAmount() != item.getMaxStackSize()))
+                if (ItemStackUtil.isSimilar(item, to) && (!amountCheck || item.getAmount() != item.getMaxStackSize()))
                     ref.set(new OTriplePair<>(page, slot, item));
             });
         });
@@ -128,5 +128,19 @@ public class BackPackData implements SerializableObject {
                 pageData.put(slot, null);
             }
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BackPackData that = (BackPackData) o;
+        return level == that.level &&
+                stored.equals(that.stored);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(stored, level);
     }
 }

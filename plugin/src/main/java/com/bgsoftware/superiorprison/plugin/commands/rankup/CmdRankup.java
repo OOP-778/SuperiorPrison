@@ -51,6 +51,7 @@ public class CmdRankup extends OCommand {
                             .replace("{current_rank}", next.getName())
                             .send(command);
 
+                    takeRequirements(next.getRequirements(), prisoner);
                     prisoner.addRank(next);
                     prisoner.save(true);
                 }
@@ -83,6 +84,8 @@ public class CmdRankup extends OCommand {
                             .send(command);
                     return;
                 }
+
+                takeRequirements(next.getRequirements(), prisoner);
 
                 prisoner.addPrestige(next);
                 prisoner.removeRankIf(rank -> rank instanceof LadderRank);

@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class SMineHolder extends SqlStorage<SNormalMine> implements MineHolder {
-
     private final Map<String, SNormalMine> mineMap = Maps.newConcurrentMap();
 
     @Getter

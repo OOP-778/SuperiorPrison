@@ -55,7 +55,6 @@ allprojects {
             compileOnly("com.github.MilkBowl:VaultAPI:1.7")
             compileOnly 'me.clip:placeholderapi:2.10.4'
             compileOnly fileTree("../lib")
-            compile "com.oop:data:1.0"
 
         } else {
             compileOnly "com.oop.orangeengine:file:4.8"

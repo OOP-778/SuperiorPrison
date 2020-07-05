@@ -212,7 +212,6 @@ public class SBackPack implements BackPack {
 
                     added += itemStack.getAmount();
                     data.setItem(firstEmpty.getFirst(), firstEmpty.getSecond(), itemStack.clone());
-                    getEngine().getLogger().print("Page {} Slot {} Item {}", firstEmpty.getFirst(), firstEmpty.getSecond(), itemStack);
                     itemStack.setAmount(0);
                 }
             }

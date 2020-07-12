@@ -294,13 +294,15 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
 
     public void onReset() {
         getPrisoners().removeIf(prisoner -> {
-            boolean online = true;
+            boolean online = false;
             if (!prisoner.isOnline()) {
                 ((SPrisoner)prisoner).setLogoutMine(getName());
-                online = false;
+                prisoner.save(true);
+                online = true;
             }
             return online;
         });
+
         StaticTask.getInstance().sync(() -> {
             getPrisoners().stream().filter(prisoner -> prisoner.getCurrentMine().get().getValue() == AreaEnum.MINE).forEach(prisoner -> {
                 prisoner.getPlayer().teleport(getSpawnPoint());

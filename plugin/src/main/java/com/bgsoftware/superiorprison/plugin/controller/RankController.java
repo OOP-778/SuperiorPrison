@@ -7,6 +7,7 @@ import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.object.player.rank.SLadderRank;
 import com.bgsoftware.superiorprison.plugin.object.player.rank.SSpecialRank;
 import com.bgsoftware.superiorprison.plugin.requirement.LoadingRequirementData;
+import com.bgsoftware.superiorprison.plugin.util.LoadHookable;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.oop.orangeengine.main.plugin.OComponent;
@@ -18,12 +19,18 @@ import lombok.Getter;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
-public class RankController implements com.bgsoftware.superiorprison.api.controller.RankController, OComponent<SuperiorPrisonPlugin> {
+public class RankController implements com.bgsoftware.superiorprison.api.controller.RankController, OComponent<SuperiorPrisonPlugin>, LoadHookable<RankController> {
 
     private final Map<Integer, SLadderRank> ladderRanks = Maps.newConcurrentMap();
     private final Set<SSpecialRank> specialRanks = Sets.newConcurrentHashSet();
     private SLadderRank defaultRank;
+
+    @Getter
+    private List<Consumer<RankController>> loadHooks = new ArrayList<>();
+
+    private List<Runnable> onLoadHooks;
 
     @Override
     public boolean load() {
@@ -100,6 +107,7 @@ public class RankController implements com.bgsoftware.superiorprison.api.control
             throw new IllegalStateException("Failed to load RankController cause " + thrw.getMessage(), thrw);
         }
 
+        getLoadHooks().forEach(consumer -> consumer.accept(this));
         return true;
     }
 

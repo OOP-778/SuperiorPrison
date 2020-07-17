@@ -35,6 +35,7 @@ public class FindAccessMenu extends AccessMenu {
                     } else
                         mine.addPrestige(accessObject.getAs(Prestige.class));
 
+                    mine.updateHighests();
                     mine.save(true);
                     refreshMenus(FindAccessMenu.class, menu -> menu.mine.equals(mine));
                 })

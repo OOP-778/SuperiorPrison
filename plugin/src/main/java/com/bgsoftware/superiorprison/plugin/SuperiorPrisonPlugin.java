@@ -122,6 +122,9 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
         if (getDatabaseController() != null && getDatabaseController().getDatabase() != null)
             getDatabaseController().save(false);
 
+        getHookController()
+                .executeIfFound(() -> PapiHook.class, hook -> hook.disable());
+
         Bukkit.getOnlinePlayers().forEach(player -> player.kickPlayer(Helper.color(LocaleEnum.PRISON_SHUTDOWN.getMessage().raw()[0])));
         instance = null;
     }

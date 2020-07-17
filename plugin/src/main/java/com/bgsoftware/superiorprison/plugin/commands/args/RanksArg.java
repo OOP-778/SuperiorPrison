@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorprison.plugin.commands.args;
 
+import com.bgsoftware.superiorprison.api.data.player.rank.LadderRank;
 import com.bgsoftware.superiorprison.api.data.player.rank.Rank;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
@@ -16,7 +17,13 @@ import java.util.stream.Stream;
 
 @Accessors(chain = true, fluent = true)
 public class RanksArg extends CommandArgument<Rank> {
-    public RanksArg() {
+
+    private boolean ladderOnly;
+    private boolean filterOut;
+
+    public RanksArg(boolean ladderOnly, boolean filterOut) {
+        this.ladderOnly = ladderOnly;
+        this.filterOut = filterOut;
         setIdentity("rank");
         setDescription("A rank");
 
@@ -37,11 +44,12 @@ public class RanksArg extends CommandArgument<Rank> {
     public void onAdd(OCommand command) {
         command.nextTabComplete((previous, args) -> {
             SPrisoner prisoner = previous.find(SPrisoner.class).orElse(null);
-            Stream<String> stream = SuperiorPrisonPlugin.getInstance().getRankController().getRanks().stream().map(Rank::getName);
-            if (prisoner != null)
-                stream = stream.filter(rank -> !prisoner.hasRank(rank));
-
-            return stream.collect(Collectors.toList());
+            return SuperiorPrisonPlugin.getInstance().getRankController().getRanks()
+                    .stream()
+                    .filter(rank -> !ladderOnly || rank instanceof LadderRank)
+                    .filter(rank -> !filterOut || !prisoner.hasRank(rank))
+                    .map(Rank::getName)
+                    .collect(Collectors.toList());
         });
     }
 }

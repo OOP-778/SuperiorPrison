@@ -104,8 +104,7 @@ public class MineListener {
                     Bukkit.getPluginManager().callEvent(areaChangeEvent);
 
                     if (areaChangeEvent.isCancelled()) {
-                        Vector vector = event.getPlayer().getLocation().toVector().subtract(event.getTo().toVector()).normalize();
-                        event.getPlayer().setVelocity(vector.multiply(0.5));
+                        event.getPlayer().teleport(event.getPlayer().getWorld().getSpawnLocation());
                         return;
                     }
 
@@ -121,9 +120,7 @@ public class MineListener {
                     Bukkit.getPluginManager().callEvent(enterEvent);
 
                     if (enterEvent.isCancelled()) {
-                        event.setCancelled(true);
-                        Vector vector = event.getPlayer().getLocation().toVector().subtract(event.getTo().toVector()).normalize();
-                        event.getPlayer().setVelocity(vector.multiply(0.5));
+                        event.getPlayer().teleport(event.getPlayer().getWorld().getSpawnLocation());
                         return;
                     }
 

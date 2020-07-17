@@ -16,6 +16,8 @@ public class RepeatableQueue<V> {
     }
 
     public V poll() {
+        if (index == (size - 1)) reset();
+
         V value = array[index];
         index++;
         return value;

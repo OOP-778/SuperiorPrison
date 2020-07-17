@@ -190,7 +190,6 @@ public class PrisonerListener {
                 if (tool.hasEnchant(Enchantment.LOOT_BONUS_BLOCKS))
                     for (ItemStack itemStack : drops) {
                         if (!prisoner.isFortuneBlocks() && itemStack.getType().isBlock()) continue;
-
                         itemStack.setAmount(getItemCountWithFortune(itemStack.getType(), tool.getEnchantLevel(Enchantment.LOOT_BONUS_BLOCKS)));
                     }
 

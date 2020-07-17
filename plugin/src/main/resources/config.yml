@@ -67,3 +67,6 @@ blocks cache time limit: "1h"
 
 # Sold blocks message interval
 sold message interval: "1m"
+
+# Should it reset the ranks after prestige
+reset ranks after prestige up: false

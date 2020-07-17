@@ -9,11 +9,13 @@ import com.bgsoftware.superiorprison.plugin.util.ChunkDataQueue;
 import com.bgsoftware.superiorprison.plugin.util.ChunkResetData;
 import com.google.common.collect.Maps;
 import com.oop.datamodule.storage.SqlStorage;
+import com.oop.orangeengine.main.util.data.cache.OCache;
 import com.oop.orangeengine.material.OMaterial;
 import lombok.Getter;
 import org.bukkit.Location;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -82,11 +84,23 @@ public class SMineHolder extends SqlStorage<SNormalMine> implements MineHolder {
                 .findFirst();
     }
 
+    private OCache<UUID, List<SNormalMine>> minesCache = OCache
+            .builder()
+            .concurrencyLevel(1)
+            .resetExpireAfterAccess(true)
+            .expireAfter(5, TimeUnit.SECONDS)
+            .build();
+
     public List<SNormalMine> getMinesFor(SPrisoner prisoner) {
-        return stream()
+        List<SNormalMine> mines = minesCache.get(prisoner.getUUID());
+        if (mines != null) return mines;
+
+        mines = stream()
                 .filter(mine -> prisoner.getPlayer().isOp() || mine.canEnter(prisoner))
                 .sorted(Comparator.comparing(SNormalMine::getName))
                 .collect(Collectors.toList());
+        minesCache.put(prisoner.getUUID(), mines);
+        return mines;
     }
 
     @Override

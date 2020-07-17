@@ -30,7 +30,6 @@ public class ResetQueueTask extends OTask {
                 return;
             }
 
-
             if (currentChunk == null || currentChunk.getData().isEmpty()) {
                 currentChunk = SuperiorPrisonPlugin.getInstance().getMineController().getQueue().next();
                 bukkitChunk = null;
@@ -56,6 +55,7 @@ public class ResetQueueTask extends OTask {
 
             if (!running) {
                 running = true;
+                cancel = false;
                 StaticTask.getInstance().sync(() -> {
                     while (currentChunk != null && !currentChunk.getData().isEmpty()) {
                         if (cancel || currentChunk == null || currentChunk.getData().isEmpty())

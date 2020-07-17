@@ -4,13 +4,12 @@ import com.oop.orangeengine.command.OCommand;
 
 public class CmdPrestiges extends OCommand {
     public CmdPrestiges() {
-        label("prestiges");
+        label("prestige");
+        alias("prestiges");
         description("Add, remove, clear, view prestiges");
         permission("superiorprison.admin");
 
-        subCommand(new CmdAdd());
-        subCommand(new CmdClear());
-        subCommand(new CmdList());
-        subCommand(new CmdRemove());
+        subCommand(new CmdInfo());
+        subCommand(new CmdSet());
     }
 }

@@ -23,30 +23,29 @@ public class CmdAdd extends OCommand {
         permission("superiorprison.admin");
 
         argument(new PrisonerArg(true).setRequired(true));
-        argument(new RanksArg().setRequired(true));
-        argument(new BoolArg().setIdentity("all").setDescription("true or false, if true when added ladder rank, it will add all the previous ranks"));
+        argument(new RanksArg(false, true).setRequired(true));
 
         onCommand(command -> {
             SPrisoner prisoner = command.getArgAsReq("prisoner");
             Rank rank = command.getArgAsReq("rank");
-            Optional<Boolean> all = command.getArg("all");
 
-            if (prisoner.hasPrestige(rank.getName())) {
+            if (rank instanceof LadderRank) {
+                LocaleEnum.PRISONER_RANKS_ADD_CANNOT_LADDER
+                        .getWithErrorPrefix()
+                        .send(command.getSender());
+                return;
+            }
+
+            if (prisoner.hasRank(rank)) {
                 messageBuilder(LocaleEnum.PRISONER_ALREADY_HAVE_RANK.getWithErrorPrefix())
                         .replace(rank, prisoner)
                         .send(command);
                 return;
             }
 
-            List<Rank> ranks = new ArrayList<>();
-            ranks.add(rank);
-
-            if (all.isPresent() && rank instanceof LadderRank)
-                ranks.addAll(((LadderRank) rank).getAllPrevious());
-
-            prisoner.addRank(ranks.toArray(new Rank[0]));
+            prisoner.addRank(rank);
             messageBuilder(LocaleEnum.SUCCESSFULLY_ADDED_RANK.getWithPrefix())
-                    .replace("{rank_name}", ranks.size() == 1 ? rank.getName() : Arrays.toString(ranks.stream().map(Rank::getName).toArray()))
+                    .replace("{rank_name}", rank.getName())
                     .replace(prisoner, rank)
                     .send(command);
         });

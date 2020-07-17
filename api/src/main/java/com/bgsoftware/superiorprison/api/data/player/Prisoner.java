@@ -17,7 +17,6 @@ import java.util.Set;
 import java.util.UUID;
 
 public interface Prisoner {
-
     UUID getUUID();
 
     boolean isAutoSell();
@@ -38,11 +37,7 @@ public interface Prisoner {
 
     boolean isAutoPickup();
 
-    List<Rank> getRanks();
-
     List<Rank> getSpecialRanks();
-
-    List<LadderRank> getLadderRanks();
 
     LadderRank getCurrentLadderRank();
 
@@ -64,17 +59,11 @@ public interface Prisoner {
 
     boolean hasRank(String name);
 
-    Set<Prestige> getPrestiges();
+    boolean hasPrestige(Prestige prestige);
 
-    void addPrestige(Prestige ...prestige);
+    void setPrestige(Prestige prestige, boolean applyOnAdd);
 
-    void addPrestige(String ...prestige);
-
-    void removePrestige(Prestige ...prestige);
-
-    void removePrestige(String ...prestige);
-
-    boolean hasPrestige(String prestige);
+    void setLadderRank(LadderRank rank, boolean applyOnAdd);
 
     Optional<Prestige> getCurrentPrestige();
 }

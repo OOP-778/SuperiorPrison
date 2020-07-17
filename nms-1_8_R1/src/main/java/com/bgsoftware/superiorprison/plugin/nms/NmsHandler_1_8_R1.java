@@ -38,6 +38,7 @@ public class NmsHandler_1_8_R1 implements SuperiorNms {
             int locsSize = locs.size();
             short[] values = new short[locsSize];
             net.minecraft.server.v1_8_R1.Chunk nmsChunk = ((CraftChunk) chunk).getHandle();
+            nmsChunk.e();
 
             Location firstLocation = null;
 

@@ -152,7 +152,6 @@ public class CmdCreate extends OCommand {
             }, new SubscriptionProperties<AsyncPlayerChatEvent>()
                     .runTill(e -> posSelectEvent.get().cancelled())
                     .filter(event -> event.getMessage().equalsIgnoreCase("cancel") && event.getPlayer().equals(player)));
-
         };
     }
 

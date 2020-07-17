@@ -54,6 +54,7 @@ allprojects {
             // Dependencies
             compileOnly("com.github.MilkBowl:VaultAPI:1.7")
             compileOnly 'me.clip:placeholderapi:2.10.4'
+
             compile fileTree("../lib")
             compileOnly 'com.github.brcdev-minecraft:shopgui-api:1.5.0'
 

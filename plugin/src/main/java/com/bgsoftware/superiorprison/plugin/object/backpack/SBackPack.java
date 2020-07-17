@@ -1,6 +1,5 @@
 package com.bgsoftware.superiorprison.plugin.object.backpack;
 
-import com.bgsoftware.superiorprison.api.SuperiorPrison;
 import com.bgsoftware.superiorprison.api.data.backpack.BackPack;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.config.backpack.BackPackConfig;
@@ -10,7 +9,6 @@ import com.google.common.base.Preconditions;
 import com.google.gson.JsonObject;
 import com.oop.datamodule.DataHelper;
 import com.oop.datamodule.SerializedData;
-import com.oop.orangeengine.item.ItemStackUtil;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.main.util.data.pair.OTriplePair;
 import com.oop.orangeengine.nbt.NBTItem;
@@ -26,7 +24,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.bgsoftware.superiorprison.plugin.controller.SBackPackController.NBT_KEY;
-import static com.oop.orangeengine.main.Engine.getEngine;
 
 @AllArgsConstructor
 public class SBackPack implements BackPack {
@@ -44,12 +41,14 @@ public class SBackPack implements BackPack {
 
     private JsonObject oldData;
 
-    @Setter @Getter
+    @Setter
+    @Getter
     private BackPackViewMenu currentView;
 
     private int hashcode;
 
-    private SBackPack() {}
+    private SBackPack() {
+    }
 
     public static SBackPack of(BackPackConfig config, Player player) {
         SBackPack backPack = new SBackPack();

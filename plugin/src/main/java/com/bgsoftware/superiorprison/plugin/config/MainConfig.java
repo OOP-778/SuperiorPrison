@@ -25,6 +25,8 @@ public class MainConfig {
 
     private long rankupMessageInterval;
 
+    private boolean resetRanks = false;
+
     public MainConfig() {
         load();
     }
@@ -48,6 +50,8 @@ public class MainConfig {
         cacheTime = TimeUtil.toSeconds(configuration.getAs("blocks cache time limit", String.class, () -> "1h"));
         soldMessageInterval = TimeUtil.toSeconds(configuration.getAs("sold message interval", String.class, () -> "3m"));
         rankupMessageInterval = TimeUtil.toSeconds(configuration.getAs("rankup message interval", String.class, () -> "6s"));
+        resetRanks = configuration.getAs("reset ranks after prestige up", boolean.class, () -> false);
+
         configuration.save();
     }
 }

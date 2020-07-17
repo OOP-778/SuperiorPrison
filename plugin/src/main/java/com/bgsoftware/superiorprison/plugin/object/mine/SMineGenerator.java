@@ -122,7 +122,7 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
                         //System.out.println("Completed " + l + "/" + blocksInRegion);
                         if (l >= blocksInRegion) {
                             ClassDebugger.debug("Finished mine resetting. Prisoners count: " + mine.getPrisoners().size());
-                            SuperiorPrisonPlugin.getInstance().getNms().refreshChunks(world, cachedLocations, mine.getPrisoners().stream().filter(Prisoner::isOnline).map(Prisoner::getPlayer).collect(Collectors.toSet()));
+                            SuperiorPrisonPlugin.getInstance().getNms().refreshChunks(world, cachedLocations, mine.getSpawnPoint().getWorld().getPlayers());
                             blocksRegenerated.set(0);
                             blockData.reset();
 

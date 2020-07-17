@@ -2,6 +2,7 @@ package com.bgsoftware.superiorprison.plugin.nms;
 
 import com.oop.orangeengine.material.OMaterial;
 import lombok.NonNull;
+import net.md_5.bungee.api.ChatColor;
 import net.minecraft.server.v1_10_R1.*;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -38,6 +39,7 @@ public class NmsHandler_v1_10_R1 implements SuperiorNms {
             int locsSize = locs.size();
             short[] values = new short[locsSize];
             net.minecraft.server.v1_10_R1.Chunk nmsChunk = ((CraftChunk) chunk).getHandle();
+            nmsChunk.e();
 
             Location firstLocation = null;
 

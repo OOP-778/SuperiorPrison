@@ -1,30 +1,31 @@
 package com.bgsoftware.superiorprison.plugin.commands.prisoner.prestige;
 
+import com.bgsoftware.superiorprison.plugin.commands.args.PrestigesArg;
 import com.bgsoftware.superiorprison.plugin.commands.args.PrisonerArg;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
+import com.bgsoftware.superiorprison.plugin.object.player.SPrestige;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.oop.orangeengine.command.OCommand;
 
 import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
 
-public class CmdClear extends OCommand {
-
-    public CmdClear() {
-        label("clear");
-        description("Clear prestiges from prisoner");
-        permission("superiorprison.admin");
-
+public class CmdSet extends OCommand {
+    public CmdSet() {
+        label("set");
+        description("Set prisoners prestige");
         argument(new PrisonerArg(true).setRequired(true));
-
+        argument(new PrestigesArg().setRequired(true));
         onCommand(command -> {
             SPrisoner prisoner = command.getArgAsReq("prisoner");
-            prisoner.clearPrestiges();
+            SPrestige prestige = command.getArgAsReq("prestige");
 
-            messageBuilder(LocaleEnum.SUCCESSFULLY_CLEARED_PRESTIGES.getWithPrefix())
-                    .replace(prisoner)
-                    .send(command);
+            prisoner.setPrestige(prestige, true);
             prisoner.save(true);
+
+            messageBuilder(LocaleEnum.PRISONER_PRESTIGE_SET.getWithPrefix())
+                    .replace(prisoner)
+                    .replace(prestige)
+                    .send(command);
         });
     }
-
 }

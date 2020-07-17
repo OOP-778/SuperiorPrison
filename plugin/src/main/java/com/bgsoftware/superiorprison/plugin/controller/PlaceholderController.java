@@ -56,9 +56,9 @@ public class PlaceholderController {
         add(Prestige.class, "{prestige_order}", Prestige::getOrder);
 
         add(SPrisoner.class, "{prisoner_name}", prisoner -> prisoner.getOfflinePlayer().getName());
-        add(SPrisoner.class, "{prisoner_ladder_ranks}", prisoner -> listToString(prisoner.getLadderRanks().stream().map(Rank::getName).collect(Collectors.toList())));
-        add(SPrisoner.class, "{prisoner_special_ranks}", prisoner -> listToString(prisoner.getSpecialRanks().stream().map(Rank::getName).collect(Collectors.toList())));
-        add(SPrisoner.class, "{prisoner_prestiges}", prisoner -> listToString(prisoner.getPrestiges().stream().map(Prestige::getName).collect(Collectors.toList())));
+        add(SPrisoner.class, "{prisoner_ladderrank}", prisoner -> prisoner.getCurrentLadderRank().getName());
+        add(SPrisoner.class, "{prisoner_specialranks}", prisoner -> listToString(prisoner.getSpecialRanks().stream().map(Rank::getName).collect(Collectors.toList())));
+        add(SPrisoner.class, "{prisoner_prestige}", prisoner -> prisoner.getCurrentPrestige().map(Prestige::getName).orElse("N/A"));
 
         add(SNormalMine.class, "{mine_spawnpoint_x}", mine -> mine.getSpawnPoint().getBlockX());
         add(SNormalMine.class, "{mine_spawnpoint_y}", mine -> mine.getSpawnPoint().getBlockY());

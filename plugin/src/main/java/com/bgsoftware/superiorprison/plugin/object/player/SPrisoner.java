@@ -16,8 +16,11 @@ import com.bgsoftware.superiorprison.plugin.object.player.rank.SRank;
 import com.bgsoftware.superiorprison.plugin.object.player.rank.SSpecialRank;
 import com.bgsoftware.superiorprison.plugin.util.SPair;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.oop.datamodule.SerializedData;
 import com.oop.datamodule.body.SqlDataBody;
+import com.oop.datamodule.util.DataUtil;
+import com.oop.orangeengine.main.util.data.cache.OCache;
 import com.oop.orangeengine.main.util.data.set.OConcurrentSet;
 import lombok.Getter;
 import lombok.NonNull;
@@ -30,6 +33,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -62,7 +66,12 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
     private boolean autoPickup = false;
 
     private final Set<String> ranks = new OConcurrentSet<>();
-    private final Set<String> prestiges = new OConcurrentSet<>();
+
+    @Getter
+    private SPrestige currentPrestige;
+
+    @Getter
+    private SLadderRank currentLadderRank;
 
     @Setter
     @Getter
@@ -78,12 +87,11 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
     @Setter @Getter
     private SPair<BigDecimal, Long> soldData = new SPair<>(new BigDecimal(0), 0L);
 
-    public SPrisoner() {
-    }
+    public SPrisoner() {}
 
     public SPrisoner(UUID uuid) {
         this.uuid = uuid;
-        ranks.add(SuperiorPrisonPlugin.getInstance().getRankController().getDefault().getName());
+        this.currentLadderRank = (SLadderRank) SuperiorPrisonPlugin.getInstance().getRankController().getDefault();
         boosters.attach(this);
     }
 
@@ -136,7 +144,7 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
     }
 
     @Override
-    public List<Rank> getRanks() {
+    public List<Rank> getSpecialRanks() {
         return ranks
                 .stream()
                 .map(name -> SuperiorPrisonPlugin.getInstance().getRankController().getRank(name).orElse(null))
@@ -145,29 +153,8 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
     }
 
     @Override
-    public List<Rank> getSpecialRanks() {
-        return getRanks()
-                .stream()
-                .filter(rank -> rank instanceof SSpecialRank)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<LadderRank> getLadderRanks() {
-        return getRanks()
-                .stream()
-                .filter(rank -> rank instanceof SLadderRank)
-                .map(rank -> (SLadderRank) rank)
-                .sorted(Comparator.comparingInt(LadderRank::getOrder))
-                .collect(Collectors.toList());
-    }
-
-    @Override
     public LadderRank getCurrentLadderRank() {
-        return getLadderRanks()
-                .stream()
-                .max(Comparator.comparingInt(LadderRank::getOrder))
-                .orElse(null);
+        return currentLadderRank;
     }
 
     @Override
@@ -203,13 +190,49 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
         save(true);
     }
 
-    @Override
-    public boolean hasRank(String name) {
-        return ranks.contains(name);
+    public boolean hasRank(Rank rank) {
+        if (!(rank instanceof LadderRank))
+            return hasRank(rank.getName());
+        else
+            return currentLadderRank.getOrder() >= ((LadderRank) rank).getOrder();
     }
 
     @Override
+    public boolean hasRank(String name) {
+        return ranks.contains(name) || currentLadderRank.getName().contentEquals(name);
+    }
+
+    @Override
+    public boolean hasPrestige(Prestige prestige) {
+        return currentPrestige != null && currentPrestige.getOrder() >= prestige.getOrder();
+    }
+
+    @Override
+    public void setPrestige(Prestige prestige, boolean applyOnAdd) {
+        this.currentPrestige = (SPrestige) prestige;
+        if (applyOnAdd)
+            ((SPrestige) prestige).onAdd(this);
+    }
+
+    @Override
+    public void setLadderRank(LadderRank rank, boolean applyOnAdd) {
+        this.currentLadderRank = (SLadderRank) rank;
+        if (applyOnAdd)
+            ((SLadderRank) rank).onAdd(this);
+    }
+
+    private OCache<ItemStack, BigDecimal> pricesCache = OCache
+            .builder()
+            .concurrencyLevel(1)
+            .resetExpireAfterAccess(true)
+            .expireAfter(5, TimeUnit.SECONDS)
+            .build();
+
+    @Override
     public BigDecimal getPrice(ItemStack itemStack) {
+        BigDecimal bigDecimal = pricesCache.get(itemStack);
+        if (bigDecimal != null) return bigDecimal;
+
         final BigDecimal[] price = new BigDecimal[]{new BigDecimal(0)};
         for (SuperiorMine mine : getMines()) {
             BigDecimal minePrice = mine.getShop().getPrice(itemStack);
@@ -221,11 +244,21 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
             SuperiorPrisonPlugin.getInstance().getHookController().executeIfFound(() -> ShopGuiPlusHook.class, hook -> price[0] = new BigDecimal(hook.getPriceFor(itemStack, getPlayer())));
 
         getBoosters().findBoostersBy(MoneyBooster.class).forEach(booster -> price[0] = price[0] = price[0].multiply(BigDecimal.valueOf(booster.getRate())));
-        return price[0];
+        bigDecimal = price[0];
+        pricesCache.put(itemStack, bigDecimal);
+        return bigDecimal;
     }
 
     public void addRank(Rank... rank) {
         for (Rank rank1 : rank) {
+            if (rank1 instanceof LadderRank) {
+                if (currentLadderRank.getOrder() < ((LadderRank) rank1).getOrder()) {
+                    currentLadderRank = (SLadderRank) rank1;
+                    ((SRank) rank1).onAdd(this);
+                }
+                continue;
+            }
+
             ranks.add(rank1.getName());
             ((SRank) rank1).onAdd(this);
         }
@@ -237,79 +270,23 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
             findRank(name)
                     .map(rank2 -> (SRank) rank2)
                     .ifPresent(rank2 -> {
-                        ranks.add(rank2.getName());
+                        if (rank2 instanceof LadderRank) {
+                            if (currentLadderRank.getOrder() < ((LadderRank) rank2).getOrder())
+                                currentLadderRank = (SLadderRank) rank2;
+                        } else
+                            ranks.add(rank2.getName());
                         rank2.onAdd(this);
                     });
         }
     }
 
-    public Set<Prestige> getPrestiges() {
-        return prestiges
-                .stream()
-                .map(name -> SuperiorPrisonPlugin.getInstance().getPrestigeController().getPrestige(name).orElse(null))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
-    }
-
-    public void addPrestige(Prestige... prestige) {
-        for (Prestige prestige1 : prestige) {
-            prestiges.add(prestige1.getName());
-            ((SPrestige) prestige1).onAdd(this);
-        }
-    }
-
-    @Override
-    public void addPrestige(String... prestige) {
-        for (String name : prestige) {
-            findPrestige(name).map(prestige2 -> (SPrestige) prestige2).ifPresent(prestige2 -> {
-                prestiges.add(prestige2.getName());
-                prestige2.onAdd(this);
-            });
-        }
-    }
-
-    public void removePrestige(Prestige... prestige) {
-        for (Prestige prestige1 : prestige) {
-            prestiges.remove(prestige1.getName());
-            ((SPrestige) prestige1).onRemove(this);
-        }
-    }
-
-    @Override
-    public void removePrestige(String... prestige) {
-        for (String name : prestige) {
-            findPrestige(name).map(prestige2 -> (SPrestige) prestige2).ifPresent(prestige2 -> {
-                prestiges.remove(prestige2.getName());
-                prestige2.onRemove(this);
-            });
-        }
-    }
-
-    @Override
-    public boolean hasPrestige(String prestige) {
-        return prestiges.contains(prestige);
-    }
-
     public Optional<Prestige> getCurrentPrestige() {
-        return getPrestiges()
-                .stream()
-                .max(Comparator.comparingInt(Prestige::getOrder));
+        return Optional.ofNullable(currentPrestige);
     }
 
     public void clearRanks() {
         ranks.clear();
-    }
-
-    public void removeRankIf(Predicate<Rank> filter) {
-        getRanks()
-                .stream()
-                .filter(filter)
-                .forEach(rank -> ranks.remove(rank.getName()));
-        save(true);
-    }
-
-    public void clearPrestiges() {
-        prestiges.clear();
+        currentLadderRank = (SLadderRank) SuperiorPrisonPlugin.getInstance().getRankController().getDefault();
     }
 
     @Override
@@ -332,8 +309,9 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
                 "fortuneblocks",
                 "ranks",
                 "boosters",
-                "prestiges",
-                "logoutmine"
+                "currentPrestige",
+                "logoutmine",
+                "currentLadderRank"
         };
     }
 
@@ -350,7 +328,8 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
         data.write("autosell", autoSell);
         data.write("fortuneblocks", fortuneBlocks);
         data.write("ranks", ranks);
-        data.write("prestiges", prestiges);
+        data.write("currentLadderRank", currentLadderRank.getName());
+        data.write("currentPrestige", currentPrestige != null ? currentPrestige.getOrder() : null);
         data.write("boosters", boosters);
         data.write("logoutmine", logoutMine);
     }
@@ -362,19 +341,57 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
         this.autoPickup = data.applyAs("autopickup", boolean.class);
         this.autoSell = data.applyAs("autosell", boolean.class);
         this.fortuneBlocks = data.applyAs("fortuneblocks", boolean.class);
+
         this.ranks.addAll(
                 data.applyAsCollection("ranks")
                         .map(JsonElement::getAsString)
                         .collect(Collectors.toSet())
         );
-        this.prestiges.addAll(
-                data.applyAsCollection("prestiges")
-                        .map(JsonElement::getAsString)
-                        .collect(Collectors.toSet())
-        );
+
         this.logoutMine = data.getElement("logoutmine").map(jsonElement -> jsonElement.isJsonNull() ? null : jsonElement).map(JsonElement::getAsString).orElse(null);
         this.boosters = data.applyAs("boosters", SBoosters.class);
         this.boosters.attach(this);
+
+        // Update data
+        if (data.has("currentLadderRank")) {
+            System.out.println(data.getElement("currentLadderRank").get().getAsString());
+            this.currentLadderRank = (SLadderRank) SuperiorPrisonPlugin.getInstance().getRankController()
+                    .getLadderRank(data.getElement("currentLadderRank").get().getAsString())
+                    .orElseThrow(() -> new IllegalStateException("Failed to find rank by " + data.getElement("currentLadderRank").get().getAsString()));
+        } else {
+            List<LadderRank> foundLadderRanks = new ArrayList<>();
+            for (String stringRank : ranks) {
+                Optional<Rank> optionalRank = SuperiorPrisonPlugin.getInstance().getRankController().getRank(stringRank);
+                if (optionalRank.isPresent()) {
+                    Rank rank = optionalRank.get();
+                    if (rank instanceof LadderRank) {
+                        ranks.remove(stringRank);
+                        foundLadderRanks.add((LadderRank) rank);
+                    }
+                }
+            }
+
+            this.currentLadderRank = (SLadderRank) foundLadderRanks.stream()
+                    .max(Comparator.comparingInt(LadderRank::getOrder))
+                    .orElse(null);
+        }
+
+        JsonElement currentPrestige = data.getElement("currentPrestige").get();
+        if (!currentPrestige.isJsonNull()) {
+            if (currentPrestige.isJsonPrimitive())
+                this.currentPrestige = (SPrestige) SuperiorPrisonPlugin.getInstance().getPrestigeController()
+                        .getPrestige(DataUtil.fromElement(currentPrestige, int.class))
+                        .orElseThrow(() -> new IllegalStateException("Failed to find prestige by " + currentPrestige.getAsInt()));
+
+            else if (currentPrestige.isJsonArray()) {
+                this.currentPrestige = (SPrestige) data.applyAsCollection("currentPrestige")
+                        .map(JsonElement::getAsString)
+                        .map(p -> SuperiorPrisonPlugin.getInstance().getPrestigeController().getPrestige(p).orElse(null))
+                        .filter(Objects::nonNull)
+                        .max(Comparator.comparingInt(Prestige::getOrder))
+                        .orElse(null);
+            }
+        }
     }
 
     @Override

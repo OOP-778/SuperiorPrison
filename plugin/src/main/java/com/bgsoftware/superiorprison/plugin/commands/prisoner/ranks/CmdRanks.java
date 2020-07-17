@@ -10,7 +10,7 @@ public class CmdRanks extends OCommand {
 
         subCommand(new CmdAdd());
         subCommand(new CmdClear());
-        subCommand(new CmdList());
-        subCommand(new CmdRemove());
+        subCommand(new CmdInfo());
+        subCommand(new CmdSet());
     }
 }

@@ -36,11 +36,11 @@ public class PrestigesArg extends CommandArgument<SPrestige> {
     public void onAdd(OCommand command) {
         command.nextTabComplete((previous, args) -> {
             SPrisoner prisoner = previous.find(SPrisoner.class).orElse(null);
-            Stream<String> stream = SuperiorPrisonPlugin.getInstance().getPrestigeController().getPrestiges().stream().map(Prestige::getName);
+            Stream<Prestige> stream = SuperiorPrisonPlugin.getInstance().getPrestigeController().getPrestiges().stream();
             if (prisoner != null)
                 stream = stream.filter(prestige -> !prisoner.hasPrestige(prestige));
 
-            return stream.collect(Collectors.toList());
+            return stream.map(Prestige::getName).collect(Collectors.toList());
         });
     }
 }

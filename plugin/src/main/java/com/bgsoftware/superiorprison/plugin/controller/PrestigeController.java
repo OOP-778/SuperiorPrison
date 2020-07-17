@@ -5,6 +5,7 @@ import com.bgsoftware.superiorprison.api.requirement.RequirementData;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrestige;
 import com.bgsoftware.superiorprison.plugin.requirement.LoadingRequirementData;
+import com.bgsoftware.superiorprison.plugin.util.LoadHookable;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.oop.orangeengine.main.plugin.OComponent;
@@ -16,10 +17,14 @@ import lombok.Getter;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-public class PrestigeController implements com.bgsoftware.superiorprison.api.controller.PrestigeController, OComponent<SuperiorPrisonPlugin> {
+public class PrestigeController implements com.bgsoftware.superiorprison.api.controller.PrestigeController, OComponent<SuperiorPrisonPlugin>, LoadHookable<PrestigeController> {
     private final Map<Integer, SPrestige> prestigeMap = Maps.newConcurrentMap();
+
+    @Getter
+    private List<Consumer<PrestigeController>> loadHooks = new ArrayList<>();
 
     @Override
     public List<Prestige> getPrestiges() {
@@ -99,6 +104,8 @@ public class PrestigeController implements com.bgsoftware.superiorprison.api.con
         } catch (Throwable thrw) {
             throw new IllegalStateException("Failed to load PrestigeController", thrw);
         }
+
+        getLoadHooks().forEach(consumer -> consumer.accept(this));
         return true;
     }
 }

@@ -65,6 +65,10 @@ public class PapiHook extends SHook {
         return "PlaceholderAPI";
     }
 
+    public void disable() {
+        PlaceholderAPI.unregisterPlaceholderHook("prison");
+    }
+
     public class Expansion extends PlaceholderExpansion {
         public Expansion() {
             register();

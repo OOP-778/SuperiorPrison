@@ -1,4 +1,4 @@
-package com.bgsoftware.superiorprison.plugin.commands.prisoner.prestige;
+package com.bgsoftware.superiorprison.plugin.commands.prisoner.ranks;
 
 import com.bgsoftware.superiorprison.plugin.commands.args.PrisonerArg;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
@@ -7,15 +7,14 @@ import com.oop.orangeengine.command.OCommand;
 
 import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
 
-public class CmdList extends OCommand {
-    public CmdList() {
-        label("list");
-        description("View prisoner prestiges");
-        permission("superiorprison.admin");
+public class CmdInfo extends OCommand {
+    public CmdInfo() {
+        label("info");
+        description("Get information about prisoner ranks");
         argument(new PrisonerArg(true).setRequired(true));
         onCommand(command -> {
             SPrisoner prisoner = command.getArgAsReq("prisoner");
-            messageBuilder(LocaleEnum.PRISONER_PRESTIGES_LIST.getWithPrefix())
+            messageBuilder(LocaleEnum.PRISONER_RANKS_VIEW.getWithPrefix())
                     .replace(prisoner)
                     .send(command);
         });

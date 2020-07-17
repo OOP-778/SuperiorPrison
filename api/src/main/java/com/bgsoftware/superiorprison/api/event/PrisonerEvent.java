@@ -8,7 +8,7 @@ import org.bukkit.event.HandlerList;
 
 @Getter
 @AllArgsConstructor
-public class PrisonerEvent extends Event {
+public abstract class PrisonerEvent extends Event {
 
     private static HandlerList handlerList = new HandlerList();
 

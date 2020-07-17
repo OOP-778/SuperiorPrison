@@ -60,8 +60,10 @@ public class DatabaseController extends StorageHolder {
             if (integer.get() == getStorages().size()) {
                 getEngine().getLogger().print("Loaded {} mines", getMineHolder().getMines().size());
                 getEngine().getLogger().print("Loaded {} prisoners", getPrisonerHolder().getPrisonerMap().size());
+                getPrisonerHolder().save(true);
             }
         });
+
     }
 
     public ItemStack deserialize(JsonElement jsonElement) throws JsonParseException {

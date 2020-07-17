@@ -15,11 +15,11 @@ public class SStatisticsContainer implements StatisticsContainer, SqlDataBody {
 
     @Getter
     private UUID uuid;
+
     @Getter
     private SBlocksStatistic blocksStatistic = new SBlocksStatistic();
 
-    private SStatisticsContainer() {
-    }
+    private SStatisticsContainer() {}
 
     public SStatisticsContainer(UUID uuid) {
         this.uuid = uuid;

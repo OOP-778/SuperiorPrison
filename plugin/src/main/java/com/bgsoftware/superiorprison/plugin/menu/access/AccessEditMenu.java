@@ -38,6 +38,7 @@ public class AccessEditMenu extends AccessMenu {
                         mine.removePrestige(accessObject.getName());
 
                     refreshMenus(AccessEditMenu.class, menu -> menu.mine.equals(mine));
+                    mine.updateHighests();
                     mine.save(true);
                 })
                 .apply(this);

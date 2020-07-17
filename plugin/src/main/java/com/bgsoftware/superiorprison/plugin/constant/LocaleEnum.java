@@ -196,8 +196,11 @@ public enum LocaleEnum {
     SUCCESSFULLY_REMOVED_PRESTIGE("Successfully removed &d{prestige_name}&7 for &d{prisoner_name}"),
 
     SUCCESSFULLY_RESET_PRISONER("{prisoner_name} was successfully reset!"),
-    PRISONER_RANKS_LIST("&d{prisoner_name}&7 ranks list:", "&d&l* &7Ladder Ranks: &d{prisoner_ladder_ranks}", "&d&l* &7Special Ranks: &d{prisoner_special_ranks}"),
-    PRISONER_PRESTIGES_LIST("&d{prisoner_name}&7 prestiges list: &d{prisoner_prestiges}"),
+    PRISONER_RANKS_VIEW("&d{prisoner_name}&7 ranks information:", "&d&l* &7Ladder rank: &d{prisoner_ladderrank}", "&d&l* &7Special Ranks: &d{prisoner_specialranks}"),
+    PRISONER_PRESTIGE_VIEW("&d{prisoner_name}&7 Current Prestige: &d{prisoner_prestige}"),
+    PRISONER_PRESTIGE_SET("&d{prisoner_name} &7prestige was set to &d{prestige_name}"),
+    PRISONER_RANK_SET("&d{prisoner_name} &7ladder rank was set to &d{rank_name}"),
+    PRISONER_RANKS_ADD_CANNOT_LADDER("Cannot add ladder rank. Use set command to set a ladder rank!"),
 
     PRISONER_BOOSTER_ADD("Added booster (&d{booster_type}, {booster_rate}, {booster_time}&7) to {prisoner_name}"),
     PRISONER_BOOSTER_CLEAR("Cleared boosters for {prisoner_name}"),
@@ -261,8 +264,11 @@ public enum LocaleEnum {
     }
 
     public static void load() {
-        for (LocaleEnum localeEnum : values())
+        for (LocaleEnum localeEnum : values()) {
+            localeEnum.cache[0] = null;
+            localeEnum.cache[1] = null;
             localeEnum.message = getLocale().getMessage(localeEnum.name(), () -> localeEnum.message, true);
+        }
     }
 
     public OMessage getWithPrefix() {
@@ -280,13 +286,13 @@ public enum LocaleEnum {
 
     public OMessage getWithErrorPrefix() {
         if (message instanceof OChatMessage) {
-            if (cache[0] == null) {
+            if (cache[1] == null) {
                 OChatMessage chatMessage = ((OChatMessage) message).clone();
                 chatMessage.lineList().get(0).insert(new LineContent(PREFIX_ERROR.message.asChat().lineList().get(0).raw()), 0);
-                cache[0] = chatMessage;
+                cache[1] = chatMessage;
                 return chatMessage;
 
-            } else return cache[0];
+            } else return cache[1];
         }
         return message;
     }

@@ -6,7 +6,9 @@ import com.bgsoftware.superiorprison.api.data.mine.area.Area;
 import com.bgsoftware.superiorprison.api.data.mine.area.AreaEnum;
 import com.bgsoftware.superiorprison.api.data.player.Prestige;
 import com.bgsoftware.superiorprison.api.data.player.Prisoner;
+import com.bgsoftware.superiorprison.api.data.player.rank.LadderRank;
 import com.bgsoftware.superiorprison.api.data.player.rank.Rank;
+import com.bgsoftware.superiorprison.api.data.player.rank.SpecialRank;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.config.MineDefaultsSection;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
@@ -16,7 +18,10 @@ import com.bgsoftware.superiorprison.plugin.object.mine.effects.SMineEffects;
 import com.bgsoftware.superiorprison.plugin.object.mine.messages.SMineMessages;
 import com.bgsoftware.superiorprison.plugin.object.mine.settings.SMineSettings;
 import com.bgsoftware.superiorprison.plugin.object.mine.shop.SShop;
+import com.bgsoftware.superiorprison.plugin.object.player.SPrestige;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
+import com.bgsoftware.superiorprison.plugin.object.player.rank.SLadderRank;
+import com.bgsoftware.superiorprison.plugin.object.player.rank.SSpecialRank;
 import com.bgsoftware.superiorprison.plugin.util.AccessUtil;
 import com.bgsoftware.superiorprison.plugin.util.SPLocation;
 import com.google.common.collect.Maps;
@@ -29,10 +34,12 @@ import com.oop.datamodule.util.DataUtil;
 import com.oop.orangeengine.item.ItemBuilder;
 import com.oop.orangeengine.main.Helper;
 import com.oop.orangeengine.main.task.StaticTask;
+import com.oop.orangeengine.main.util.data.cache.OCache;
 import com.oop.orangeengine.main.util.data.set.OConcurrentSet;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
@@ -41,6 +48,7 @@ import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -62,7 +70,6 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
     private SShop shop;
 
     private final Set<String> ranks = new OConcurrentSet<>();
-
     private final Set<String> prestiges = new OConcurrentSet<>();
 
     @Getter
@@ -80,6 +87,10 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
 
     @Getter
     private SMineMessages messages;
+
+    private SPrestige highestPrestige;
+    private SLadderRank highestRank;
+    private Set<SpecialRank> specialRanks = new HashSet<>();
 
     private SNormalMine() {}
 
@@ -114,6 +125,8 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
 
         messages = new SMineMessages();
         messages.attach(this);
+
+        updateHighests();
     }
 
     @Override
@@ -230,11 +243,29 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
         return icon;
     }
 
+    private OCache<UUID, Boolean> canEnterCache = OCache
+            .builder()
+            .concurrencyLevel(1)
+            .expireAfter(5, TimeUnit.SECONDS)
+            .build();
+
     @Override
     public boolean canEnter(Prisoner prisoner) {
-        boolean hasRanks = getRanks().isEmpty() || getRanks().stream().anyMatch(name -> prisoner.getRanks().stream().anyMatch(name2 -> name.contentEquals(name2.getName())));
-        boolean hasPrestiges = getPrestiges().isEmpty() || getPrestiges().stream().anyMatch(name -> prisoner.getPrestiges().stream().anyMatch(name2 -> name.contentEquals(name2.getName())));
-        return prisoner.getPlayer().hasPermission("superiorprison.bypass") || (hasPrestiges && hasRanks);
+        Boolean canEnter = canEnterCache.get(prisoner.getUUID());
+        if (canEnter != null) return canEnter;
+
+        boolean hasRanks = true;
+        if (highestRank != null)
+            hasRanks = prisoner.getCurrentLadderRank().getOrder() >= highestRank.getOrder();
+
+        boolean hasPrestiges = true;
+        if (highestPrestige != null)
+            hasPrestiges = prisoner.getCurrentPrestige().isPresent() && prisoner.getCurrentPrestige().get().getOrder() >= highestPrestige.getOrder();
+
+        canEnter = prisoner.getPlayer().hasPermission("superiorprison.bypass") || (hasPrestiges && hasRanks);
+        canEnterCache.put(prisoner.getUUID(), canEnter);
+
+        return canEnter;
     }
 
     @Override
@@ -429,6 +460,8 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
 
         if (getSettings().getResetSettings().isTimed())
             getGenerator().reset();
+
+        updateHighests();
     }
 
     @Override
@@ -447,5 +480,37 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
                 .filter(player -> player.getLocation().getWorld().getName().equalsIgnoreCase(getWorld().getName()))
                 .filter(player -> getArea(AreaEnum.REGION).isInside(player.getLocation()))
                 .forEach(player -> prisoners.add(SuperiorPrisonPlugin.getInstance().getPrisonerController().getInsertIfAbsent(player)));
+    }
+
+    public void updateHighests() {
+        StaticTask.getInstance().ensureAsync(() -> {
+            canEnterCache.clear();
+
+            // Find highest prestige
+            highestPrestige = (SPrestige) prestiges
+                    .stream()
+                    .map(prestigeName -> SuperiorPrisonPlugin.getInstance().getPrestigeController().getPrestige(prestigeName).orElse(null))
+                    .filter(Objects::nonNull)
+                    .max(Comparator.comparingInt(Prestige::getOrder))
+                    .orElse(null);
+
+            // Initialize ranks
+            specialRanks.clear();
+            List<LadderRank> ladderRanks = new ArrayList<>();
+            for (String rankName : ranks) {
+                Rank rank = SuperiorPrisonPlugin.getInstance().getRankController().getRank(rankName).orElse(null);
+                if (rank == null) continue;
+
+                if (rank instanceof LadderRank)
+                    ladderRanks.add((LadderRank) rank);
+                else
+                    specialRanks.add((SSpecialRank) rank);
+            }
+
+            highestRank = (SLadderRank) ladderRanks
+                    .stream()
+                    .max(Comparator.comparingInt(LadderRank::getOrder))
+                    .orElse(null);
+        });
     }
 }

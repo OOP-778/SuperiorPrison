@@ -52,7 +52,7 @@ public class CmdRankup extends OCommand {
                             .send(command);
 
                     takeRequirements(next.getRequirements(), prisoner);
-                    prisoner.addRank(next);
+                    prisoner.setLadderRank(next, true);
                     prisoner.save(true);
                 }
             } else {
@@ -87,9 +87,9 @@ public class CmdRankup extends OCommand {
 
                 takeRequirements(next.getRequirements(), prisoner);
 
-                prisoner.addPrestige(next);
-                prisoner.removeRankIf(rank -> rank instanceof LadderRank);
-                prisoner.addRank(SuperiorPrisonPlugin.getInstance().getRankController().getDefault().getName());
+                prisoner.setPrestige(next, true);
+                if (SuperiorPrisonPlugin.getInstance().getMainConfig().isResetRanks())
+                    prisoner.setLadderRank(SuperiorPrisonPlugin.getInstance().getRankController().getDefault(), false);
 
                 prisoner.save(true);
 

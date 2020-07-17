@@ -1,15 +1,21 @@
 package com.bgsoftware.superiorprison.plugin.hook.impl;
 
+import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.hook.SHook;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
+import com.oop.orangeengine.main.task.OTask;
+import com.oop.orangeengine.main.task.StaticTask;
 import lombok.Getter;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import static org.bukkit.Bukkit.getServer;
 
@@ -18,6 +24,7 @@ public class VaultHook extends SHook {
 
     private Economy ecoProvider;
     private Permission permProvider;
+    private Map<UUID, BigDecimal> owed = new ConcurrentHashMap<>();
     private static final BigDecimal MAX_DOUBLE = BigDecimal.valueOf(Double.MAX_VALUE);
 
     public VaultHook() {
@@ -33,6 +40,12 @@ public class VaultHook extends SHook {
             this.ecoProvider = economyProvider.getProvider();
 
         disableIf(ecoProvider == null, "Failed to initialize Economy provider!");
+
+        new OTask()
+                .delay(TimeUnit.SECONDS, 1)
+                .repeat(true)
+                .runnable(this::handleDeposit)
+                .execute();
     }
 
     public void removePermissions(SPrisoner prisoner, List<String> permissions) {
@@ -46,17 +59,25 @@ public class VaultHook extends SHook {
     }
 
     public void depositPlayer(SPrisoner prisoner, BigDecimal amount) {
-        BigDecimal currentPrice = amount;
-        while (currentPrice.compareTo(BigDecimal.ZERO) > 0) {
-            if (currentPrice.compareTo(MAX_DOUBLE) > 0) {
-                getEcoProvider().depositPlayer(prisoner.getOfflinePlayer(), Double.MAX_VALUE);
-                currentPrice = currentPrice.subtract(MAX_DOUBLE);
+        BigDecimal currentOwed = owed.getOrDefault(prisoner.getUUID(), BigDecimal.ZERO);
+        owed.put(prisoner.getUUID(), currentOwed.add(amount));
+    }
 
-            } else {
-                getEcoProvider().depositPlayer(prisoner.getOfflinePlayer(), currentPrice.doubleValue());
-                break;
+    public void handleDeposit(){
+        owed.forEach((key, currentPrice) -> {
+            OfflinePlayer prisoner = Bukkit.getOfflinePlayer(key);
+            while (currentPrice.compareTo(BigDecimal.ZERO) > 0) {
+                if (currentPrice.compareTo(MAX_DOUBLE) > 0) {
+                    getEcoProvider().depositPlayer(prisoner, Double.MAX_VALUE);
+                    currentPrice = currentPrice.subtract(MAX_DOUBLE);
+
+                } else {
+                    getEcoProvider().depositPlayer(prisoner, currentPrice.doubleValue());
+                    break;
+                }
             }
-        }
+        });
+        owed.clear();
     }
 
     @Override

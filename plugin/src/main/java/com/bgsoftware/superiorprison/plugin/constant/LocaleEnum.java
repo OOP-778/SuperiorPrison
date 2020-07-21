@@ -22,6 +22,7 @@ public enum LocaleEnum {
     MINE_CREATE_POSITION_MUST_BE_WITHIN_REGION("Position should be inside region"),
     MINE_CREATE_SUCCESSFUL("Successfully created a new mine! ({mine_name})"),
     MINE_DELETE_SUCCESSFUL("Successfully deleted mine! (&d{mine_name}&7)"),
+    MINE_SET_SPAWN_POS("You've set &d{mine_name} &7spawn position to your current location!"),
 
     MINE_SELECT_POS("Selected position #{pos}"),
 
@@ -29,7 +30,6 @@ public enum LocaleEnum {
     EDIT_GENERATOR_RATE_NOT_NUMBER("Given value is not an number! ex: 5.5"),
     EDIT_GENERATOR_RATE_SET("Rate of {material} was set to {rate}!"),
     EDIT_GENERATOR_REMOVED("Successfully removed {material} from mine generator!"),
-    EDIT_GENERATOR_RATE_LIMIT_EXCEED("Failed to set rate of {material} cause combined it exceeds the 100 rate limit!"),
     EDIT_GENERATOR_MATERIAL_IS_NOT_BLOCK("Failed to add material cause it's not a block!"),
     EDIT_GENERATOR_SAVE("Mine materials were successfully saved!"),
     EDIT_GENERATOR_MATERIAL_ALREADY_EXISTS("Failed to add material cause it's already exists!"),
@@ -167,6 +167,8 @@ public enum LocaleEnum {
                             )
             )
     ),
+    MAX_RANKUP_PRESTIGE_CHANGES("You've ranked up from &d{starting_prestige} &7to &d{current_prestige}&7 prestige"),
+    MAX_RANKUP_RANK_CHANGES("You've ranked up from &d{starting_rank} &7to &d{current_rank}&7 rank"),
 
     PRESTIGE_FAILED_DOES_NOT_MEET_REQUIREMENTS(
             new OChatMessage(
@@ -244,7 +246,18 @@ public enum LocaleEnum {
 
     PRISON_SHUTDOWN("&cPrison is shutting down."),
     BACKPACK_DROPPED_INVENTORY_FULL("Your backpack was dropped on the ground, because your inventory is full!"),
-    BACKPACK_UPGRADE_DONT_MEET_REQUIREMENTS("You cannot upgrade this backpack, because you don't meet the requirements!");
+    BACKPACK_UPGRADE_DONT_MEET_REQUIREMENTS("You cannot upgrade this backpack, because you don't meet the requirements!"),
+
+    PRESTIGE_TOP_MESSAGE(
+            new OChatMessage(
+                    "&7&l&m------- &d&lPrestige Top",
+                    "{entries}"
+            )
+            .append(
+                    new ChatLine("{TEMPLATE}&d&l{position} &d{player_name} &d{prestige}")
+            )
+    ),
+    PRISONER_RESET("&cYou've been reset.");
 
     private final OMessage[] cache = new OMessage[2];
 

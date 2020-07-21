@@ -60,7 +60,6 @@ progression scale:
   symbols: "::::::::::"
   color: "&7"
   completed color: "&e"
-  not found: "none"
 
 # How long will the blocks statistic cache blocks
 blocks cache time limit: "1h"

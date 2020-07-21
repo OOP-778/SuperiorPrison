@@ -49,16 +49,6 @@ public class GeneratorEditMenu extends OPagedMenu<OPair<Double, OMaterial>> impl
         ClickHandler
                 .of("save")
                 .handle(event -> {
-                    double percentage = materials
-                            .stream()
-                            .map(OPair::getFirst)
-                            .mapToDouble(Double::doubleValue)
-                            .sum();
-                    if (percentage < 100 || percentage > 100) {
-                        LocaleEnum.EDIT_GENERATOR_SAVE_FAILED_WRONG_PERCENTAGE.getWithErrorPrefix().send(event.getWhoClicked());
-                        return;
-                    }
-
                     mine.getGenerator().setGeneratorMaterials(materials);
                     mine.getGenerator().setMaterialsChanged(true);
                     mine.save(true);

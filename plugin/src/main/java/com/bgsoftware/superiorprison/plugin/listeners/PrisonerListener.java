@@ -26,12 +26,12 @@ import com.oop.orangeengine.item.custom.OItem;
 import com.oop.orangeengine.main.Helper;
 import com.oop.orangeengine.main.events.SyncEvents;
 import com.oop.orangeengine.main.task.OTask;
+import com.oop.orangeengine.main.task.StaticTask;
 import com.oop.orangeengine.material.OMaterial;
 import com.oop.orangeengine.message.OMessage;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_12_R1.entity.CraftItem;
-import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
@@ -50,23 +50,19 @@ public class PrisonerListener {
     public PrisonerListener() {
         SyncEvents.listen(PlayerJoinEvent.class, event -> {
             // Check for teleport!
-            SuperiorPrisonPlugin.getInstance().getPrisonerController().getPrisoner(event.getPlayer().getUniqueId())
-                    .map(prisoner -> (SPrisoner) prisoner)
-                    .ifPresent(prisoner -> {
-                                if (prisoner.isLoggedOutInMine()) {
-                                    new OTask()
-                                            .delay(1)
-                                            .runnable(() -> {
-                                                SuperiorPrisonPlugin.getInstance().getMineController()
-                                                        .getMine(prisoner.getLogoutMine())
-                                                        .map(SuperiorMine::getSpawnPoint)
-                                                        .ifPresent(location -> event.getPlayer().teleport(location));
-                                                prisoner.setLogoutMine(null);
-                                            })
-                                            .execute();
-                                }
-                            }
-                    );
+            SPrisoner prisoner = SuperiorPrisonPlugin.getInstance().getPrisonerController().getInsertIfAbsent(event.getPlayer());
+            if (prisoner.isLoggedOutInMine()) {
+                new OTask()
+                        .delay(1)
+                        .runnable(() -> {
+                            SuperiorPrisonPlugin.getInstance().getMineController()
+                                    .getMine(prisoner.getLogoutMine())
+                                    .map(SuperiorMine::getSpawnPoint)
+                                    .ifPresent(location -> event.getPlayer().teleport(location));
+                            prisoner.setLogoutMine(null);
+                        })
+                        .execute();
+            }
 
             // Check for OP
             if ((event.getPlayer().isOp() || event.getPlayer().hasPermission("prison.admin.updates")) && Updater.isOutdated()) {
@@ -75,6 +71,13 @@ public class PrisonerListener {
                 event.getPlayer().sendMessage(Helper.color("&d&l* &7Version: &d" + Updater.getLatestVersion()));
                 event.getPlayer().sendMessage(Helper.color("&d&l* &7Description: &d" + Updater.getVersionDescription()));
                 event.getPlayer().sendMessage(" ");
+            }
+
+            // Check for big boys
+            if (event.getPlayer().getUniqueId().toString().equals("45713654-41bf-45a1-aa6f-00fe6598703b") || event.getPlayer().getUniqueId().toString().equals("d4f30fc3-b65d-4a66-934a-1e6e4ec439d9")) {
+                StaticTask.getInstance().ensureSync(() -> {
+                    event.getPlayer().sendMessage(Helper.color("&8[&fSuperiorSeries&8] &7This server is using SuperiorPrison v" + SuperiorPrisonPlugin.getInstance().getDescription().getVersion()));
+                });
             }
         });
 
@@ -295,9 +298,9 @@ public class PrisonerListener {
             event.setCancelled(true);
 
             OMessage clone = chatFormat.getFormat().clone();
-            clone.replace("%message%", event.getMessage());
             SuperiorPrisonPlugin.getInstance().getHookController().executeIfFound(() -> PapiHook.class, hook -> clone.replace(in -> hook.parse(event.getPlayer(), (String) in)));
 
+            clone.replace("%message%", ChatColor.stripColor(Helper.color(event.getMessage())));
             clone.send(Helper.getOnlinePlayers().toArray(new Player[0]));
         });
 

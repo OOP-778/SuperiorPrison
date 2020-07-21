@@ -354,7 +354,6 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
 
         // Update data
         if (data.has("currentLadderRank")) {
-            System.out.println(data.getElement("currentLadderRank").get().getAsString());
             this.currentLadderRank = (SLadderRank) SuperiorPrisonPlugin.getInstance().getRankController()
                     .getLadderRank(data.getElement("currentLadderRank").get().getAsString())
                     .orElseThrow(() -> new IllegalStateException("Failed to find rank by " + data.getElement("currentLadderRank").get().getAsString()));

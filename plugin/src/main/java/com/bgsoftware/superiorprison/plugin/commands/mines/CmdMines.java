@@ -18,6 +18,7 @@ public class CmdMines extends OCommand {
         subCommand(new CmdReset());
         subCommand(new CmdReload());
         subCommand(new CmdCopy());
+        subCommand(new CmdSetSpawn());
 
         PermissionsInitializer.registerPrisonerCommand(this);
     }

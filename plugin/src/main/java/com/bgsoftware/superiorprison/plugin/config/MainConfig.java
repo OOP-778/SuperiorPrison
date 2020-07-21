@@ -11,7 +11,6 @@ import java.util.concurrent.TimeUnit;
 
 @Getter
 public class MainConfig {
-
     public Config configuration;
     private String locale = "en-us";
 
@@ -24,8 +23,9 @@ public class MainConfig {
     private OItem areaSelectionTool;
 
     private long rankupMessageInterval;
-
     private boolean resetRanks = false;
+
+    private ProgressionScaleSection scaleSection;
 
     public MainConfig() {
         load();
@@ -51,6 +51,8 @@ public class MainConfig {
         soldMessageInterval = TimeUtil.toSeconds(configuration.getAs("sold message interval", String.class, () -> "3m"));
         rankupMessageInterval = TimeUtil.toSeconds(configuration.getAs("rankup message interval", String.class, () -> "6s"));
         resetRanks = configuration.getAs("reset ranks after prestige up", boolean.class, () -> false);
+
+        scaleSection = new ProgressionScaleSection(configuration.getSection("progression scale").get());
 
         configuration.save();
     }

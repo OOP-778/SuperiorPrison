@@ -34,6 +34,7 @@ public class SMineBlockData implements Attachable<SMineGenerator>, MineBlockData
     public void initialize() {
         materials.clear();
         for (OMaterial cachedMaterial : generator.getCachedMaterials()) {
+            if (cachedMaterial == null) continue;
             materials.merge(cachedMaterial, new OPair<>(1L, 1L), (f, s) -> {
                 OPair<Long, Long> newPair = new OPair<>(0L, 0L);
 

@@ -73,6 +73,8 @@ permissions:
                     description: "Reset a mine"
                   prison.admin.cmds.mines.copy:
                     description: "Copy things from one mine to another"
+                  prison.admin.cmds.mines.setspawn:
+                    description: "Set spawn position of a mine"
                   prison.admin.cmds.mines.delete:
                     description: "Delete a mine"
                   prison.admin.editmine:
@@ -86,10 +88,10 @@ permissions:
                         description: "Add a rank to prisoner"
                       prison.admin.cmds.prisoner.ranks.clear:
                         description: "Clear ranks from prisoner"
-                      prison.admin.cmds.prisoner.ranks.list:
-                        description: "View prisoner ranks"
-                      prison.admin.cmds.prisoner.ranks.remove:
-                        description: "Remove a rank from prisoner"
+                      prison.admin.cmds.prisoner.ranks.info:
+                        description: "Get information about prisoner ranks"
+                      prison.admin.cmds.prisoner.ranks.set:
+                        description: "Set a ladder rank for a prisoner"
                       prison.admin.cmds.prisoner.teleport:
                         description: "teleport a prisoner into mine"
 
@@ -106,14 +108,10 @@ permissions:
 
                   prison.admin.cmds.prisoner.prestiges.*:
                     children:
-                      prison.admin.cmds.prisoner.prestiges.add:
-                        description: "Add a prestige to prisoner"
-                      prison.admin.cmds.prisoner.prestiges.clear:
-                        description: "Clear prestiges from prisoner"
+                      prison.admin.cmds.prisoner.prestiges.set:
+                        description: "Set prestige of the prisoner"
                       prison.admin.cmds.prisoner.prestiges.list:
-                        description: "View prisoner prestiges"
-                      prison.admin.cmds.prisoner.prestiges.remove:
-                        description: "Remove a prestige from prisoner"
+                        description: "Get information about prisoner prestige"
 
                   prison.admin.cmds.prisoner.reset:
                     description: "Reset prisoners data"

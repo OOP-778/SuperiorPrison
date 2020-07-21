@@ -118,25 +118,32 @@ public class CmdCreate extends OCommand {
 
                     messageBuilder(LocaleEnum.MINE_SELECT_SPAWN_POS.getWithPrefix())
                             .send(command);
-
-                } else if (spawnPos.get() == null) {
-                    if (!region.get().containsLocation(posEvent.getClickedBlock().getLocation(), false)) {
-                        LocaleEnum.MINE_CREATE_POSITION_MUST_BE_WITHIN_REGION.getWithErrorPrefix().send(player);
-                        return;
-                    }
-                    spawnPos.set(new SPLocation(posEvent.getClickedBlock().getLocation().add(0.5, 1.3, 0.5)));
-
-                    SNormalMine sNormalMine = new SNormalMine(mineName, regionPos1.get(), regionPos2.get(), minePos1.get(), minePos2.get());
-                    sNormalMine.setSpawnPoint(spawnPos.get());
-
-                    messageBuilder(LocaleEnum.MINE_CREATE_SUCCESSFUL.getWithPrefix())
-                            .replace(sNormalMine)
-                            .send(command);
-
-                    player.getInventory().remove(SuperiorPrisonPlugin.getInstance().getMainConfig().getAreaSelectionTool().getItemStack());
-                    SuperiorPrisonPlugin.getInstance().getMineController().add(sNormalMine);
-                    creating.invalidate(player.getUniqueId());
                     posSelectEvent.get().end();
+
+                    sf.subscribeTo(PlayerInteractEvent.class, spawnEvent -> {
+                                if (!region.get().containsLocation(posEvent.getClickedBlock().getLocation(), false)) {
+                                    LocaleEnum.MINE_CREATE_POSITION_MUST_BE_WITHIN_REGION.getWithErrorPrefix().send(player);
+                                    return;
+                                }
+                                spawnPos.set(new SPLocation(spawnEvent.getPlayer().getEyeLocation().add(0.5, 1.3, 0.5)));
+
+                                SNormalMine sNormalMine = new SNormalMine(mineName, regionPos1.get(), regionPos2.get(), minePos1.get(), minePos2.get());
+                                sNormalMine.setSpawnPoint(spawnPos.get());
+
+                                messageBuilder(LocaleEnum.MINE_CREATE_SUCCESSFUL.getWithPrefix())
+                                        .replace(sNormalMine)
+                                        .send(command);
+
+                                player.getInventory().remove(SuperiorPrisonPlugin.getInstance().getMainConfig().getAreaSelectionTool().getItemStack());
+                                SuperiorPrisonPlugin.getInstance().getMineController().add(sNormalMine);
+                                creating.invalidate(player.getUniqueId());
+                            },
+                            new SubscriptionProperties<PlayerInteractEvent>()
+                                    .timeOut(TimeUnit.MINUTES, 5)
+                                    .priority(EventPriority.HIGHEST)
+                                    .timesToRun(1)
+                                    .filter(spawnEvent -> spawnEvent.getPlayer().equals(player) && MutliVerUtil.isPrimaryHand(spawnEvent) && SuperiorPrisonPlugin.getInstance().getMainConfig().getAreaSelectionTool().getItemStack().equals(spawnEvent.getItem()))
+                    );
                 }
             }, new SubscriptionProperties<PlayerInteractEvent>()
                     .timeOut(TimeUnit.MINUTES, 5)

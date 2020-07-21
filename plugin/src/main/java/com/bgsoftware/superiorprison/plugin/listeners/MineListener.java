@@ -104,7 +104,7 @@ public class MineListener {
                     Bukkit.getPluginManager().callEvent(areaChangeEvent);
 
                     if (areaChangeEvent.isCancelled()) {
-                        event.getPlayer().teleport(event.getPlayer().getWorld().getSpawnLocation());
+                        event.getPlayer().teleport(mine.getKey().getSpawnPoint());
                         return;
                     }
 

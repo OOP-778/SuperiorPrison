@@ -29,7 +29,6 @@ buttons:
     display name: "&dInformation"
     lore:
       - "&cHere you can set chances of specific materials"
-      - "&cRemember the chances cannot be over or lower than 100%"
       - ""
       - "&cTo insert an material, just click it in your inventory"
 

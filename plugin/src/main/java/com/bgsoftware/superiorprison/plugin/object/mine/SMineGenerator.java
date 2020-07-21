@@ -2,7 +2,6 @@ package com.bgsoftware.superiorprison.plugin.object.mine;
 
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
 import com.bgsoftware.superiorprison.api.data.mine.area.AreaEnum;
-import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.object.mine.area.SArea;
 import com.bgsoftware.superiorprison.plugin.util.*;
@@ -17,6 +16,7 @@ import com.oop.orangeengine.eventssubscription.SubscriptionProperties;
 import com.oop.orangeengine.main.task.StaticTask;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.material.OMaterial;
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -37,7 +37,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import static com.bgsoftware.superiorprison.plugin.util.TimeUtil.getDate;
-import static com.oop.orangeengine.main.Engine.getEngine;
 
 @Setter
 @Getter
@@ -88,19 +87,11 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
 
         resetting = true;
         if (cachedMaterials.length == 0 || materialsChanged) {
-
             cachedMaterials = new OMaterial[blocksInRegion];
-            int slot = 0;
-            for (OPair<Double, OMaterial> generatorMaterial : generatorMaterials) {
-                int amount = (int) Math.round((generatorMaterial.getFirst() / 100d) * blocksInRegion) + 1;
-                for (int i = 0; i < amount; i++) {
-                    if (Math.abs(blocksInRegion - slot) <= 0)
-                        break;
+            RandomMaterialData data = new RandomMaterialData(generatorMaterials);
 
-                    cachedMaterials[slot] = generatorMaterial.getSecond();
-                    slot++;
-                }
-            }
+            for (int i = 0; i < blocksInRegion; i++)
+                cachedMaterials[i] = data.getMaterial();
 
             blockData.initialize();
         }
@@ -119,7 +110,6 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
             ChunkResetData chunkResetData = SuperiorPrisonPlugin.getInstance().getMineController().addResetBlock(location, material,
                     () -> {
                         long l = blocksRegenerated.incrementAndGet();
-                        //System.out.println("Completed " + l + "/" + blocksInRegion);
                         if (l >= blocksInRegion) {
                             ClassDebugger.debug("Finished mine resetting. Prisoners count: " + mine.getPrisoners().size());
                             SuperiorPrisonPlugin.getInstance().getNms().refreshChunks(world, cachedLocations, mine.getSpawnPoint().getWorld().getPlayers());
@@ -284,4 +274,32 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
         blockData = serializedData.applyAs("blockData", SMineBlockData.class, () -> new SMineBlockData());
         blockData.attach(this);
     }
+
+    private class RandomMaterialData {
+        private HashSet<RandomMaterial> selection = new HashSet<>();
+        private double higherBounds;
+
+        public RandomMaterialData(List<OPair<Double, OMaterial>> list) {
+            higherBounds = 0;
+            list.forEach(pair -> {
+                selection.add(new RandomMaterial(pair.getValue(), higherBounds, higherBounds + pair.getKey()));
+                higherBounds += pair.getKey();
+            });
+        }
+
+        public OMaterial getMaterial() {
+            double target = ThreadLocalRandom.current().nextDouble(higherBounds);
+            Optional<RandomMaterial> material = selection.stream().filter(select -> select.getLower() < target && select.getHigher() >= target).findFirst();
+            return material.get().getMaterial();
+        }
+
+        @AllArgsConstructor
+        @Getter
+        private class RandomMaterial {
+            private OMaterial material;
+            private double lower;
+            private double higher;
+        }
+    }
+
 }

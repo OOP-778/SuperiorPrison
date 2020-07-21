@@ -24,5 +24,4 @@ public interface Requirement {
     It's how SP identifies an requirement from config
     */
     String getId();
-
 }

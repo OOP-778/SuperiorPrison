@@ -127,6 +127,7 @@ public enum LocaleEnum {
                     .append("   &d&l* &7set lore (line) (text) &5=>&f set specific line of the lore of the icon!")
                     .append("   &d&l* &7remove lore (line) &5=>&f removes specific line of the lore of the icon!")
                     .append("   &d&l* &7clear lore &5=>&f clears the lore of the icon!")
+                    .append("   &d&l* &7texture (texture) &5=>&f sets texture of the skull!")
                     .append("   &d&l* &7cancel &5=>&f quit icon editor without saving!")
                     .append("   &d&l* &7save &5=>&f quit icon editor with saving!")
                     .append("")
@@ -139,6 +140,7 @@ public enum LocaleEnum {
     EDIT_ICON_CLEAR_LORE("The lore was cleared!"),
     EDIT_ICON_REMOVE_LORE_LINE("Removed lore at line &d{line}"),
     EDIT_ICON_SET_MATERIAL("The material of mine icon was set to &d{material}"),
+    EDIT_ICON_SET_TEXTURE("The texture of head was set."),
 
     RANKUP_FAILED_DOES_NOT_MEET_REQUIREMENTS(
             new OChatMessage(

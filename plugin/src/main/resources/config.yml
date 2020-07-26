@@ -1,6 +1,9 @@
 # Locale default en-us
 locale: "en-us"
 
+# Enables or disables debug
+debug: false
+
 database:
   # There's two database types
   # SQLITE

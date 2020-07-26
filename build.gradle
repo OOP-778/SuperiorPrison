@@ -33,6 +33,7 @@ allprojects {
         maven { url 'https://repo.codemc.org/repository/maven-public/' }
         maven { url 'https://jitpack.io' }
         maven { url 'http://repo.extendedclip.com/content/repositories/placeholderapi/' }
+        maven { url 'https://papermc.io/repo/repository/maven-public' }
     }
 
     dependencies {
@@ -50,12 +51,14 @@ allprojects {
             compile "com.oop.orangeengine:command:4.8"
             compile "com.oop.orangeengine:eventssubscription:4.8"
             compile "com.oop.orangeengine:message:4.8"
+            compile "io.papermc:paperlib:1.0.4"
 
             // Dependencies
             compileOnly("com.github.MilkBowl:VaultAPI:1.7")
             compileOnly 'me.clip:placeholderapi:2.10.4'
 
-            compile fileTree("../lib")
+            compileOnly fileTree("../lib")
+            compile files("../lib/oop-data.jar")
             compileOnly 'com.github.brcdev-minecraft:shopgui-api:1.5.0'
 
         } else {
@@ -87,6 +90,7 @@ allprojects {
         archiveName project.name + ".jar"
 
         relocate("com.oop.orangeengine", "com.bgsoftware.superiorprison.engine")
+        relocate("io.papermc.lib", "com.bgsoftware.superiorprison.paper")
     }
 
     processResources {

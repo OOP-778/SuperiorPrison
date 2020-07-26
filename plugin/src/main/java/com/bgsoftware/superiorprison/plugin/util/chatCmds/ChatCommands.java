@@ -29,7 +29,6 @@ public class ChatCommands {
         if (commandMap.isEmpty()) return;
 
         String message = ChatColor.stripColor(event.getMessage());
-        event.setMessage("");
 
         // Try to find labels
         Optional<String> first = commandMap.keySet()
@@ -51,15 +50,8 @@ public class ChatCommands {
         }
 
         BiConsumer<Player, String[]> cmd = commandMap.get(first.get());
-        String[] noLabelMessage = message.split(first.get());
-        String[] args = new String[0];
-
-        if (noLabelMessage.length > 0) {
-            String cutMessage = noLabelMessage[1].substring(1);
-            args = cutMessage.split("\\s+");
-            if (args.length == 0)
-                args = new String[]{cutMessage};
-        }
+        String messageNoLabel = removeLabel(first.get(), message);
+        String[] args = messageNoLabel.split("\\s+");
 
         try {
             cmd.accept(event.getPlayer(), args);
@@ -73,5 +65,9 @@ public class ChatCommands {
             else
                 exceptionHandler.accept(event.getPlayer(), th);
         }
+    }
+
+    private String removeLabel(String label, String message) {
+        return message.length() == label.length() ? "" : message.substring(label.length() + 1);
     }
 }

@@ -16,7 +16,7 @@ public class TPS {
     static {
         Class<?> MINECRAFT_SERVER_CLASS = OSimpleReflection.findClass("{nms}.MinecraftServer");
         getServerMethod = OSimpleReflection.getMethod(MINECRAFT_SERVER_CLASS, "getServer");
-        recentTpsField = OSimpleReflection.getField(MINECRAFT_SERVER_CLASS, false, "recentTps");
+        recentTpsField = OSimpleReflection.getField(MINECRAFT_SERVER_CLASS, "recentTps");
     }
 
     @SneakyThrows

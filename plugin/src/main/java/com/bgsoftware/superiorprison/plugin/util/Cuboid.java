@@ -2,6 +2,7 @@ package com.bgsoftware.superiorprison.plugin.util;
 
 import com.oop.orangeengine.main.task.OTask;
 import com.oop.orangeengine.main.util.data.pair.OPair;
+import net.minecraft.server.v1_12_R1.MojangsonParser;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -129,14 +130,14 @@ public class Cuboid {
         return world;
     }
 
-    public CompletableFuture<Map<OPair<Integer, Integer>, Set<SPLocation>>> getFutureArrayWithChunks() {
-        CompletableFuture<Map<OPair<Integer, Integer>, Set<SPLocation>>> future = new CompletableFuture<>();
+    public CompletableFuture<Map<OPair<Integer, Integer>, Set<Location>>> getFutureArrayWithChunks() {
+        CompletableFuture<Map<OPair<Integer, Integer>, Set<Location>>> future = new CompletableFuture<>();
 
         // Here we gather all the blocks within mine in an async task
         new OTask()
                 .sync(false)
                 .runnable(() -> {
-                    Map<OPair<Integer, Integer>, Set<SPLocation>> map = new HashMap<>();
+                    Map<OPair<Integer, Integer>, Set<Location>> map = new HashMap<>();
 
                     World world = this.getWorld();
                     if (world != null) {
@@ -148,7 +149,7 @@ public class Cuboid {
 
                                     map
                                             .computeIfAbsent(new OPair<>(chunkX, chunkZ), pair -> new HashSet<>())
-                                            .add(new SPLocation(worldName, x, y, z));
+                                            .add(new Location(world, x, y, z));
                                 }
                             }
                         }

@@ -42,7 +42,6 @@ public class MainConfig {
 
         // Load Mine Defaults
         this.mineDefaults = new MineDefaultsSection(configuration.createSection("mine defaults"));
-
         this.areaSelectionTool = new OItem().load(configuration.getSection("area selection tool").get());
 
         configuration.ifValuePresent("shopgui fall back", boolean.class, b -> shopGuiAsFallBack = b);
@@ -54,6 +53,7 @@ public class MainConfig {
 
         scaleSection = new ProgressionScaleSection(configuration.getSection("progression scale").get());
 
+        SuperiorPrisonPlugin.getInstance().getOLogger().setDebugMode(configuration.getAs("debug", boolean.class, () -> false));
         configuration.save();
     }
 }

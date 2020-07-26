@@ -5,7 +5,10 @@ import com.bgsoftware.superiorprison.plugin.commands.args.PrisonerArg;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
+import com.bgsoftware.superiorprison.plugin.util.frameworks.Framework;
 import com.oop.orangeengine.command.OCommand;
+
+import java.awt.*;
 
 import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
 
@@ -34,7 +37,7 @@ public class CmdTeleport extends OCommand {
                 return;
             }
 
-            prisoner.getPlayer().teleport(superiorMine.getSpawnPoint());
+            Framework.FRAMEWORK.teleport(prisoner.getPlayer(), superiorMine.getSpawnPoint());
         });
     }
 }

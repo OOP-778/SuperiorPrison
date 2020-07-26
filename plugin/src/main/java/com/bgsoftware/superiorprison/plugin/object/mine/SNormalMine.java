@@ -24,6 +24,7 @@ import com.bgsoftware.superiorprison.plugin.object.player.rank.SLadderRank;
 import com.bgsoftware.superiorprison.plugin.object.player.rank.SSpecialRank;
 import com.bgsoftware.superiorprison.plugin.util.AccessUtil;
 import com.bgsoftware.superiorprison.plugin.util.SPLocation;
+import com.bgsoftware.superiorprison.plugin.util.frameworks.Framework;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -336,7 +337,7 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
 
         StaticTask.getInstance().sync(() -> {
             getPrisoners().stream().filter(prisoner -> prisoner.getCurrentMine().get().getValue() == AreaEnum.MINE).forEach(prisoner -> {
-                prisoner.getPlayer().teleport(getSpawnPoint());
+                Framework.FRAMEWORK.teleport(prisoner.getPlayer(), getSpawnPoint());
                 LocaleEnum.MINE_RESETTING.getWithPrefix().send(prisoner.getPlayer());
             });
         });

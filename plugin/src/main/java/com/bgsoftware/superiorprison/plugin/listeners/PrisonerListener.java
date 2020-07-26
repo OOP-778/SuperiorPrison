@@ -22,11 +22,13 @@ import com.bgsoftware.superiorprison.plugin.object.mine.effects.SMineEffect;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.util.SPLocation;
 import com.bgsoftware.superiorprison.plugin.util.SPair;
+import com.bgsoftware.superiorprison.plugin.util.frameworks.Framework;
 import com.oop.orangeengine.item.custom.OItem;
 import com.oop.orangeengine.main.Helper;
 import com.oop.orangeengine.main.events.SyncEvents;
 import com.oop.orangeengine.main.task.OTask;
 import com.oop.orangeengine.main.task.StaticTask;
+import com.oop.orangeengine.main.util.data.cache.OCache;
 import com.oop.orangeengine.material.OMaterial;
 import com.oop.orangeengine.message.OMessage;
 import org.bukkit.Bukkit;
@@ -42,11 +44,19 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.awt.*;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 
 public class PrisonerListener {
+    public static OCache<BlockBreakEvent, Boolean> ignoreEvents = OCache
+            .builder()
+            .concurrencyLevel(1)
+            .expireAfter(5, TimeUnit.SECONDS)
+            .build();
+
     public PrisonerListener() {
         SyncEvents.listen(PlayerJoinEvent.class, event -> {
             // Check for teleport!
@@ -58,7 +68,7 @@ public class PrisonerListener {
                             SuperiorPrisonPlugin.getInstance().getMineController()
                                     .getMine(prisoner.getLogoutMine())
                                     .map(SuperiorMine::getSpawnPoint)
-                                    .ifPresent(location -> event.getPlayer().teleport(location));
+                                    .ifPresent(location -> Framework.FRAMEWORK.teleport(event.getPlayer(), location));
                             prisoner.setLogoutMine(null);
                         })
                         .execute();
@@ -103,6 +113,8 @@ public class PrisonerListener {
         });
 
         SyncEvents.listen(BlockBreakEvent.class, EventPriority.LOWEST, event -> {
+            if (ignoreEvents.get(event) != null) return;
+
             // World check
             Set<String> worldNames = SuperiorPrisonPlugin.getInstance().getMineController().getMinesWorlds();
             if (!worldNames.contains(event.getPlayer().getWorld().getName()))
@@ -260,15 +272,20 @@ public class PrisonerListener {
                     }
                 }
 
-                event.setCancelled(true);
-                event.getBlock().setType(Material.AIR);
-
                 if (!player.hasPermission("prison.prisoner.ignoredurability")) {
                     ItemStack itemInHand = event.getPrisoner().getPlayer().getItemInHand();
                     itemInHand.setDurability((short) (itemInHand.getDurability() + 1));
                 }
 
-                drops.forEach(item -> event.getBlock().getLocation().getWorld().dropItem(event.getBlock().getLocation().add(0.5, 0, 0.5), item));
+                BlockBreakEvent bouncedEvent = new BlockBreakEvent(event.getBlock(), event.getPrisoner().getPlayer());
+                ignoreEvents.put(bouncedEvent, true);
+                Bukkit.getPluginManager().callEvent(bouncedEvent);
+
+                if (!bouncedEvent.isCancelled())
+                    drops.forEach(item -> event.getBlock().getLocation().getWorld().dropItem(event.getBlock().getLocation().add(0.5, 0, 0.5), item));
+
+                event.setCancelled(true);
+                event.getBlock().setType(Material.AIR);
             }
         });
 

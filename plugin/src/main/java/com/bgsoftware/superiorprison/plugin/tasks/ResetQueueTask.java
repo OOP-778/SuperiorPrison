@@ -4,6 +4,7 @@ import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.util.ChunkResetData;
 import com.bgsoftware.superiorprison.plugin.util.ListenablePair;
 import com.bgsoftware.superiorprison.plugin.util.TPS;
+import com.bgsoftware.superiorprison.plugin.util.frameworks.Framework;
 import com.oop.orangeengine.main.task.OTask;
 import com.oop.orangeengine.main.task.StaticTask;
 import com.oop.orangeengine.material.OMaterial;
@@ -14,6 +15,7 @@ public class ResetQueueTask extends OTask {
     private double lastTps = 0;
     private int skip = 0;
     private boolean cancel = false;
+    private boolean gettingChunk = false;
     private boolean running = false;
 
     private ChunkResetData currentChunk;
@@ -53,7 +55,7 @@ public class ResetQueueTask extends OTask {
             if (lastTps == 0)
                 lastTps = tps;
 
-            if (!running) {
+            if (!running && !gettingChunk) {
                 running = true;
                 cancel = false;
                 StaticTask.getInstance().sync(() -> {
@@ -61,8 +63,14 @@ public class ResetQueueTask extends OTask {
                         if (cancel || currentChunk == null || currentChunk.getData().isEmpty())
                             break;
 
-                        if (bukkitChunk == null)
-                            bukkitChunk = currentChunk.getWorld().getChunkAt(currentChunk.getX(), currentChunk.getZ());
+                        if (bukkitChunk == null) {
+                            gettingChunk = true;
+                            Framework.FRAMEWORK.loadChunk(currentChunk.getWorld(), currentChunk.getX(), currentChunk.getZ(), chunk -> {
+                                this.bukkitChunk = chunk;
+                                this.gettingChunk = false;
+                            });
+                            break;
+                        }
 
                         ListenablePair<Location, OMaterial> poll = currentChunk.getData().poll();
                         SuperiorPrisonPlugin.getInstance().getNms().setBlock(bukkitChunk, poll.getFirst(), poll.getSecond());

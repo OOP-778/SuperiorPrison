@@ -5,6 +5,7 @@ import com.bgsoftware.superiorprison.api.data.mine.area.AreaEnum;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.object.mine.area.SArea;
 import com.bgsoftware.superiorprison.plugin.util.*;
+import com.bgsoftware.superiorprison.plugin.util.frameworks.Framework;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -30,11 +31,10 @@ import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 
 import static com.bgsoftware.superiorprison.plugin.util.TimeUtil.getDate;
 
@@ -166,50 +166,42 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
         }
 
         cachedChunks.clear();
+        cachedLocations.clear();
+
         Location pos1 = mineArea.getMinPoint();
         Location pos2 = mineArea.getHighPoint();
-
         Cuboid cuboid = new Cuboid(pos1, pos2);
         caching = true;
 
         World world = pos1.getWorld();
         cuboid.getFutureArrayWithChunks().whenCompleteAsync((locations, throwable) -> {
-            try {
-                Set<Chunk> chunks = StaticTask.getInstance().gatherFromSync(() -> {
-                    Set<Chunk> toReturn = new HashSet<>();
-                    for (OPair<Integer, Integer> chunkPair : locations.keySet()) {
-                        toReturn.add(world.getChunkAt(chunkPair.getFirst(), chunkPair.getSecond()));
+            AtomicInteger chunkCompleted = new AtomicInteger(0);
+            int required = locations.keySet().size();
+            long chunkStart = System.currentTimeMillis();
+
+            List<Location> tempLocations = new ArrayList<>();
+            for (OPair<Integer, Integer> chunkPair : locations.keySet()) {
+                Set<Location> pairLocations = locations.get(chunkPair);
+                tempLocations.addAll(pairLocations);
+
+                Framework.FRAMEWORK.loadChunk(world, chunkPair.getFirst(), chunkPair.getSecond(), chunk -> {
+                    cachedChunks.put(chunkPair, chunk);
+                    cachedLocations.put(chunk, pairLocations);
+                    if (chunkCompleted.incrementAndGet() == required) {
+                        caching = false;
+                        ClassDebugger.debug("Finished Chunk Cache Took " + (System.currentTimeMillis() - chunkStart) + "ms");
                     }
-                    return toReturn;
-                }).get();
-
-                List<Location> tempLocations = new ArrayList<>();
-                for (Chunk chunk : chunks) {
-                    Set<Location> chunkLocations = locations.get(new OPair<>(chunk.getX(), chunk.getZ()))
-                            .stream()
-                            .map(SPLocation::toBukkit)
-                            .collect(Collectors.toSet());
-                    tempLocations.addAll(chunkLocations);
-                    cachedChunks.put(new OPair<>(chunk.getX(), chunk.getZ()), chunk);
-                }
-
-                locationsQueue = new RepeatableQueue<>(tempLocations.toArray(new Location[0]));
-                blocksInRegion = locationsQueue.size();
-
-                ClassDebugger.debug("Initialized cache");
-                ClassDebugger.debug("Blocks: " + blocksInRegion);
-
-                for (Location location1 : locationsQueue.array()) {
-                    Set<Location> locations1 = cachedLocations.computeIfAbsent(cachedChunks.get(new OPair<>(location1.getBlockX() >> 4, location1.getBlockZ() >> 4)), pair -> new HashSet<>());
-                    locations1.add(location1);
-                }
-                caching = false;
-
-                if (whenFinished != null)
-                    whenFinished.run();
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
+                });
             }
+
+            locationsQueue = new RepeatableQueue<>(tempLocations.toArray(new Location[0]));
+            blocksInRegion = locationsQueue.size();
+
+            ClassDebugger.debug("Initialized cache");
+            ClassDebugger.debug("Blocks: " + blocksInRegion);
+
+            if (whenFinished != null)
+                whenFinished.run();
         });
     }
 
@@ -271,7 +263,7 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
                     OMaterial.valueOf(object.get("m").getAsString())
             ));
         }
-        blockData = serializedData.applyAs("blockData", SMineBlockData.class, () -> new SMineBlockData());
+        blockData = serializedData.applyAs("blockData", SMineBlockData.class, SMineBlockData::new);
         blockData.attach(this);
     }
 

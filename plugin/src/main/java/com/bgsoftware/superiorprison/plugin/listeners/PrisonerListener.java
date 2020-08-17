@@ -103,6 +103,7 @@ public class PrisonerListener {
 
         SyncEvents.listen(PlayerQuitEvent.class, event -> {
             SPrisoner prisoner = SuperiorPrisonPlugin.getInstance().getDatabaseController().getPrisonerHolder().getInsertIfAbsent(event.getPlayer());
+
             prisoner.getCurrentMine().ifPresent(mine -> {
                 prisoner.setLogoutMine(mine.getKey().getName());
                 prisoner.save(true);

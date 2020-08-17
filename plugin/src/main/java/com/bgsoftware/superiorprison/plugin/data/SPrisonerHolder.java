@@ -91,6 +91,9 @@ public class SPrisonerHolder extends SqlStorage<SPrisoner> implements PrisonerHo
     public Optional<Prisoner> getPrisoner(String username) {
         UUID uuid = usernameToUuidMap.get(username);
         if (uuid == null) {
+            if (username.matches("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[34][0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}"))
+                return getPrisoner(UUID.fromString(username));
+
             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(username);
             if (offlinePlayer == null) return Optional.empty();
             uuid = offlinePlayer.getUniqueId();

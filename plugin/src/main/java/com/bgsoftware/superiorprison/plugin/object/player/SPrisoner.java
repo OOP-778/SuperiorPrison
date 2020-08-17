@@ -426,6 +426,10 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
         });
 
         this.textureValue = data.getElement("texture").map(JsonElement::getAsString).orElse(getOnlineSkullTexture());
+        ensurePlayerNotNull();
+
+        SuperiorPrisonPlugin.getInstance().getPrisonerController().getUsernameToUuidMap().put(cachedOfflinePlayer.getName(), cachedOfflinePlayer.getUniqueId());
+
     }
 
     @SneakyThrows

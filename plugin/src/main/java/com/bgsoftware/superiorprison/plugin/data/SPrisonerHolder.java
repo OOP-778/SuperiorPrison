@@ -26,6 +26,9 @@ public class SPrisonerHolder extends SqlStorage<SPrisoner> implements PrisonerHo
     @Getter
     private final Map<UUID, SPrisoner> prisonerMap = Maps.newConcurrentMap();
 
+    @Getter
+    private final Map<String, UUID> usernameToUuidMap = Maps.newConcurrentMap();
+
     public SPrisonerHolder(DatabaseController controller) {
         super(controller, controller.getDatabase());
 
@@ -86,10 +89,15 @@ public class SPrisonerHolder extends SqlStorage<SPrisoner> implements PrisonerHo
 
     @Override
     public Optional<Prisoner> getPrisoner(String username) {
-        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(username);
-        if (offlinePlayer == null) return Optional.empty();
+        UUID uuid = usernameToUuidMap.get(username);
+        if (uuid == null) {
+            OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(username);
+            if (offlinePlayer == null) return Optional.empty();
+            uuid = offlinePlayer.getUniqueId();
+            usernameToUuidMap.put(username, uuid);
+        }
 
-        return getPrisoner(offlinePlayer.getUniqueId());
+        return getPrisoner(uuid);
     }
 
     public SPrisoner getInsertIfAbsent(Player player) {

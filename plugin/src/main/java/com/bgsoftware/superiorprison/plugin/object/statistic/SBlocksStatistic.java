@@ -21,6 +21,7 @@ import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static com.bgsoftware.superiorprison.plugin.util.TimeUtil.getDate;
 
@@ -33,7 +34,7 @@ public class SBlocksStatistic implements BlocksStatistic, Attachable<SStatistics
     @Getter
     private transient long lastUpdated = 0;
 
-    private long totalBlocks = 0;
+    private AtomicLong totalBlocks = new AtomicLong();
 
     private final Map<OMaterial, Long> minedBlocks = Maps.newConcurrentMap();
 
@@ -49,7 +50,7 @@ public class SBlocksStatistic implements BlocksStatistic, Attachable<SStatistics
 
     @SneakyThrows
     public void update(OMaterial material, long amount) {
-        totalBlocks += amount;
+        totalBlocks.addAndGet(amount);
         minedBlocks.merge(material, amount, Long::sum);
 
         lastUpdated = getDate().toEpochSecond();
@@ -59,7 +60,7 @@ public class SBlocksStatistic implements BlocksStatistic, Attachable<SStatistics
 
     @Override
     public long getTotal() {
-        return totalBlocks;
+        return totalBlocks.get();
     }
 
     @Override
@@ -119,6 +120,6 @@ public class SBlocksStatistic implements BlocksStatistic, Attachable<SStatistics
                         minedBlocks.put(key, value);
                     });
         }
-        totalBlocks = minedBlocks.values().stream().mapToLong(value -> value).sum();
+        totalBlocks.set(minedBlocks.values().stream().mapToLong(value -> value).sum());
     }
 }

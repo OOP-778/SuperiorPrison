@@ -105,6 +105,8 @@ public class GeneratorEditMenu extends OPagedMenu<OPair<Double, OMaterial>> impl
         Optional<OMenuButton> material = getTemplateButtonFromTemplate("material");
         if (!material.isPresent()) return null;
 
+        System.out.println(obj.getFirst());
+
         OMenuButton button = material.get().clone();
         OMenuButton.ButtonItemBuilder clone = button.getDefaultStateItem().clone();
         clone.itemBuilder()

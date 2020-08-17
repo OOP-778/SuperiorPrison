@@ -17,6 +17,35 @@ database:
   username: "root"
   password: "ouf123"
 
+# Top systems configurations
+top systems:
+  prestige:
+    # Update interval
+    interval: "10s"
+
+    # How much entries should be there?
+    entries limit: 10
+
+  blocks:
+    # Update interval
+    interval: "10s"
+
+    # How much entries should be there?
+    entries limit: 10
+
+prisoner defaults:
+  # Is auto sell enabled
+  auto sell: false
+
+  # Is auto pickup
+  auto pickup: false
+
+  # Is auto burn
+  auto burn: false
+
+  # Blocks fortune
+  fortune blocks: false
+
 mine defaults:
   # Icon that will be shown in /mines
   icon:
@@ -72,3 +101,9 @@ sold message interval: "1m"
 
 # Should it reset the ranks after prestige
 reset ranks after prestige up: false
+
+# How often it should check the rankup
+rankup message interval: "6s"
+
+# Should it use mine shop of the current rank of the player
+use mine shops by rank: false

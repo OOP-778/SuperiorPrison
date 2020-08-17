@@ -226,6 +226,7 @@ public class MineControlPanel extends OPagedMenu<OptionEnum> implements OMenu.Te
                 new SubscriptionProperties<AsyncPlayerChatEvent>()
                         .runTill(e -> cancel.get())
                         .priority(EventPriority.LOWEST)
+                        .filter(e -> e.getPlayer().getUniqueId().equals(getViewer().getUUID()))
                         .async(false)
                         .timeOut(TimeUnit.MINUTES, 4)
         );

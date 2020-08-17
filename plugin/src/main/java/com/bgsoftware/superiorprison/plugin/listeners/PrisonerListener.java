@@ -44,7 +44,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.awt.*;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -107,6 +106,9 @@ public class PrisonerListener {
             prisoner.getCurrentMine().ifPresent(mine -> {
                 prisoner.setLogoutMine(mine.getKey().getName());
                 prisoner.save(true);
+
+                prisoner.getCurrentMine().get().getKey().getPrisoners().remove(prisoner);
+                prisoner.setCurrentMine(null);
             });
 
             prisoner.clearCache();
@@ -157,8 +159,10 @@ public class PrisonerListener {
             MineBlockBreakEvent mineBlockBreakEvent = new MineBlockBreakEvent(minePair.getKey(), prisoner, event.getBlock());
             Bukkit.getPluginManager().callEvent(mineBlockBreakEvent);
 
-            if (mineBlockBreakEvent.isCancelled())
+            if (mineBlockBreakEvent.isCancelled()) {
+                event.setExpToDrop(0);
                 event.setCancelled(true);
+            }
         });
 
         SyncEvents.listen(MineBlockBreakEvent.class, EventPriority.HIGHEST, event -> {
@@ -181,6 +185,10 @@ public class PrisonerListener {
                 else
                     drops.addAll(event.getBlock().getDrops(new ItemStack(tool.getItemStack())));
 
+                BlockBreakEvent bouncedEvent = new BlockBreakEvent(event.getBlock(), event.getPrisoner().getPlayer());
+                ignoreEvents.put(bouncedEvent, true);
+                Bukkit.getPluginManager().callEvent(bouncedEvent);
+
                 // Handle auto burn
                 if (prisoner.isAutoBurn()) {
                     new HashSet<>(drops)
@@ -199,6 +207,13 @@ public class PrisonerListener {
                                     drops.add(OMaterial.IRON_INGOT.parseItem());
                                 }
                             });
+                }
+
+                Set<DropsBooster> boosters = prisoner.getBoosters().findBoostersBy(DropsBooster.class);
+                if (!boosters.isEmpty()) {
+                    double[] rate = new double[]{0};
+                    boosters.forEach(booster -> rate[0] = rate[0] + booster.getRate());
+                    drops.forEach(itemStack -> itemStack.setAmount((int) Math.round(rate[0] * itemStack.getAmount())));
                 }
 
                 // Handle Fortune
@@ -225,13 +240,6 @@ public class PrisonerListener {
                             }
                         }
                     });
-                }
-
-                Set<DropsBooster> boosters = prisoner.getBoosters().findBoostersBy(DropsBooster.class);
-                if (!boosters.isEmpty()) {
-                    double[] rate = new double[]{0};
-                    boosters.forEach(booster -> rate[0] = rate[0] + booster.getRate());
-                    drops.forEach(itemStack -> itemStack.setAmount((int) Math.round(rate[0] * itemStack.getAmount())));
                 }
 
                 // Handle auto pickup
@@ -274,16 +282,21 @@ public class PrisonerListener {
 
                 if (!player.hasPermission("prison.prisoner.ignoredurability")) {
                     ItemStack itemInHand = event.getPrisoner().getPlayer().getItemInHand();
-                    itemInHand.setDurability((short) (itemInHand.getDurability() + 1));
-                }
+                    int enchantmentLevel = itemInHand.getEnchantmentLevel(Enchantment.DURABILITY);
+                    if (enchantmentLevel != 0) {
+                        double chance = (100 / enchantmentLevel + 1);
+                        double generatedChance = ThreadLocalRandom.current().nextDouble(0, 100);
 
-                BlockBreakEvent bouncedEvent = new BlockBreakEvent(event.getBlock(), event.getPrisoner().getPlayer());
-                ignoreEvents.put(bouncedEvent, true);
-                Bukkit.getPluginManager().callEvent(bouncedEvent);
+                        if (chance > generatedChance)
+                            itemInHand.setDurability((short) (itemInHand.getDurability() + 1));
+                    } else
+                        itemInHand.setDurability((short) (itemInHand.getDurability() + 1));
+                }
 
                 if (!bouncedEvent.isCancelled())
                     drops.forEach(item -> event.getBlock().getLocation().getWorld().dropItem(event.getBlock().getLocation().add(0.5, 0, 0.5), item));
 
+                event.getBlock().getDrops().clear();
                 event.setCancelled(true);
                 event.getBlock().setType(Material.AIR);
             }

@@ -1,6 +1,5 @@
 package com.bgsoftware.superiorprison.plugin.object.mine;
 
-import com.bgsoftware.superiorprison.api.SuperiorPrison;
 import com.bgsoftware.superiorprison.api.data.mine.MineEnum;
 import com.bgsoftware.superiorprison.api.data.mine.area.Area;
 import com.bgsoftware.superiorprison.api.data.mine.area.AreaEnum;
@@ -40,7 +39,6 @@ import com.oop.orangeengine.main.util.data.set.OConcurrentSet;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
@@ -50,7 +48,6 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.type.NormalMine, Serializable, SqlDataBody {
@@ -127,6 +124,7 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
         messages = new SMineMessages();
         messages.attach(this);
 
+        generator.reset();
         updateHighests();
     }
 
@@ -332,7 +330,7 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
                 prisoner.save(true);
                 online = true;
             }
-            return online;
+            return online || !prisoner.getCurrentMine().isPresent();
         });
 
         StaticTask.getInstance().sync(() -> {
@@ -513,5 +511,15 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
                     .max(Comparator.comparingInt(LadderRank::getOrder))
                     .orElse(null);
         });
+    }
+
+    @Override
+    public boolean hasRank(String name) {
+        return ranks.contains(name);
+    }
+
+    @Override
+    public boolean hasPrestige(String name) {
+        return prestiges.contains(name);
     }
 }

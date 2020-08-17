@@ -5,7 +5,6 @@ import com.bgsoftware.superiorprison.api.requirement.Requirement;
 import com.bgsoftware.superiorprison.api.requirement.RequirementException;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
-import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.object.player.rank.SLadderRank;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -30,8 +29,7 @@ public class RankupTask extends OTask {
         runnable(() -> {
             if (SuperiorPrisonPlugin.disabling) return;
             SuperiorPrisonPlugin.getInstance().getPrisonerController()
-                    .stream()
-                    .filter(SPrisoner::isOnline)
+                    .streamOnline()
                     .filter(prisoner -> prisoner.getCurrentMine().isPresent())
                     .filter(prisoner -> cache.getIfPresent(prisoner.getUUID()) == null || !cache.getIfPresent(prisoner.getUUID()).contentEquals(prisoner.getCurrentLadderRank().getName()))
                     .filter(prisoner -> {

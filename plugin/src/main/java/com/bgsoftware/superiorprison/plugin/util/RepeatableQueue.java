@@ -16,7 +16,7 @@ public class RepeatableQueue<V> {
     }
 
     public V poll() {
-        if (index == (size - 1)) reset();
+        if (index == size) reset();
 
         V value = array[index];
         index++;
@@ -24,7 +24,7 @@ public class RepeatableQueue<V> {
     }
 
     public boolean isEmpty() {
-        return index == (size - 1);
+        return index == size;
     }
 
     public void reset() {

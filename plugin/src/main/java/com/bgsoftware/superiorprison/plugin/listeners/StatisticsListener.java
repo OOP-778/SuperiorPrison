@@ -8,8 +8,6 @@ import com.oop.orangeengine.main.events.SyncEvents;
 import com.oop.orangeengine.material.OMaterial;
 import org.bukkit.event.EventPriority;
 
-import static com.bgsoftware.superiorprison.plugin.util.TimeUtil.getDate;
-
 public class StatisticsListener {
     public StatisticsListener() {
         DatabaseController databaseController = SuperiorPrisonPlugin.getInstance().getDatabaseController();
@@ -18,8 +16,6 @@ public class StatisticsListener {
 
             SStatisticsContainer statisticsContainer = databaseController.getStatisticHolder().getContainer(event.getPrisoner().getUUID());
             statisticsContainer.getBlocksStatistic().update(OMaterial.matchMaterial(event.getBlock()), 1);
-
-            long totalBlocksWithinTimeFrame = statisticsContainer.getBlocksStatistic().getTotalBlocksWithinTimeFrame(getDate().minusSeconds(10), getDate());
         });
     }
 }

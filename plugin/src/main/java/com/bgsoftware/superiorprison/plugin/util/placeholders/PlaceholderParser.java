@@ -67,9 +67,7 @@ public class PlaceholderParser {
                     return RequirementUtil.getProgressScale(prisoner, nextPrestige.getRequirements());
                 }
 
-                SLadderRank next = (SLadderRank) nextLadderRank.get().getNext().orElse(null);
-                if (next == null) return "N/A";
-
+                SLadderRank next = (SLadderRank) nextLadderRank.get();
                 return RequirementUtil.getProgressScale(prisoner, next.getRequirements());
             })
             .parse("rankuppercentage", (prisoner, obj, crawler) -> {
@@ -85,9 +83,7 @@ public class PlaceholderParser {
                     return RequirementUtil.getPercentageCompleted(nextPrestige.getRequirements(), prisoner);
                 }
 
-                SLadderRank next = (SLadderRank) nextLadderRank.get().getNext().orElse(null);
-                if (next == null) return "N/A";
-
+                SLadderRank next = (SLadderRank) nextLadderRank.get();
                 return RequirementUtil.getPercentageCompleted(next.getRequirements(), prisoner);
             })
 

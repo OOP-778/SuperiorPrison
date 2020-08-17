@@ -1,0 +1,68 @@
+title: "&d{top_type} &7Top"
+
+templates:
+  - "entry:E"
+  - "no entry:$"
+
+actions:
+  - "previous page:P"
+  - "next page:N"
+
+layout:
+  - "& & & & & & & & &"
+  - "$ $ $ $ $ $ $ $ $"
+  - "& & & P & N & & &"
+
+buttons:
+  "&":
+    material: pink_stained_glass_pane
+    display name: "&r"
+
+  "P":
+    shown:
+      material: arrow
+      display name: "&d<<"
+      lore:
+        - "&7Click to go to"
+        - "&7The previous page!"
+
+    hidden:
+      material: pink_stained_glass_pane
+      display name: "&r"
+
+  "N":
+    shown:
+      material: arrow
+      display name: "&d>>"
+      lore:
+        - "&7Click to go to"
+        - "&7The next page!"
+
+    hidden:
+      material: pink_stained_glass_pane
+      display name: "&r"
+
+  "$":
+    material: barrier
+    display name: "&c???"
+
+  "E":
+    blocks entry:
+      material: player head
+      texture: "{entry_texture}"
+      display name: "&d&l{prisoner_name}"
+      lore:
+        - ""
+        - "&d&lInformation"
+        - "&d&l* &7Position: &d{entry_position}"
+        - "&d&l* &7Mined Blocks: &d{entry_blocks}"
+
+    prestige entry:
+      material: player head
+      texture: "{entry_texture}"
+      display name: "&d&l{prisoner_name}"
+      lore:
+        - ""
+        - "&d&lInformation"
+        - "&d&l* &7Position: &d{entry_position}"
+        - "&d&l* &7Prestige: &d{entry_prestige}"

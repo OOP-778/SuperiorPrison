@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorprison.plugin.config;
 
 import com.bgsoftware.superiorprison.api.data.mine.settings.ResetType;
+import com.bgsoftware.superiorprison.plugin.util.configwrapper.SectionWrapper;
 import com.oop.orangeengine.item.custom.OItem;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.material.OMaterial;
@@ -13,17 +14,19 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Getter
-public class MineDefaultsSection {
+public class MineDefaultsSection extends SectionWrapper {
 
-    private final OItem icon;
+    private OItem icon;
     private int limit = -1;
 
     private final OPair<ResetType, String> resetting = new OPair<>(ResetType.PERCENTAGE, "50");
-    private final List<OPair<Double, OMaterial>> materials;
+    private List<OPair<Double, OMaterial>> materials;
 
-    private final List<OPair<OMaterial, BigDecimal>> shopPrices;
+    private List<OPair<OMaterial, BigDecimal>> shopPrices;
 
-    MineDefaultsSection(ConfigSection section) {
+    @Override
+    protected void initialize() {
+        ConfigSection section = getSection();
         this.icon = new OItem().load(section.getSection("icon").get());
         this.limit = section.getAs("limit");
 

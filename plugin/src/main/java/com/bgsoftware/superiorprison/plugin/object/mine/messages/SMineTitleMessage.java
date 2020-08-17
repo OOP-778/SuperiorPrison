@@ -68,7 +68,7 @@ public class SMineTitleMessage extends SMineMessage implements MineTitleMessage 
     @Override
     public void deserialize(SerializedData serializedData) {
         super.deserialize(serializedData);
-        title = serializedData.getElement("title").map(JsonElement::getAsString).get();
+        title = serializedData.getElement("title").map(JsonElement::getAsString).orElse(null);
         subTitle = serializedData.getElement("subtitle").map(JsonElement::getAsString);
         fadeIn = serializedData.applyAs("fadeIn", int.class);
         stay = serializedData.applyAs("stay", int.class);

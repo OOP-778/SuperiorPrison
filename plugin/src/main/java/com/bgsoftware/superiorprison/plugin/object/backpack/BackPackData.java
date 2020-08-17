@@ -11,6 +11,7 @@ import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.main.util.data.pair.OTriplePair;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -30,6 +31,9 @@ public class BackPackData implements SerializableObject {
     public @NonNull Player owner;
     private @NonNull SBackPack holder;
 
+    @Setter
+    private boolean sell = false;
+
     public BackPackData(SBackPack holder) {
         this.holder = holder;
 
@@ -47,6 +51,9 @@ public class BackPackData implements SerializableObject {
         // Config id
         serializedData.write("configId", configId);
 
+        // Is sell
+        serializedData.write("sell", sell);
+
         // Items
         JsonArray pagesArray = new JsonArray();
         stored.forEach((page, itemData) -> {
@@ -62,6 +69,7 @@ public class BackPackData implements SerializableObject {
     public void deserialize(SerializedData serializedData) {
         this.level = serializedData.applyAs("level", int.class);
         this.configId = serializedData.applyAs("configId", String.class);
+        this.sell = serializedData.applyAs("sell", boolean.class, () -> false);
 
         JsonArray itemsArray = serializedData.getJsonObject().getAsJsonArray("items");
         int page = 1;
@@ -141,6 +149,6 @@ public class BackPackData implements SerializableObject {
 
     @Override
     public int hashCode() {
-        return Objects.hash(stored, level);
+        return Objects.hash(stored, level, sell);
     }
 }

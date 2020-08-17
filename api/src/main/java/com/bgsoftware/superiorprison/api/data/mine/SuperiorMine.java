@@ -156,4 +156,10 @@ public interface SuperiorMine {
 
     // Add an prestige to the mine
     void addPrestige(Prestige... prestige);
+
+    // Check if mine has rank by name
+    boolean hasRank(String name);
+
+    // Check if mine has prestige by name
+    boolean hasPrestige(String name);
 }

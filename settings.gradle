@@ -14,4 +14,5 @@ include 'nms-1_8_R2'
 include 'nms-1_8_R1'
 include 'nms-1_15_R1'
 include 'nms-1_16_R1'
+include 'nms-1_16_R2'
 

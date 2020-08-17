@@ -3,7 +3,6 @@ package com.bgsoftware.superiorprison.plugin.util.chatCmds;
 import com.google.common.collect.Maps;
 import com.oop.orangeengine.main.Helper;
 import lombok.Setter;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
@@ -28,7 +27,7 @@ public class ChatCommands {
         event.setCancelled(true);
         if (commandMap.isEmpty()) return;
 
-        String message = ChatColor.stripColor(event.getMessage());
+        String message = event.getMessage();
 
         // Try to find labels
         Optional<String> first = commandMap.keySet()

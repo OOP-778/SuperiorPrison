@@ -105,7 +105,13 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
         for (int index = 0; index < blocksInRegion; index++) {
             Location location = locationsQueue.poll();
             OMaterial material = cachedMaterials[index];
-            if (material == null) continue;
+            if (material == null) {
+                ClassDebugger.debug("Skipping block");
+                continue;
+            }
+
+            if (location.getBlockX() == -65 && location.getBlockY() == 80 && location.getBlockZ() == 160)
+                ClassDebugger.debug("Setting block");
 
             ChunkResetData chunkResetData = SuperiorPrisonPlugin.getInstance().getMineController().addResetBlock(location, material,
                     () -> {
@@ -190,6 +196,9 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
                     if (chunkCompleted.incrementAndGet() == required) {
                         caching = false;
                         ClassDebugger.debug("Finished Chunk Cache Took " + (System.currentTimeMillis() - chunkStart) + "ms");
+
+                        if (whenFinished != null)
+                            whenFinished.run();
                     }
                 });
             }
@@ -199,9 +208,6 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
 
             ClassDebugger.debug("Initialized cache");
             ClassDebugger.debug("Blocks: " + blocksInRegion);
-
-            if (whenFinished != null)
-                whenFinished.run();
         });
     }
 

@@ -18,8 +18,6 @@ import org.bukkit.inventory.ItemStack;
 import java.util.*;
 import java.util.function.Function;
 
-import static com.oop.orangeengine.main.Engine.getEngine;
-
 @Getter
 public class BackPackViewMenu extends OPagedMenu<ItemStack> {
 
@@ -32,8 +30,17 @@ public class BackPackViewMenu extends OPagedMenu<ItemStack> {
         this.backPack = backPack;
         backPack.setCurrentView(this);
 
+        getStateRequester()
+                .registerRequest("sellContentsFlag", button -> getToggleableState(button, backPack.getData().isSell()));
+
         clickHandler("upgrade")
                 .handle(event -> move(new BackPackUpgradeMenu(getViewer(), backPack)));
+
+        clickHandler("sellContentsFlag")
+                .handle(event -> {
+                    backPack.getData().setSell(!backPack.getData().isSell());
+                    refresh();
+                });
 
         ConfigController cc = SuperiorPrisonPlugin.getInstance().getConfigController();
         Config configuration = cc.getMenus().get(getIdentifier().toLowerCase());
@@ -169,5 +176,13 @@ public class BackPackViewMenu extends OPagedMenu<ItemStack> {
     @Override
     public void handleDrag(InventoryDragEvent event) {
 
+    }
+
+    private OMenuButton.ButtonItemBuilder getToggleableState(OMenuButton button, boolean state) {
+        if (state)
+            return button.getStateItem("enabled");
+
+        else
+            return button.getStateItem("disabled");
     }
 }

@@ -7,6 +7,7 @@ import com.bgsoftware.superiorprison.plugin.commands.prisoner.CmdPrisoner;
 import com.bgsoftware.superiorprison.plugin.commands.rankup.CmdMaxRankup;
 import com.bgsoftware.superiorprison.plugin.commands.rankup.CmdRankup;
 import com.bgsoftware.superiorprison.plugin.commands.sell.SellCommand;
+import com.bgsoftware.superiorprison.plugin.commands.top.CmdTop;
 import com.oop.orangeengine.command.CommandController;
 import com.oop.orangeengine.command.scheme.SchemeHolder;
 import com.oop.orangeengine.file.OFile;
@@ -41,6 +42,8 @@ public class CommandsRegister {
 
         // Backpacks
         controller.register(new CmdBackpacks());
+
+        controller.register(new CmdTop());
 
         new PermissionsInitializer(controller);
         //new CommandsPrinter(controller, new File(SuperiorPrisonPlugin.getInstance().getDataFolder(), "commands.txt"));

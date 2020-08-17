@@ -14,6 +14,7 @@ import com.oop.orangeengine.command.arg.arguments.StringArg;
 import com.oop.orangeengine.eventssubscription.SubscriptionFactory;
 import com.oop.orangeengine.eventssubscription.SubscriptionProperties;
 import com.oop.orangeengine.eventssubscription.subscription.SubscribedEvent;
+import com.oop.orangeengine.main.task.OTask;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
@@ -127,6 +128,11 @@ public class CmdCreate extends OCommand {
                                 }
                                 spawnPos.set(new SPLocation(spawnEvent.getPlayer().getEyeLocation().add(0.5, 1.3, 0.5)));
 
+                                new OTask()
+                                        .delay(400)
+                                        .runnable(() -> player.getInventory().setItemInHand(null))
+                                        .execute();
+
                                 SNormalMine sNormalMine = new SNormalMine(mineName, regionPos1.get(), regionPos2.get(), minePos1.get(), minePos2.get());
                                 sNormalMine.setSpawnPoint(spawnPos.get());
 
@@ -134,9 +140,9 @@ public class CmdCreate extends OCommand {
                                         .replace(sNormalMine)
                                         .send(command);
 
-                                player.getInventory().remove(SuperiorPrisonPlugin.getInstance().getMainConfig().getAreaSelectionTool().getItemStack());
                                 SuperiorPrisonPlugin.getInstance().getMineController().add(sNormalMine);
                                 creating.invalidate(player.getUniqueId());
+
                             },
                             new SubscriptionProperties<PlayerInteractEvent>()
                                     .timeOut(TimeUnit.MINUTES, 5)
@@ -155,7 +161,7 @@ public class CmdCreate extends OCommand {
                 chatEvent.setCancelled(true);
                 creating.invalidate(player.getUniqueId());
                 posSelectEvent.get().end();
-                player.getInventory().remove(SuperiorPrisonPlugin.getInstance().getMainConfig().getAreaSelectionTool().getItemStack());
+                player.getInventory().setItemInHand(null);
             }, new SubscriptionProperties<AsyncPlayerChatEvent>()
                     .runTill(e -> posSelectEvent.get().cancelled())
                     .filter(event -> event.getMessage().equalsIgnoreCase("cancel") && event.getPlayer().equals(player)));

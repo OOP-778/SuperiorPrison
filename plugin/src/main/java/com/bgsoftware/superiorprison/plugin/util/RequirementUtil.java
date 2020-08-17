@@ -11,7 +11,6 @@ import com.oop.orangeengine.message.impl.chat.ChatLine;
 import java.util.*;
 
 public class RequirementUtil {
-
     public static List<RequirementException> test(Collection<RequirementData> reqColl, SPrisoner prisoner) {
         List<RequirementException> failed = new ArrayList<>();
         reqColl.forEach(data -> {
@@ -40,7 +39,6 @@ public class RequirementUtil {
         double allReqsPercentage = reqColl.stream().mapToDouble(data -> {
             Optional<Requirement> requirement = SuperiorPrisonPlugin.getInstance().getRequirementController().findRequirement(data.getType());
             if (!requirement.isPresent()) return 0d;
-
             return Math.min(requirement.get().getHandler().getPercentage(prisoner, data), 100);
         }).sum();
 

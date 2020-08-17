@@ -3,10 +3,11 @@ title: "&dOpened backpack &5{current_page}&8/&5{pages_available}"
 # You can only edit the top & bottom
 layout:
   - "TOP:& & & & & & & & &"
-  - "BOTTOM:U & & P & N & & &"
+  - "BOTTOM:U & & P & N & & S"
 
 actions:
   - "upgrade:U"
+  - "sellContentsFlag:S"
   - "previous page:P"
   - "next page:N"
 
@@ -44,3 +45,17 @@ buttons:
     display name: "&dUpgrade"
     lore:
       - "&7Click to view upgrades!"
+
+  "S":
+    enabled:
+      material: comparator
+      display name: "&cSell Contents Option"
+      lore:
+        - "&cCurrently will sell contents when"
+        - "&cSell command is used"
+    disabled:
+      material: comparator
+      display name: "&cSell Contents Option"
+      lore:
+        - "&cCurrently will not sell contents when"
+        - "&cSell command is used"

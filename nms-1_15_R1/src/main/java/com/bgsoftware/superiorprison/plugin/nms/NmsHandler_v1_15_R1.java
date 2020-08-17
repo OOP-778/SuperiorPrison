@@ -13,7 +13,6 @@ import org.bukkit.craftbukkit.v1_15_R1.util.CraftMagicNumbers;
 import org.bukkit.entity.Player;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class NmsHandler_v1_15_R1 implements SuperiorNms {
     private Map<OMaterial, IBlockData> dataMap = new HashMap<>();
@@ -66,7 +65,7 @@ public class NmsHandler_v1_15_R1 implements SuperiorNms {
 
         for (Packet packet : packets) {
             for (Player receiver : receivers) {
-                ((CraftPlayer)receiver).getHandle().playerConnection.sendPacket(packet);
+                ((CraftPlayer) receiver).getHandle().playerConnection.sendPacket(packet);
             }
         }
     }

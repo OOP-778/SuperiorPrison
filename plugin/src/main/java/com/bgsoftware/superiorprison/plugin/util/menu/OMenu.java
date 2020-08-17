@@ -3,20 +3,17 @@ package com.bgsoftware.superiorprison.plugin.util.menu;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.controller.ConfigController;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
-import com.bgsoftware.superiorprison.plugin.util.ClassDebugger;
 import com.bgsoftware.superiorprison.plugin.util.SPair;
 import com.bgsoftware.superiorprison.plugin.util.TextUtil;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.oop.orangeengine.main.task.OTask;
 import com.oop.orangeengine.main.task.StaticTask;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.yaml.Config;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
-import net.minecraft.server.v1_12_R1.CancelledPacketHandleException;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -28,7 +25,6 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -132,12 +128,15 @@ public abstract class OMenu implements InventoryHolder {
                 if (button.requiredPermission().trim().length() == 0) {
                     ItemStack item = button.currentItem(stateRequester.request(button).getItemStackWithPlaceholdersMulti(finalObjects)).currentItem();
                     inventory.setItem(slot, item);
-                } else if (getViewer().getPlayer().hasPermission(button.requiredPermission()))
+
+                } else if (getViewer().getPlayer().hasPermission(button.requiredPermission())) {
                     inventory.setItem(slot, button.currentItem(stateRequester.request(button).getItemStackWithPlaceholdersMulti(finalObjects)).currentItem());
 
-                else {
+                } else {
                     OMenuButton.ButtonItemBuilder no_permission = button.getStateItem("no permission");
                     if (no_permission == null) return;
+
+                    button.locked(true);
 
                     no_permission.itemBuilder().replaceInLore("{permission}", button.requiredPermission());
                     inventory.setItem(slot, button.currentItem(no_permission.getItemStackWithPlaceholders(getViewer())).currentItem());
@@ -256,6 +255,7 @@ public abstract class OMenu implements InventoryHolder {
                     .filter(button -> button.slot() == event.getRawSlot())
                     .findFirst();
             if (!menuButton.isPresent()) return;
+            if (menuButton.get().locked()) return;
 
             ButtonClickEvent buttonClickEvent = new ButtonClickEvent(event, menuButton.get());
             Optional<ClickHandler> clickHandler = clickHandlerFor(buttonClickEvent);

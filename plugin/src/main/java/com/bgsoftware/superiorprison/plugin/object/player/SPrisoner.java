@@ -8,36 +8,47 @@ import com.bgsoftware.superiorprison.api.data.player.rank.LadderRank;
 import com.bgsoftware.superiorprison.api.data.player.rank.Rank;
 import com.bgsoftware.superiorprison.api.util.Pair;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
+import com.bgsoftware.superiorprison.plugin.config.PrisonerDefaults;
 import com.bgsoftware.superiorprison.plugin.data.SPrisonerHolder;
 import com.bgsoftware.superiorprison.plugin.hook.impl.ShopGuiPlusHook;
 import com.bgsoftware.superiorprison.plugin.object.player.booster.SBoosters;
 import com.bgsoftware.superiorprison.plugin.object.player.rank.SLadderRank;
 import com.bgsoftware.superiorprison.plugin.object.player.rank.SRank;
-import com.bgsoftware.superiorprison.plugin.object.player.rank.SSpecialRank;
+import com.bgsoftware.superiorprison.plugin.util.ClassDebugger;
 import com.bgsoftware.superiorprison.plugin.util.SPair;
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
 import com.oop.datamodule.SerializedData;
 import com.oop.datamodule.body.SqlDataBody;
 import com.oop.datamodule.util.DataUtil;
+import com.oop.orangeengine.main.util.OSimpleReflection;
 import com.oop.orangeengine.main.util.data.cache.OCache;
 import com.oop.orangeengine.main.util.data.set.OConcurrentSet;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
+import lombok.SneakyThrows;
 import lombok.experimental.Accessors;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.json.simple.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.math.BigDecimal;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static com.bgsoftware.superiorprison.plugin.util.AccessUtil.findPrestige;
 import static com.bgsoftware.superiorprison.plugin.util.AccessUtil.findRank;
 
 @Accessors(chain = true)
@@ -84,15 +95,27 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
     @Setter
     private Pair<SuperiorMine, AreaEnum> currentMine;
 
-    @Setter @Getter
+    @Setter
+    @Getter
     private SPair<BigDecimal, Long> soldData = new SPair<>(new BigDecimal(0), 0L);
 
-    public SPrisoner() {}
+    @Getter
+    private String textureValue;
+
+    public SPrisoner() {
+    }
 
     public SPrisoner(UUID uuid) {
         this.uuid = uuid;
         this.currentLadderRank = (SLadderRank) SuperiorPrisonPlugin.getInstance().getRankController().getDefault();
         boosters.attach(this);
+
+        PrisonerDefaults prisonerDefaults = SuperiorPrisonPlugin.getInstance().getMainConfig().getPrisonerDefaults();
+        autoSell = prisonerDefaults.isAutoSell();
+        autoBurn = prisonerDefaults.isAutoBurn();
+        autoPickup = prisonerDefaults.isAutoPickup();
+        fortuneBlocks = prisonerDefaults.isFortuneBlocks();
+        this.textureValue = getOnlineSkullTexture();
     }
 
     @Override
@@ -234,11 +257,19 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
         if (bigDecimal != null) return bigDecimal;
 
         final BigDecimal[] price = new BigDecimal[]{new BigDecimal(0)};
-        for (SuperiorMine mine : getMines()) {
-            BigDecimal minePrice = mine.getShop().getPrice(itemStack);
-            if (minePrice.compareTo(price[0]) > 0)
-                price[0] = minePrice;
-        }
+        if (SuperiorPrisonPlugin.getInstance().getMainConfig().isUseMineShopsByRank()) {
+            price[0] = getMines().stream()
+                    .filter(mine -> mine.hasRank(getCurrentLadderRank().getName()) && (!getCurrentPrestige().isPresent() || mine.hasPrestige(getCurrentPrestige().get().getName())))
+                    .map(mine -> mine.getShop().getPrice(itemStack))
+                    .findFirst()
+                    .orElse(new BigDecimal(0));
+
+        } else
+            for (SuperiorMine mine : getMines()) {
+                BigDecimal minePrice = mine.getShop().getPrice(itemStack);
+                if (minePrice.compareTo(price[0]) > 0)
+                    price[0] = minePrice;
+            }
 
         if (price[0].doubleValue() == 0 && SuperiorPrisonPlugin.getInstance().getMainConfig().isShopGuiAsFallBack())
             SuperiorPrisonPlugin.getInstance().getHookController().executeIfFound(() -> ShopGuiPlusHook.class, hook -> price[0] = new BigDecimal(hook.getPriceFor(itemStack, getPlayer())));
@@ -311,13 +342,15 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
                 "boosters",
                 "currentPrestige",
                 "logoutmine",
-                "currentLadderRank"
+                "currentLadderRank",
+                "texture"
         };
     }
 
     @Override
     public void remove() {
         SuperiorPrisonPlugin.getInstance().getDatabaseController().getStorage(SPrisonerHolder.class).remove(this);
+        getCurrentMine().ifPresent(pair -> pair.getKey().getPrisoners().remove(this));
     }
 
     @Override
@@ -332,6 +365,7 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
         data.write("currentPrestige", currentPrestige != null ? currentPrestige.getOrder() : null);
         data.write("boosters", boosters);
         data.write("logoutmine", logoutMine);
+        data.write("texture", textureValue);
     }
 
     @Override
@@ -375,8 +409,7 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
                     .orElse(null);
         }
 
-        JsonElement currentPrestige = data.getElement("currentPrestige").get();
-        if (!currentPrestige.isJsonNull()) {
+        data.getElement("currentPrestige").ifPresent(currentPrestige -> {
             if (currentPrestige.isJsonPrimitive())
                 this.currentPrestige = (SPrestige) SuperiorPrisonPlugin.getInstance().getPrestigeController()
                         .getPrestige(DataUtil.fromElement(currentPrestige, int.class))
@@ -390,7 +423,40 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
                         .max(Comparator.comparingInt(Prestige::getOrder))
                         .orElse(null);
             }
-        }
+        });
+
+        this.textureValue = data.getElement("texture").map(JsonElement::getAsString).orElse(getOnlineSkullTexture());
+    }
+
+    @SneakyThrows
+    private String getOfflineSkullTexture() {
+        URL url = new URL("https://sessionserver.mojang.com/session/minecraft/profile/" + uuid);
+
+        URLConnection con = url.openConnection();
+        con.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36");
+
+        Gson gson = new Gson();
+        JsonObject jsonObject = gson.fromJson(new InputStreamReader(con.getInputStream()), JsonObject.class);
+        con.getInputStream().close();
+
+        return Optional.ofNullable(jsonObject.get("properties"))
+                .map(JsonElement::getAsJsonArray)
+                .map(array -> array.get(0))
+                .map(JsonElement::getAsJsonObject)
+                .map(o -> o.get("value"))
+                .map(JsonElement::getAsString)
+                .orElse(null);
+    }
+
+    @SneakyThrows
+    private String getOnlineSkullTexture() {
+        if (!isOnline()) return getOfflineSkullTexture();
+
+        Object entityPlayer = OSimpleReflection.getMethod(getPlayer().getClass(), "getHandle").invoke(getPlayer());
+        GameProfile profile = (GameProfile) Objects.requireNonNull(OSimpleReflection.getMethod(entityPlayer.getClass(), "getProfile"), "GameProfile field is null").invoke(entityPlayer);
+        String encodedMojangTexture = profile.getProperties().get("textures").stream().findFirst().map(Property::getValue).orElse(null);
+
+        return encodedMojangTexture;
     }
 
     @Override

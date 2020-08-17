@@ -25,6 +25,7 @@ import com.oop.orangeengine.main.task.TaskController;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
+import org.bukkit.craftbukkit.v1_12_R1.block.CraftSkull;
 
 @Getter
 public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison {
@@ -44,6 +45,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
     private DatabaseController databaseController;
     private SStatisticHolder statisticsController;
     private ChatController chatController;
+    private STopController topController;
     private SuperiorNms nms;
 
     public static SuperiorPrisonPlugin getInstance() {
@@ -92,6 +94,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
             this.databaseController = new DatabaseController(mainConfig);
             this.statisticsController = databaseController.getStatisticHolder();
             this.placeholderController = new PlaceholderController();
+            this.topController = new STopController();
 
             // Initialize listeners
             new FlagsListener();
@@ -123,7 +126,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
             getDatabaseController().save(false);
 
         getHookController()
-                .executeIfFound(() -> PapiHook.class, hook -> hook.disable());
+                .executeIfFound(() -> PapiHook.class, PapiHook::disable);
 
         Bukkit.getOnlinePlayers().forEach(player -> player.kickPlayer(Helper.color(LocaleEnum.PRISON_SHUTDOWN.getMessage().raw()[0])));
         instance = null;

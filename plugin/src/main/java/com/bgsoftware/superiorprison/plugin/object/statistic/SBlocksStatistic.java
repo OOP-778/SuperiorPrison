@@ -33,6 +33,8 @@ public class SBlocksStatistic implements BlocksStatistic, Attachable<SStatistics
     @Getter
     private transient long lastUpdated = 0;
 
+    private long totalBlocks = 0;
+
     private final Map<OMaterial, Long> minedBlocks = Maps.newConcurrentMap();
 
     private final transient Cache<Long, OPair<OMaterial, Long>> timedCache = CacheBuilder.newBuilder()
@@ -47,6 +49,7 @@ public class SBlocksStatistic implements BlocksStatistic, Attachable<SStatistics
 
     @SneakyThrows
     public void update(OMaterial material, long amount) {
+        totalBlocks += amount;
         minedBlocks.merge(material, amount, Long::sum);
 
         lastUpdated = getDate().toEpochSecond();
@@ -56,7 +59,7 @@ public class SBlocksStatistic implements BlocksStatistic, Attachable<SStatistics
 
     @Override
     public long getTotal() {
-        return minedBlocks.values().stream().mapToLong(value -> value).sum();
+        return totalBlocks;
     }
 
     @Override
@@ -80,7 +83,7 @@ public class SBlocksStatistic implements BlocksStatistic, Attachable<SStatistics
         return timedCache.asMap().keySet()
                 .stream()
                 .filter(timeLong -> timeLong >= startLong && timeLong <= endLong)
-                .map(key -> timedCache.getIfPresent(key))
+                .map(timedCache::getIfPresent)
                 .filter(Objects::nonNull)
                 .mapToLong(OPair::getSecond)
                 .sum();
@@ -116,5 +119,6 @@ public class SBlocksStatistic implements BlocksStatistic, Attachable<SStatistics
                         minedBlocks.put(key, value);
                     });
         }
+        totalBlocks = minedBlocks.values().stream().mapToLong(value -> value).sum();
     }
 }

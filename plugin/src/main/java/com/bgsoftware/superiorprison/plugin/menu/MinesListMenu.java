@@ -4,18 +4,15 @@ import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.menu.control.MineControlPanel;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
-import com.bgsoftware.superiorprison.plugin.util.ClassDebugger;
 import com.bgsoftware.superiorprison.plugin.util.frameworks.Framework;
 import com.bgsoftware.superiorprison.plugin.util.menu.ClickHandler;
 import com.bgsoftware.superiorprison.plugin.util.menu.OMenu;
 import com.bgsoftware.superiorprison.plugin.util.menu.OMenuButton;
 import com.bgsoftware.superiorprison.plugin.util.menu.OPagedMenu;
 import com.oop.orangeengine.item.custom.OItem;
-import com.oop.orangeengine.material.OMaterial;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 
-import java.awt.*;
 import java.util.List;
 
 public class MinesListMenu extends OPagedMenu<SNormalMine> implements OMenu.Templateable {
@@ -45,8 +42,6 @@ public class MinesListMenu extends OPagedMenu<SNormalMine> implements OMenu.Temp
     public OMenuButton toButton(SNormalMine obj) {
         OMenuButton buttonTemplate = getTemplateButtonFromTemplate("mine template").orElse(null);
         if (buttonTemplate == null) return null;
-
-        getViewer().getPlayer().getInventory().addItem(buttonTemplate.getDefaultStateItem().getItemStack());
 
         buttonTemplate = buttonTemplate.clone();
         OMenuButton.ButtonItemBuilder parsedItem = buttonTemplate

@@ -1,6 +1,5 @@
 package com.bgsoftware.superiorprison.plugin.tasks;
 
-import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.object.mine.messages.SMineMessage;
 import com.oop.orangeengine.main.task.OTask;
@@ -28,7 +27,7 @@ public class MessagesTask extends OTask {
 
                         Duration between = Duration.between(getDate(), message.getTimeToRun());
                         if (between.getSeconds() <= 0) {
-                            mine.getPrisoners().stream().filter(Prisoner::isOnline).forEach(prisoner -> message.send(prisoner.getPlayer()));
+                            mine.getPrisoners().forEach(prisoner -> message.send(prisoner.getPlayer()));
                             message.setTimeToRun(getDate().plusSeconds(message.getInterval()));
                         }
                     });

@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
 
 public class MenuLoader {
 
@@ -94,6 +93,7 @@ public class MenuLoader {
     private static OMenuButton initButton(ConfigSection section) {
         OMenuButton button = new OMenuButton(section.getKey().charAt(0));
         section.ifValuePresent("permission", String.class, button::requiredPermission);
+        section.ifValuePresent("required permission", String.class, button::requiredPermission);
 
         if (section.isValuePresent("material"))
             button.addState("default", new OMenuButton.ButtonItemBuilder(ItemBuilder.fromConfiguration(section)));

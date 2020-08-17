@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorprison.plugin.nms;
 
+import com.bgsoftware.superiorprison.plugin.util.ClassDebugger;
 import com.oop.orangeengine.main.util.data.cache.OCache;
 import com.oop.orangeengine.material.OMaterial;
 import lombok.NonNull;
@@ -8,6 +9,7 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_12_R1.CraftChunk;
+import org.bukkit.craftbukkit.v1_12_R1.CraftServer;
 import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftArmorStand;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftEntity;
@@ -16,18 +18,22 @@ import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.java.JavaPluginLoader;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class NmsHandler_v1_12_R1 implements SuperiorNms {
-
     private Map<OMaterial, IBlockData> dataMap = new HashMap<>();
 
     @Override
     public void setBlock(@NonNull Chunk chunk, @NonNull Location location, @NonNull OMaterial material) {
         IBlockData data = dataMap.computeIfAbsent(material, mat -> Block.getByCombinedId(material.getCombinedData()));
         net.minecraft.server.v1_12_R1.Chunk nmsChunk = ((CraftChunk) chunk).getHandle();
+
+        if (location.getBlockX() == -65 && location.getBlockY() == 80 && location.getBlockZ() == 160)
+            ClassDebugger.debug("Setting block: " + material);
 
         int indexY = location.getBlockY() >> 4;
         ChunkSection chunkSection = nmsChunk.getSections()[indexY];

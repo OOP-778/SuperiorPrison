@@ -44,6 +44,10 @@ public class OMenuButton implements Cloneable {
     @Setter
     private int slot = -1;
 
+    @Getter
+    @Setter
+    private boolean locked;
+
     public OMenuButton(char identifier) {
         this.identifier = identifier;
     }
@@ -109,7 +113,7 @@ public class OMenuButton implements Cloneable {
             clone.setDisplayName(replaceText(object, clone.getDisplayName(), placeholdersFor));
 
             clone.setDisplayName(papi.parse(object, clone.getDisplayName()));
-            clone.setLore(papi.parse(object, finalizeLore(clone.getLore(), object instanceof SPrisoner ? ((SPrisoner) object).getPlayer() : null)));
+            clone.setLore(papi.parse(object, finalizeLore(clone.getLore(), getPlayer(object))));
 
             return clone.getItemStack();
         }
@@ -130,7 +134,7 @@ public class OMenuButton implements Cloneable {
             ItemBuilder clone = itemBuilder.clone();
             for (Object object : objs) {
                 if (object instanceof Player || object instanceof SPrisoner)
-                    clone.setLore(finalizeLore(clone.getLore(), object instanceof Player ? (Player) object : ((SPrisoner) object).getPlayer()));
+                    clone.setLore(finalizeLore(clone.getLore(), getPlayer(object)));
 
                 Set<OPair<String, Function<Object, String>>> placeholdersFor = SuperiorPrisonPlugin.getInstance().getPlaceholderController().findPlaceholdersFor(object);
                 clone.setLore(replaceList(object, clone.getLore(), placeholdersFor));
@@ -154,7 +158,7 @@ public class OMenuButton implements Cloneable {
 
         @Override
         public ButtonItemBuilder clone() {
-            return new ButtonItemBuilder(itemBuilder.clone());
+            return new ButtonItemBuilder(ItemBuilder.fromItem(itemBuilder.getItemStack().clone()));
         }
 
         private List<String> finalizeLore(List<String> lore, Player player) {
@@ -195,6 +199,11 @@ public class OMenuButton implements Cloneable {
         public ItemStack getItemStack() {
             return itemBuilder.getItemStack();
         }
-    }
 
+        private Player getPlayer(Object object) {
+            if (object instanceof Player) return (Player) object;
+            if (object instanceof SPrisoner && ((SPrisoner) object).isOnline()) return ((SPrisoner) object).getPlayer();
+            return null;
+        }
+    }
 }

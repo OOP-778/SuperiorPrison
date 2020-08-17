@@ -6,9 +6,7 @@ import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 import com.bgsoftware.superiorprison.api.data.player.rank.LadderRank;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.controller.DatabaseController;
-import com.bgsoftware.superiorprison.plugin.object.player.SPrestige;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
-import com.bgsoftware.superiorprison.plugin.object.player.rank.SLadderRank;
 import com.google.common.collect.Maps;
 import com.oop.datamodule.database.TableEditor;
 import com.oop.datamodule.storage.SqlStorage;
@@ -17,7 +15,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 public class SPrisonerHolder extends SqlStorage<SPrisoner> implements PrisonerHolder {
@@ -74,6 +75,10 @@ public class SPrisonerHolder extends SqlStorage<SPrisoner> implements PrisonerHo
         return prisonerMap.values().stream();
     }
 
+    public Stream<SPrisoner> streamOnline() {
+        return stream().filter(SPrisoner::isOnline);
+    }
+
     @Override
     public Optional<Prisoner> getPrisoner(UUID uuid) {
         return Optional.ofNullable(prisonerMap.get(uuid));
@@ -88,8 +93,7 @@ public class SPrisonerHolder extends SqlStorage<SPrisoner> implements PrisonerHo
     }
 
     public SPrisoner getInsertIfAbsent(Player player) {
-        Optional<Prisoner> optionalPrisoner = getPrisoner(player.getUniqueId());
-        return optionalPrisoner.map(prisoner -> (SPrisoner) prisoner).orElseGet(() -> newPrisoner(new SPrisoner(player.getUniqueId())));
+        return getInsertIfAbsent(player.getUniqueId());
     }
 
     private SPrisoner newPrisoner(SPrisoner prisoner) {
@@ -100,5 +104,10 @@ public class SPrisonerHolder extends SqlStorage<SPrisoner> implements PrisonerHo
     @Override
     public Iterator<SPrisoner> iterator() {
         return prisonerMap.values().iterator();
+    }
+
+    public SPrisoner getInsertIfAbsent(UUID uuid) {
+        Optional<Prisoner> optionalPrisoner = getPrisoner(uuid);
+        return optionalPrisoner.map(prisoner -> (SPrisoner) prisoner).orElseGet(() -> newPrisoner(new SPrisoner(uuid)));
     }
 }

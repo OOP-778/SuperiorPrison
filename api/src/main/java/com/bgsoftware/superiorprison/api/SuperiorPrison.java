@@ -14,4 +14,6 @@ public interface SuperiorPrison {
     StatisticsController getStatisticsController();
 
     BackPackController getBackPackController();
+
+    TopController getTopController();
 }

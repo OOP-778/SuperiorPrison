@@ -6,6 +6,7 @@ import com.bgsoftware.superiorprison.api.data.player.booster.MoneyBooster;
 import com.bgsoftware.superiorprison.api.data.player.rank.LadderRank;
 import com.bgsoftware.superiorprison.api.data.player.rank.Rank;
 import com.bgsoftware.superiorprison.api.requirement.RequirementException;
+import com.bgsoftware.superiorprison.plugin.commands.args.TopTypeArg;
 import com.bgsoftware.superiorprison.plugin.menu.access.AccessObject;
 import com.bgsoftware.superiorprison.plugin.menu.access.SortMethod;
 import com.bgsoftware.superiorprison.plugin.menu.settings.SettingsObject;
@@ -19,15 +20,20 @@ import com.bgsoftware.superiorprison.plugin.object.mine.messages.SMineTitleMessa
 import com.bgsoftware.superiorprison.plugin.object.mine.shop.SShopItem;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.object.player.booster.SBooster;
+import com.bgsoftware.superiorprison.plugin.object.top.STopEntry;
+import com.bgsoftware.superiorprison.plugin.object.top.blocks.BlockTopEntry;
+import com.bgsoftware.superiorprison.plugin.object.top.prestige.SPrestigeTopEntry;
 import com.bgsoftware.superiorprison.plugin.util.TextUtil;
 import com.bgsoftware.superiorprison.plugin.util.TimeUtil;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.oop.orangeengine.main.Helper;
 import com.oop.orangeengine.main.util.data.pair.OPair;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -89,7 +95,7 @@ public class PlaceholderController {
         add(SMineChatMessage.class, "{message_content}", message -> message.getContent() == null ? "None" : message.getContent());
         add(SMineActionBarMessage.class, "{message_content}", message -> message.getContent() == null ? "None" : message.getContent());
 
-        add(SMineTitleMessage.class, "{message_title}", SMineTitleMessage::getTitle);
+        add(SMineTitleMessage.class, "{message_title}", message -> Optional.ofNullable(message.getTitle()).orElse("None"));
         add(SMineTitleMessage.class, "{message_subTitle}", message -> message.getSubTitle().orElse("None"));
         add(SMineTitleMessage.class, "{message_fadeIn}", SMineTitleMessage::getFadeIn);
         add(SMineTitleMessage.class, "{message_stay}", SMineTitleMessage::getStay);
@@ -102,6 +108,11 @@ public class PlaceholderController {
         add(SBackPack.class, "{backpack_id}", SBackPack::getId);
         add(SBackPack.class, "{backpack_used}", SBackPack::getUsed);
         add(SBackPack.class, "{backpack_capacity}", SBackPack::getCapacity);
+
+        add(TopTypeArg.TopType.class, "{top_type}", e -> StringUtils.capitalize(e.name().toLowerCase()));
+        add(STopEntry.class, "{entry_position}", STopEntry::getPosition);
+        add(BlockTopEntry.class, "{entry_blocks}", entry -> entry.getObject().getTotal());
+        add(SPrestigeTopEntry.class, "{entry_prestige}", entry -> entry.getObject().getCurrentPrestige().get().getName());
     }
 
     private <T> void add(Class<T> type, String placeholder, Function<T, Object> handler) {

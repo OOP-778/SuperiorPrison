@@ -19,16 +19,14 @@ import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.util.SPair;
 import com.bgsoftware.superiorprison.plugin.util.frameworks.Framework;
 import com.oop.orangeengine.main.events.SyncEvents;
-import com.oop.orangeengine.main.util.data.pair.OPair;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.event.world.ChunkUnloadEvent;
-import org.bukkit.util.Vector;
 
 import java.util.Comparator;
 import java.util.Optional;
@@ -77,6 +75,8 @@ public class MineListener {
 
         // Mine Leave & Enter events handling
         SyncEvents.listen(PlayerMoveEvent.class, event -> {
+            if (event.getPlayer().hasMetadata("NPC")) return;
+
             // Checks if the player actually moved a block.
             Location from = event.getFrom(), to = event.getTo();
             if (from.getBlockX() == to.getBlockX() && from.getBlockZ() == to.getBlockZ())
@@ -123,7 +123,7 @@ public class MineListener {
                     Bukkit.getPluginManager().callEvent(enterEvent);
 
                     if (enterEvent.isCancelled()) {
-                        Framework.FRAMEWORK.teleport(event.getPlayer(), event.getPlayer().getWorld().getSpawnLocation());;
+                        Framework.FRAMEWORK.teleport(event.getPlayer(), event.getPlayer().getWorld().getSpawnLocation());
                         return;
                     }
 
@@ -134,6 +134,8 @@ public class MineListener {
         });
 
         SyncEvents.listen(PlayerTeleportEvent.class, event -> {
+            if (event.getPlayer().hasMetadata("NPC")) return;
+
             // World check
             Set<String> worldNames = mineHolder.getMinesWorlds();
             if (!worldNames.contains(event.getFrom().getWorld().getName()) && !worldNames.contains(event.getTo().getWorld().getName()))

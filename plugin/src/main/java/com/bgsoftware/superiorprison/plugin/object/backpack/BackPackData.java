@@ -3,9 +3,9 @@ package com.bgsoftware.superiorprison.plugin.object.backpack;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.oop.datamodule.DataHelper;
 import com.oop.datamodule.SerializableObject;
 import com.oop.datamodule.SerializedData;
+import com.oop.datamodule.util.DataUtil;
 import com.oop.orangeengine.item.ItemStackUtil;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.main.util.data.pair.OTriplePair;
@@ -19,6 +19,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
+
+import static com.oop.datamodule.util.DataUtil.wrap;
 
 @Getter
 public class BackPackData implements SerializableObject {
@@ -58,11 +60,11 @@ public class BackPackData implements SerializableObject {
         JsonArray pagesArray = new JsonArray();
         stored.forEach((page, itemData) -> {
             JsonObject itemsObject = new JsonObject();
-            itemData.forEach((slot, item) -> itemsObject.add(slot + "", DataHelper.ITEMSTACK_TO_ELEMENT.apply(item)));
+            itemData.forEach((slot, item) -> itemsObject.add(slot + "", wrap(item)));
             pagesArray.add(itemsObject);
         });
 
-        serializedData.getJsonObject().add("items", pagesArray);
+        serializedData.getJsonElement().getAsJsonObject().add("items", pagesArray);
     }
 
     @Override
@@ -71,14 +73,14 @@ public class BackPackData implements SerializableObject {
         this.configId = serializedData.applyAs("configId", String.class);
         this.sell = serializedData.applyAs("sell", boolean.class, () -> false);
 
-        JsonArray itemsArray = serializedData.getJsonObject().getAsJsonArray("items");
+        JsonArray itemsArray = serializedData.getJsonElement().getAsJsonObject().getAsJsonArray("items");
         int page = 1;
         for (JsonElement element : itemsArray) {
             JsonObject itemsData = element.getAsJsonObject();
 
             Map<Integer, ItemStack> pageData = new HashMap<>();
             for (Map.Entry<String, JsonElement> entry : itemsData.entrySet()) {
-                pageData.put(Integer.parseInt(entry.getKey()), DataHelper.ELEMENT_TO_ITEMSTACK.apply(entry.getValue()));
+                pageData.put(Integer.parseInt(entry.getKey()), DataUtil.fromElement(entry.getValue(), ItemStack.class));
             }
 
             stored.put(page, pageData);

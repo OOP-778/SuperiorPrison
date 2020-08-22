@@ -93,6 +93,8 @@ public class PrisonerListener {
         SyncEvents.listen(EntityDamageEvent.class, event -> {
             if (!(event.getEntity() instanceof Player)) return;
             Player player = (Player) event.getEntity();
+            
+            if (player.hasMetadata("NPC")) return;
 
             SPrisoner prisoner = SuperiorPrisonPlugin.getInstance().getPrisonerController().getInsertIfAbsent(player);
             if (!prisoner.getCurrentMine().isPresent()) return;

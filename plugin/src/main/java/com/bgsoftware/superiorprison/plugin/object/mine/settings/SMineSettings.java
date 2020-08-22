@@ -4,6 +4,7 @@ import com.bgsoftware.superiorprison.api.data.mine.settings.ResetSettings;
 import com.bgsoftware.superiorprison.api.data.mine.settings.ResetType;
 import com.bgsoftware.superiorprison.plugin.config.MineDefaultsSection;
 import com.bgsoftware.superiorprison.plugin.menu.settings.SettingsObject;
+import com.bgsoftware.superiorprison.plugin.menu.settings.impl.MineTeleporationSetting;
 import com.bgsoftware.superiorprison.plugin.menu.settings.impl.PlayerLimitSetting;
 import com.bgsoftware.superiorprison.plugin.menu.settings.impl.ResetTypeSetting;
 import com.bgsoftware.superiorprison.plugin.menu.settings.impl.ResetValueSetting;
@@ -28,6 +29,7 @@ public class SMineSettings implements Attachable<SNormalMine>, com.bgsoftware.su
     private int playerLimit;
     private ResetSettings resetSettings;
     private transient SNormalMine mine;
+    private boolean teleporation = true;
 
     SMineSettings() {
     }
@@ -59,12 +61,14 @@ public class SMineSettings implements Attachable<SNormalMine>, com.bgsoftware.su
     public void serialize(SerializedData data) {
         data.write("limit", playerLimit);
         data.write("reset", resetSettings);
+        data.write("teleportation", teleporation);
     }
 
     @Override
     public void deserialize(SerializedData data) {
         this.playerLimit = data.applyAs("limit", int.class);
         this.resetSettings = SResetSettings.of(data.getElement("reset").get().getAsJsonObject());
+        this.teleporation = data.applyAs("teleportation", boolean.class, () -> true);
     }
 
     public List<SettingsObject> getSettingObjects() {
@@ -72,6 +76,7 @@ public class SMineSettings implements Attachable<SNormalMine>, com.bgsoftware.su
         objects.add(new PlayerLimitSetting(this));
         objects.add(new ResetTypeSetting(this));
         objects.add(new ResetValueSetting(this));
+        objects.add(new MineTeleporationSetting(this));
         return objects;
     }
 

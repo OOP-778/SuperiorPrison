@@ -72,9 +72,8 @@ public class SMineMessages implements MineMesssages, SerializableObject, Attacha
     public void deserialize(SerializedData serializedData) {
         serializedData.applyAsCollection("messages")
                 .map(element -> {
-                    if (!element.isJsonObject()) return null;
-                    SerializedData data = new SerializedData(element.getAsJsonObject());
-                    return SMineMessage.from(data);
+                    if (!element.getJsonElement().isJsonObject()) return null;
+                    return SMineMessage.from(element);
                 })
                 .filter(Objects::nonNull)
                 .forEach(message -> messages.put(message.getId(), message));

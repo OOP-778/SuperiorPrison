@@ -25,12 +25,24 @@ public class SettingsMenu extends OPagedMenu<SettingsObject> implements OMenu.Te
 
         clickHandler("setting")
                 .handle(event -> {
-                    forceClose();
-
                     SettingsObject settingsObject = requestObject(event.getRawSlot());
                     messageBuilder(settingsObject.requestMessage())
                             .replace(viewer, mine, mine.getSettings(), settingsObject)
                             .send(event.getWhoClicked());
+
+                    if (settingsObject.type() == Boolean.class) {
+                        boolean currentValue = (boolean) settingsObject.currentValue();
+                        settingsObject.currentValue(!currentValue);
+                        settingsObject.onComplete().accept(!currentValue);
+
+                        messageBuilder(settingsObject.completeMessage())
+                                .replace(viewer, mine, mine.getSettings(), settingsObject)
+                                .send(event.getWhoClicked());
+                        refresh();
+                        return;
+                    }
+
+                    forceClose();
 
                     Runnable onCancel = this::refresh;
                     new PlayerInput<>((Player) event.getWhoClicked())

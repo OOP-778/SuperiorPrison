@@ -4,12 +4,12 @@ import com.bgsoftware.superiorprison.plugin.config.MainConfig;
 import com.bgsoftware.superiorprison.plugin.data.SMineHolder;
 import com.bgsoftware.superiorprison.plugin.data.SPrisonerHolder;
 import com.bgsoftware.superiorprison.plugin.data.SStatisticHolder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonPrimitive;
-import com.oop.datamodule.DataHelper;
+import com.google.gson.*;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.JsonWriter;
 import com.oop.datamodule.StorageHolder;
+import com.oop.datamodule.StorageInitializer;
 import com.oop.datamodule.database.DatabaseWrapper;
 import com.oop.orangeengine.main.task.StaticTask;
 import com.oop.orangeengine.nbt.NBTContainer;
@@ -18,6 +18,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import org.bukkit.inventory.ItemStack;
 
+import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -39,13 +40,34 @@ public class DatabaseController extends StorageHolder {
     public DatabaseController(MainConfig config) {
         database = config.getDatabase().getDatabase();
 
-        // Runners
-        DataHelper.RUN_ASYNC = runnable -> StaticTask.getInstance().async(runnable);
-        DataHelper.RUN_SYNC = runnable -> StaticTask.getInstance().sync(runnable);
+        StorageInitializer.initialize(
+                StaticTask.getInstance()::async,
+                StaticTask.getInstance()::sync,
+                null
+        );
 
-        // ItemStack handler
-        DataHelper.ITEMSTACK_TO_ELEMENT = this::serialize;
-        DataHelper.ELEMENT_TO_ITEMSTACK = this::deserialize;
+        StorageInitializer.getInstance().registerAdapter(ItemStack.class, true, new TypeAdapter<ItemStack>() {
+            @Override
+            public void write(JsonWriter writer, ItemStack itemStack) throws IOException {
+                if (itemStack == null)
+                    writer.nullValue();
+                else
+                    writer.value(serialize(itemStack).getAsString());
+            }
+
+            @Override
+            public ItemStack read(JsonReader reader) throws IOException {
+                JsonToken peek = reader.peek();
+                switch (peek) {
+                    case STRING:
+                        return deserialize(reader.nextString());
+                    case NULL:
+                        return null;
+                }
+
+                return null;
+            }
+        });
 
         this.prisonerHolder = new SPrisonerHolder(this);
         this.mineHolder = new SMineHolder(this);
@@ -60,14 +82,16 @@ public class DatabaseController extends StorageHolder {
             if (integer.get() == getStorages().size()) {
                 getEngine().getLogger().print("Loaded {} mines", getMineHolder().getMines().size());
                 getEngine().getLogger().print("Loaded {} prisoners", getPrisonerHolder().getPrisonerMap().size());
-                getPrisonerHolder().save(true);
+                getStorages().forEach(storage -> storage.save(true));
+
+                getPrisonerHolder().initializeCache();
             }
         });
 
     }
 
-    public ItemStack deserialize(JsonElement jsonElement) throws JsonParseException {
-        return jsonElement.isJsonNull() ? null : NBTItem.convertNBTtoItem(new NBTContainer(utf8(jsonElement.getAsString())));
+    public ItemStack deserialize(String serializedItem) throws JsonParseException {
+        return NBTItem.convertNBTtoItem(new NBTContainer(utf8(serializedItem)));
     }
 
     public JsonElement serialize(ItemStack itemStack) {

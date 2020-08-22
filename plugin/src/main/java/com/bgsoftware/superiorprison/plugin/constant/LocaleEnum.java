@@ -23,10 +23,11 @@ public enum LocaleEnum {
     MINE_CREATE_SUCCESSFUL("Successfully created a new mine! ({mine_name})"),
     MINE_DELETE_SUCCESSFUL("Successfully deleted mine! (&d{mine_name}&7)"),
     MINE_SET_SPAWN_POS("You've set &d{mine_name} &7spawn position to your current location!"),
+    MINE_TELEPORTATION_DISABLED("Teleportation to mine &c{mine_name} is disabled!"),
 
     MINE_SELECT_POS("Selected position #{pos}"),
 
-    EDIT_GENERATOR_WRITE_RATE("Please write new rate! It must be higher than 0. Example: 5.0, 1.5, 0.1"),
+    EDIT_GENERATOR_WRITE_RATE("Please write new rate! It must be higher than 0. Example: 5.0, 1.5, 0.1. Write 'cancel' to cancel the process"),
     EDIT_GENERATOR_RATE_NOT_NUMBER("Given value is not an number! ex: 5.5"),
     EDIT_GENERATOR_RATE_SET("Rate of {material} was set to {rate}!"),
     EDIT_GENERATOR_REMOVED("Successfully removed {material} from mine generator!"),

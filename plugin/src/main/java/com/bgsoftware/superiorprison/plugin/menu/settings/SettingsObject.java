@@ -20,8 +20,10 @@ public class SettingsObject<T> {
     private @NonNull Consumer<T> onComplete;
     private @NonNull String id;
     private T currentValue;
+    private Class<T> type;
 
     public SettingsObject(Class<T> valueType, T currentValue) {
         this.currentValue = currentValue;
+        this.type = valueType;
     }
 }

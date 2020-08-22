@@ -272,7 +272,7 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
             }
 
         if (price[0].doubleValue() == 0 && SuperiorPrisonPlugin.getInstance().getMainConfig().isShopGuiAsFallBack())
-            SuperiorPrisonPlugin.getInstance().getHookController().executeIfFound(() -> ShopGuiPlusHook.class, hook -> price[0] = new BigDecimal(hook.getPriceFor(itemStack, getPlayer())));
+            SuperiorPrisonPlugin.getInstance().getHookController().executeIfFound(() -> ShopGuiPlusHook.class, hook -> price[0] = BigDecimal.valueOf(hook.getPriceFor(itemStack, getPlayer())));
 
         getBoosters().findBoostersBy(MoneyBooster.class).forEach(booster -> price[0] = price[0] = price[0].multiply(BigDecimal.valueOf(booster.getRate())));
         bigDecimal = price[0];
@@ -378,7 +378,7 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
 
         this.ranks.addAll(
                 data.applyAsCollection("ranks")
-                        .map(JsonElement::getAsString)
+                        .map(sd -> sd.applyAs(String.class))
                         .collect(Collectors.toSet())
         );
 
@@ -417,7 +417,7 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
 
             else if (currentPrestige.isJsonArray()) {
                 this.currentPrestige = (SPrestige) data.applyAsCollection("currentPrestige")
-                        .map(JsonElement::getAsString)
+                        .map(sd -> sd.applyAs(String.class))
                         .map(p -> SuperiorPrisonPlugin.getInstance().getPrestigeController().getPrestige(p).orElse(null))
                         .filter(Objects::nonNull)
                         .max(Comparator.comparingInt(Prestige::getOrder))
@@ -427,9 +427,6 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
 
         this.textureValue = data.getElement("texture").map(JsonElement::getAsString).orElse(getOnlineSkullTexture());
         ensurePlayerNotNull();
-
-        SuperiorPrisonPlugin.getInstance().getPrisonerController().getUsernameToUuidMap().put(cachedOfflinePlayer.getName(), cachedOfflinePlayer.getUniqueId());
-
     }
 
     @SneakyThrows

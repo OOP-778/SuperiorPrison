@@ -2,6 +2,7 @@ package com.bgsoftware.superiorprison.plugin.nms;
 
 import com.oop.orangeengine.material.OMaterial;
 import lombok.NonNull;
+import net.md_5.bungee.api.ChatMessageType;
 import net.minecraft.server.v1_16_R2.*;
 import org.bukkit.Chunk;
 import org.bukkit.Location;

@@ -75,3 +75,10 @@ buttons:
       lore:
         - "&d&l* &7Click to edit"
         - "&d&l* &7Current: &d{setting_value}"
+
+    teleportation:
+      material: ender eye
+      display name: "&dTeleportation"
+      lore:
+        - "&d&l* &7Click to change"
+        - "&d&l* &7Current: &d{setting_value}"

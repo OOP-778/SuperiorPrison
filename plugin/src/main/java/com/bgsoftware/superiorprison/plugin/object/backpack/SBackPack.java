@@ -7,8 +7,8 @@ import com.bgsoftware.superiorprison.plugin.menu.backpack.BackPackViewMenu;
 import com.bgsoftware.superiorprison.plugin.util.menu.OMenuButton;
 import com.google.common.base.Preconditions;
 import com.google.gson.JsonObject;
-import com.oop.datamodule.DataHelper;
 import com.oop.datamodule.SerializedData;
+import com.oop.datamodule.StorageInitializer;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.main.util.data.pair.OTriplePair;
 import com.oop.orangeengine.nbt.NBTItem;
@@ -85,7 +85,7 @@ public class SBackPack implements BackPack {
         Preconditions.checkArgument(nbtItem.hasKey(NBT_KEY), "The given item is not an backpack");
 
         String serialized = nbtItem.getString(NBT_KEY);
-        oldData = DataHelper.gson().fromJson(serialized, JsonObject.class);
+        oldData = StorageInitializer.getInstance().getGson().fromJson(serialized, JsonObject.class);
 
         // Check if this is an outdated bool nbt value
         if (SuperiorPrisonPlugin.getInstance().getBackPackController().isPlayerBound()) {
@@ -163,14 +163,14 @@ public class SBackPack implements BackPack {
 
         if (SuperiorPrisonPlugin.getInstance().getBackPackController().isPlayerBound()) {
             oldData.remove(owner.getUniqueId().toString());
-            oldData.add(owner.getUniqueId().toString(), serializedData.getJsonObject());
+            oldData.add(owner.getUniqueId().toString(), serializedData.getJsonElement());
 
         } else {
             oldData.remove("global");
-            oldData.add("global", serializedData.getJsonObject());
+            oldData.add("global", serializedData.getJsonElement());
         }
 
-        nbtItem.setString(NBT_KEY, DataHelper.gson().toJson(oldData));
+        nbtItem.setString(NBT_KEY, StorageInitializer.getInstance().getGson().toJson(oldData));
         updateHash();
     }
 

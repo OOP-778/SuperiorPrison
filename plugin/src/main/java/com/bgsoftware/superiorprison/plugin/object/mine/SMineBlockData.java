@@ -98,7 +98,7 @@ public class SMineBlockData implements Attachable<SMineGenerator>, MineBlockData
         serializedData
                 .applyAsCollection("data")
                 .forEach(element -> {
-                    JsonObject object = element.getAsJsonObject();
+                    JsonObject object = element.getJsonElement().getAsJsonObject();
                     OMaterial material = OMaterial.valueOf(object.get("material").getAsString());
                     long left = object.get("left").getAsLong();
                     long was = object.get("was").getAsLong();

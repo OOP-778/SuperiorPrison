@@ -72,7 +72,7 @@ public class SMineEffects implements MineEffects, SerializableObject, Attachable
             object.addProperty("amplifier", effect.getAmplifier());
             array.add(object);
         }
-        serializedData.getJsonObject().add("effects", array);
+        serializedData.getJsonElement().getAsJsonObject().add("effects", array);
     }
 
     @Override

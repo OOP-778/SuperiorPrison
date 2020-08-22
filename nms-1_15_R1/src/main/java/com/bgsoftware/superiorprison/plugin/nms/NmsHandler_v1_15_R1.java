@@ -36,6 +36,7 @@ public class NmsHandler_v1_15_R1 implements SuperiorNms {
         BlockPosition pos = new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ());
         world.getChunkProvider().getLightEngine().a(pos);
         world.getChunkProvider().flagDirty(pos);
+
     }
 
     @Override

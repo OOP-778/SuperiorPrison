@@ -135,13 +135,13 @@ public class SArea implements Area, Attachable<SNormalMine>, SerializableObject 
 
         data.applyAsMap("flags")
                 .forEach(pair -> {
-                    JsonElement key = pair.getKey();
-                    JsonElement value = pair.getValue();
+                    SerializedData key = pair.getKey();
+                    SerializedData value = pair.getValue();
 
                     try {
-                        flags.put(Flag.valueOf(key.getAsString()), DataUtil.fromElement(value, boolean.class));
+                        flags.put(Flag.valueOf(key.applyAs()), value.applyAs());
                     } catch (Exception ex) {
-                        SuperiorPrisonPlugin.getInstance().getOLogger().printWarning("Failed to find a flag by {}, ignoring it...", key.getAsString());
+                        SuperiorPrisonPlugin.getInstance().getOLogger().printWarning("Failed to find a flag by {}, ignoring it...", key.applyAs(String.class));
                     }
                 });
     }

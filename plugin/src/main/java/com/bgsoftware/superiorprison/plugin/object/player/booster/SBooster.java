@@ -27,16 +27,14 @@ public abstract class SBooster implements Booster, SerializableObject {
     public SBooster() {
     }
 
-    public static SBooster fromElement(JsonElement element) {
-        JsonObject object = element.getAsJsonObject();
-
+    public static SBooster fromElement(SerializedData element) {
         SBooster booster;
-        if (object.get("type").getAsString().contentEquals("drops"))
+        if (element.getElement("type").get().getAsString().contentEquals("drops"))
             booster = new SDropsBooster();
         else
             booster = new SMoneyBooster();
 
-        booster.deserialize(new SerializedData(object));
+        booster.deserialize(element);
         return booster;
     }
 

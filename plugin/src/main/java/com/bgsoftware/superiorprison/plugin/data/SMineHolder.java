@@ -102,7 +102,7 @@ public class SMineHolder extends SqlStorage<SNormalMine> implements MineHolder {
         if (mines != null) return mines;
 
         mines = stream()
-                .filter(mine -> prisoner.getPlayer().isOp() || mine.canEnter(prisoner))
+                .filter(mine -> prisoner.getPlayer().hasPermission("prison.admin.editmine") || (mine.canEnter(prisoner) && mine.getSettings().isTeleporation()))
                 .sorted(Comparator.comparing(SNormalMine::getName))
                 .collect(Collectors.toList());
         minesCache.put(prisoner.getUUID(), mines);

@@ -255,7 +255,7 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
             object.addProperty("c", generatorMaterial.getFirst().toString());
             array.add(object);
         }
-        serializedData.getJsonObject().add("materials", array);
+        serializedData.getJsonElement().getAsJsonObject().add("materials", array);
         serializedData.write("blockData", blockData);
     }
 

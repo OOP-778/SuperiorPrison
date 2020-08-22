@@ -405,10 +405,10 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
             SerializedData data = new SerializedData();
             value.serialize(data);
 
-            object.add("value", data.getJsonObject());
+            object.add("value", data.getJsonElement());
             areasArray.add(object);
         });
-        serializedData.getJsonObject().add("areas", areasArray);
+        serializedData.getJsonElement().getAsJsonObject().add("areas", areasArray);
     }
 
     @Override
@@ -420,12 +420,12 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
         this.shop = data.applyAs("shop", SShop.class);
         this.ranks.addAll(
                 data.applyAsCollection("ranks")
-                        .map(JsonElement::getAsString)
+                        .map(sd -> sd.applyAs(String.class))
                         .collect(Collectors.toSet())
         );
         this.prestiges.addAll(
                 data.applyAsCollection("prestiges")
-                        .map(JsonElement::getAsString)
+                        .map(sd -> sd.applyAs(String.class))
                         .collect(Collectors.toSet())
         );
         this.settings = data.applyAs("settings", SMineSettings.class);

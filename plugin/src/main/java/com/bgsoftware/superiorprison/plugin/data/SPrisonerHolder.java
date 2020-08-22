@@ -121,4 +121,10 @@ public class SPrisonerHolder extends SqlStorage<SPrisoner> implements PrisonerHo
         Optional<Prisoner> optionalPrisoner = getPrisoner(uuid);
         return optionalPrisoner.map(prisoner -> (SPrisoner) prisoner).orElseGet(() -> newPrisoner(new SPrisoner(uuid)));
     }
+
+    public void initializeCache() {
+        for (SPrisoner prisoner : this) {
+            usernameToUuidMap.put(prisoner.getOfflinePlayer().getName(), prisoner.getUUID());
+        }
+    }
 }

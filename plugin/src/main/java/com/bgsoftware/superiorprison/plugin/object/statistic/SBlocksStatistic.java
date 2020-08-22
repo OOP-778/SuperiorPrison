@@ -115,8 +115,8 @@ public class SBlocksStatistic implements BlocksStatistic, Attachable<SStatistics
             serializedData
                     .applyAsMap("blocks")
                     .forEach(pair -> {
-                        OMaterial key = DataUtil.fromElement(pair.getKey(), OMaterial.class);
-                        long value = DataUtil.fromElement(pair.getValue(), long.class);
+                        OMaterial key = pair.getKey().applyAs(OMaterial.class);
+                        long value = pair.getValue().applyAs(long.class);
                         minedBlocks.put(key, value);
                     });
         }

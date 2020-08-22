@@ -88,7 +88,7 @@ public class SShop implements MineShop, Attachable<SNormalMine>, SerializableObj
     @Override
     public void deserialize(SerializedData serializedData) {
         serializedData.applyAsCollection("items")
-                .map(element -> DataUtil.fromElement(element, SShopItem.class))
+                .map(sd -> sd.applyAs(SShopItem.class))
                 .forEach(this::addItem);
     }
 }

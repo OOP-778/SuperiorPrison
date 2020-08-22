@@ -62,16 +62,12 @@ public class GeneratorEditMenu extends OPagedMenu<OPair<Double, OMaterial>> impl
                     OPair<Double, OMaterial> materialPair = requestObject(event.getRawSlot());
                     if (event.getClick() == ClickType.RIGHT) {
                         materials.remove(materialPair);
-                        refreshMenus(GeneratorEditMenu.class, menu -> menu.getMine().equals(mine));
 
                     } else if (event.getClick() == ClickType.LEFT) {
                         forceClose();
                         LocaleEnum.EDIT_GENERATOR_WRITE_RATE.getWithPrefix().send(event.getWhoClicked());
 
-                        Runnable onCancel = () -> {
-                            //refreshMenus(GeneratorEditMenu.class, menu -> menu.getMine().equals(mine));
-                            refresh();
-                        };
+                        Runnable onCancel = this::open;
                         Input
                                 .doubleInput(event.getWhoClicked())
                                 .timeOut(TimeUnit.MINUTES, 2)
@@ -104,8 +100,6 @@ public class GeneratorEditMenu extends OPagedMenu<OPair<Double, OMaterial>> impl
     public OMenuButton toButton(OPair<Double, OMaterial> obj) {
         Optional<OMenuButton> material = getTemplateButtonFromTemplate("material");
         if (!material.isPresent()) return null;
-
-        System.out.println(obj.getFirst());
 
         OMenuButton button = material.get().clone();
         OMenuButton.ButtonItemBuilder clone = button.getDefaultStateItem().clone();

@@ -6,6 +6,7 @@ import com.bgsoftware.superiorprison.plugin.data.SStatisticHolder;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.google.common.collect.Sets;
 import com.oop.datamodule.SerializedData;
+import com.oop.datamodule.body.MultiTypeBody;
 import com.oop.datamodule.body.SqlDataBody;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -13,7 +14,7 @@ import org.bukkit.Bukkit;
 import java.util.Set;
 import java.util.UUID;
 
-public class SStatisticsContainer implements StatisticsContainer, SqlDataBody {
+public class SStatisticsContainer implements StatisticsContainer, MultiTypeBody {
 
     @Getter
     private UUID uuid;
@@ -44,8 +45,13 @@ public class SStatisticsContainer implements StatisticsContainer, SqlDataBody {
     }
 
     @Override
-    public String getPrimaryKey() {
+    public String getKey() {
         return uuid.toString();
+    }
+
+    @Override
+    public String getSerializedType() {
+        return "statisticsContainer";
     }
 
     @Override

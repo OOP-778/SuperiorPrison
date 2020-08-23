@@ -6,7 +6,9 @@ import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 import com.bgsoftware.superiorprison.api.data.player.rank.LadderRank;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.controller.DatabaseController;
+import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.oop.datamodule.database.TableEditor;
 import com.oop.datamodule.storage.SqlStorage;
@@ -15,30 +17,46 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
+import java.io.File;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-public class SPrisonerHolder extends SqlStorage<SPrisoner> implements PrisonerHolder {
-
-    @Getter
-    private final Map<UUID, SPrisoner> prisonerMap = Maps.newConcurrentMap();
+public class SPrisonerHolder extends UniversalDataHolder<UUID, SPrisoner> implements PrisonerHolder {
 
     @Getter
     private final Map<String, UUID> usernameToUuidMap = Maps.newConcurrentMap();
 
     public SPrisonerHolder(DatabaseController controller) {
-        super(controller, controller.getDatabase());
+        super(controller, SPrisoner::getUUID);
 
-        new TableEditor("prisoners")
-                .renameColumn("prestiges", "currentPrestige")
-                .addColumn("currentLadderRank", "TEXT")
-                .edit(controller.getDatabase());
+        String type = SuperiorPrisonPlugin.getInstance().getMainConfig().getDatabase().getType();
+        if (type.equalsIgnoreCase("flat")) {
+            currentHolder(
+                    DataSettings.builder(DataSettings.FlatStorageSettings.class, SPrisoner.class)
+                            .directory(new File(SuperiorPrisonPlugin.getInstance().getDataFolder() + "/prisoners"))
+                            .variants(ImmutableMap.of("prisoner", SPrisoner.class))
+            );
+        } else if (type.equalsIgnoreCase("sqlite") || type.equalsIgnoreCase("mysql")) {
+            currentHolder(
+                    DataSettings.builder(DataSettings.SQlSettings.class, SPrisoner.class)
+                            .databaseWrapper(controller.getDatabase())
+                            .variants(new Class[]{SPrisoner.class})
+            );
+        }
+
+        if (controller.getDatabase() != null) {
+            new TableEditor("prisoners")
+                    .renameColumn("prestiges", "currentPrestige")
+                    .addColumn("currentLadderRank", "TEXT")
+                    .edit(controller.getDatabase());
+
+        }
 
         SuperiorPrisonPlugin.getInstance().getRankController().addLoadHook(c -> {
-            for (SPrisoner prisoner : getPrisonerMap().values()) {
+            for (SPrisoner prisoner : getDataMap().values()) {
                 // Update the ladder rank
                 LadderRank currentLadderRank = prisoner.getCurrentLadderRank();
                 Optional<LadderRank> ladderRank = c.getLadderRank(currentLadderRank.getName());
@@ -47,7 +65,7 @@ public class SPrisonerHolder extends SqlStorage<SPrisoner> implements PrisonerHo
         });
 
         SuperiorPrisonPlugin.getInstance().getPrestigeController().addLoadHook(c -> {
-            for (SPrisoner prisoner : getPrisonerMap().values()) {
+            for (SPrisoner prisoner : getDataMap().values()) {
                 // Update the prestige
                 Optional<Prestige> currentPrestige = prisoner.getCurrentPrestige();
                 if (currentPrestige.isPresent()) {
@@ -58,33 +76,13 @@ public class SPrisonerHolder extends SqlStorage<SPrisoner> implements PrisonerHo
         });
     }
 
-    @Override
-    public Class<? extends SPrisoner>[] getVariants() {
-        return new Class[]{SPrisoner.class};
-    }
-
-    @Override
-    public void onAdd(SPrisoner prisoner) {
-        prisonerMap.put(prisoner.getUUID(), prisoner);
-    }
-
-    @Override
-    public void onRemove(SPrisoner prisoner) {
-        prisonerMap.remove(prisoner.getUUID());
-    }
-
-    @Override
-    public Stream<SPrisoner> stream() {
-        return prisonerMap.values().stream();
-    }
-
     public Stream<SPrisoner> streamOnline() {
         return stream().filter(SPrisoner::isOnline);
     }
 
     @Override
     public Optional<Prisoner> getPrisoner(UUID uuid) {
-        return Optional.ofNullable(prisonerMap.get(uuid));
+        return Optional.ofNullable(getDataMap().get(uuid));
     }
 
     @Override
@@ -112,11 +110,6 @@ public class SPrisonerHolder extends SqlStorage<SPrisoner> implements PrisonerHo
         return prisoner;
     }
 
-    @Override
-    public Iterator<SPrisoner> iterator() {
-        return prisonerMap.values().iterator();
-    }
-
     public SPrisoner getInsertIfAbsent(UUID uuid) {
         Optional<Prisoner> optionalPrisoner = getPrisoner(uuid);
         return optionalPrisoner.map(prisoner -> (SPrisoner) prisoner).orElseGet(() -> newPrisoner(new SPrisoner(uuid)));
@@ -126,5 +119,9 @@ public class SPrisonerHolder extends SqlStorage<SPrisoner> implements PrisonerHo
         for (SPrisoner prisoner : this) {
             usernameToUuidMap.put(prisoner.getOfflinePlayer().getName(), prisoner.getUUID());
         }
+    }
+
+    public Map<UUID, SPrisoner> getPrisonerMap() {
+        return dataMap;
     }
 }

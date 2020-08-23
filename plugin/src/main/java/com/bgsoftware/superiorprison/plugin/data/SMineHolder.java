@@ -2,58 +2,46 @@ package com.bgsoftware.superiorprison.plugin.data;
 
 import com.bgsoftware.superiorprison.api.controller.MineHolder;
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
+import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.controller.DatabaseController;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.util.ChunkDataQueue;
 import com.bgsoftware.superiorprison.plugin.util.ChunkResetData;
-import com.google.common.collect.Maps;
-import com.oop.datamodule.storage.SqlStorage;
+import com.google.common.collect.ImmutableMap;
 import com.oop.orangeengine.main.util.data.cache.OCache;
-import com.oop.orangeengine.main.util.data.pair.OPair;
-import com.oop.orangeengine.main.util.data.pair.OTriplePair;
 import com.oop.orangeengine.material.OMaterial;
 import lombok.Getter;
-import org.bukkit.Chunk;
 import org.bukkit.Location;
-import org.bukkit.World;
 
+import java.io.File;
 import java.util.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-public class SMineHolder extends SqlStorage<SNormalMine> implements MineHolder {
-    private final Map<String, SNormalMine> mineMap = Maps.newConcurrentMap();
+public class SMineHolder extends UniversalDataHolder<String, SNormalMine> implements MineHolder {
 
     @Getter
     private final ChunkDataQueue queue = new ChunkDataQueue();
 
     public SMineHolder(DatabaseController controller) {
-        super(controller, controller.getDatabase());
-    }
+        super(controller, SNormalMine::getKey);
 
-    @Override
-    public Stream<SNormalMine> stream() {
-        return mineMap.values().stream();
-    }
-
-    @Override
-    public Class<? extends SNormalMine>[] getVariants() {
-        return new Class[]{SNormalMine.class};
-    }
-
-    @Override
-    public void onAdd(SNormalMine sNormalMine) {
-        mineMap.put(sNormalMine.getName(), sNormalMine);
-    }
-
-    @Override
-    public void onRemove(SNormalMine sNormalMine) {
-        mineMap.remove(sNormalMine.getName());
+        String type = SuperiorPrisonPlugin.getInstance().getMainConfig().getDatabase().getType();
+        if (type.equalsIgnoreCase("flat")) {
+            currentHolder(
+                    DataSettings.builder(DataSettings.FlatStorageSettings.class, SNormalMine.class)
+                            .directory(new File(SuperiorPrisonPlugin.getInstance().getDataFolder() + "/mines"))
+                            .variants(ImmutableMap.of("normalMine", SNormalMine.class))
+            );
+        } else if (type.equalsIgnoreCase("sqlite") || type.equalsIgnoreCase("mysql")) {
+            currentHolder(
+                    DataSettings.builder(DataSettings.SQlSettings.class, SNormalMine.class)
+                            .databaseWrapper(controller.getDatabase())
+                            .variants(new Class[]{SNormalMine.class})
+            );
+        }
     }
 
     @Override
@@ -109,11 +97,6 @@ public class SMineHolder extends SqlStorage<SNormalMine> implements MineHolder {
         return mines;
     }
 
-    @Override
-    public Iterator<SNormalMine> iterator() {
-        return mineMap.values().iterator();
-    }
-
     public ChunkResetData addResetBlock(Location location, OMaterial material, Runnable onComplete) {
         int chunkX, chunkZ;
         chunkX = location.getBlockX() >> 4;
@@ -129,7 +112,7 @@ public class SMineHolder extends SqlStorage<SNormalMine> implements MineHolder {
         if (matchedChunk.isPresent()) {
             data = matchedChunk.get();
             data.add(location, material, onComplete);
-            
+
         } else {
             data = new ChunkResetData(location.getWorld(), chunkX, chunkZ);
             data.add(location, material, onComplete);
@@ -137,5 +120,15 @@ public class SMineHolder extends SqlStorage<SNormalMine> implements MineHolder {
         }
 
         return data;
+    }
+
+    @Override
+    protected void onAdd(SNormalMine sNormalMine) {
+
+    }
+
+    @Override
+    protected void onRemove(SNormalMine sNormalMine) {
+
     }
 }

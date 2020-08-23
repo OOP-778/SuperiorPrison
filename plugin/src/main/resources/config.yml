@@ -8,6 +8,7 @@ database:
   # There's two database types
   # SQLITE
   # MYSQL
+  # FLAT
   type: sqlite
 
   # <<< If you're using SQLITE you should ignore under >>>

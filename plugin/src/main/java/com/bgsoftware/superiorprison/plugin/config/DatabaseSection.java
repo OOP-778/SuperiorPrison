@@ -22,6 +22,10 @@ public class DatabaseSection extends SectionWrapper {
         return type.equalsIgnoreCase("mysql");
     }
 
+    public boolean isFile() {
+        return type.equalsIgnoreCase("flat");
+    }
+
     public DatabaseWrapper getDatabase() {
         return isMySql() ? new MySqlDatabase(
                 new MySqlDatabase.MySqlProperties()

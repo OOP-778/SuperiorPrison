@@ -22,6 +22,7 @@ import com.google.gson.JsonObject;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.oop.datamodule.SerializedData;
+import com.oop.datamodule.body.MultiTypeBody;
 import com.oop.datamodule.body.SqlDataBody;
 import com.oop.datamodule.util.DataUtil;
 import com.oop.orangeengine.main.util.OSimpleReflection;
@@ -52,7 +53,7 @@ import java.util.stream.Collectors;
 import static com.bgsoftware.superiorprison.plugin.util.AccessUtil.findRank;
 
 @Accessors(chain = true)
-public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.Prisoner, SqlDataBody {
+public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.Prisoner, MultiTypeBody {
 
     @Setter
     private @NonNull UUID uuid;
@@ -326,7 +327,7 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
     }
 
     @Override
-    public String getPrimaryKey() {
+    public String getKey() {
         return uuid.toString();
     }
 
@@ -472,5 +473,10 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
 
     public void clearCache() {
         cachedPlayer = null;
+    }
+
+    @Override
+    public String getSerializedType() {
+        return "prisoner";
     }
 }

@@ -29,6 +29,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.oop.datamodule.SerializedData;
+import com.oop.datamodule.body.MultiTypeBody;
 import com.oop.datamodule.body.SqlDataBody;
 import com.oop.datamodule.util.DataUtil;
 import com.oop.orangeengine.item.ItemBuilder;
@@ -50,7 +51,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.type.NormalMine, Serializable, SqlDataBody {
+public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.type.NormalMine, Serializable, MultiTypeBody {
 
     private final Set<Prisoner> prisoners = ConcurrentHashMap.newKeySet();
 
@@ -361,8 +362,13 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
     }
 
     @Override
-    public String getPrimaryKey() {
+    public String getKey() {
         return name;
+    }
+
+    @Override
+    public String getSerializedType() {
+        return "normalMine";
     }
 
     @Override

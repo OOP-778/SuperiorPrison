@@ -71,8 +71,6 @@ public class PlayerInput<T> {
                     event.setCancelled(true);
                     if (event.getMessage().equalsIgnoreCase("cancel")) {
                         cancel();
-                        if (onCancel != null)
-                            onCancel.run();
                         return;
                     }
 

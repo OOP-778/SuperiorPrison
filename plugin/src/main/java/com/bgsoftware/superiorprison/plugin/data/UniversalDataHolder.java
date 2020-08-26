@@ -95,7 +95,7 @@ public abstract class UniversalDataHolder<I, T extends MultiTypeBody> extends St
 
     }
 
-    @Getter()
+    @Getter
     public abstract static class DataSettings<T extends MultiTypeBody> {
         // Sql settings
 
@@ -104,13 +104,12 @@ public abstract class UniversalDataHolder<I, T extends MultiTypeBody> extends St
             return settingsClass.newInstance();
         }
 
-        abstract Storage<T> toStorage(UniversalDataHolder<?, T> parent);
+        public abstract Storage<T> toStorage(UniversalDataHolder<?, T> parent);
 
         @Getter
         @Setter
         @Accessors(chain = true, fluent = true)
         public static class SQlSettings<T extends MultiTypeBody> extends DataSettings<T> {
-            private boolean isFile;
             private File directory;
             private String database;
             private String hostname;
@@ -124,8 +123,8 @@ public abstract class UniversalDataHolder<I, T extends MultiTypeBody> extends St
             public SqlStorageImpl<T> toStorage(UniversalDataHolder<?, T> parent) {
                 DatabaseWrapper database;
                 if (databaseWrapper == null)
-                    if (isFile)
-                        database = new SqlLiteDatabase(directory, this.database + ".db");
+                    if (directory != null)
+                        database = new SqlLiteDatabase(directory, this.database);
                     else
                         database = new MySqlDatabase(new MySqlDatabase.MySqlProperties().database(this.database).password(password).port(port).url(hostname).user(username));
                 else
@@ -143,7 +142,7 @@ public abstract class UniversalDataHolder<I, T extends MultiTypeBody> extends St
             private Map<String, Class<? extends T>> variants;
 
             @Override
-            Storage<T> toStorage(UniversalDataHolder<?, T> parent) {
+            public Storage<T> toStorage(UniversalDataHolder<?, T> parent) {
                 Objects.requireNonNull(variants, "Variants cannot be null!");
                 Objects.requireNonNull(directory, "Directory cannot be null!");
 

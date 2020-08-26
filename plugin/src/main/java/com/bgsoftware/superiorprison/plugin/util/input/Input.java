@@ -7,7 +7,6 @@ import org.bukkit.entity.Player;
 import java.math.BigDecimal;
 
 public class Input {
-
     public static PlayerInput<Integer> integerInput(@NonNull HumanEntity player) {
         return new PlayerInput<Integer>(((Player) player))
                 .parser(string -> {

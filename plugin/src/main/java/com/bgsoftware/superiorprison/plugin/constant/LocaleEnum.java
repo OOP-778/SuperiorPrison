@@ -256,11 +256,29 @@ public enum LocaleEnum {
                     "&7&l&m------- &d&lPrestige Top",
                     "{entries}"
             )
-            .append(
-                    new ChatLine("{TEMPLATE}&d&l{position} &d{player_name} &d{prestige}")
-            )
+                    .append(
+                            new ChatLine("{TEMPLATE}&d&l{position} &d{player_name} &d{prestige}")
+                    )
     ),
-    PRISONER_RESET("&cYou've been reset.");
+    PRISONER_RESET("&cYou've been reset."),
+    MIGRATION_FAILED_CAUSE("Migration failed cause: &c{cause}"),
+    MIGRATION_SOURCE_TEST_SUCCESSFUL("Source test was executed successfully!"),
+    MIGRATION_START("Migration of {type} has been started..."),
+    MIGRATION_SOURCE_LOADED("Migration source data has been loaded!"),
+    MIGRATION_DUPLICATE(
+            new OChatMessage("&cThere has been duplicate object found in current data. Please select if you wanna to use the data from Current Database or From Source")
+                .append("&c&l* &7Object Identity: &c{identity}")
+                .append("")
+                .append(
+                        new ChatLine()
+                            .append(new LineContent("&c&l[CURRENT]").hover().add("&cClick to select data from current database").parent().chat().message("current").parent())
+                            .append(" ")
+                            .append(new LineContent("&c&l[SOURCE]").hover().add("&cClick to select data from source").parent().chat().message("source").parent())
+                )
+    ),
+    MIGRATION_SUCCESSFUL("Migration of {type} is done."),
+    MIGRATION_CREDENTIALS_ASK("Please provide the {credential} of the database"),
+    PRISONER_HIGHEST_MINE_SEARCH_FAILED("Failed to find highest mine for you. This might be a bug!");
 
     private final OMessage[] cache = new OMessage[2];
 

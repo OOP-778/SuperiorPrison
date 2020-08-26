@@ -16,7 +16,7 @@ public class MinesArg extends CommandArgument<SNormalMine> {
         setIdentity("mine");
         setMapper(mineName -> {
             Optional<SuperiorMine> superiorMine = SuperiorPrisonPlugin.getInstance().getMineController().getMines().stream()
-                    .filter(mine -> mine.getName().contentEquals(mineName))
+                    .filter(mine -> mine.getName().equalsIgnoreCase(mineName))
                     .findFirst();
             return new OPair<>(superiorMine.orElse(null), "Failed to find mine with name " + mineName);
         });

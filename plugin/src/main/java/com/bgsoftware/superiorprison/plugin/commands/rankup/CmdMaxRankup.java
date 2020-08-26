@@ -1,7 +1,5 @@
 package com.bgsoftware.superiorprison.plugin.commands.rankup;
 
-import com.bgsoftware.superiorprison.api.data.player.Prestige;
-import com.bgsoftware.superiorprison.api.data.player.rank.LadderRank;
 import com.bgsoftware.superiorprison.api.requirement.Requirement;
 import com.bgsoftware.superiorprison.api.requirement.RequirementData;
 import com.bgsoftware.superiorprison.api.requirement.RequirementException;
@@ -19,7 +17,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.listedBuilder;
 import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
 
 public class CmdMaxRankup extends OCommand {

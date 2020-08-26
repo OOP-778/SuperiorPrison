@@ -6,7 +6,6 @@ import com.bgsoftware.superiorprison.api.requirement.RequirementException;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.config.ProgressionScaleSection;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
-import com.oop.orangeengine.message.impl.chat.ChatLine;
 
 import java.util.*;
 

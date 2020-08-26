@@ -45,6 +45,8 @@ public class CommandsRegister {
 
         controller.register(new CmdTop());
 
+        controller.register(new CmdMine());
+
         new PermissionsInitializer(controller);
         //new CommandsPrinter(controller, new File(SuperiorPrisonPlugin.getInstance().getDataFolder(), "commands.txt"));
     }

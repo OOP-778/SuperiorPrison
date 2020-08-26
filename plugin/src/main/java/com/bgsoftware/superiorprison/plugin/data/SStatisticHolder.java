@@ -3,7 +3,6 @@ package com.bgsoftware.superiorprison.plugin.data;
 import com.bgsoftware.superiorprison.api.controller.StatisticsController;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.controller.DatabaseController;
-import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.object.statistic.SStatisticsContainer;
 import com.google.common.collect.ImmutableMap;
 
@@ -20,7 +19,7 @@ public class SStatisticHolder extends UniversalDataHolder<UUID, SStatisticsConta
             currentHolder(
                     DataSettings.builder(DataSettings.FlatStorageSettings.class, SStatisticsContainer.class)
                             .directory(new File(SuperiorPrisonPlugin.getInstance().getDataFolder() + "/statistics"))
-                            .variants(ImmutableMap.of("statistic", SPrisoner.class))
+                            .variants(ImmutableMap.of("statisticsContainer", SStatisticsContainer.class))
             );
         } else if (type.equalsIgnoreCase("sqlite") || type.equalsIgnoreCase("mysql")) {
             currentHolder(

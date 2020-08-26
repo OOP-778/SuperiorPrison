@@ -11,6 +11,7 @@ import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.config.PrisonerDefaults;
 import com.bgsoftware.superiorprison.plugin.data.SPrisonerHolder;
 import com.bgsoftware.superiorprison.plugin.hook.impl.ShopGuiPlusHook;
+import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.player.booster.SBoosters;
 import com.bgsoftware.superiorprison.plugin.object.player.rank.SLadderRank;
 import com.bgsoftware.superiorprison.plugin.object.player.rank.SRank;
@@ -99,6 +100,9 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
     @Setter
     @Getter
     private SPair<BigDecimal, Long> soldData = new SPair<>(new BigDecimal(0), 0L);
+
+    @Setter
+    private SNormalMine highestMine;
 
     @Getter
     private String textureValue;
@@ -236,6 +240,8 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
         this.currentPrestige = (SPrestige) prestige;
         if (applyOnAdd)
             ((SPrestige) prestige).onAdd(this);
+
+        updateHighestMine();
     }
 
     @Override
@@ -294,6 +300,7 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
             ranks.add(rank1.getName());
             ((SRank) rank1).onAdd(this);
         }
+        updateHighestMine();
     }
 
     @Override
@@ -314,6 +321,33 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
 
     public Optional<Prestige> getCurrentPrestige() {
         return Optional.ofNullable(currentPrestige);
+    }
+
+    private void updateHighestMine() {
+        highestMine = SuperiorPrisonPlugin.getInstance().getDatabaseController().getMineHolder()
+                .getMinesFor(this)
+                .stream()
+                .filter(mine -> {
+                    boolean hasRank = mine.hasRank(getCurrentLadderRank().getName());
+                    boolean hasPrestige = true;
+                    if (!mine.getPrestiges().isEmpty()) {
+                        if (getCurrentPrestige().isPresent()) {
+                            return mine.hasPrestige(getCurrentPrestige().get().getName());
+                        } else
+                            hasPrestige = false;
+                    }
+                    return hasPrestige && hasRank;
+                })
+                .findFirst()
+                .orElse(SuperiorPrisonPlugin.getInstance().getDatabaseController().getMineHolder().getMinesFor(this).get(0));
+    }
+
+    @Override
+    public SuperiorMine getHighestMine() {
+        if (highestMine == null)
+            updateHighestMine();
+
+        return highestMine;
     }
 
     public void clearRanks() {

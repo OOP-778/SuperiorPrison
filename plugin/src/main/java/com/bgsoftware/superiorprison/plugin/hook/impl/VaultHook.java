@@ -1,10 +1,8 @@
 package com.bgsoftware.superiorprison.plugin.hook.impl;
 
-import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.hook.SHook;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.oop.orangeengine.main.task.OTask;
-import com.oop.orangeengine.main.task.StaticTask;
 import lombok.Getter;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;

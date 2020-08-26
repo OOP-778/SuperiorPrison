@@ -6,7 +6,6 @@ import com.bgsoftware.superiorprison.plugin.object.mine.area.SArea;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.util.menu.*;
 import com.google.common.collect.ImmutableMap;
-import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;

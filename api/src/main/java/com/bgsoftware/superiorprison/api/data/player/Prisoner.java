@@ -66,4 +66,6 @@ public interface Prisoner {
     void setLadderRank(LadderRank rank, boolean applyOnAdd);
 
     Optional<Prestige> getCurrentPrestige();
+
+    SuperiorMine getHighestMine();
 }

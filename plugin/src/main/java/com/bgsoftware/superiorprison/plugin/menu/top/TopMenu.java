@@ -4,14 +4,10 @@ import com.bgsoftware.superiorprison.plugin.commands.args.TopTypeArg;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.object.top.STopEntry;
 import com.bgsoftware.superiorprison.plugin.object.top.STopSystem;
-import com.bgsoftware.superiorprison.plugin.util.ClassDebugger;
 import com.bgsoftware.superiorprison.plugin.util.menu.OMenu;
 import com.bgsoftware.superiorprison.plugin.util.menu.OMenuButton;
 import com.bgsoftware.superiorprison.plugin.util.menu.OPagedMenu;
-import com.oop.orangeengine.item.custom.OItem;
 import com.oop.orangeengine.item.custom.OSkull;
-import com.oop.orangeengine.material.OMaterial;
-import com.oop.orangeengine.nbt.NBTItem;
 import org.bukkit.inventory.Inventory;
 
 import java.util.List;

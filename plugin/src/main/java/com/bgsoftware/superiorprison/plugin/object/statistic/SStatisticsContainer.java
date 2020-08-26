@@ -7,9 +7,7 @@ import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.google.common.collect.Sets;
 import com.oop.datamodule.SerializedData;
 import com.oop.datamodule.body.MultiTypeBody;
-import com.oop.datamodule.body.SqlDataBody;
 import lombok.Getter;
-import org.bukkit.Bukkit;
 
 import java.util.Set;
 import java.util.UUID;

@@ -26,10 +26,6 @@ public class SettingsMenu extends OPagedMenu<SettingsObject> implements OMenu.Te
         clickHandler("setting")
                 .handle(event -> {
                     SettingsObject settingsObject = requestObject(event.getRawSlot());
-                    messageBuilder(settingsObject.requestMessage())
-                            .replace(viewer, mine, mine.getSettings(), settingsObject)
-                            .send(event.getWhoClicked());
-
                     if (settingsObject.type() == Boolean.class) {
                         boolean currentValue = (boolean) settingsObject.currentValue();
                         settingsObject.currentValue(!currentValue);
@@ -41,6 +37,10 @@ public class SettingsMenu extends OPagedMenu<SettingsObject> implements OMenu.Te
                         refresh();
                         return;
                     }
+
+                    messageBuilder(settingsObject.requestMessage())
+                            .replace(viewer, mine, mine.getSettings(), settingsObject)
+                            .send(event.getWhoClicked());
 
                     forceClose();
 
@@ -90,6 +90,8 @@ public class SettingsMenu extends OPagedMenu<SettingsObject> implements OMenu.Te
         if (state == null)
             state = settingButton.getDefaultStateItem();
 
+        state.itemBuilder()
+                .replace("{setting_value}", obj.currentValue().toString().toLowerCase());
         settingButton.currentItem(state.getItemStackWithPlaceholders(obj));
         return settingButton;
     }

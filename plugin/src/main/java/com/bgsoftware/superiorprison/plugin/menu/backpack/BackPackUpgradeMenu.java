@@ -6,7 +6,7 @@ import com.bgsoftware.superiorprison.api.requirement.RequirementException;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.config.backpack.BackPackUpgrade;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
-import com.bgsoftware.superiorprison.plugin.object.backpack.SBackPack;
+import com.bgsoftware.superiorprison.plugin.object.backpack.OldSBackPack;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.util.TextUtil;
 import com.bgsoftware.superiorprison.plugin.util.menu.MenuAction;
@@ -19,9 +19,9 @@ import java.util.Optional;
 
 public class BackPackUpgradeMenu extends OMenu {
 
-    private SBackPack backPack;
+    private OldSBackPack backPack;
 
-    public BackPackUpgradeMenu(SPrisoner viewer, SBackPack backPack) {
+    public BackPackUpgradeMenu(SPrisoner viewer, OldSBackPack backPack) {
         super("backpackupgrade", viewer);
         this.backPack = backPack;
 
@@ -29,7 +29,7 @@ public class BackPackUpgradeMenu extends OMenu {
                 .handle(event -> {
                     if (!backPack.getConfig().hasUpgrade()) return;
 
-                    BackPackUpgrade nextUpgrade = backPack.getConfig().getUpgrade(backPack.getCurrentLevel() + 1);
+                    BackPackUpgrade<?> nextUpgrade = backPack.getConfig().getUpgrade(backPack.getCurrentLevel() + 1);
                     List<RequirementException> failed = new ArrayList<>();
                     nextUpgrade.getRequirements().forEach(data -> {
                         Optional<Requirement> requirement = SuperiorPrisonPlugin.getInstance().getRequirementController().findRequirement(data.getType());
@@ -73,14 +73,13 @@ public class BackPackUpgradeMenu extends OMenu {
     }
 
     public OMenuButton.ButtonItemBuilder parseInfoButton(OMenuButton.ButtonItemBuilder item) {
-        BackPackUpgrade nextUpgrade = backPack.getConfig().getUpgrade(backPack.getCurrentLevel() + 1);
+        BackPackUpgrade<?> nextUpgrade = backPack.getConfig().getUpgrade(backPack.getCurrentLevel() + 1);
 
         List<String> newLore = new ArrayList<>();
         List<String> lore = item.itemBuilder().getLore();
         for (String s : lore) {
             if (s.contains("{backpack_nextlevel_description}")) {
                 newLore.addAll(nextUpgrade.getDescription());
-                continue;
 
             } else if (s.contains("{REQUIREMENT}")) {
                 String template = s.replace("{REQUIREMENT}", "");

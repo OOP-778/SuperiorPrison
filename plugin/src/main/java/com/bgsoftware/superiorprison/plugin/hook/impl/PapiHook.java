@@ -69,8 +69,7 @@ public class PapiHook extends SHook {
 
         @Override
         public String onPlaceholderRequest(Player p, String params) {
-            OfflinePlayer offlinePlayer = p != null ? Bukkit.getOfflinePlayer(p.getUniqueId()) : null;
-            return onRequest(offlinePlayer, params);
+            return onRequest(p, params);
         }
 
         @Override

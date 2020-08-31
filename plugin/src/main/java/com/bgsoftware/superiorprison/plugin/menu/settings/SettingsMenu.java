@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
+import static com.oop.orangeengine.main.Engine.getEngine;
 
 public class SettingsMenu extends OPagedMenu<SettingsObject> implements OMenu.Templateable {
 
@@ -65,10 +66,14 @@ public class SettingsMenu extends OPagedMenu<SettingsObject> implements OMenu.Te
                                 input.cancel();
                             })
                             .onCancel(onCancel)
-                            .onError((input, err) -> messageBuilder(LocaleEnum.EDIT_SETTINGS_ERROR.getWithErrorPrefix())
-                                    .replace("{setting_name}", settingsObject.id())
-                                    .replace("{error}", err.getMessage())
-                                    .send(input.player()))
+                            .onError((input, err) -> {
+                                messageBuilder(LocaleEnum.EDIT_SETTINGS_ERROR.getWithErrorPrefix())
+                                        .replace("{setting_name}", settingsObject.id())
+                                        .replace("{error}", err.getMessage())
+                                        .send(input.player());
+                                if (err.getMessage() == null)
+                                    getEngine().getLogger().error(err);
+                            })
                             .listen();
                 });
     }

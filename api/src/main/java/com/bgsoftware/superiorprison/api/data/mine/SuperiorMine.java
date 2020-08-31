@@ -33,10 +33,13 @@ public interface SuperiorMine {
     String getName();
 
     /*
-    Get different areas of the mine region or mine
+    Get area of the mine by type
     */
     Area getArea(AreaEnum type);
 
+    /*
+    Get area by location
+    */
     Area getArea(Location location);
 
     /*

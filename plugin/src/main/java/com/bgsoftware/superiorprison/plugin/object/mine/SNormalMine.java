@@ -108,6 +108,7 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
                 .getItemStack();
 
         this.settings = new SMineSettings(defaults);
+        settings.attach(this);
 
         generator = new SMineGenerator();
         defaults.getMaterials().forEach(material -> generator.getGeneratorMaterials().add(material));

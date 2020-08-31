@@ -2,7 +2,7 @@ package com.bgsoftware.superiorprison.plugin.object.backpack;
 
 import com.bgsoftware.superiorprison.api.data.backpack.BackPack;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
-import com.bgsoftware.superiorprison.plugin.config.backpack.BackPackConfig;
+import com.bgsoftware.superiorprison.plugin.config.backpack.AdvancedBackPackConfig;
 import com.bgsoftware.superiorprison.plugin.menu.backpack.BackPackViewMenu;
 import com.bgsoftware.superiorprison.plugin.util.menu.OMenuButton;
 import com.google.common.base.Preconditions;
@@ -26,10 +26,10 @@ import java.util.stream.Collectors;
 import static com.bgsoftware.superiorprison.plugin.controller.SBackPackController.NBT_KEY;
 
 @AllArgsConstructor
-public class SBackPack implements BackPack {
+public class OldSBackPack implements BackPack {
 
     @Getter
-    private BackPackConfig config;
+    private AdvancedBackPackConfig config;
 
     @Getter
     private BackPackData data;
@@ -47,11 +47,10 @@ public class SBackPack implements BackPack {
 
     private int hashcode;
 
-    private SBackPack() {
-    }
+    private OldSBackPack() {}
 
-    public static SBackPack of(BackPackConfig config, Player player) {
-        SBackPack backPack = new SBackPack();
+    public static OldSBackPack of(AdvancedBackPackConfig config, Player player) {
+        OldSBackPack backPack = new OldSBackPack();
         backPack.config = config;
         backPack.oldData = new JsonObject();
         backPack.owner = player;
@@ -78,7 +77,7 @@ public class SBackPack implements BackPack {
     }
 
     @SneakyThrows
-    public SBackPack(@Nonnull ItemStack itemStack, Player player) {
+    public OldSBackPack(@Nonnull ItemStack itemStack, Player player) {
         this.owner = player;
         this.itemStack = itemStack;
         this.nbtItem = new NBTItem(itemStack);

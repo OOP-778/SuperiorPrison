@@ -4,6 +4,7 @@ global options:
   player bound: false
 
 "minerBackPack":
+  type: advanced
   item:
     material: chest
     display name: "&cMiner's Backpack ({backpack_level})"
@@ -33,7 +34,43 @@ global options:
         - "&cGain +1 page"
 
     "3":
-      rows: 2
       pages: 3
+
+      requirements:
+        - "{ECO} 2000"
+
       description:
         - "&cGain +1 page"
+
+"simpleBackPack":
+  type: simple
+  item:
+    material: chest
+    display name: "&cSimple Backpack ({backpack_level})"
+    lore:
+      - "&5Store your mined blocks"
+      - "&d&l* &7Capacity: &d{backpack_capacity}"
+      - "&d&l* &7Used: &d{backpack_used}"
+      - ""
+      - "&dClick to redeem stored blocks"
+      - "&dShift-Click to upgrade"
+
+  capacity: 100
+  upgrades:
+    "2":
+      capacity: 200
+
+      requirements:
+        - "{ECO} 1000"
+
+      description:
+        - "&cGain +100 capacity"
+        -
+    "3":
+      capacity: 300
+
+      requirements:
+        - "{ECO} 2000"
+
+      description:
+        - "&cGain +100 capacity"

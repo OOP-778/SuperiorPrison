@@ -64,12 +64,13 @@ public class CommandHelper {
             if (sendable instanceof Replaceable) {
                 for (Object object : objects)
                     ((Replaceable) sendable).replace(object, SuperiorPrisonPlugin.getInstance().getPlaceholderController().findPlaceholdersFor(object));
-            }
+            } else
+                replace(mapOfArray(objects));
             return this;
         }
 
         public MessageBuilder replace(String key, Object value) {
-            return replace(ImmutableMap.of(key, value));
+            return replace(mapOfArray(key, value));
         }
 
         public MessageBuilder replace(Map<String, Object> placeholders) {
@@ -230,5 +231,30 @@ public class CommandHelper {
         public void send(WrappedCommand command) {
             sendMessage(command.getSender(), build());
         }
+    }
+
+    public static Map<String, Object> mapOfArray(Object... array) {
+        if (array.length % 2 != 0)
+            throw new IllegalStateException("Failed to convert array to map, because the size is not even!");
+
+        Map<String, Object> map = new HashMap<>();
+
+        int len = array.length;
+        int i = 0;
+
+        boolean inside = true;
+        while (inside) {
+            Object key = array[i++];
+            Object value = array[i++];
+
+            map.put(
+                    key == null ? "null" : key.toString(),
+                    value
+            );
+            if (i == len)
+                inside = false;
+        }
+
+        return map;
     }
 }

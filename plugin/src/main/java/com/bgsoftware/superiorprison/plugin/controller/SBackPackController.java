@@ -3,8 +3,8 @@ package com.bgsoftware.superiorprison.plugin.controller;
 import com.bgsoftware.superiorprison.api.controller.BackPackController;
 import com.bgsoftware.superiorprison.api.data.backpack.BackPack;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
-import com.bgsoftware.superiorprison.plugin.config.backpack.BackPackConfig;
-import com.bgsoftware.superiorprison.plugin.object.backpack.SBackPack;
+import com.bgsoftware.superiorprison.plugin.config.backpack.AdvancedBackPackConfig;
+import com.bgsoftware.superiorprison.plugin.object.backpack.OldSBackPack;
 import com.oop.orangeengine.main.Engine;
 import com.oop.orangeengine.main.plugin.OComponent;
 import com.oop.orangeengine.nbt.NBTItem;
@@ -20,7 +20,7 @@ import java.util.*;
 public class SBackPackController implements BackPackController, OComponent<SuperiorPrisonPlugin> {
 
     public static final String NBT_KEY = "BACKPACK_DATA";
-    private Map<String, BackPackConfig> backpackConfigs = new HashMap<>();
+    private Map<String, AdvancedBackPackConfig> backpackConfigs = new HashMap<>();
     private boolean playerBound = false;
 
     @Override
@@ -31,14 +31,14 @@ public class SBackPackController implements BackPackController, OComponent<Super
     @Override
     public BackPack getBackPack(@NonNull ItemStack itemStack, Player player) throws IllegalArgumentException {
         try {
-            SBackPack backPack = new SBackPack(itemStack, player);
+            OldSBackPack backPack = new OldSBackPack(itemStack, player);
             return backPack;
         } catch (Throwable throwable) {
             throw new IllegalStateException("Failed to get the backpack", throwable);
         }
     }
 
-    public Optional<BackPackConfig> getConfig(String name) {
+    public Optional<AdvancedBackPackConfig> getConfig(String name) {
         return Optional.ofNullable(backpackConfigs.get(name));
     }
 
@@ -69,7 +69,7 @@ public class SBackPackController implements BackPackController, OComponent<Super
             }
 
             try {
-                backpackConfigs.put(section.getKey(), new BackPackConfig(section));
+                backpackConfigs.put(section.getKey(), new AdvancedBackPackConfig(section));
             } catch (Throwable throwable) {
                 getEngine().getLogger().printWarning("Failed to initialize backpack by id {}, check for mistakes!", section.getKey());
             }
@@ -79,7 +79,7 @@ public class SBackPackController implements BackPackController, OComponent<Super
         return true;
     }
 
-    public Map<String, BackPackConfig> getConfigs() {
+    public Map<String, AdvancedBackPackConfig> getConfigs() {
         return backpackConfigs;
     }
 }

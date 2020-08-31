@@ -10,6 +10,7 @@ import com.bgsoftware.superiorprison.plugin.util.menu.OMenuButton;
 import com.bgsoftware.superiorprison.plugin.util.menu.OPagedMenu;
 import com.google.common.collect.ImmutableMap;
 import com.oop.orangeengine.main.Helper;
+import com.oop.orangeengine.main.util.version.OVersion;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
@@ -83,7 +84,8 @@ public class MineEffectsMenu extends OPagedMenu<PotionEffectType> implements OMe
             ItemStack itemStack = defaultStateItem.getItemStack();
             if (itemStack.getType().name().toLowerCase().contains("potion")) {
                 PotionMeta itemMeta = (PotionMeta) itemStack.getItemMeta();
-                itemMeta.setColor(obj.getColor());
+                if (OVersion.isOrAfter(12))
+                    itemMeta.setColor(obj.getColor());
                 itemStack.setItemMeta(itemMeta);
             }
 

@@ -1,15 +1,13 @@
 package com.bgsoftware.superiorprison.plugin.commands.backpacks;
 
 import com.bgsoftware.superiorprison.plugin.commands.args.BackPackArg;
-import com.bgsoftware.superiorprison.plugin.config.backpack.BackPackConfig;
-import com.bgsoftware.superiorprison.plugin.object.backpack.SBackPack;
+import com.bgsoftware.superiorprison.plugin.config.backpack.AdvancedBackPackConfig;
+import com.bgsoftware.superiorprison.plugin.object.backpack.OldSBackPack;
 import com.oop.orangeengine.command.OCommand;
 import com.oop.orangeengine.command.arg.arguments.IntArg;
 import com.oop.orangeengine.command.arg.arguments.PlayerArg;
 import com.oop.orangeengine.main.task.StaticTask;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 public class CmdGive extends OCommand {
     public CmdGive() {
@@ -23,15 +21,15 @@ public class CmdGive extends OCommand {
 
         onCommand(command -> {
             Player receiver = command.getArgAsReq("player");
-            BackPackConfig backPackConfig = command.getArgAsReq("backpack");
+            AdvancedBackPackConfig advancedBackPackConfig = command.getArgAsReq("backpack");
             int amount = command.getArg("amount").map(object -> (Integer) object).orElse(1);
             int level = command.getArg("level").map(object -> (Integer) object).orElse(1);
 
-            backPackConfig = backPackConfig.getByLevel(level);
-            BackPackConfig finalBackPackConfig = backPackConfig;
+            advancedBackPackConfig = advancedBackPackConfig.getByLevel(level);
+            AdvancedBackPackConfig finalAdvancedBackPackConfig = advancedBackPackConfig;
             StaticTask.getInstance().ensureSync(() -> {
                 for (int i = 0; i < amount; i++) {
-                    SBackPack backpack = finalBackPackConfig.build(receiver);
+                    OldSBackPack backpack = finalAdvancedBackPackConfig.build(receiver);
                     backpack.save();
                     if (receiver.getInventory().firstEmpty() == -1)
                         receiver.getWorld().dropItem(receiver.getLocation(), backpack.getItem());

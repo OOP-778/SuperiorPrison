@@ -14,7 +14,6 @@ public class MineAreaChangeEvent extends MineEvent implements Cancellable {
     private Prisoner prisoner;
     private AreaEnum from;
     private AreaEnum to;
-    private AreaEnum areaEnum;
 
     @Setter
     private boolean cancelled = false;
@@ -25,6 +24,5 @@ public class MineAreaChangeEvent extends MineEvent implements Cancellable {
         this.prisoner = prisoner;
         this.from = from;
         this.to = to;
-        this.areaEnum = areaEnum;
     }
 }

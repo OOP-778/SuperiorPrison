@@ -3,7 +3,7 @@ package com.bgsoftware.superiorprison.plugin.menu.backpack;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.controller.ConfigController;
-import com.bgsoftware.superiorprison.plugin.object.backpack.SBackPack;
+import com.bgsoftware.superiorprison.plugin.object.backpack.OldSBackPack;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.util.menu.*;
 import com.oop.orangeengine.yaml.Config;
@@ -21,11 +21,11 @@ import java.util.function.Function;
 @Getter
 public class BackPackViewMenu extends OPagedMenu<ItemStack> {
 
-    private SBackPack backPack;
+    private OldSBackPack backPack;
     private final OMenuButton[] top = new OMenuButton[9];
     private final OMenuButton[] bottom = new OMenuButton[9];
 
-    public BackPackViewMenu(SPrisoner viewer, SBackPack backPack) {
+    public BackPackViewMenu(SPrisoner viewer, OldSBackPack backPack) {
         super("backpackview", viewer);
         this.backPack = backPack;
         backPack.setCurrentView(this);

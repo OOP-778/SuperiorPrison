@@ -168,6 +168,7 @@ public abstract class OMenu implements InventoryHolder {
     }
 
     protected void executeAction(MenuAction action, Runnable callback) {
+        if (currentAction != null) return;
         if (action == MenuAction.REFRESH) {
             currentAction = action;
             open(this, () -> {

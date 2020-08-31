@@ -31,12 +31,12 @@ public class BackPackData implements SerializableObject {
     public int level;
     public @NonNull String configId;
     public @NonNull Player owner;
-    private @NonNull SBackPack holder;
+    private @NonNull OldSBackPack holder;
 
     @Setter
     private boolean sell = false;
 
-    public BackPackData(SBackPack holder) {
+    public BackPackData(OldSBackPack holder) {
         this.holder = holder;
 
         if (holder.getConfig() != null) {
@@ -129,7 +129,7 @@ public class BackPackData implements SerializableObject {
     }
 
     public void updateInventoryData() {
-        for (int i = 1; i < holder.getConfig().getPages() + 1; i++) {
+        for (int i = 1; i != holder.getConfig().getPages() + 1; i++) {
             Map<Integer, ItemStack> pageData = stored.computeIfAbsent(i, page -> new HashMap<>());
 
             for (int slot = 0; slot < holder.getConfig().getRows() * 9; slot++) {

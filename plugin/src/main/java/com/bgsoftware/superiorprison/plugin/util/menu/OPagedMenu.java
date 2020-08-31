@@ -21,7 +21,6 @@ public abstract class OPagedMenu<T> extends OMenu {
 
     @Getter
     private SwitchEnum switchAction = null;
-
     private int pages;
 
     public OPagedMenu(String identifier, SPrisoner viewer) {

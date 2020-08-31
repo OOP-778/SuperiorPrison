@@ -13,12 +13,12 @@ import java.util.List;
 import static com.oop.orangeengine.main.Engine.getEngine;
 
 @Getter
-public class BackPackUpgrade {
+public class BackPackUpgrade<T extends BackPackConfig<T>> {
     private List<String> description = new ArrayList<>();
     private List<RequirementData> requirements = new ArrayList<>();
-    private BackPackConfig config;
+    private T config;
 
-    public BackPackUpgrade(ConfigSection section, BackPackConfig config) {
+    public BackPackUpgrade(ConfigSection section, T config) {
         this.config = config;
 
         section.ifValuePresent("description", List.class, desc -> this.description = desc);

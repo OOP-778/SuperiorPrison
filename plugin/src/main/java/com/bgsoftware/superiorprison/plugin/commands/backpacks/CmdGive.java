@@ -2,7 +2,7 @@ package com.bgsoftware.superiorprison.plugin.commands.backpacks;
 
 import com.bgsoftware.superiorprison.plugin.commands.args.BackPackArg;
 import com.bgsoftware.superiorprison.plugin.config.backpack.AdvancedBackPackConfig;
-import com.bgsoftware.superiorprison.plugin.object.backpack.OldSBackPack;
+import com.bgsoftware.superiorprison.plugin.object.backpack.SBackPack;
 import com.oop.orangeengine.command.OCommand;
 import com.oop.orangeengine.command.arg.arguments.IntArg;
 import com.oop.orangeengine.command.arg.arguments.PlayerArg;
@@ -29,7 +29,7 @@ public class CmdGive extends OCommand {
             AdvancedBackPackConfig finalAdvancedBackPackConfig = advancedBackPackConfig;
             StaticTask.getInstance().ensureSync(() -> {
                 for (int i = 0; i < amount; i++) {
-                    OldSBackPack backpack = finalAdvancedBackPackConfig.build(receiver);
+                    SBackPack backpack = finalAdvancedBackPackConfig.build(receiver);
                     backpack.save();
                     if (receiver.getInventory().firstEmpty() == -1)
                         receiver.getWorld().dropItem(receiver.getLocation(), backpack.getItem());

@@ -10,7 +10,7 @@ import com.bgsoftware.superiorprison.plugin.commands.args.TopTypeArg;
 import com.bgsoftware.superiorprison.plugin.menu.access.AccessObject;
 import com.bgsoftware.superiorprison.plugin.menu.access.SortMethod;
 import com.bgsoftware.superiorprison.plugin.menu.settings.SettingsObject;
-import com.bgsoftware.superiorprison.plugin.object.backpack.OldSBackPack;
+import com.bgsoftware.superiorprison.plugin.object.backpack.SBackPack;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.mine.area.SArea;
 import com.bgsoftware.superiorprison.plugin.object.mine.messages.SMineActionBarMessage;
@@ -104,10 +104,10 @@ public class PlaceholderController {
         add(SettingsObject.class, "{setting_name}", SettingsObject::id);
         add(SettingsObject.class, "{setting_value}", obj -> Helper.beautify(obj.currentValue()));
 
-        add(OldSBackPack.class, "{backpack_level}", OldSBackPack::getCurrentLevel);
-        add(OldSBackPack.class, "{backpack_id}", OldSBackPack::getId);
-        add(OldSBackPack.class, "{backpack_used}", OldSBackPack::getUsed);
-        add(OldSBackPack.class, "{backpack_capacity}", OldSBackPack::getCapacity);
+        add(SBackPack.class, "{backpack_level}", SBackPack::getCurrentLevel);
+        add(SBackPack.class, "{backpack_id}", SBackPack::getId);
+        add(SBackPack.class, "{backpack_used}", SBackPack::getUsed);
+        add(SBackPack.class, "{backpack_capacity}", SBackPack::getCapacity);
 
         add(TopTypeArg.TopType.class, "{top_type}", e -> StringUtils.capitalize(e.name().toLowerCase()));
         add(STopEntry.class, "{entry_position}", STopEntry::getPosition);

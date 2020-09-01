@@ -3,14 +3,14 @@ package com.bgsoftware.superiorprison.plugin.object.backpack;
 import com.bgsoftware.superiorprison.api.data.backpack.BackPack;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.config.backpack.AdvancedBackPackConfig;
+import com.bgsoftware.superiorprison.plugin.config.backpack.BackPackConfig;
 import com.bgsoftware.superiorprison.plugin.menu.backpack.BackPackViewMenu;
 import com.bgsoftware.superiorprison.plugin.util.menu.OMenuButton;
 import com.google.common.base.Preconditions;
-import com.google.gson.JsonObject;
+import com.oop.datamodule.gson.JsonObject;
 import com.oop.datamodule.SerializedData;
 import com.oop.datamodule.StorageInitializer;
 import com.oop.orangeengine.main.util.data.pair.OPair;
-import com.oop.orangeengine.main.util.data.pair.OTriplePair;
 import com.oop.orangeengine.nbt.NBTItem;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,13 +26,13 @@ import java.util.stream.Collectors;
 import static com.bgsoftware.superiorprison.plugin.controller.SBackPackController.NBT_KEY;
 
 @AllArgsConstructor
-public class OldSBackPack implements BackPack {
+public class SBackPack implements BackPack {
 
     @Getter
-    private AdvancedBackPackConfig config;
+    private BackPackConfig<?> config;
 
     @Getter
-    private BackPackData data;
+    private NewBackPackData data;
     private NBTItem nbtItem;
     private ItemStack itemStack;
 
@@ -44,26 +44,26 @@ public class OldSBackPack implements BackPack {
     @Setter
     @Getter
     private BackPackViewMenu currentView;
-
     private int hashcode;
 
-    private OldSBackPack() {}
+    // Advanced Backpack Data
+    private int lastRows = -1;
+    private int lastPages = -1;
 
-    public static OldSBackPack of(AdvancedBackPackConfig config, Player player) {
-        OldSBackPack backPack = new OldSBackPack();
+    private SBackPack() {}
+
+    public static SBackPack of(BackPackConfig<?> config, Player player) {
+        SBackPack backPack = new SBackPack();
         backPack.config = config;
         backPack.oldData = new JsonObject();
         backPack.owner = player;
         backPack.itemStack = config.getItem().getItemStack().clone();
-        backPack.data = new BackPackData(backPack);
+        backPack.data = new NewBackPackData(backPack);
         backPack.nbtItem = new NBTItem(backPack.itemStack);
 
-        for (int i = 1; i < backPack.config.getPages() + 1; i++) {
-            Map<Integer, ItemStack> itemStackMap = new HashMap<>();
-            backPack.data.stored.put(i, itemStackMap);
-
-            for (int slot = 0; slot < config.getRows() * 9; slot++)
-                itemStackMap.put(slot, null);
+        if (config instanceof AdvancedBackPackConfig) {
+            backPack.lastRows = ((AdvancedBackPackConfig) config).getRows();
+            backPack.lastPages = ((AdvancedBackPackConfig) config).getPages();
         }
 
         backPack.updateNbt();
@@ -77,7 +77,7 @@ public class OldSBackPack implements BackPack {
     }
 
     @SneakyThrows
-    public OldSBackPack(@Nonnull ItemStack itemStack, Player player) {
+    public SBackPack(@Nonnull ItemStack itemStack, Player player) {
         this.owner = player;
         this.itemStack = itemStack;
         this.nbtItem = new NBTItem(itemStack);
@@ -100,20 +100,30 @@ public class OldSBackPack implements BackPack {
                 oldData = oldData.getAsJsonObject("global");
         }
 
-        data = new BackPackData(this);
+        data = new NewBackPackData(this);
         if (oldData != null)
             data.deserialize(new SerializedData(oldData));
         else
             oldData = new JsonObject();
 
-        config = SuperiorPrisonPlugin.getInstance().getBackPackController().getConfig(data.configId).orElseThrow(() -> new IllegalStateException("Failed to find backPack by id " + data.configId + " level " + data.level)).getByLevel(data.level);
-        data.updateInventoryData();
+        config = SuperiorPrisonPlugin.getInstance().getBackPackController().getConfig(data.getConfigId()).orElseThrow(() -> new IllegalStateException("Failed to find backPack by id " + data.getConfigId() + " level " + data.getLevel())).getByLevel(data.getLevel());
+        if (config instanceof AdvancedBackPackConfig) {
+            data.updateDataAdvanced(((AdvancedBackPackConfig) config).getRows(), ((AdvancedBackPackConfig) config).getRows(), ((AdvancedBackPackConfig) config).getPages(), ((AdvancedBackPackConfig) config).getPages());
+            lastPages = ((AdvancedBackPackConfig) config).getPages();
+            lastRows = ((AdvancedBackPackConfig) config).getRows();
+        } else
+            data.updateData();
+
         updateHash();
     }
 
     @Override
     public int getCapacity() {
-        return config.getPages() * (config.getRows() * 9 * 64);
+        return config.getCapacity();
+    }
+
+    public int getSlots() {
+        return getCapacity() / 64;
     }
 
     @Override
@@ -123,19 +133,20 @@ public class OldSBackPack implements BackPack {
 
     @Override
     public int getUsed() {
-        return getStored()
-                .stream()
-                .filter(Objects::nonNull)
-                .mapToInt(ItemStack::getAmount)
-                .sum();
+        int used = 0;
+        for (int i = 0; i < data.getStored().length; i++) {
+            ItemStack itemStack = data.getStored()[i];
+            if (itemStack == null) continue;
+
+            used += itemStack.getAmount();
+        }
+
+        return used;
     }
 
     @Override
     public List<ItemStack> getStored() {
-        Map<Integer, Map<Integer, ItemStack>> stored = data.getStored();
-        List<ItemStack> itemStacks = new ArrayList<>();
-        stored.values().forEach(map -> itemStacks.addAll(map.values()));
-        return itemStacks;
+        return Arrays.asList(data.getStored());
     }
 
     @Override
@@ -175,8 +186,8 @@ public class OldSBackPack implements BackPack {
 
     @Override
     public Map<ItemStack, Integer> add(ItemStack... itemStacks) {
-        OPair<Integer, Integer> firstEmpty = data.firstEmpty();
-        if (firstEmpty == null && getCapacity() == getUsed())
+        Optional<OPair<Integer, ItemStack>> firstNonNull = data.firstNonNull();
+        if (!firstNonNull.isPresent() && getCapacity() == getUsed())
             return Arrays.stream(itemStacks).collect(Collectors.toMap(item -> item, item -> 0));
 
         Map<ItemStack, Integer> addedItems = new HashMap<>();
@@ -185,9 +196,9 @@ public class OldSBackPack implements BackPack {
             int added = 0;
 
             while (itemStack.getAmount() != 0) {
-                OTriplePair<Integer, Integer, ItemStack> similar = data.findSimilar(itemStack, true);
-                if (similar != null) {
-                    ItemStack slotItem = similar.getThird();
+                Optional<OPair<Integer, ItemStack>> similar = data.findSimilar(itemStack, true);
+                if (similar.isPresent()) {
+                    ItemStack slotItem = similar.get().getSecond();
 
                     int currentAmount = slotItem.getAmount();
                     int canAdd = slotItem.getMaxStackSize() - currentAmount;
@@ -205,11 +216,11 @@ public class OldSBackPack implements BackPack {
                         added += canAdd;
                     }
                 } else {
-                    firstEmpty = data.firstEmpty();
-                    if (firstEmpty == null) break;
+                    Optional<OPair<Integer, ItemStack>> firstNonNull1 = data.firstNonNull();
+                    if (!firstNonNull.isPresent()) break;
 
                     added += itemStack.getAmount();
-                    data.setItem(firstEmpty.getFirst(), firstEmpty.getSecond(), itemStack.clone());
+                    data.setItem(firstNonNull.get().getFirst(), itemStack.clone());
                     itemStack.setAmount(0);
                 }
             }
@@ -225,15 +236,16 @@ public class OldSBackPack implements BackPack {
         for (ItemStack itemStack : itemStacks) {
             int startingAmount = itemStack.getAmount();
             int removed = 0;
-            while (itemStack.getAmount() > 0) {
-                OTriplePair<Integer, Integer, ItemStack> similar = data.findSimilar(itemStack, false);
-                if (similar == null) break;
 
-                ItemStack slotItem = similar.getThird();
+            while (itemStack.getAmount() > 0) {
+                Optional<OPair<Integer, ItemStack>> similar = data.findSimilar(itemStack, false);
+                if (!similar.isPresent()) break;
+
+                ItemStack slotItem = similar.get().getSecond();
                 if (slotItem.getAmount() == itemStack.getAmount()) {
                     removed += itemStack.getAmount();
                     itemStack.setAmount(0);
-                    data.setItem(similar.getFirst(), similar.getSecond(), null);
+                    data.setItem(similar.get().getFirst(), null);
 
                 } else if (slotItem.getAmount() > itemStack.getAmount()) {
                     int removing = slotItem.getAmount() - itemStack.getAmount();
@@ -243,7 +255,7 @@ public class OldSBackPack implements BackPack {
 
                 } else if (slotItem.getAmount() < itemStack.getAmount()) {
                     int canRemove = itemStack.getAmount() - slotItem.getAmount();
-                    data.setItem(similar.getFirst(), similar.getSecond(), null);
+                    data.setItem(similar.get().getFirst(), null);
 
                     itemStack.setAmount(canRemove);
                 }
@@ -270,8 +282,16 @@ public class OldSBackPack implements BackPack {
     @Override
     public void upgrade(int level) {
         config = config.getByLevel(level);
-        data.level = level;
-        data.updateInventoryData();
+        data.setLevel(level);
+
+        if (config instanceof AdvancedBackPackConfig) {
+            data.updateDataAdvanced(lastRows, ((AdvancedBackPackConfig) config).getRows(), lastPages, ((AdvancedBackPackConfig) config).getPages());
+            lastPages = ((AdvancedBackPackConfig) config).getPages();
+            lastRows = ((AdvancedBackPackConfig) config).getRows();
+
+        } else
+            data.updateData();
+
         save();
 
         if (currentView != null)

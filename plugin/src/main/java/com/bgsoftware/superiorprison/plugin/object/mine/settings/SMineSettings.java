@@ -10,7 +10,7 @@ import com.bgsoftware.superiorprison.plugin.menu.settings.impl.ResetTypeSetting;
 import com.bgsoftware.superiorprison.plugin.menu.settings.impl.ResetValueSetting;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.util.Attachable;
-import com.google.gson.annotations.SerializedName;
+import com.oop.datamodule.gson.annotations.SerializedName;
 import com.oop.datamodule.SerializableObject;
 import com.oop.datamodule.SerializedData;
 import lombok.AllArgsConstructor;

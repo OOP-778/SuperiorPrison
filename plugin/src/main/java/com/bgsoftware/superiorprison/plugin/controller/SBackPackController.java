@@ -4,7 +4,8 @@ import com.bgsoftware.superiorprison.api.controller.BackPackController;
 import com.bgsoftware.superiorprison.api.data.backpack.BackPack;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.config.backpack.AdvancedBackPackConfig;
-import com.bgsoftware.superiorprison.plugin.object.backpack.OldSBackPack;
+import com.bgsoftware.superiorprison.plugin.config.backpack.BackPackConfig;
+import com.bgsoftware.superiorprison.plugin.object.backpack.SBackPack;
 import com.oop.orangeengine.main.Engine;
 import com.oop.orangeengine.main.plugin.OComponent;
 import com.oop.orangeengine.nbt.NBTItem;
@@ -31,20 +32,20 @@ public class SBackPackController implements BackPackController, OComponent<Super
     @Override
     public BackPack getBackPack(@NonNull ItemStack itemStack, Player player) throws IllegalArgumentException {
         try {
-            OldSBackPack backPack = new OldSBackPack(itemStack, player);
+            SBackPack backPack = new SBackPack(itemStack, player);
             return backPack;
         } catch (Throwable throwable) {
             throw new IllegalStateException("Failed to get the backpack", throwable);
         }
     }
 
-    public Optional<AdvancedBackPackConfig> getConfig(String name) {
+    public Optional<BackPackConfig<?>> getConfig(String name) {
         return Optional.ofNullable(backpackConfigs.get(name));
     }
 
     @Override
     public boolean isPlayerBound() {
-        return false;
+        return playerBound;
     }
 
     @Override

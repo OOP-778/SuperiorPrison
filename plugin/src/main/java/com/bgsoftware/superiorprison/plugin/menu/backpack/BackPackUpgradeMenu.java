@@ -6,7 +6,7 @@ import com.bgsoftware.superiorprison.api.requirement.RequirementException;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.config.backpack.BackPackUpgrade;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
-import com.bgsoftware.superiorprison.plugin.object.backpack.OldSBackPack;
+import com.bgsoftware.superiorprison.plugin.object.backpack.SBackPack;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.util.TextUtil;
 import com.bgsoftware.superiorprison.plugin.util.menu.MenuAction;
@@ -19,9 +19,9 @@ import java.util.Optional;
 
 public class BackPackUpgradeMenu extends OMenu {
 
-    private OldSBackPack backPack;
+    private SBackPack backPack;
 
-    public BackPackUpgradeMenu(SPrisoner viewer, OldSBackPack backPack) {
+    public BackPackUpgradeMenu(SPrisoner viewer, SBackPack backPack) {
         super("backpackupgrade", viewer);
         this.backPack = backPack;
 

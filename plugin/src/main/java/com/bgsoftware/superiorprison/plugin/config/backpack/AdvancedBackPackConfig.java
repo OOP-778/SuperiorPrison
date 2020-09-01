@@ -30,4 +30,9 @@ public class AdvancedBackPackConfig extends BackPackConfig<AdvancedBackPackConfi
         clone.rows = rows;
         return clone;
     }
+
+    @Override
+    public int getCapacity() {
+        return rows * 9 * pages * 64;
+    }
 }

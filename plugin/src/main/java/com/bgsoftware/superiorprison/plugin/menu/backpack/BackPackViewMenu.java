@@ -1,11 +1,13 @@
 package com.bgsoftware.superiorprison.plugin.menu.backpack;
 
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
+import com.bgsoftware.superiorprison.plugin.config.backpack.AdvancedBackPackConfig;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.controller.ConfigController;
-import com.bgsoftware.superiorprison.plugin.object.backpack.OldSBackPack;
+import com.bgsoftware.superiorprison.plugin.object.backpack.SBackPack;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.util.menu.*;
+import com.google.common.base.Preconditions;
 import com.oop.orangeengine.yaml.Config;
 import lombok.Getter;
 import org.bukkit.Material;
@@ -21,12 +23,14 @@ import java.util.function.Function;
 @Getter
 public class BackPackViewMenu extends OPagedMenu<ItemStack> {
 
-    private OldSBackPack backPack;
+    private SBackPack backPack;
     private final OMenuButton[] top = new OMenuButton[9];
     private final OMenuButton[] bottom = new OMenuButton[9];
 
-    public BackPackViewMenu(SPrisoner viewer, OldSBackPack backPack) {
+    public BackPackViewMenu(SPrisoner viewer, SBackPack backPack) {
         super("backpackview", viewer);
+        Preconditions.checkArgument(backPack.getConfig() instanceof AdvancedBackPackConfig, "This menu only works on AdvancedBackPack!");
+
         this.backPack = backPack;
         backPack.setCurrentView(this);
 
@@ -51,7 +55,7 @@ public class BackPackViewMenu extends OPagedMenu<ItemStack> {
     }
 
     void initializeBackpack() {
-        int plus = (isEmpty(top) ? 0 : 1) + (isEmpty(bottom) ? 0 : 1) + backPack.getConfig().getRows();
+        int plus = (isEmpty(top) ? 0 : 1) + (isEmpty(bottom) ? 0 : 1) + ((AdvancedBackPackConfig) backPack.getConfig()).getRows();
         setMenuRows(Math.min(plus, 6));
 
         getItems().clear();
@@ -88,11 +92,13 @@ public class BackPackViewMenu extends OPagedMenu<ItemStack> {
         if (!isEmpty(bottom))
             contents = Arrays.copyOfRange(contents, 0, contents.length - 9);
 
-        Map<Integer, ItemStack> itemStackMap = backPack.getData().stored.get(page);
-        itemStackMap.clear();
-
+        int startingIndex = page == 1 ? 0 : page * 9;
+        System.out.println("starting slot: " + startingIndex);
         for (int i = 0; i < contents.length; i++) {
-            itemStackMap.put(i, contents[i]);
+            if (contents[i] != null)
+                System.out.println("Setting item at index " + startingIndex);
+            backPack.getData().setItem(startingIndex, contents[i]);
+            startingIndex++;
         }
     }
 
@@ -174,9 +180,7 @@ public class BackPackViewMenu extends OPagedMenu<ItemStack> {
     }
 
     @Override
-    public void handleDrag(InventoryDragEvent event) {
-
-    }
+    public void handleDrag(InventoryDragEvent event) {}
 
     private OMenuButton.ButtonItemBuilder getToggleableState(OMenuButton button, boolean state) {
         if (state)

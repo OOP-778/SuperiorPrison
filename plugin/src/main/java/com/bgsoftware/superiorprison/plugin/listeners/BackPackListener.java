@@ -3,7 +3,7 @@ package com.bgsoftware.superiorprison.plugin.listeners;
 import com.bgsoftware.superiorprison.api.data.backpack.BackPack;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.menu.backpack.BackPackViewMenu;
-import com.bgsoftware.superiorprison.plugin.object.backpack.OldSBackPack;
+import com.bgsoftware.superiorprison.plugin.object.backpack.SBackPack;
 import com.bgsoftware.superiorprison.plugin.util.PermUtil;
 import com.oop.orangeengine.main.events.SyncEvents;
 import com.oop.orangeengine.main.task.OTask;
@@ -28,7 +28,7 @@ public class BackPackListener {
             if (!SuperiorPrisonPlugin.getInstance().getBackPackController().isBackPack(itemStack)) return;
 
             event.setCancelled(true);
-            OldSBackPack backPack = (OldSBackPack) SuperiorPrisonPlugin.getInstance().getBackPackController().getBackPack(itemStack, event.getPlayer());
+            SBackPack backPack = (SBackPack) SuperiorPrisonPlugin.getInstance().getBackPackController().getBackPack(itemStack, event.getPlayer());
 
             event.getPlayer().getInventory().setItem(event.getPlayer().getInventory().first(event.getItem()), null);
 
@@ -58,7 +58,7 @@ public class BackPackListener {
                     .consumer(task -> {
                         System.out.println("Executed");
                         for (BackPack pack : SuperiorPrisonPlugin.getInstance().getBackPackController().findBackPacks(event.getPlayer())) {
-                            if (((OldSBackPack) pack).getData().firstEmpty() == null) {
+                            if (!((SBackPack) pack).getData().firstNonNull().isPresent()) {
                                 task.cancel();
                                 break;
                             }

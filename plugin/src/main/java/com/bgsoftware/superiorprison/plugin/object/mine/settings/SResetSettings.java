@@ -5,7 +5,7 @@ import com.bgsoftware.superiorprison.api.data.mine.settings.ResetType;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.util.Attachable;
 import com.bgsoftware.superiorprison.plugin.util.TimeUtil;
-import com.google.gson.JsonObject;
+import com.oop.datamodule.gson.JsonObject;
 import com.oop.datamodule.SerializableObject;
 import com.oop.datamodule.SerializedData;
 import com.oop.orangeengine.main.util.data.pair.OPair;

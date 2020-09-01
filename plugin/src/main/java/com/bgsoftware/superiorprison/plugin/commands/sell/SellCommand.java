@@ -6,7 +6,7 @@ import com.bgsoftware.superiorprison.plugin.commands.PermissionsInitializer;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.hook.impl.VaultHook;
 import com.bgsoftware.superiorprison.plugin.menu.SellMenu;
-import com.bgsoftware.superiorprison.plugin.object.backpack.OldSBackPack;
+import com.bgsoftware.superiorprison.plugin.object.backpack.SBackPack;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.google.common.collect.Sets;
 import com.oop.orangeengine.command.OCommand;
@@ -50,7 +50,7 @@ public class SellCommand extends OCommand {
 
                             // Backpack check
                             if (SuperiorPrisonPlugin.getInstance().getBackPackController().isBackPack(hand)) {
-                                OldSBackPack backPack = (OldSBackPack) SuperiorPrisonPlugin.getInstance().getBackPackController().getBackPack(hand, player);
+                                SBackPack backPack = (SBackPack) SuperiorPrisonPlugin.getInstance().getBackPackController().getBackPack(hand, player);
                                 if (!backPack.getData().isSell()) return;
 
                                 handleSell(backPack.getStored().stream().map(item -> new OPair<ItemStack, Runnable>(item, () -> backPack.remove(item))).collect(Collectors.toSet()), prisoner);
@@ -86,7 +86,7 @@ public class SellCommand extends OCommand {
 
                                 // Backpack check
                                 if (SuperiorPrisonPlugin.getInstance().getBackPackController().isBackPack(itemStack)) {
-                                    OldSBackPack backPack = (OldSBackPack) SuperiorPrisonPlugin.getInstance().getBackPackController().getBackPack(itemStack, player);
+                                    SBackPack backPack = (SBackPack) SuperiorPrisonPlugin.getInstance().getBackPackController().getBackPack(itemStack, player);
                                     if (!backPack.getData().isSell()) continue;
                                     items.addAll(backPack.getStored().stream().map(item -> new OPair<ItemStack, Runnable>(item, () -> backPack.remove(item))).collect(Collectors.toSet()));
                                     backpacks.add(backPack);

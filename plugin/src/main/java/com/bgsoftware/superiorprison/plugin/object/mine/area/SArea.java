@@ -8,7 +8,7 @@ import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.util.Attachable;
 import com.bgsoftware.superiorprison.plugin.util.SPLocation;
 import com.google.common.collect.Maps;
-import com.google.gson.JsonElement;
+import com.oop.datamodule.gson.JsonElement;
 import com.oop.datamodule.SerializableObject;
 import com.oop.datamodule.SerializedData;
 import com.oop.datamodule.util.DataUtil;

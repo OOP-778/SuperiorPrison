@@ -1,7 +1,7 @@
 package com.bgsoftware.superiorprison.plugin.config.backpack;
 
 import com.bgsoftware.superiorprison.plugin.object.backpack.BackPackData;
-import com.bgsoftware.superiorprison.plugin.object.backpack.OldSBackPack;
+import com.bgsoftware.superiorprison.plugin.object.backpack.SBackPack;
 import com.oop.orangeengine.item.custom.OItem;
 import com.oop.orangeengine.yaml.ConfigSection;
 import com.oop.orangeengine.yaml.ConfigValue;
@@ -88,13 +88,15 @@ public abstract class BackPackConfig<T extends BackPackConfig<T>> {
         return upgrades.keySet().stream().mapToInt(integer -> integer).max().orElse(1);
     }
 
-    public OldSBackPack build(Player player) {
-        return OldSBackPack.of((AdvancedBackPackConfig) this, player);
+    public SBackPack build(Player player) {
+        return SBackPack.of((AdvancedBackPackConfig) this, player);
     }
 
     public boolean hasUpgrade() {
         return upgrades.containsKey(level + 1);
     }
+
+    public abstract int getCapacity();
 
     protected void superClone(BackPackConfig backPackConfig) {
         backPackConfig.id = id;

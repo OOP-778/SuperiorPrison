@@ -1,8 +1,8 @@
 package com.bgsoftware.superiorprison.plugin.object.player.booster;
 
 import com.bgsoftware.superiorprison.api.data.player.booster.Booster;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.oop.datamodule.gson.JsonElement;
+import com.oop.datamodule.gson.JsonObject;
 import com.oop.datamodule.SerializableObject;
 import com.oop.datamodule.SerializedData;
 import lombok.AllArgsConstructor;

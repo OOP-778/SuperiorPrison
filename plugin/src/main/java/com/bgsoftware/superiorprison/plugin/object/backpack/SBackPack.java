@@ -4,18 +4,23 @@ import com.bgsoftware.superiorprison.api.data.backpack.BackPack;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.config.backpack.AdvancedBackPackConfig;
 import com.bgsoftware.superiorprison.plugin.config.backpack.BackPackConfig;
-import com.bgsoftware.superiorprison.plugin.menu.backpack.BackPackViewMenu;
+import com.bgsoftware.superiorprison.plugin.config.backpack.SimpleBackPackConfig;
+import com.bgsoftware.superiorprison.plugin.menu.backpack.AdvancedBackPackView;
+import com.bgsoftware.superiorprison.plugin.util.TextUtil;
 import com.bgsoftware.superiorprison.plugin.util.menu.OMenuButton;
 import com.google.common.base.Preconditions;
 import com.oop.datamodule.gson.JsonObject;
 import com.oop.datamodule.SerializedData;
 import com.oop.datamodule.StorageInitializer;
+import com.oop.orangeengine.item.custom.OItem;
 import com.oop.orangeengine.main.util.data.pair.OPair;
+import com.oop.orangeengine.material.OMaterial;
 import com.oop.orangeengine.nbt.NBTItem;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -32,7 +37,7 @@ public class SBackPack implements BackPack {
     private BackPackConfig<?> config;
 
     @Getter
-    private NewBackPackData data;
+    private BackPackData data;
     private NBTItem nbtItem;
     private ItemStack itemStack;
 
@@ -43,7 +48,7 @@ public class SBackPack implements BackPack {
 
     @Setter
     @Getter
-    private BackPackViewMenu currentView;
+    private AdvancedBackPackView currentView;
     private int hashcode;
 
     // Advanced Backpack Data
@@ -58,7 +63,7 @@ public class SBackPack implements BackPack {
         backPack.oldData = new JsonObject();
         backPack.owner = player;
         backPack.itemStack = config.getItem().getItemStack().clone();
-        backPack.data = new NewBackPackData(backPack);
+        backPack.data = new BackPackData(backPack);
         backPack.nbtItem = new NBTItem(backPack.itemStack);
 
         if (config instanceof AdvancedBackPackConfig) {
@@ -100,7 +105,7 @@ public class SBackPack implements BackPack {
                 oldData = oldData.getAsJsonObject("global");
         }
 
-        data = new NewBackPackData(this);
+        data = new BackPackData(this);
         if (oldData != null)
             data.deserialize(new SerializedData(oldData));
         else
@@ -123,7 +128,7 @@ public class SBackPack implements BackPack {
     }
 
     public int getSlots() {
-        return getCapacity() / 64;
+        return config.getCapacity() / 64;
     }
 
     @Override
@@ -155,8 +160,34 @@ public class SBackPack implements BackPack {
     }
 
     public void updateNbt() {
-        this.nbtItem = new NBTItem(new OMenuButton.ButtonItemBuilder(config.getItem().makeUnstackable())
-                .getItemStackWithPlaceholdersMulti(this));
+        OItem oItem = config.getItem().clone().makeUnstackable();
+        List<String> oldLore = oItem.getLore();
+        List<String> newLore = new ArrayList<>();
+
+        for (String line : oldLore) {
+            if (line.startsWith("{item_template}")) {
+                line = line.replace("{item_template}", "");
+                Map<OMaterial, Integer> contents = new HashMap<>();
+                for (ItemStack stack : data.getStored()) {
+                    if (stack == null || stack.getType() == Material.AIR) continue;
+                    OMaterial oMaterial = OMaterial.matchMaterial(stack);
+                    contents.putIfAbsent(oMaterial, 0);
+                    contents.computeIfPresent(oMaterial, (oldValue, newValue) -> newValue + stack.getAmount());
+                }
+
+                String finalLine = line;
+                contents.forEach((material, amount) -> {
+                    newLore.add(finalLine.replace("{item_type}", TextUtil.beautify(material.name())).replace("{item_amount}", amount + ""));
+                });
+            } else
+                newLore.add(line);
+        }
+
+        oItem.setLore(newLore);
+        oItem.replace("{backpack_level}", getCurrentLevel());
+        oItem.replace("{backpack_capacity}", getCapacity());
+        oItem.replace("{backpack_used}", getUsed());
+        this.nbtItem = new NBTItem(oItem.getItemStack());
     }
 
     @Override
@@ -198,30 +229,65 @@ public class SBackPack implements BackPack {
             while (itemStack.getAmount() != 0) {
                 Optional<OPair<Integer, ItemStack>> similar = data.findSimilar(itemStack, true);
                 if (similar.isPresent()) {
+                    // We have to check if backpack can fit more :)
+                    int backpackCanAdd = getCapacity() - getUsed();
+                    if (backpackCanAdd <= 0) break;
+
+                    ItemStack itemClone = itemStack.clone();
+                    if (backpackCanAdd < itemStack.getAmount()) {
+                        itemClone.setAmount(backpackCanAdd);
+                    }
+
                     ItemStack slotItem = similar.get().getSecond();
 
                     int currentAmount = slotItem.getAmount();
                     int canAdd = slotItem.getMaxStackSize() - currentAmount;
 
-                    if (canAdd >= itemStack.getAmount()) {
-                        slotItem.setAmount(slotItem.getAmount() + itemStack.getAmount());
-                        added += itemStack.getAmount();
-                        itemStack.setAmount(0);
+                    if (canAdd >= itemClone.getAmount()) {
+                        slotItem.setAmount(slotItem.getAmount() + itemClone.getAmount());
+                        added += itemClone.getAmount();
+                        itemStack.setAmount(itemStack.getAmount() - itemClone.getAmount());
                         break;
 
                     } else {
-                        int adding = itemStack.getAmount() - canAdd;
+                        int adding = itemClone.getAmount() - canAdd;
                         slotItem.setAmount(slotItem.getAmount() + adding);
-                        itemStack.setAmount(adding);
+                        if (itemClone.getAmount() == itemStack.getAmount())
+                            itemStack.setAmount(adding);
+                        else
+                            itemStack.setAmount(itemStack.getAmount() - canAdd);
                         added += canAdd;
                     }
-                } else {
-                    Optional<OPair<Integer, ItemStack>> firstNonNull1 = data.firstNonNull();
-                    if (!firstNonNull.isPresent()) break;
 
-                    added += itemStack.getAmount();
-                    data.setItem(firstNonNull.get().getFirst(), itemStack.clone());
-                    itemStack.setAmount(0);
+                } else {
+                    Optional<OPair<Integer, ItemStack>> firstNull = data.firstNull();
+                    if (!firstNull.isPresent()) {
+                        if (!(config instanceof SimpleBackPackConfig)) break;
+                        // Check how much we can still add
+
+                        int canFit = getCapacity() - getUsed();
+                        if (canFit <= 0) break;
+
+                        int i = data.allocateMore();
+                        if (canFit > itemStack.getAmount()) {
+                            added += itemStack.getAmount();
+                            data.setItem(i, itemStack.clone());
+                            itemStack.setAmount(0);
+
+                        } else {
+                            int adding = itemStack.getAmount() - canFit;
+                            ItemStack sloItem = itemStack.clone();
+                            sloItem.setAmount(adding);
+                            data.setItem(i, sloItem);
+
+                            itemStack.setAmount(itemStack.getAmount() - adding);
+                            added += adding;
+                        }
+                    } else {
+                        added += itemStack.getAmount();
+                        data.setItem(firstNull.get().getFirst(), itemStack.clone());
+                        itemStack.setAmount(0);
+                    }
                 }
             }
             if (added != startingAmount)
@@ -232,6 +298,9 @@ public class SBackPack implements BackPack {
 
     @Override
     public Map<ItemStack, Integer> remove(ItemStack... itemStacks) {
+        if (getUsed() == 0)
+            return Arrays.stream(itemStacks).collect(Collectors.toMap(item -> item, item -> 0));
+
         Map<ItemStack, Integer> removedItems = new HashMap<>();
         for (ItemStack itemStack : itemStacks) {
             int startingAmount = itemStack.getAmount();
@@ -252,6 +321,8 @@ public class SBackPack implements BackPack {
                     removed = itemStack.getAmount();
                     slotItem.setAmount(removing);
                     itemStack.setAmount(0);
+                    if (slotItem.getAmount() == 0)
+                        data.setItem(similar.get().getFirst(), null);
 
                 } else if (slotItem.getAmount() < itemStack.getAmount()) {
                     int canRemove = itemStack.getAmount() - slotItem.getAmount();

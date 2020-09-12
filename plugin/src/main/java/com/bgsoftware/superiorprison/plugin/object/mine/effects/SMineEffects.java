@@ -2,7 +2,9 @@ package com.bgsoftware.superiorprison.plugin.object.mine.effects;
 
 import com.bgsoftware.superiorprison.api.data.mine.effects.MineEffect;
 import com.bgsoftware.superiorprison.api.data.mine.effects.MineEffects;
+import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
+import com.bgsoftware.superiorprison.plugin.object.mine.linkable.LinkableObject;
 import com.bgsoftware.superiorprison.plugin.util.Attachable;
 import com.oop.datamodule.gson.JsonArray;
 import com.oop.datamodule.gson.JsonElement;
@@ -19,7 +21,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-public class SMineEffects implements MineEffects, SerializableObject, Attachable<SNormalMine> {
+public class SMineEffects implements MineEffects, SerializableObject, Attachable<SNormalMine>, LinkableObject<SMineEffects> {
 
     @Getter
     private SNormalMine mine;
@@ -34,6 +36,7 @@ public class SMineEffects implements MineEffects, SerializableObject, Attachable
     @Override
     public void remove(MineEffect effect) {
         effects.remove(effect.getType());
+        mine.getLinker().call(this);
     }
 
     @Override
@@ -43,6 +46,8 @@ public class SMineEffects implements MineEffects, SerializableObject, Attachable
 
     public void add(SMineEffect effect) {
         effects.put(effect.getType(), effect);
+        mine.getLinker().call(this);
+        reapplyEffects();
     }
 
     @Override
@@ -102,11 +107,51 @@ public class SMineEffects implements MineEffects, SerializableObject, Attachable
     @Override
     public void clear() {
         effects.clear();
+        mine.getLinker().call(this);
+        reapplyEffects();
     }
 
     public void addAll(Collection<MineEffect> effects) {
-        for (MineEffect effect : effects) {
+        for (MineEffect effect : effects)
             this.effects.put(effect.getType(), (SMineEffect) effect);
+        mine.getLinker().call(this);
+        reapplyEffects();
+    }
+
+    @Override
+    public void onChange(SMineEffects from) {
+        this.effects.clear();
+        this.effects.putAll(from.effects);
+        reapplyEffects();
+    }
+
+    @Override
+    public String getLinkId() {
+        return "effects";
+    }
+
+    @Override
+    public void reapplyEffects() {
+        clearEffects();
+        effects.values().stream().map(SMineEffect::create).forEach(effect -> {
+            for (Prisoner prisoner : mine.getPrisoners()) {
+                if (prisoner.isOnline()) {
+                    prisoner.getPlayer().addPotionEffect(effect);
+                }
+            }
+        });
+    }
+
+    @Override
+    public void clearEffects() {
+        for (PotionEffectType value : PotionEffectType.values()) {
+            if (value == null) continue;
+
+            for (Prisoner prisoner : mine.getPrisoners()) {
+                if (prisoner.isOnline()) {
+                    prisoner.getPlayer().removePotionEffect(value);
+                }
+            }
         }
     }
 }

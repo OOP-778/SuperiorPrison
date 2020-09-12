@@ -7,6 +7,7 @@ import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.util.SPair;
 import com.bgsoftware.superiorprison.plugin.util.menu.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.math.BigDecimal;
@@ -56,5 +57,13 @@ public class SellMenu extends OMenu {
     @Override
     public void handleBottomClick(InventoryClickEvent event) {
 
+    }
+
+    @Override
+    public void closeInventory(InventoryCloseEvent event) {
+        super.closeInventory(event);
+
+        for (SPair<Integer, ItemStack> bukkitItem : getBukkitItems(event.getInventory()))
+            event.getView().getPlayer().getInventory().addItem(bukkitItem.getValue());
     }
 }

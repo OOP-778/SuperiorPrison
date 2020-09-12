@@ -5,6 +5,7 @@ import lombok.NonNull;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.List;
 import java.util.Set;
 
 public interface BackPackController {
@@ -22,5 +23,5 @@ public interface BackPackController {
     boolean isPlayerBound();
 
     // Find all the backpacks inside player inventory
-    Set<BackPack> findBackPacks(Player player);
+    List<BackPack> findBackPacks(Player player);
 }

@@ -4,7 +4,7 @@ import java.time.ZonedDateTime;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-public interface ResetSettings {
+public interface ResetSettings extends Cloneable {
 
     // Get reset type (either percentage or timed)
     ResetType getType();
@@ -25,6 +25,8 @@ public interface ResetSettings {
     default boolean isTimed() {
         return getType() == ResetType.TIMED;
     }
+
+    ResetSettings clone();
 
     default <T extends ResetSettings> T as(Class<T> type) {
         return getClass().isAssignableFrom(type) ? (T) this : Objects.requireNonNull(null, "Tried to get reset settings as " + type.getSimpleName() + ", but it's not instance of " + type.getSimpleName() + ".");

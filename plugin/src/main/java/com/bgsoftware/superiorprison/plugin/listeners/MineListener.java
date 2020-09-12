@@ -24,6 +24,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
@@ -163,7 +164,6 @@ public class MineListener {
             // Checking if mine exists at event#getTo()
             SuperiorPrisonPlugin.getInstance().getMineController().getMineAt(event.getTo()).ifPresent(mine -> {
                 if (!mine.canEnter(prisoner)) {
-                    // TODO: Message
                     return;
                 }
 
@@ -187,6 +187,18 @@ public class MineListener {
                         .replace("{rank}", event.getMine().getRanksMapped().stream().filter(rank -> rank instanceof LadderRank).map(rank -> (LadderRank) rank).min(Comparator.comparingInt(LadderRank::getOrder)).map(Rank::getName).orElse("None"))
                         .send(event.getPrisoner().getPlayer());
             }
+        });
+
+        SyncEvents.listen(EntitySpawnEvent.class, EventPriority.LOWEST, event -> {
+            if (event.getEntity() instanceof Player) return;
+
+            // World check
+            Set<String> worldNames = mineHolder.getMinesWorlds();
+            if (!worldNames.contains(event.getEntity().getWorld().getName()))
+                return;
+
+            if (mineHolder.getMineAt(event.getLocation()).isPresent())
+                event.setCancelled(true);
         });
     }
 }

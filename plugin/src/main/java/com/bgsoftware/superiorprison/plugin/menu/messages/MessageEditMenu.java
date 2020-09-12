@@ -49,6 +49,7 @@ public class MessageEditMenu extends OMenu {
 
                                 message.setInterval(input);
                                 messages.getMine().save(true);
+                                messages.getMine().getLinker().call(messages);
                                 obj.cancel();
                             })
                             .listen();
@@ -139,6 +140,7 @@ public class MessageEditMenu extends OMenu {
                         messageBuilder(LocaleEnum.EDIT_MESSAGE_SAVE.getWithPrefix()).replace(message).send(player);
                         messages.getMine().save(true);
                         refresh();
+                        messages.getMine().getLinker().call(messages);
                         cancel.set(true);
                     });
 

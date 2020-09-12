@@ -90,7 +90,7 @@ public class SMineHolder extends UniversalDataHolder<String, SNormalMine> implem
         if (mines != null) return mines;
 
         mines = stream()
-                .filter(mine -> prisoner.getPlayer().hasPermission("prison.admin.editmine") || (mine.canEnter(prisoner) && mine.getSettings().isTeleporation()))
+                .filter(mine -> prisoner.getPlayer().hasPermission("prison.admin.editmine") || (mine.canEnter(prisoner) && mine.getSettings().isTeleportation()))
                 .sorted(Comparator.comparing(SNormalMine::getName))
                 .collect(Collectors.toList());
         minesCache.put(prisoner.getUUID(), mines);
@@ -120,15 +120,5 @@ public class SMineHolder extends UniversalDataHolder<String, SNormalMine> implem
         }
 
         return data;
-    }
-
-    @Override
-    protected void onAdd(SNormalMine sNormalMine) {
-
-    }
-
-    @Override
-    protected void onRemove(SNormalMine sNormalMine) {
-
     }
 }

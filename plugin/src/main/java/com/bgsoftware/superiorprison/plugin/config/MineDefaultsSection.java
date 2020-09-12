@@ -24,11 +24,17 @@ public class MineDefaultsSection extends SectionWrapper {
 
     private List<OPair<OMaterial, BigDecimal>> shopPrices;
 
+    private boolean teleporation = false;
+    private boolean disableEnderPearls = false;
+
     @Override
     protected void initialize() {
         ConfigSection section = getSection();
         this.icon = new OItem().load(section.getSection("icon").get());
         this.limit = section.getAs("limit");
+
+        section.ifValuePresent("teleporation", boolean.class, bool -> this.teleporation = bool);
+        section.ifValuePresent("disable enderpearls", boolean.class, bool -> this.disableEnderPearls = bool);
 
         ConfigSection resettingSection = section.getSection("resetting").get();
         this.resetting.set(ResetType.valueOf(resettingSection.getAs("mode", String.class).toUpperCase()), resettingSection.getAs("value"));

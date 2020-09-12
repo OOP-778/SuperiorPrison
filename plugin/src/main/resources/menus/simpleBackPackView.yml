@@ -1,0 +1,45 @@
+title: "&dBackPack ({backpack_level})"
+
+layout:
+  - "& & & & & & & & &"
+  - "& U & H & F & S &"
+  - "& & & & & & & & &"
+
+actions:
+  - "upgrade:U"
+  - "64 withdraw:H"
+  - "sellContentsFlag:S"
+  - "full withdraw:F"
+
+buttons:
+  "U":
+    material: diamond
+    display name: "&dUpgrade"
+    lore:
+      - "&7Click to view upgrades!"
+
+  "H":
+    material: chest_minecart
+    display name: "&dWithdraw 64"
+    lore:
+      - "&7Click to withdraw 64 items!"
+
+  "F":
+    material: hopper_minecart
+    display name: "&dFull Withdraw"
+    lore:
+      - "&7Click to withdraw full inventory"
+
+  "S":
+    enabled:
+      material: comparator
+      display name: "&cSell Contents Option"
+      lore:
+        - "&cCurrently will sell contents when"
+        - "&cSell command is used"
+    disabled:
+      material: comparator
+      display name: "&cSell Contents Option"
+      lore:
+        - "&cCurrently will not sell contents when"
+        - "&cSell command is used"

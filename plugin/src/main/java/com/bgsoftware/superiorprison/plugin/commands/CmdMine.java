@@ -1,6 +1,5 @@
 package com.bgsoftware.superiorprison.plugin.commands;
 
-import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
@@ -25,7 +24,7 @@ public class CmdMine extends OCommand {
                 return;
             }
 
-            if (!mine.getSettings().isTeleporation()) {
+            if (!mine.getSettings().isTeleportation()) {
                 messageBuilder(LocaleEnum.MINE_TELEPORTATION_DISABLED.getWithErrorPrefix())
                         .replace(mine)
                         .send(command);

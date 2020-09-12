@@ -8,10 +8,12 @@ import com.bgsoftware.superiorprison.plugin.hook.impl.VaultHook;
 import com.bgsoftware.superiorprison.plugin.menu.SellMenu;
 import com.bgsoftware.superiorprison.plugin.object.backpack.SBackPack;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
+import com.bgsoftware.superiorprison.plugin.util.TextUtil;
 import com.google.common.collect.Sets;
 import com.oop.orangeengine.command.OCommand;
 import com.oop.orangeengine.command.WrappedCommand;
 import com.oop.orangeengine.command.arg.arguments.PlayerArg;
+import com.oop.orangeengine.main.Helper;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import org.bukkit.Material;
 import org.bukkit.command.ConsoleCommandSender;
@@ -88,6 +90,7 @@ public class SellCommand extends OCommand {
                                 if (SuperiorPrisonPlugin.getInstance().getBackPackController().isBackPack(itemStack)) {
                                     SBackPack backPack = (SBackPack) SuperiorPrisonPlugin.getInstance().getBackPackController().getBackPack(itemStack, player);
                                     if (!backPack.getData().isSell()) continue;
+
                                     items.addAll(backPack.getStored().stream().map(item -> new OPair<ItemStack, Runnable>(item, () -> backPack.remove(item))).collect(Collectors.toSet()));
                                     backpacks.add(backPack);
                                 }
@@ -137,7 +140,7 @@ public class SellCommand extends OCommand {
 
         if (total.doubleValue() > 0) {
             messageBuilder(LocaleEnum.SOLD_EVERYTHING.getWithPrefix())
-                    .replace("{total}", total.toString())
+                    .replace("{total}", TextUtil.beautifyNumber(total))
                     .replace(prisoner)
                     .send(prisoner.getPlayer());
 

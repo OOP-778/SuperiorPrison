@@ -27,4 +27,10 @@ public interface MineEffects {
 
     // Clear all the effects
     void clear();
+
+    // Reapply all effects
+    void reapplyEffects();
+
+    // Clear all the effects from the prisoner
+    void clearEffects();
 }

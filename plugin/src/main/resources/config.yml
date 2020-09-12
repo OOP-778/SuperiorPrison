@@ -56,6 +56,12 @@ mine defaults:
   # How much prisoners can a mine hold at a time? For no limit -1
   limit: -1
 
+  # Is teleportation to the mine enabled?
+  teleporation: true
+
+  # Is enderpearls disabled?
+  disable enderpearls: true
+
   # How resetting works?
   resetting:
 
@@ -108,3 +114,11 @@ rankup message interval: "6s"
 
 # Should it use mine shop of the current rank of the player
 use mine shops by rank: false
+
+# Disable interactable blocks
+disable interactable blocks:
+  - "CRAFTING_TABLE"
+  - "CHEST"
+  - "BREWING_STAND"
+  - "ANVIL"
+  - "ITEM_FRAME"

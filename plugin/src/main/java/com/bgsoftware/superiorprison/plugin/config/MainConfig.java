@@ -3,12 +3,17 @@ package com.bgsoftware.superiorprison.plugin.config;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.util.TimeUtil;
 import com.bgsoftware.superiorprison.plugin.util.configwrapper.ConfigWrapper;
+import com.google.common.collect.Lists;
 import com.oop.orangeengine.file.OFile;
 import com.oop.orangeengine.item.custom.OItem;
+import com.oop.orangeengine.material.OMaterial;
 import com.oop.orangeengine.yaml.Config;
 import lombok.Getter;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Getter
 public class MainConfig extends ConfigWrapper {
@@ -30,8 +35,9 @@ public class MainConfig extends ConfigWrapper {
     private ProgressionScaleSection scaleSection;
 
     private PrisonerDefaults prisonerDefaults;
-
     private TopSystemsSection topSystemsSection;
+
+    private List<OMaterial> disabledInteractableBlocks = new ArrayList<>();
 
     public MainConfig() {
         load();
@@ -64,6 +70,11 @@ public class MainConfig extends ConfigWrapper {
         rankupMessageInterval = TimeUtil.toSeconds(configuration.getAs("rankup message interval", String.class, () -> "6s", "How often it should check the rankup"));
         resetRanks = configuration.getAs("reset ranks after prestige up", boolean.class, () -> false, "Should it reset the ranks after prestige");
         useMineShopsByRank = configuration.getAs("use mine shops by rank", boolean.class, () -> false, "Should it use mine shop of the current rank of the player");
+        disabledInteractableBlocks = (List<OMaterial>) configuration
+                .getAs("disabled interactable blocks", List.class, () -> Lists.newArrayList("CRAFTING_TABLE", "ANVIL", "CHEST", "ITEM_FRAME"), "Disable interactable blocks")
+                .stream()
+                .map(ob -> OMaterial.matchMaterial(ob.toString()))
+                .collect(Collectors.toList());
 
         scaleSection = new ProgressionScaleSection(configuration.getSection("progression scale").get());
 

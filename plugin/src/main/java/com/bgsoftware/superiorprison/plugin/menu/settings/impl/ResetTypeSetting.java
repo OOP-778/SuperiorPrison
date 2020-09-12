@@ -20,6 +20,7 @@ public class ResetTypeSetting extends SettingsObject<ResetType> {
         completeMessage(LocaleEnum.EDIT_SETTINGS_RESET_TYPE_SUCCESS.getWithPrefix());
         onComplete(type -> {
             settings.setResetType(type);
+            settings.getMine().getLinker().call(settings);
             settings.getMine().save(true);
         });
     }

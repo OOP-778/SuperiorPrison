@@ -122,6 +122,8 @@ public abstract class OMenu implements InventoryHolder {
         }
 
         try {
+            if (title.length() > 32)
+                title = title.substring(0, 32);
             Inventory inventory = Bukkit.createInventory(this, menuRows * 9, title);
             Object[] finalObjects = objects;
             fillerItems.forEach((slot, button) -> {
@@ -168,7 +170,9 @@ public abstract class OMenu implements InventoryHolder {
     }
 
     protected void executeAction(MenuAction action, Runnable callback) {
-        if (currentAction != null) return;
+        if (currentAction != null)
+            return;
+
         if (action == MenuAction.REFRESH) {
             currentAction = action;
             open(this, () -> {

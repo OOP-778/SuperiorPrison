@@ -1,4 +1,4 @@
-title: "&dEditing &5{mine_name} -> {area_name}&d flags!"
+title: "&d&l{mine_name} &8&l> Flags: &5{area_name}"
 
 layout:
   - "$ $ $ $ $ $ $ $ $"

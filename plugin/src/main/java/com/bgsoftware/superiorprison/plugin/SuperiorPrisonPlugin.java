@@ -2,6 +2,7 @@ package com.bgsoftware.superiorprison.plugin;
 
 import com.bgsoftware.superiorprison.api.SuperiorPrison;
 import com.bgsoftware.superiorprison.api.SuperiorPrisonAPI;
+import com.bgsoftware.superiorprison.api.controller.StatisticsController;
 import com.bgsoftware.superiorprison.plugin.commands.CommandsRegister;
 import com.bgsoftware.superiorprison.plugin.config.MainConfig;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
@@ -13,6 +14,7 @@ import com.bgsoftware.superiorprison.plugin.hook.impl.PapiHook;
 import com.bgsoftware.superiorprison.plugin.hook.impl.ShopGuiPlusHook;
 import com.bgsoftware.superiorprison.plugin.hook.impl.VaultHook;
 import com.bgsoftware.superiorprison.plugin.listeners.*;
+import com.bgsoftware.superiorprison.plugin.mterics.Metrics;
 import com.bgsoftware.superiorprison.plugin.nms.SuperiorNms;
 import com.bgsoftware.superiorprison.plugin.requirement.RequirementRegisterer;
 import com.bgsoftware.superiorprison.plugin.tasks.TasksStarter;
@@ -26,6 +28,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.v1_12_R1.block.CraftSkull;
+
+import java.util.Comparator;
+import java.util.stream.Stream;
 
 @Getter
 public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison {
@@ -43,7 +48,6 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
     private HookController hookController;
     private SBackPackController backPackController;
     private DatabaseController databaseController;
-    private SStatisticHolder statisticsController;
     private ChatController chatController;
     private STopController topController;
     private SuperiorNms nms;
@@ -92,7 +96,6 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
                     .load();
 
             this.databaseController = new DatabaseController(mainConfig);
-            this.statisticsController = databaseController.getStatisticHolder();
             this.placeholderController = new PlaceholderController();
             this.topController = new STopController();
 
@@ -115,6 +118,8 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
                 getOLogger().printWarning("Version's Description: {}", Updater.getVersionDescription());
                 getOLogger().printWarning("");
             }
+
+            new Metrics(this);
         } catch (Throwable thrw) {
             throw new IllegalStateException("Failed to start SuperiorPrison", thrw);
         }
@@ -145,6 +150,11 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
     @Override
     public SPrisonerHolder getPrisonerController() {
         return databaseController.getPrisonerHolder();
+    }
+
+    @Override
+    public SStatisticHolder getStatisticsController() {
+        return databaseController.getStatisticHolder();
     }
 
     public boolean setupNms() {

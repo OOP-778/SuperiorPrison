@@ -1,7 +1,7 @@
 package com.bgsoftware.superiorprison.plugin.data;
 
 import com.bgsoftware.superiorprison.plugin.controller.DatabaseController;
-import com.oop.datamodule.StorageHolder;
+import com.bgsoftware.superiorprison.plugin.util.Removeable;
 import com.oop.datamodule.body.MultiTypeBody;
 import com.oop.datamodule.database.DatabaseWrapper;
 import com.oop.datamodule.database.types.MySqlDatabase;
@@ -39,16 +39,16 @@ public abstract class UniversalDataHolder<I, T extends MultiTypeBody> extends St
 
     @Override
     public void add(T object) {
-        classCache.add((Class<? extends T>) object.getClass());
-        dataMap.put(keyExtractor.apply(object), object);
-        save(object, true, null);
-        onAdd(object);
+        currentHolder.add(object);
     }
 
     @Override
     public void remove(T t) {
         dataMap.remove(keyExtractor.apply(t));
-        onRemove(t);
+        currentHolder.remove(t);
+
+        if (t instanceof Removeable)
+            ((Removeable) t).setRemoved(true);
     }
 
     @Override
@@ -86,13 +86,14 @@ public abstract class UniversalDataHolder<I, T extends MultiTypeBody> extends St
     }
 
     @Override
-    protected void onAdd(T t) {
-
+    protected void onAdd(T object) {
+        classCache.add((Class<? extends T>) object.getClass());
+        dataMap.put(keyExtractor.apply(object), object);
     }
 
     @Override
-    protected void onRemove(T t) {
-
+    protected void onRemove(T object) {
+        dataMap.remove(keyExtractor.apply(object));
     }
 
     @Getter
@@ -171,12 +172,12 @@ public abstract class UniversalDataHolder<I, T extends MultiTypeBody> extends St
 
         @Override
         protected void onAdd(T t) {
-            parent.add(t);
+            parent.onAdd(t);
         }
 
         @Override
         protected void onRemove(T t) {
-            parent.remove(t);
+            parent.onRemove(t);
         }
 
         @Override
@@ -212,12 +213,12 @@ public abstract class UniversalDataHolder<I, T extends MultiTypeBody> extends St
 
         @Override
         protected void onAdd(T t) {
-            parent.add(t);
+            parent.onAdd(t);
         }
 
         @Override
         protected void onRemove(T t) {
-            parent.remove(t);
+            parent.onRemove(t);
         }
 
         @Override

@@ -2,6 +2,7 @@ package com.bgsoftware.superiorprison.plugin.commands.backpacks;
 
 import com.bgsoftware.superiorprison.plugin.commands.args.BackPackArg;
 import com.bgsoftware.superiorprison.plugin.config.backpack.AdvancedBackPackConfig;
+import com.bgsoftware.superiorprison.plugin.config.backpack.BackPackConfig;
 import com.bgsoftware.superiorprison.plugin.object.backpack.SBackPack;
 import com.oop.orangeengine.command.OCommand;
 import com.oop.orangeengine.command.arg.arguments.IntArg;
@@ -21,15 +22,15 @@ public class CmdGive extends OCommand {
 
         onCommand(command -> {
             Player receiver = command.getArgAsReq("player");
-            AdvancedBackPackConfig advancedBackPackConfig = command.getArgAsReq("backpack");
+            BackPackConfig<?> backPackConfig = command.getArgAsReq("backpack");
             int amount = command.getArg("amount").map(object -> (Integer) object).orElse(1);
             int level = command.getArg("level").map(object -> (Integer) object).orElse(1);
 
-            advancedBackPackConfig = advancedBackPackConfig.getByLevel(level);
-            AdvancedBackPackConfig finalAdvancedBackPackConfig = advancedBackPackConfig;
+            backPackConfig = backPackConfig.getByLevel(level);
+            BackPackConfig<?> finalBackPackConfig = backPackConfig;
             StaticTask.getInstance().ensureSync(() -> {
                 for (int i = 0; i < amount; i++) {
-                    SBackPack backpack = finalAdvancedBackPackConfig.build(receiver);
+                    SBackPack backpack = finalBackPackConfig.build(receiver);
                     backpack.save();
                     if (receiver.getInventory().firstEmpty() == -1)
                         receiver.getWorld().dropItem(receiver.getLocation(), backpack.getItem());

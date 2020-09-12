@@ -6,11 +6,11 @@ import com.bgsoftware.superiorprison.plugin.object.mine.settings.SMineSettings;
 
 public class MineTeleporationSetting extends SettingsObject<Boolean> {
     public MineTeleporationSetting(SMineSettings settings) {
-        super(Boolean.class, settings.isTeleporation());
-        requestMessage(LocaleEnum.EDIT_SETTINGS_LIMIT.getWithPrefix());
-        completeMessage(LocaleEnum.EDIT_SETTINGS_LIMIT_SUCCESS.getWithPrefix());
+        super(Boolean.class, settings.isTeleportation());
+        completeMessage(LocaleEnum.EDIT_SETTINGS_VALUE_SUCCESS.getWithPrefix());
         onComplete(teleportation -> {
-            settings.setTeleporation(teleportation);
+            settings.setTeleportation(teleportation);
+            settings.getMine().getLinker().call(settings);
             settings.getMine().save(true);
         });
         id("teleportation");

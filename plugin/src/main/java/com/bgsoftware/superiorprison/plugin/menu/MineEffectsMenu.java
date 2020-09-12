@@ -34,7 +34,7 @@ public class MineEffectsMenu extends OPagedMenu<PotionEffectType> implements OMe
                 .handle(event -> {
                     PotionEffectType potionType = requestObject(event.getRawSlot());
                     MineEffect mineEffect = effects.get(potionType).orElse(null);
-                    clearEffects();
+                    effects.clearEffects();
 
                     if (event.getClick().name().contains("LEFT")) {
                         // Increase
@@ -59,7 +59,7 @@ public class MineEffectsMenu extends OPagedMenu<PotionEffectType> implements OMe
                         effects.getMine().save(true);
                     }
 
-                    applyEffects();
+                    effects.reapplyEffects();
                 });
     }
 
@@ -102,27 +102,6 @@ public class MineEffectsMenu extends OPagedMenu<PotionEffectType> implements OMe
     @Override
     public OMenu getMenu() {
         return this;
-    }
-
-    public void clearEffects() {
-        PotionEffectType[] types = effects.get().stream().map(MineEffect::getType).toArray(PotionEffectType[]::new);
-        for (PotionEffectType type : types) {
-            for (Prisoner prisoner : effects.getMine().getPrisoners()) {
-                if (prisoner.isOnline()) {
-                    prisoner.getPlayer().removePotionEffect(type);
-                }
-            }
-        }
-    }
-
-    public void applyEffects() {
-        for (MineEffect mineEffect : effects.get()) {
-            for (Prisoner prisoner : effects.getMine().getPrisoners()) {
-                if (prisoner.isOnline()) {
-                    prisoner.getPlayer().addPotionEffect(((SMineEffect) mineEffect).create());
-                }
-            }
-        }
     }
 
     @Override

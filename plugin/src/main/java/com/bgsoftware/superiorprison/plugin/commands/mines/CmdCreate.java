@@ -126,15 +126,14 @@ public class CmdCreate extends OCommand {
                                     LocaleEnum.MINE_CREATE_POSITION_MUST_BE_WITHIN_REGION.getWithErrorPrefix().send(player);
                                     return;
                                 }
-                                spawnPos.set(new SPLocation(spawnEvent.getPlayer().getEyeLocation().add(0.5, 1.3, 0.5)));
+                                spawnPos.set(new SPLocation(spawnEvent.getPlayer().getEyeLocation().add(0.5, 0.8, 0.5)));
 
                                 new OTask()
                                         .delay(400)
                                         .runnable(() -> player.getInventory().setItemInHand(null))
                                         .execute();
 
-                                SNormalMine sNormalMine = new SNormalMine(mineName, regionPos1.get(), regionPos2.get(), minePos1.get(), minePos2.get());
-                                sNormalMine.setSpawnPoint(spawnPos.get());
+                                SNormalMine sNormalMine = new SNormalMine(mineName, regionPos1.get(), regionPos2.get(), minePos1.get(), minePos2.get(), spawnPos.get());
 
                                 messageBuilder(LocaleEnum.MINE_CREATE_SUCCESSFUL.getWithPrefix())
                                         .replace(sNormalMine)
@@ -142,7 +141,6 @@ public class CmdCreate extends OCommand {
 
                                 SuperiorPrisonPlugin.getInstance().getMineController().add(sNormalMine);
                                 creating.invalidate(player.getUniqueId());
-
                             },
                             new SubscriptionProperties<PlayerInteractEvent>()
                                     .timeOut(TimeUnit.MINUTES, 5)

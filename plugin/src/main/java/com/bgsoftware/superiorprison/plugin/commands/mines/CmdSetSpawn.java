@@ -18,7 +18,7 @@ public class CmdSetSpawn extends OCommand {
 
         onCommand(command -> {
             SNormalMine mine = command.getArgAsReq("mine");
-            mine.setSpawnPoint(new SPLocation(command.getSenderAsPlayer().getEyeLocation()));
+            mine.setSpawnPoint(new SPLocation(command.getSenderAsPlayer().getEyeLocation().add(0.5, 0.8, 0.5)));
             mine.save(true);
 
             messageBuilder(LocaleEnum.MINE_SET_SPAWN_POS.getWithPrefix())

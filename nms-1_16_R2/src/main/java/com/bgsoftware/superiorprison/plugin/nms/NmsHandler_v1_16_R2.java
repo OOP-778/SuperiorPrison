@@ -2,7 +2,6 @@ package com.bgsoftware.superiorprison.plugin.nms;
 
 import com.oop.orangeengine.material.OMaterial;
 import lombok.NonNull;
-import net.md_5.bungee.api.ChatMessageType;
 import net.minecraft.server.v1_16_R2.*;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -34,7 +33,6 @@ public class NmsHandler_v1_16_R2 implements SuperiorNms {
             }
         }catch (Exception ignored){}
     }
-
 
     @Override
     public void setBlock(@NonNull Chunk chunk, @NonNull Location location, @NonNull OMaterial material) {
@@ -69,7 +67,7 @@ public class NmsHandler_v1_16_R2 implements SuperiorNms {
 
             for (Location location : locs)
                 blocks.computeIfAbsent(location.getBlockY() >> 4, key -> createShortSet())
-                        .add((short) ((location.getBlockX() & 15) << 12 | (location.getBlockZ() & 15) << 8 | location.getBlockY()));
+                        .add((short) ((location.getBlockX() & 15) << 8 | (location.getBlockZ() & 15) << 4 | (location.getBlockY() & 15)));
 
             blocks.forEach((y, b) -> packets.add(
                     createMultiBlockChangePacket(

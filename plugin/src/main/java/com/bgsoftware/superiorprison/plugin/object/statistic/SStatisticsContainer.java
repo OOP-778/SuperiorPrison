@@ -4,21 +4,31 @@ import com.bgsoftware.superiorprison.api.data.statistic.StatisticsContainer;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.data.SStatisticHolder;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
+import com.bgsoftware.superiorprison.plugin.util.Removeable;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 import com.oop.datamodule.SerializedData;
 import com.oop.datamodule.body.MultiTypeBody;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Set;
 import java.util.UUID;
 
-public class SStatisticsContainer implements StatisticsContainer, MultiTypeBody {
+public class SStatisticsContainer implements StatisticsContainer, MultiTypeBody, Removeable {
 
     @Getter
     private UUID uuid;
 
     @Getter
+    @Setter
+    private boolean removed;
+
+    @Getter
     private SBlocksStatistic blocksStatistic = new SBlocksStatistic();
+
+    @Getter
+    private SPrisoner cachedPrisoner;
 
     private SStatisticsContainer() {}
 
@@ -28,9 +38,12 @@ public class SStatisticsContainer implements StatisticsContainer, MultiTypeBody 
     }
 
     public SPrisoner getPrisoner() {
-        return SuperiorPrisonPlugin.getInstance()
-                .getPrisonerController()
-                .getInsertIfAbsent(uuid);
+        if (cachedPrisoner == null)
+            cachedPrisoner = (SPrisoner) SuperiorPrisonPlugin.getInstance().getPrisonerController().getPrisoner(uuid).orElse(null);
+
+        Preconditions.checkArgument(cachedPrisoner != null, "Prisoner is invalid!");
+        Preconditions.checkArgument(!cachedPrisoner.isRemoved(), "Prisoner is invalid!");
+        return cachedPrisoner;
     }
 
     public Set<SStatistic> getAllStatistics() {
@@ -62,6 +75,7 @@ public class SStatisticsContainer implements StatisticsContainer, MultiTypeBody 
 
     @Override
     public void remove() {
+        removed = true;
         SuperiorPrisonPlugin.getInstance().getDatabaseController().getStorage(SStatisticHolder.class).remove(this);
     }
 

@@ -102,7 +102,7 @@ public class PlaceholderController {
         add(SMineTitleMessage.class, "{message_fadeOut}", SMineTitleMessage::getFadeOut);
 
         add(SettingsObject.class, "{setting_name}", SettingsObject::id);
-        add(SettingsObject.class, "{setting_value}", obj -> Helper.beautify(obj.currentValue()));
+        add(SettingsObject.class, "{setting_value}", obj -> TextUtil.beautify(obj.currentValue()));
 
         add(SBackPack.class, "{backpack_level}", SBackPack::getCurrentLevel);
         add(SBackPack.class, "{backpack_id}", SBackPack::getId);
@@ -111,7 +111,7 @@ public class PlaceholderController {
 
         add(TopTypeArg.TopType.class, "{top_type}", e -> StringUtils.capitalize(e.name().toLowerCase()));
         add(STopEntry.class, "{entry_position}", STopEntry::getPosition);
-        add(BlockTopEntry.class, "{entry_blocks}", entry -> entry.getObject().getTotal());
+        add(BlockTopEntry.class, "{entry_blocks}", entry -> TextUtil.beautifyNumber(entry.getObject().getTotal()));
         add(SPrestigeTopEntry.class, "{entry_prestige}", entry -> entry.getObject().getCurrentPrestige().get().getName());
     }
 

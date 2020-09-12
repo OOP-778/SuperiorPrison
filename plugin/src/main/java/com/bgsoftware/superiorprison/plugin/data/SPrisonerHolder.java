@@ -83,6 +83,13 @@ public class SPrisonerHolder extends UniversalDataHolder<UUID, SPrisoner> implem
     }
 
     @Override
+    public Stream<SPrisoner> stream() {
+        return super
+                .stream()
+                .filter(prisoner -> !prisoner.isRemoved());
+    }
+
+    @Override
     public Optional<Prisoner> getPrisoner(String username) {
         UUID uuid = usernameToUuidMap.get(username);
         if (uuid == null) {
@@ -101,11 +108,12 @@ public class SPrisonerHolder extends UniversalDataHolder<UUID, SPrisoner> implem
     public SPrisoner getInsertIfAbsent(Player player) {
         return getInsertIfAbsent(player.getUniqueId());
     }
-
+    
     private SPrisoner newPrisoner(SPrisoner prisoner) {
         add(prisoner);
         return prisoner;
     }
+
 
     public SPrisoner getInsertIfAbsent(UUID uuid) {
         Optional<Prisoner> optionalPrisoner = getPrisoner(uuid);
@@ -120,5 +128,15 @@ public class SPrisonerHolder extends UniversalDataHolder<UUID, SPrisoner> implem
 
     public Map<UUID, SPrisoner> getPrisonerMap() {
         return dataMap;
+    }
+
+    public void cleanInvalids() {
+        long start = System.currentTimeMillis();
+        long count = stream()
+                .filter(prisoner -> prisoner.getOfflinePlayer() == null || prisoner.getOfflinePlayer().getName() == null)
+                .peek(this::remove)
+                .count();
+
+        SuperiorPrisonPlugin.getInstance().getOLogger().print("Prisoner Invalidation DONE ({}) Took {}ms", count, (System.currentTimeMillis() - start));
     }
 }

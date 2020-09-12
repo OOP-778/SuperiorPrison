@@ -200,7 +200,6 @@ public class CommandHelper {
             OPair<ChatLine, LineContent> line1 = ((OChatMessage) message).findContent(content -> content.text().contains(identifier));
             if (line1.getFirst() == null) return null;
 
-
             ChatLine messageLine = line1.getFirst().clone();
             messageLine.removeContentIf(lineContent -> lineContent.text().contentEquals(line1.getSecond().text()));
 

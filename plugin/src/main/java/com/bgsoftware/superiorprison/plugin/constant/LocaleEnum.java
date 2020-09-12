@@ -46,8 +46,9 @@ public enum LocaleEnum {
     EDIT_SETTING_RESET_TYPE("Please write a reset type from given ones: Timed, Percentage"),
     EDIT_SETTINGS_RESET_TYPE_SUCCESS("Set the new reset type to {setting_value}"),
 
-    EDIT_SETTINGS_RESET_VALUE("Please write new {setting_name} for resetting"),
-    EDIT_SETTINGS_RESET_VALUE_SUCCESS("Set the {setting_name} to {setting_value}"),
+    EDIT_SETTINGS_VALUE("Please write new {setting_name} for resetting"),
+    EDIT_SETTINGS_VALUE_SUCCESS("Set the {setting_name} to {setting_value}"),
+
 
     EDIT_SETTINGS_ERROR("Error while editing setting {setting_name}: &c{error}"),
 
@@ -224,6 +225,7 @@ public enum LocaleEnum {
                             )
             )
     ),
+
     PRISONER_MAX_PRESTIGE("You have the highest prestige!"),
     PRISONER_OPTION_TOGGLE("You have {state} {option_name}"),
 
@@ -236,6 +238,9 @@ public enum LocaleEnum {
     MINE_MESSAGES_CREATE_TYPE("What type of message you want to create? Available: actionbar, title, chat"),
     MINE_MESSAGES_CREATE_INTERVAL("Now write interval of message. Example: 1h2m2s, 1m, 3s, 10m10s"),
     MINE_MESSAGES_CREATE_SUCCESS("Successfully create mine message of type {message_type}"),
+
+    MINE_LINK_SUCCESS("Linked {option} of {what} to {to}"),
+    MINE_UNLINK_SUCCESS("Unlinked {option} of {what} from {from}"),
 
     AUTO_PICKUP_PRISONER_INVENTORY_FULL("Your inventory is full!"),
     CANNOT_ENTER_MINE_MISSING_RANK("You cannot enter the mine! You're missing at least {rank}"),

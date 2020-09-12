@@ -3,6 +3,7 @@ package com.bgsoftware.superiorprison.plugin.object.mine.shop;
 import com.bgsoftware.superiorprison.api.data.mine.shop.MineShop;
 import com.bgsoftware.superiorprison.api.data.mine.shop.ShopItem;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
+import com.bgsoftware.superiorprison.plugin.object.mine.linkable.LinkableObject;
 import com.bgsoftware.superiorprison.plugin.util.Attachable;
 import com.oop.datamodule.SerializableObject;
 import com.oop.datamodule.SerializedData;
@@ -19,7 +20,7 @@ import java.util.Set;
 
 @EqualsAndHashCode
 @Getter
-public class SShop implements MineShop, Attachable<SNormalMine>, SerializableObject {
+public class SShop implements MineShop, Attachable<SNormalMine>, SerializableObject, LinkableObject<SShop> {
 
     private transient SNormalMine mine;
     private final Set<SShopItem> items = new OConcurrentSet<>();
@@ -47,16 +48,18 @@ public class SShop implements MineShop, Attachable<SNormalMine>, SerializableObj
         if (itemStack.getType() == Material.AIR) return;
 
         SShopItem shopItem = new SShopItem(itemStack, price);
-        items.add(shopItem);
+        addItem(shopItem);
     }
 
     public void addItem(SShopItem item) {
         items.add(item);
+        mine.getLinker().call(this);
     }
 
     @Override
     public void removeItem(ShopItem item) {
         items.remove(item);
+        mine.getLinker().call(this);
     }
 
     @Override
@@ -89,6 +92,17 @@ public class SShop implements MineShop, Attachable<SNormalMine>, SerializableObj
     public void deserialize(SerializedData serializedData) {
         serializedData.applyAsCollection("items")
                 .map(sd -> sd.applyAs(SShopItem.class))
-                .forEach(this::addItem);
+                .forEach(items::add);
+    }
+
+    @Override
+    public void onChange(SShop from) {
+        this.items.clear();
+        this.items.addAll(from.items);
+    }
+
+    @Override
+    public String getLinkId() {
+        return "shop";
     }
 }

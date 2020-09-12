@@ -1,6 +1,6 @@
 package com.bgsoftware.superiorprison.plugin.util.menu;
 
-import com.bgsoftware.superiorprison.plugin.menu.backpack.BackPackViewMenu;
+import com.bgsoftware.superiorprison.plugin.menu.backpack.AdvancedBackPackView;
 import com.google.common.collect.Maps;
 import com.oop.orangeengine.item.ItemBuilder;
 import com.oop.orangeengine.yaml.Config;
@@ -105,7 +105,7 @@ public class MenuLoader {
         return button;
     }
 
-    public static void loadBackPackMenu(Config config, BackPackViewMenu menu) {
+    public static void loadBackPackMenu(Config config, AdvancedBackPackView menu) {
         menu.setTitle(ChatColor.translateAlternateColorCodes('&', config.getAs("title")));
 
         List<String> layout = config.getAs("layout", List.class);

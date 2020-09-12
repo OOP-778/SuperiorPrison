@@ -16,7 +16,7 @@ public abstract class SMineMessage implements MineMessage, SerializableObject, C
 
     @Setter
     @Getter
-    private ZonedDateTime timeToRun;
+    private transient ZonedDateTime timeToRun;
 
     public SMineMessage(long interval) {
         this.interval = interval;

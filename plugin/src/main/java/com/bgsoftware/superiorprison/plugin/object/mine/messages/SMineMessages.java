@@ -2,6 +2,7 @@ package com.bgsoftware.superiorprison.plugin.object.mine.messages;
 
 import com.bgsoftware.superiorprison.api.data.mine.messages.*;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
+import com.bgsoftware.superiorprison.plugin.object.mine.linkable.LinkableObject;
 import com.bgsoftware.superiorprison.plugin.util.Attachable;
 import com.oop.datamodule.SerializableObject;
 import com.oop.datamodule.SerializedData;
@@ -11,7 +12,7 @@ import lombok.NonNull;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class SMineMessages implements MineMesssages, SerializableObject, Attachable<SNormalMine> {
+public class SMineMessages implements MineMesssages, SerializableObject, Attachable<SNormalMine>, LinkableObject<SMineMessages> {
 
     private final Map<Integer, SMineMessage> messages = new HashMap<>();
 
@@ -82,5 +83,16 @@ public class SMineMessages implements MineMesssages, SerializableObject, Attacha
     @Override
     public void attach(SNormalMine obj) {
         this.mine = obj;
+    }
+
+    @Override
+    public void onChange(SMineMessages from) {
+        messages.clear();
+        from.messages.forEach((key, message) -> messages.put(key, message.clone()));
+    }
+
+    @Override
+    public String getLinkId() {
+        return "messages";
     }
 }

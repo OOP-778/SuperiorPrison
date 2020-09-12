@@ -14,6 +14,8 @@ import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.data.SMineHolder;
 import com.bgsoftware.superiorprison.plugin.object.mine.area.SArea;
 import com.bgsoftware.superiorprison.plugin.object.mine.effects.SMineEffects;
+import com.bgsoftware.superiorprison.plugin.object.mine.linkable.LinkableObject;
+import com.bgsoftware.superiorprison.plugin.object.mine.linkable.ObjectLinker;
 import com.bgsoftware.superiorprison.plugin.object.mine.messages.SMineMessages;
 import com.bgsoftware.superiorprison.plugin.object.mine.settings.SMineSettings;
 import com.bgsoftware.superiorprison.plugin.object.mine.shop.SShop;
@@ -22,6 +24,7 @@ import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.object.player.rank.SLadderRank;
 import com.bgsoftware.superiorprison.plugin.object.player.rank.SSpecialRank;
 import com.bgsoftware.superiorprison.plugin.util.AccessUtil;
+import com.bgsoftware.superiorprison.plugin.util.Removeable;
 import com.bgsoftware.superiorprison.plugin.util.SPLocation;
 import com.bgsoftware.superiorprison.plugin.util.frameworks.Framework;
 import com.google.common.collect.Maps;
@@ -50,7 +53,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.type.NormalMine, Serializable, MultiTypeBody {
+public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.type.NormalMine, Serializable, MultiTypeBody, Removeable {
 
     private final Set<Prisoner> prisoners = ConcurrentHashMap.newKeySet();
 
@@ -87,13 +90,25 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
     private SMineMessages messages;
 
     private SPrestige highestPrestige;
+
     private SLadderRank highestRank;
+
     private Set<SpecialRank> specialRanks = new HashSet<>();
+
+    @Getter
+    private ObjectLinker linker = new ObjectLinker();
+
+    private Map<String, LinkableObject> linkableObjectMap = new HashMap<>();
+
+    @Getter
+    @Setter
+    private boolean removed = false;
 
     private SNormalMine() {}
 
-    public SNormalMine(@NonNull String name, @NonNull SPLocation regionPos1, @NonNull SPLocation regionPos2, @NonNull SPLocation minePos1, @NonNull SPLocation minePos2) {
+    public SNormalMine(@NonNull String name, @NonNull SPLocation regionPos1, @NonNull SPLocation regionPos2, @NonNull SPLocation minePos1, @NonNull SPLocation minePos2, @NonNull SPLocation spawnPoint) {
         this.name = name;
+        this.spawnPoint = spawnPoint;
         this.areas.put(AreaEnum.MINE, new SArea(minePos1, minePos2, AreaEnum.MINE));
         this.areas.put(AreaEnum.REGION, new SArea(regionPos1.y(0), regionPos2.y(255), AreaEnum.REGION));
         areas.values().forEach(area -> area.attach(this));
@@ -125,8 +140,12 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
         messages = new SMineMessages();
         messages.attach(this);
 
+        linker.attach(this);
+
         generator.reset();
         updateHighests();
+
+        initializeLinkableObjects();
     }
 
     @Override
@@ -385,7 +404,8 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
                 "icon",
                 "areas",
                 "effects",
-                "messages"
+                "messages",
+                "linker"
         };
     }
 
@@ -402,6 +422,7 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
         serializedData.write("icon", icon);
         serializedData.write("effects", effects);
         serializedData.write("messages", messages);
+        serializedData.write("linker", linker);
 
         JsonArray areasArray = new JsonArray();
         areas.forEach((key, value) -> {
@@ -466,11 +487,26 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
         if (getSettings().getResetSettings().isTimed())
             getGenerator().reset();
 
+        if (data.has("linker"))
+            linker = data.applyAs("linker", ObjectLinker.class);
+
+        linker.attach(this);
         updateHighests();
+
+        initializeLinkableObjects();
+    }
+
+    private void initializeLinkableObjects() {
+        getLinkableObjects().put("effects", effects);
+        getLinkableObjects().put("settings", settings);
+        getLinkableObjects().put("shop", shop);
+        getLinkableObjects().put("generator", generator);
+        getLinkableObjects().put("messages", messages);
     }
 
     @Override
     public void remove() {
+        removed = true;
         SuperiorPrisonPlugin.getInstance().getDatabaseController().getStorage(SMineHolder.class).remove(this);
     }
 
@@ -527,5 +563,9 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
     @Override
     public boolean hasPrestige(String name) {
         return prestiges.contains(name);
+    }
+
+    public Map<String, LinkableObject> getLinkableObjects() {
+        return linkableObjectMap;
     }
 }

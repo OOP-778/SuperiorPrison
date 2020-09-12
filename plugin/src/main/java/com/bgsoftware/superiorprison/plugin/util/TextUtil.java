@@ -2,13 +2,16 @@ package com.bgsoftware.superiorprison.plugin.util;
 
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.hook.impl.PapiHook;
+import com.google.gson.internal.Primitives;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.material.OMaterial;
 import lombok.NonNull;
 import org.bukkit.inventory.ItemStack;
 
+import java.text.NumberFormat;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -52,8 +55,13 @@ public class TextUtil {
     }
 
     public static String beautify(Object object) {
-        if (object instanceof Double || object.getClass() == double.class)
+        if (object == null) return "null";
+
+        if (Primitives.wrap(object.getClass()).isAssignableFrom(Number.class))
             return beautifyNumber(Double.parseDouble(object.toString()));
+
+        else if (Primitives.wrap(object.getClass()) == Boolean.class)
+            return (Boolean) object ? "true" : "false";
 
         else
             return beautify(object.toString());
@@ -75,10 +83,10 @@ public class TextUtil {
         if (stringD.contains(".")) {
             String[] split = stringD.split("\\.");
             for (char c : split[1].toCharArray())
-                if (c != '0') return stringD;
+                if (c != '0') return NumberFormat.getNumberInstance(Locale.US).format(Double.valueOf(stringD));
 
-            return stringD;
+            return NumberFormat.getNumberInstance(Locale.US).format(Integer.valueOf(split[0]));
         }
-        return stringD;
+        return NumberFormat.getNumberInstance(Locale.US).format(Integer.valueOf(stringD));
     }
 }

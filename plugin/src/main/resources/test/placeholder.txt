@@ -1,0 +1,6 @@
+Ranks/Prestiges expressions:
+- multiplier (value * value)
+- percentage (10% of value)
+- dividing (value / value)
+- adding (value + value)
+- removing (value - value)

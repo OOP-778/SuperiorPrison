@@ -12,4 +12,9 @@ public interface MineSettings {
     */
     ResetSettings getResetSettings();
 
+    // Check if teleporting is enabled
+    boolean isTeleportation();
+
+    // Check if enderpearls are disabled
+    boolean isDisableEnderPearls();
 }

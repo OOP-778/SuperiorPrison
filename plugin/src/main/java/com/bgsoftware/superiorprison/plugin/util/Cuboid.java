@@ -188,7 +188,6 @@ public class Cuboid {
     }
 
     private int convertToChunkDistance(Vector first, Vector second) {
-
         double distanceBetweenLocations = NumberConversions.square(first.getX() - second.getX()) + NumberConversions.square(first.getZ() - second.getZ());
         if (distanceBetweenLocations < 16)
             return 1;

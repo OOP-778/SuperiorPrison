@@ -99,6 +99,16 @@ buttons:
       lore:
         - "&d&l* &7Click to edit!"
 
+    option-linked:
+      material: minecart
+      display name: "&dLinked"
+      lore:
+        - "&7{option_name} is linked to"
+        - "&d{linked_mine_name} &7mine!"
+        - ""
+        - "&7In order to change the option"
+        - "&7You'll have to unlink!"
+
     soon:
       material: barrier
       display name: "&cSoon"

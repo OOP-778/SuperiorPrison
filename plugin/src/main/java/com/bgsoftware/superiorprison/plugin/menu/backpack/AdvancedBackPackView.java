@@ -21,13 +21,13 @@ import java.util.*;
 import java.util.function.Function;
 
 @Getter
-public class BackPackViewMenu extends OPagedMenu<ItemStack> {
+public class AdvancedBackPackView extends OPagedMenu<ItemStack> {
 
     private SBackPack backPack;
     private final OMenuButton[] top = new OMenuButton[9];
     private final OMenuButton[] bottom = new OMenuButton[9];
 
-    public BackPackViewMenu(SPrisoner viewer, SBackPack backPack) {
+    public AdvancedBackPackView(SPrisoner viewer, SBackPack backPack) {
         super("backpackview", viewer);
         Preconditions.checkArgument(backPack.getConfig() instanceof AdvancedBackPackConfig, "This menu only works on AdvancedBackPack!");
 
@@ -93,10 +93,7 @@ public class BackPackViewMenu extends OPagedMenu<ItemStack> {
             contents = Arrays.copyOfRange(contents, 0, contents.length - 9);
 
         int startingIndex = page == 1 ? 0 : page * 9;
-        System.out.println("starting slot: " + startingIndex);
         for (int i = 0; i < contents.length; i++) {
-            if (contents[i] != null)
-                System.out.println("Setting item at index " + startingIndex);
             backPack.getData().setItem(startingIndex, contents[i]);
             startingIndex++;
         }

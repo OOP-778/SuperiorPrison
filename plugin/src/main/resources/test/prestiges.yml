@@ -1,0 +1,43 @@
+mode:
+  # If mode is manual, you'll have to automatically put all the prestiges
+  # If the mode is automatic, prestiges will be generated for you
+  type: automatic
+
+  automatic:
+    limit: 200
+    prefix: "&8[&dP{prestige_level}"
+
+    # Requirements template for each prestige
+    requirements:
+      "rank requirement":
+        type: rank
+        value: "Z"
+
+      "block requirement":
+        type: blocks
+        value: "{1000 * %prestige_level%}"
+
+    permissions:
+      - "playervaults.level.%prestige_level%"
+
+    specific:
+      100:
+        commands:
+          - "message {player} You are half way to the max!"
+
+# < For manual mode>
+"1":
+  order: 1
+
+  requirements:
+    - "{RANK} C"
+    - "{ECO} 20000"
+
+  req:
+    rank:
+      type: rank
+      value: "C"
+
+    eco:
+      type: eco
+      value: 20000

@@ -26,6 +26,7 @@ public class SBlocksTopSystem extends STopSystem<SBlocksStatistic, BlockTopEntry
         return SuperiorPrisonPlugin.getInstance()
                 .getStatisticsController()
                 .stream()
+                .filter(container -> container.getPrisoner() != null)
                 .map(SStatisticsContainer::getBlocksStatistic);
     }
 

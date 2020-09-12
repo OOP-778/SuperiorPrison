@@ -40,6 +40,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerItemBreakEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
@@ -58,36 +59,43 @@ public class PrisonerListener {
 
     public PrisonerListener() {
         SyncEvents.listen(PlayerJoinEvent.class, event -> {
-            // Check for teleport!
-            SPrisoner prisoner = SuperiorPrisonPlugin.getInstance().getPrisonerController().getInsertIfAbsent(event.getPlayer());
-            if (prisoner.isLoggedOutInMine()) {
-                new OTask()
-                        .delay(1)
-                        .runnable(() -> {
-                            SuperiorPrisonPlugin.getInstance().getMineController()
-                                    .getMine(prisoner.getLogoutMine())
-                                    .map(SuperiorMine::getSpawnPoint)
-                                    .ifPresent(location -> Framework.FRAMEWORK.teleport(event.getPlayer(), location));
-                            prisoner.setLogoutMine(null);
-                        })
-                        .execute();
-            }
+            new OTask()
+                    .delay(TimeUnit.SECONDS, 1)
+                    .runnable(() -> {
+                        if (!event.getPlayer().isOnline()) return;
 
-            // Check for OP
-            if ((event.getPlayer().isOp() || event.getPlayer().hasPermission("prison.admin.updates")) && Updater.isOutdated()) {
-                event.getPlayer().sendMessage(" ");
-                event.getPlayer().sendMessage(Helper.color("&dA new update for SuperiorPrison is available!"));
-                event.getPlayer().sendMessage(Helper.color("&d&l* &7Version: &d" + Updater.getLatestVersion()));
-                event.getPlayer().sendMessage(Helper.color("&d&l* &7Description: &d" + Updater.getVersionDescription()));
-                event.getPlayer().sendMessage(" ");
-            }
+                        // Check for teleport!
+                        SPrisoner prisoner = SuperiorPrisonPlugin.getInstance().getPrisonerController().getInsertIfAbsent(event.getPlayer());
+                        if (prisoner.isLoggedOutInMine()) {
+                            new OTask()
+                                    .delay(1)
+                                    .runnable(() -> {
+                                        SuperiorPrisonPlugin.getInstance().getMineController()
+                                                .getMine(prisoner.getLogoutMine())
+                                                .map(SuperiorMine::getSpawnPoint)
+                                                .ifPresent(location -> Framework.FRAMEWORK.teleport(event.getPlayer(), location));
+                                        prisoner.setLogoutMine(null);
+                                    })
+                                    .execute();
+                        }
 
-            // Check for big boys
-            if (event.getPlayer().getUniqueId().toString().equals("45713654-41bf-45a1-aa6f-00fe6598703b") || event.getPlayer().getUniqueId().toString().equals("d4f30fc3-b65d-4a66-934a-1e6e4ec439d9")) {
-                StaticTask.getInstance().ensureSync(() -> {
-                    event.getPlayer().sendMessage(Helper.color("&8[&fSuperiorSeries&8] &7This server is using SuperiorPrison v" + SuperiorPrisonPlugin.getInstance().getDescription().getVersion()));
-                });
-            }
+                        // Check for OP
+                        if ((event.getPlayer().isOp() || event.getPlayer().hasPermission("prison.admin.updates")) && Updater.isOutdated()) {
+                            event.getPlayer().sendMessage(" ");
+                            event.getPlayer().sendMessage(Helper.color("&dA new update for SuperiorPrison is available!"));
+                            event.getPlayer().sendMessage(Helper.color("&d&l* &7Version: &d" + Updater.getLatestVersion()));
+                            event.getPlayer().sendMessage(Helper.color("&d&l* &7Description: &d" + Updater.getVersionDescription()));
+                            event.getPlayer().sendMessage(" ");
+                        }
+
+                        // Check for big boys
+                        if (event.getPlayer().getUniqueId().toString().equals("45713654-41bf-45a1-aa6f-00fe6598703b") || event.getPlayer().getUniqueId().toString().equals("d4f30fc3-b65d-4a66-934a-1e6e4ec439d9")) {
+                            StaticTask.getInstance().ensureSync(() -> {
+                                event.getPlayer().sendMessage(Helper.color("&8[&fSuperiorSeries&8] &7This server is using SuperiorPrison v" + SuperiorPrisonPlugin.getInstance().getDescription().getVersion()));
+                            });
+                        }
+                    })
+                    .execute();
         });
 
         SyncEvents.listen(EntityDamageEvent.class, event -> {
@@ -104,17 +112,17 @@ public class PrisonerListener {
         });
 
         SyncEvents.listen(PlayerQuitEvent.class, event -> {
-            SPrisoner prisoner = SuperiorPrisonPlugin.getInstance().getDatabaseController().getPrisonerHolder().getInsertIfAbsent(event.getPlayer());
+            SuperiorPrisonPlugin.getInstance().getDatabaseController().getPrisonerHolder().getPrisoner(event.getPlayer().getUniqueId()).map(prisoner -> (SPrisoner)prisoner).ifPresent(prisoner -> {
+                prisoner.getCurrentMine().ifPresent(mine -> {
+                    prisoner.setLogoutMine(mine.getKey().getName());
+                    prisoner.save(true);
 
-            prisoner.getCurrentMine().ifPresent(mine -> {
-                prisoner.setLogoutMine(mine.getKey().getName());
-                prisoner.save(true);
+                    prisoner.getCurrentMine().get().getKey().getPrisoners().remove(prisoner);
+                    prisoner.setCurrentMine(null);
+                });
 
-                prisoner.getCurrentMine().get().getKey().getPrisoners().remove(prisoner);
-                prisoner.setCurrentMine(null);
+                prisoner.clearCache();
             });
-
-            prisoner.clearCache();
         });
 
         SyncEvents.listen(BlockBreakEvent.class, EventPriority.LOWEST, event -> {
@@ -182,15 +190,24 @@ public class PrisonerListener {
                 Set<ItemStack> drops = new HashSet<>();
                 OItem tool = new OItem(player.getItemInHand());
 
+                BlockBreakEvent bouncedEvent = new BlockBreakEvent(event.getBlock(), event.getPrisoner().getPlayer());
+                ignoreEvents.put(bouncedEvent, true);
+
+                Bukkit.getPluginManager().callEvent(bouncedEvent);
+
+                if (bouncedEvent.isCancelled()) {
+                    event.getBlock().getDrops().clear();
+                    event.setCancelled(true);
+                    event.getBlock().setType(Material.AIR);
+                    return;
+                }
+
                 if (tool.hasEnchant(Enchantment.SILK_TOUCH))
                     drops.add(new ItemStack(event.getBlock().getType(), 1, event.getBlock().getData()));
 
                 else
                     drops.addAll(event.getBlock().getDrops(new ItemStack(tool.getItemStack())));
 
-                BlockBreakEvent bouncedEvent = new BlockBreakEvent(event.getBlock(), event.getPrisoner().getPlayer());
-                ignoreEvents.put(bouncedEvent, true);
-                Bukkit.getPluginManager().callEvent(bouncedEvent);
 
                 // Handle auto burn
                 if (prisoner.isAutoBurn()) {
@@ -247,7 +264,7 @@ public class PrisonerListener {
 
                 // Handle auto pickup
                 if (prisoner.isAutoPickup()) {
-                    Set<BackPack> backpacks = SuperiorPrisonPlugin.getInstance().getBackPackController().findBackPacks(player);
+                    List<BackPack> backpacks = SuperiorPrisonPlugin.getInstance().getBackPackController().findBackPacks(player);
                     for (BackPack backpack : backpacks) {
                         Map<ItemStack, Integer> add = backpack.add(drops.toArray(new ItemStack[0]));
 
@@ -284,20 +301,23 @@ public class PrisonerListener {
                 }
 
                 if (!player.hasPermission("prison.prisoner.ignoredurability")) {
-                    ItemStack itemInHand = event.getPrisoner().getPlayer().getItemInHand();
-                    int enchantmentLevel = itemInHand.getEnchantmentLevel(Enchantment.DURABILITY);
+                    int enchantmentLevel = tool.getEnchantLevel(Enchantment.DURABILITY);
                     if (enchantmentLevel != 0) {
                         double chance = (100 / enchantmentLevel + 1);
                         double generatedChance = ThreadLocalRandom.current().nextDouble(0, 100);
 
                         if (chance > generatedChance)
-                            itemInHand.setDurability((short) (itemInHand.getDurability() + 1));
+                            tool.setDurability((short) (tool.getDurability() + 1));
                     } else
-                        itemInHand.setDurability((short) (itemInHand.getDurability() + 1));
-                }
+                        tool.setDurability((short) (tool.getDurability() + 1));
 
-                if (!bouncedEvent.isCancelled())
-                    drops.forEach(item -> event.getBlock().getLocation().getWorld().dropItem(event.getBlock().getLocation().add(0.5, 0, 0.5), item));
+                    if (tool.getDurability() == tool.getMaterial().getMaxDurability()) {
+                        player.setItemInHand(null);
+                    }
+                } else
+                    tool.setDurability(0);
+
+                drops.forEach(item -> event.getBlock().getLocation().getWorld().dropItem(event.getBlock().getLocation().add(0.5, 0, 0.5), item));
 
                 event.getBlock().getDrops().clear();
                 event.setCancelled(true);

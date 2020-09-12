@@ -157,7 +157,7 @@ public class OMenuButton implements Cloneable {
 
         @Override
         public ButtonItemBuilder clone() {
-            return new ButtonItemBuilder(ItemBuilder.fromItem(itemBuilder.getItemStack().clone()));
+            return new ButtonItemBuilder(itemBuilder.clone());
         }
 
         private List<String> finalizeLore(List<String> lore, Player player) {

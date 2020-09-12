@@ -7,6 +7,7 @@ import com.bgsoftware.superiorprison.plugin.object.statistic.SStatisticsContaine
 import com.google.common.collect.ImmutableMap;
 
 import java.io.File;
+import java.util.Optional;
 import java.util.UUID;
 
 public class SStatisticHolder extends UniversalDataHolder<UUID, SStatisticsContainer> implements StatisticsController {
@@ -40,5 +41,9 @@ public class SStatisticHolder extends UniversalDataHolder<UUID, SStatisticsConta
         }
 
         return container;
+    }
+
+    public Optional<SStatisticsContainer> getIfFound(UUID uuid) {
+        return Optional.ofNullable(dataMap.get(uuid));
     }
 }

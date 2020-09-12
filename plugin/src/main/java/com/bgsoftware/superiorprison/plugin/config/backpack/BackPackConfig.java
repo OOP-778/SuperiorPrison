@@ -50,7 +50,6 @@ public abstract class BackPackConfig<T extends BackPackConfig<T>> {
                         clone.applyUpgrades(upgradeSection);
 
                         ((BackPackConfig) clone).level = Integer.parseInt(upgradeSection.getKey());
-                        System.out.println("BackPack level: " + ((BackPackConfig) clone).level);
                         upgrades.put(((BackPackConfig) clone).level, new BackPackUpgrade<>(upgradeSection, clone));
 
                         lastClone = clone;
@@ -81,7 +80,7 @@ public abstract class BackPackConfig<T extends BackPackConfig<T>> {
     }
 
     public T getByData(BackPackData data) {
-        return data.level == 1 ? (T) this : Objects.requireNonNull(upgrades.get(data.level), "Failed to find BackPack " + id + " level by " + data.level).getConfig();
+        return data.getLevel() == 1 ? (T) this : Objects.requireNonNull(upgrades.get(data.getLevel()), "Failed to find BackPack " + id + " level by " + data.getLevel()).getConfig();
     }
 
     public int getMaxLevel() {
@@ -89,7 +88,7 @@ public abstract class BackPackConfig<T extends BackPackConfig<T>> {
     }
 
     public SBackPack build(Player player) {
-        return SBackPack.of((AdvancedBackPackConfig) this, player);
+        return SBackPack.of(this, player);
     }
 
     public boolean hasUpgrade() {

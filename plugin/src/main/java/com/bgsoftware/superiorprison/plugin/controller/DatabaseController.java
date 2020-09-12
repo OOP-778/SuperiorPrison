@@ -16,6 +16,7 @@ import com.oop.orangeengine.nbt.NBTContainer;
 import com.oop.orangeengine.nbt.NBTItem;
 import lombok.Getter;
 import lombok.NonNull;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 import java.io.IOException;
@@ -84,10 +85,10 @@ public class DatabaseController extends StorageHolder {
                 getEngine().getLogger().print("Loaded {} prisoners", getPrisonerHolder().getPrisonerMap().size());
                 getStorages().forEach(storage -> storage.save(true));
 
+                getPrisonerHolder().cleanInvalids();
                 getPrisonerHolder().initializeCache();
             }
         });
-
     }
 
     public ItemStack deserialize(String serializedItem) throws JsonParseException {
@@ -95,7 +96,7 @@ public class DatabaseController extends StorageHolder {
     }
 
     public JsonElement serialize(ItemStack itemStack) {
-        return itemStack == null ? JsonNull.INSTANCE : new JsonPrimitive(NBTItem.convertItemtoNBT(itemStack).asNBTString());
+        return (itemStack == null || itemStack.getType() == Material.AIR) ? JsonNull.INSTANCE : new JsonPrimitive(NBTItem.convertItemtoNBT(itemStack).asNBTString());
     }
 
     public String utf8(String text) {

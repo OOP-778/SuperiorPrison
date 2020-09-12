@@ -15,16 +15,14 @@ import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.player.booster.SBoosters;
 import com.bgsoftware.superiorprison.plugin.object.player.rank.SLadderRank;
 import com.bgsoftware.superiorprison.plugin.object.player.rank.SRank;
-import com.bgsoftware.superiorprison.plugin.util.ClassDebugger;
+import com.bgsoftware.superiorprison.plugin.object.statistic.SStatisticsContainer;
+import com.bgsoftware.superiorprison.plugin.util.Removeable;
 import com.bgsoftware.superiorprison.plugin.util.SPair;
-import com.oop.datamodule.gson.Gson;
-import com.oop.datamodule.gson.JsonElement;
-import com.oop.datamodule.gson.JsonObject;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.oop.datamodule.SerializedData;
 import com.oop.datamodule.body.MultiTypeBody;
-import com.oop.datamodule.body.SqlDataBody;
+import com.oop.datamodule.gson.JsonElement;
 import com.oop.datamodule.util.DataUtil;
 import com.oop.orangeengine.main.util.OSimpleReflection;
 import com.oop.orangeengine.main.util.data.cache.OCache;
@@ -33,28 +31,22 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.SneakyThrows;
-import lombok.experimental.Accessors;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.json.simple.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.math.BigDecimal;
-import java.net.URL;
-import java.net.URLConnection;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.bgsoftware.superiorprison.plugin.util.AccessUtil.findRank;
 
-@Accessors(chain = true)
-public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.Prisoner, MultiTypeBody {
+public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.Prisoner, MultiTypeBody, Removeable {
+
+    private static String defaultHeadTexture = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYmM4ZWExZjUxZjI1M2ZmNTE0MmNhMTFhZTQ1MTkz\n" +
+            "YTRhZDhjM2FiNWU5YzZlZWM4YmE3YTRmY2I3YmFjNDAifX19";
 
     @Setter
     private @NonNull UUID uuid;
@@ -80,10 +72,8 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
 
     private final Set<String> ranks = new OConcurrentSet<>();
 
-    @Getter
     private SPrestige currentPrestige;
 
-    @Getter
     private SLadderRank currentLadderRank;
 
     @Setter
@@ -91,7 +81,6 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
     private boolean fortuneBlocks = false;
 
     private OfflinePlayer cachedOfflinePlayer;
-
     private Player cachedPlayer;
 
     @Setter
@@ -104,8 +93,11 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
     @Setter
     private SNormalMine highestMine;
 
-    @Getter
     private String textureValue;
+
+    @Getter
+    @Setter
+    private boolean removed;
 
     public SPrisoner() {
     }
@@ -384,8 +376,13 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
 
     @Override
     public void remove() {
+        if (removed) return;
+        removed = true;
+
         SuperiorPrisonPlugin.getInstance().getDatabaseController().getStorage(SPrisonerHolder.class).remove(this);
         getCurrentMine().ifPresent(pair -> pair.getKey().getPrisoners().remove(this));
+
+        SuperiorPrisonPlugin.getInstance().getStatisticsController().getIfFound(getUUID()).ifPresent(SStatisticsContainer::remove);
     }
 
     @Override
@@ -426,6 +423,7 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
             this.currentLadderRank = (SLadderRank) SuperiorPrisonPlugin.getInstance().getRankController()
                     .getLadderRank(data.getElement("currentLadderRank").get().getAsString())
                     .orElseThrow(() -> new IllegalStateException("Failed to find rank by " + data.getElement("currentLadderRank").get().getAsString()));
+
         } else {
             List<LadderRank> foundLadderRanks = new ArrayList<>();
             for (String stringRank : ranks) {
@@ -460,33 +458,13 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
             }
         });
 
-        this.textureValue = data.getElement("texture").map(JsonElement::getAsString).orElse(getOnlineSkullTexture());
         ensurePlayerNotNull();
-    }
-
-    @SneakyThrows
-    private String getOfflineSkullTexture() {
-        URL url = new URL("https://sessionserver.mojang.com/session/minecraft/profile/" + uuid);
-
-        URLConnection con = url.openConnection();
-        con.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36");
-
-        Gson gson = new Gson();
-        JsonObject jsonObject = gson.fromJson(new InputStreamReader(con.getInputStream()), JsonObject.class);
-        con.getInputStream().close();
-
-        return Optional.ofNullable(jsonObject.get("properties"))
-                .map(JsonElement::getAsJsonArray)
-                .map(array -> array.get(0))
-                .map(JsonElement::getAsJsonObject)
-                .map(o -> o.get("value"))
-                .map(JsonElement::getAsString)
-                .orElse(null);
+        this.textureValue = data.getElement("texture").map(JsonElement::getAsString).orElse(getOnlineSkullTexture());
     }
 
     @SneakyThrows
     private String getOnlineSkullTexture() {
-        if (!isOnline()) return getOfflineSkullTexture();
+        if (!isOnline()) return defaultHeadTexture;
 
         Object entityPlayer = OSimpleReflection.getMethod(getPlayer().getClass(), "getHandle").invoke(getPlayer());
         GameProfile profile = (GameProfile) Objects.requireNonNull(OSimpleReflection.getMethod(entityPlayer.getClass(), "getProfile"), "GameProfile field is null").invoke(entityPlayer);
@@ -512,5 +490,12 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
     @Override
     public String getSerializedType() {
         return "prisoner";
+    }
+
+    public String getTextureValue() {
+        if (textureValue.contentEquals(defaultHeadTexture) && isOnline())
+            textureValue = getOnlineSkullTexture();
+
+        return textureValue;
     }
 }

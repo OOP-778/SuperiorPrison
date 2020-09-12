@@ -52,6 +52,7 @@ public class GeneratorEditMenu extends OPagedMenu<OPair<Double, OMaterial>> impl
                     mine.getGenerator().setGeneratorMaterials(materials);
                     mine.getGenerator().setMaterialsChanged(true);
                     mine.save(true);
+                    mine.getLinker().call(mine.getGenerator());
                     LocaleEnum.EDIT_GENERATOR_SAVE.getWithPrefix().send(event.getWhoClicked());
                 })
                 .apply(this);
@@ -62,6 +63,7 @@ public class GeneratorEditMenu extends OPagedMenu<OPair<Double, OMaterial>> impl
                     OPair<Double, OMaterial> materialPair = requestObject(event.getRawSlot());
                     if (event.getClick() == ClickType.RIGHT) {
                         materials.remove(materialPair);
+                        refresh();
 
                     } else if (event.getClick() == ClickType.LEFT) {
                         forceClose();
@@ -81,8 +83,6 @@ public class GeneratorEditMenu extends OPagedMenu<OPair<Double, OMaterial>> impl
                                         first.get().setFirst(input);
                                         LocaleEnum.EDIT_GENERATOR_RATE_SET.getWithPrefix().send(ImmutableMap.of("{material}", beautify(materialPair.getSecond().name()), "{rate}", beautifyNumber(input)), obj.player());
                                     }
-
-                                    mine.save(true);
                                     obj.cancel();
                                 })
                                 .listen();

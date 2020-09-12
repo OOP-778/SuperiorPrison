@@ -82,3 +82,10 @@ buttons:
       lore:
         - "&d&l* &7Click to change"
         - "&d&l* &7Current: &d{setting_value}"
+
+    disable-enderpearls:
+      material: ender pearl
+      display name: "&dDisable Enderpearls"
+      lore:
+        - "&d&l* &7Click to change"
+        - "&d&l* &7Current: &d{setting_value}"

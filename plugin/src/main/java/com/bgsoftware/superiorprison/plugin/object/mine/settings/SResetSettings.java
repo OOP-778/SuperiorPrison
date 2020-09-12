@@ -11,10 +11,11 @@ import com.oop.datamodule.SerializedData;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.SneakyThrows;
 
 import java.time.ZonedDateTime;
 
-public class SResetSettings {
+public class SResetSettings implements Cloneable {
     public static ResetSettings of(OPair<ResetType, String> data) {
         if (data.getFirst() == ResetType.TIMED)
             return new STimed(TimeUtil.toSeconds(data.getSecond()));
@@ -43,12 +44,11 @@ public class SResetSettings {
 
     @Getter
     public static class STimed implements ResetSettings.Timed, SerializableObject, Attachable<SNormalMine> {
-
         private SNormalMine mine;
         private long interval;
 
         @Setter
-        private transient ZonedDateTime resetDate;
+        private ZonedDateTime resetDate;
 
         private STimed() {
         }
@@ -101,6 +101,14 @@ public class SResetSettings {
         @Override
         public void attach(SNormalMine obj) {
             this.mine = obj;
+        }
+
+        @Override
+        @SneakyThrows
+        public STimed clone() {
+            STimed clone = (STimed) super.clone();
+            clone.resetDate = null;
+            return clone;
         }
     }
 
@@ -156,6 +164,12 @@ public class SResetSettings {
         @Override
         public void attach(SNormalMine obj) {
             this.mine = obj;
+        }
+
+        @Override
+        @SneakyThrows
+        public SPercentage clone() {
+            return (SPercentage) super.clone();
         }
     }
 }

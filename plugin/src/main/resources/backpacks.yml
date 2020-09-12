@@ -12,6 +12,9 @@ global options:
       - "&5Store your mined blocks"
       - "&d&l* &7Capacity: &d{backpack_capacity}"
       - "&d&l* &7Used: &d{backpack_used}"
+      - ""
+      - "&d* &l&5Contents"
+      - "{item_template} &d{item_type} x {item_amount}"
 
   # How much rows the backpack has?
   # The rows + menu design cannot exceed the minecraft limit of inventory size!
@@ -52,25 +55,25 @@ global options:
       - "&d&l* &7Capacity: &d{backpack_capacity}"
       - "&d&l* &7Used: &d{backpack_used}"
       - ""
-      - "&dClick to redeem stored blocks"
-      - "&dShift-Click to upgrade"
+      - "&d* &l&5Contents"
+      - "{item_template} &d{item_type} x {item_amount}"
 
-  capacity: 100
+  capacity: 200
   upgrades:
     "2":
-      capacity: 200
+      capacity: 500
 
       requirements:
         - "{ECO} 1000"
 
       description:
-        - "&cGain +100 capacity"
-        -
+        - "&cGain +300 capacity"
+
     "3":
-      capacity: 300
+      capacity: 700
 
       requirements:
         - "{ECO} 2000"
 
       description:
-        - "&cGain +100 capacity"
+        - "&cGain +200 capacity"

@@ -38,15 +38,15 @@ public interface BackPack {
     /*
     Adds itemstacks to the backpack
     Returns an map of items that were added or not
-    If the key is 0, the item wasn't added
-    Key is how much did it add, value is an itemStack with modified amount
+    If the value is 0, the item wasn't added
+    Value is how much did it add, key is an itemStack with modified amount
     */
     Map<ItemStack, Integer> add(ItemStack ...itemStacks);
 
     /*
     Removes itemstacks from the backpack
     Returns an map of items that weren't fully removed
-    Key is how much it removed and value is the itemStack with modified amount
+    Value is how much it removed and Key is the itemStack with modified amount
     */
     Map<ItemStack, Integer> remove(ItemStack ...itemStacks);
 

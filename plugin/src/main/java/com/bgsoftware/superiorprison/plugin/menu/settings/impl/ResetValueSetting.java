@@ -23,8 +23,8 @@ public class ResetValueSetting extends SettingsObject<Long> {
                 }
             });
 
-        requestMessage(LocaleEnum.EDIT_SETTINGS_RESET_VALUE.getWithPrefix());
-        completeMessage(LocaleEnum.EDIT_SETTINGS_RESET_VALUE_SUCCESS.getWithPrefix());
+        requestMessage(LocaleEnum.EDIT_SETTINGS_VALUE.getWithPrefix());
+        completeMessage(LocaleEnum.EDIT_SETTINGS_VALUE_SUCCESS.getWithPrefix());
         onComplete(value -> {
             settings.getResetSettings().setValue(value);
             settings.getMine().save(true);
@@ -32,6 +32,7 @@ public class ResetValueSetting extends SettingsObject<Long> {
                 SResetSettings.STimed timed = (SResetSettings.STimed) settings.getResetSettings().asTimed();
                 timed.setResetDate(null);
             }
+            settings.getMine().getLinker().call(settings);
         });
     }
 }

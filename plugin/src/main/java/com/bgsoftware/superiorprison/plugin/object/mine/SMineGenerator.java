@@ -4,6 +4,7 @@ import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
 import com.bgsoftware.superiorprison.api.data.mine.area.AreaEnum;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.object.mine.area.SArea;
+import com.bgsoftware.superiorprison.plugin.object.mine.linkable.LinkableObject;
 import com.bgsoftware.superiorprison.plugin.util.*;
 import com.bgsoftware.superiorprison.plugin.util.frameworks.Framework;
 import com.oop.datamodule.gson.JsonArray;
@@ -41,10 +42,9 @@ import static com.bgsoftware.superiorprison.plugin.util.TimeUtil.getDate;
 @Setter
 @Getter
 @EqualsAndHashCode
-public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mine.MineGenerator, Attachable<SuperiorMine>, SerializableObject {
+public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mine.MineGenerator, Attachable<SuperiorMine>, SerializableObject, LinkableObject<SMineGenerator> {
 
     private transient SNormalMine mine;
-
     private List<OPair<Double, OMaterial>> generatorMaterials = new ArrayList<>();
     private transient Instant lastReset;
     private transient Instant nextReset;
@@ -71,7 +71,6 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
 
     @Setter
     private transient SArea mineArea;
-
     private AtomicLong blocksRegenerated = new AtomicLong();
 
     protected SMineGenerator() {
@@ -271,6 +270,18 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
         }
         blockData = serializedData.applyAs("blockData", SMineBlockData.class, SMineBlockData::new);
         blockData.attach(this);
+    }
+
+    @Override
+    public void onChange(SMineGenerator from) {
+        this.generatorMaterials.clear();
+        this.generatorMaterials.addAll(from.generatorMaterials);
+        setMaterialsChanged(true);
+    }
+
+    @Override
+    public String getLinkId() {
+        return "generator";
     }
 
     private class RandomMaterialData {

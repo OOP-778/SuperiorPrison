@@ -18,6 +18,7 @@ public class PlayerLimitSetting extends SettingsObject<Integer> {
         completeMessage(LocaleEnum.EDIT_SETTINGS_LIMIT_SUCCESS.getWithPrefix());
         onComplete(limit -> {
             settings.setPlayerLimit(limit);
+            settings.getMine().getLinker().call(settings);
             settings.getMine().save(true);
         });
         id("player limit");

@@ -2,7 +2,9 @@ package com.bgsoftware.superiorprison.plugin.listeners;
 
 import com.bgsoftware.superiorprison.api.data.backpack.BackPack;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
-import com.bgsoftware.superiorprison.plugin.menu.backpack.BackPackViewMenu;
+import com.bgsoftware.superiorprison.plugin.config.backpack.SimpleBackPackConfig;
+import com.bgsoftware.superiorprison.plugin.menu.backpack.AdvancedBackPackView;
+import com.bgsoftware.superiorprison.plugin.menu.backpack.SimpleBackPackView;
 import com.bgsoftware.superiorprison.plugin.object.backpack.SBackPack;
 import com.bgsoftware.superiorprison.plugin.util.PermUtil;
 import com.oop.orangeengine.main.events.SyncEvents;
@@ -30,8 +32,6 @@ public class BackPackListener {
             event.setCancelled(true);
             SBackPack backPack = (SBackPack) SuperiorPrisonPlugin.getInstance().getBackPackController().getBackPack(itemStack, event.getPlayer());
 
-            event.getPlayer().getInventory().setItem(event.getPlayer().getInventory().first(event.getItem()), null);
-
             List<String> permissions = PermUtil.getPermissions(BACKPACK_UPGRADE_PATTERN, event.getPlayer());
             for (String permission : permissions) {
                 Matcher matcher = BACKPACK_UPGRADE_PATTERN.matcher(permission);
@@ -47,28 +47,14 @@ public class BackPackListener {
                     backPack.upgrade(upgradeLevel);
                 }
             }
-            new BackPackViewMenu(SuperiorPrisonPlugin.getInstance().getPrisonerController().getInsertIfAbsent(event.getPlayer()), backPack).open();
-        });
 
-        SyncEvents.listen(AsyncPlayerChatEvent.class, event -> {
-            ItemStack itemStack = event.getPlayer().getItemInHand();
-            if (itemStack == null || itemStack.getType() == Material.AIR) return;
+            event.getPlayer().getInventory().setItem(event.getPlayer().getInventory().first(event.getItem()), null);
+            if (backPack.getConfig() instanceof SimpleBackPackConfig) {
+                new SimpleBackPackView(SuperiorPrisonPlugin.getInstance().getPrisonerController().getInsertIfAbsent(event.getPlayer()), backPack).open();
+                return;
+            }
 
-            new OTask()
-                    .consumer(task -> {
-                        System.out.println("Executed");
-                        for (BackPack pack : SuperiorPrisonPlugin.getInstance().getBackPackController().findBackPacks(event.getPlayer())) {
-                            if (!((SBackPack) pack).getData().firstNonNull().isPresent()) {
-                                task.cancel();
-                                break;
-                            }
-                            pack.add(new ItemStack(Material.ANVIL, 1));
-                            pack.save();
-                        }
-                    })
-                    .delay(TimeUnit.SECONDS, 1)
-                    .repeat(true)
-                    .execute();
+            new AdvancedBackPackView(SuperiorPrisonPlugin.getInstance().getPrisonerController().getInsertIfAbsent(event.getPlayer()), backPack).open();
         });
     }
 }

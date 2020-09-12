@@ -45,7 +45,6 @@ import static com.bgsoftware.superiorprison.plugin.util.TextUtil.mergeText;
 public class MineControlPanel extends OPagedMenu<OptionEnum> implements OMenu.Templateable {
 
     private final SNormalMine mine;
-
     public MineControlPanel(SPrisoner viewer, SNormalMine mine) {
         super("mineControlPanel", viewer);
         this.mine = mine;
@@ -254,9 +253,21 @@ public class MineControlPanel extends OPagedMenu<OptionEnum> implements OMenu.Te
         Optional<OMenuButton> templateButtonFromTemplate = getTemplateButtonFromTemplate("option");
         Preconditions.checkArgument(templateButtonFromTemplate.isPresent(), "Failed to find option template in Control Panel");
 
-        OMenuButton optionButton = templateButtonFromTemplate.get();
+        OMenuButton optionButton = templateButtonFromTemplate.get().clone();
+        if (mine.getLinker().isLinked(obj.name().toLowerCase())) {
+            optionButton.locked(true);
+            OMenuButton.ButtonItemBuilder stateItem = optionButton.getStateItem("option-linked");
+            if (stateItem != null) {
+                stateItem
+                        .itemBuilder()
+                        .replace("{linked_mine_name}", mine.getLinker().getLinkedTo().get(obj.name().toLowerCase()))
+                        .replace("{option_name}", obj.name().toLowerCase());
+                return optionButton.currentItem(stateItem.getItemStack());
+            }
+        }
+
         OMenuButton.ButtonItemBuilder optionItem = optionButton.getStateItem(obj.name().toLowerCase() + "-option");
-        return optionButton.clone().currentItem(optionItem.getItemStack());
+        return optionButton.currentItem(optionItem.getItemStack());
     }
 
     @Override

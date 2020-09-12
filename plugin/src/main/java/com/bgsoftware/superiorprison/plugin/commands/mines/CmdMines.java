@@ -3,6 +3,8 @@ package com.bgsoftware.superiorprison.plugin.commands.mines;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.commands.PermissionsInitializer;
 import com.bgsoftware.superiorprison.plugin.commands.args.MinesArg;
+import com.bgsoftware.superiorprison.plugin.commands.mines.link.CmdLink;
+import com.bgsoftware.superiorprison.plugin.commands.mines.link.CmdUnlink;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.menu.MinesListMenu;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
@@ -21,7 +23,7 @@ public class CmdMines extends OCommand {
             Optional<SNormalMine> optionalMine = command.getArg("mine", SNormalMine.class);
             if (optionalMine.isPresent()) {
                 SNormalMine mine = optionalMine.get();
-                if (!mine.getSettings().isTeleporation()) {
+                if (!mine.getSettings().isTeleportation()) {
                     messageBuilder(LocaleEnum.MINE_TELEPORTATION_DISABLED.getWithErrorPrefix())
                             .replace(mine)
                             .send(command);
@@ -50,6 +52,8 @@ public class CmdMines extends OCommand {
         subCommand(new CmdCopy());
         subCommand(new CmdSetSpawn());
         subCommand(new CmdMigrate());
+        subCommand(new CmdLink());
+        subCommand(new CmdUnlink());
 
         PermissionsInitializer.registerPrisonerCommand(this);
     }

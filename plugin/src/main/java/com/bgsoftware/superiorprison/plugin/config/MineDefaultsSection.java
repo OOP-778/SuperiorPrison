@@ -27,6 +27,9 @@ public class MineDefaultsSection extends SectionWrapper {
     private boolean teleporation = false;
     private boolean disableEnderPearls = false;
 
+    private boolean disableMonsterSpawn = false;
+    private boolean disableAnimalSpawn = false;
+
     @Override
     protected void initialize() {
         ConfigSection section = getSection();
@@ -35,6 +38,8 @@ public class MineDefaultsSection extends SectionWrapper {
 
         section.ifValuePresent("teleporation", boolean.class, bool -> this.teleporation = bool);
         section.ifValuePresent("disable enderpearls", boolean.class, bool -> this.disableEnderPearls = bool);
+        section.ifValuePresent("disable monster spawn", boolean.class, bool -> this.disableMonsterSpawn = bool);
+        section.ifValuePresent("disable animal spawn", boolean.class, bool -> this.disableAnimalSpawn = bool);
 
         ConfigSection resettingSection = section.getSection("resetting").get();
         this.resetting.set(ResetType.valueOf(resettingSection.getAs("mode", String.class).toUpperCase()), resettingSection.getAs("value"));

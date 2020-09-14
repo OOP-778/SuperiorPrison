@@ -89,3 +89,17 @@ buttons:
       lore:
         - "&d&l* &7Click to change"
         - "&d&l* &7Current: &d{setting_value}"
+
+    disable-monster-spawn:
+      material: creeper spawn egg
+      display name: "&dDisable Monster Spawning"
+      lore:
+        - "&d&l* &7Click to change"
+        - "&d&l* &7Current: &d{setting_value}"
+
+    disable-animal-spawn:
+      material: cow spawn egg
+      display name: "&dDisable Cow Spawning"
+      lore:
+        - "&d&l* &7Click to change"
+        - "&d&l* &7Current: &d{setting_value}"

@@ -2,6 +2,7 @@ package com.bgsoftware.superiorprison.plugin;
 
 import com.oop.datamodule.gson.Gson;
 import com.oop.datamodule.gson.JsonObject;
+import sun.misc.Unsafe;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;

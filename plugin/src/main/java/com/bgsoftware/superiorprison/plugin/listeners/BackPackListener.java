@@ -1,21 +1,21 @@
 package com.bgsoftware.superiorprison.plugin.listeners;
 
-import com.bgsoftware.superiorprison.api.data.backpack.BackPack;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.config.backpack.SimpleBackPackConfig;
 import com.bgsoftware.superiorprison.plugin.menu.backpack.AdvancedBackPackView;
+import com.bgsoftware.superiorprison.plugin.menu.backpack.BackpackLockable;
 import com.bgsoftware.superiorprison.plugin.menu.backpack.SimpleBackPackView;
 import com.bgsoftware.superiorprison.plugin.object.backpack.SBackPack;
+import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.util.PermUtil;
 import com.oop.orangeengine.main.events.SyncEvents;
-import com.oop.orangeengine.main.task.OTask;
 import org.bukkit.Material;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,6 +23,21 @@ public class BackPackListener {
     private final Pattern BACKPACK_UPGRADE_PATTERN = Pattern.compile("prison.backpack.autoupgrade.([^ ]+).([0-9]+)");
 
     public BackPackListener() {
+        SyncEvents.listen(InventoryClickEvent.class, EventPriority.LOWEST, event -> {
+            if (event.getClickedInventory() == null) return;
+            if (event.getWhoClicked().getOpenInventory().getTopInventory() == null) return;
+            if (!(event.getWhoClicked().getOpenInventory().getTopInventory().getHolder() instanceof BackpackLockable)) return;
+
+            SPrisoner viewer =
+                    ((BackpackLockable) event.getWhoClicked().getOpenInventory().getTopInventory().getHolder()).getViewer();
+
+            viewer.getOpenedBackpack().ifPresent(pair -> {
+                if (event.getSlot() == pair.getFirst()) {
+                    event.setCancelled(true);
+                }
+            });
+        });
+
         SyncEvents.listen(PlayerInteractEvent.class, event -> {
             if (event.getItem() == null || event.getItem().getType() == Material.AIR) return;
 
@@ -31,6 +46,7 @@ public class BackPackListener {
 
             event.setCancelled(true);
             SBackPack backPack = (SBackPack) SuperiorPrisonPlugin.getInstance().getBackPackController().getBackPack(itemStack, event.getPlayer());
+            SPrisoner prisoner = SuperiorPrisonPlugin.getInstance().getPrisonerController().getInsertIfAbsent(event.getPlayer());
 
             List<String> permissions = PermUtil.getPermissions(BACKPACK_UPGRADE_PATTERN, event.getPlayer());
             for (String permission : permissions) {
@@ -48,13 +64,13 @@ public class BackPackListener {
                 }
             }
 
-            event.getPlayer().getInventory().setItem(event.getPlayer().getInventory().first(event.getItem()), null);
+            prisoner.lockBackpack(event.getPlayer().getInventory().first(event.getItem()), backPack);
             if (backPack.getConfig() instanceof SimpleBackPackConfig) {
-                new SimpleBackPackView(SuperiorPrisonPlugin.getInstance().getPrisonerController().getInsertIfAbsent(event.getPlayer()), backPack).open();
+                new SimpleBackPackView(prisoner, backPack).open();
                 return;
             }
 
-            new AdvancedBackPackView(SuperiorPrisonPlugin.getInstance().getPrisonerController().getInsertIfAbsent(event.getPlayer()), backPack).open();
+            new AdvancedBackPackView(prisoner, backPack).open();
         });
     }
 }

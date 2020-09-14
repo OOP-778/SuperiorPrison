@@ -17,4 +17,10 @@ public interface MineSettings {
 
     // Check if enderpearls are disabled
     boolean isDisableEnderPearls();
+
+    // Check if animal spawn is disabled
+    boolean isDisableAnimalSpawn();
+
+    // Check if monster spawn is disabled
+    boolean isDisableMonsterSpawn();
 }

@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class BackPackUpgradeMenu extends OMenu {
+public class BackPackUpgradeMenu extends OMenu implements BackpackLockable {
 
     private SBackPack backPack;
 

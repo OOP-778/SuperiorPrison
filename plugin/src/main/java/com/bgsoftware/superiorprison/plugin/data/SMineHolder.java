@@ -3,6 +3,7 @@ package com.bgsoftware.superiorprison.plugin.data;
 import com.bgsoftware.superiorprison.api.controller.MineHolder;
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
+import com.bgsoftware.superiorprison.plugin.commands.mines.link.Option;
 import com.bgsoftware.superiorprison.plugin.controller.DatabaseController;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
@@ -64,14 +65,12 @@ public class SMineHolder extends UniversalDataHolder<String, SNormalMine> implem
 
     @Override
     public Optional<SuperiorMine> getMine(String mineName) {
-        return stream()
-                .filter(mine -> mine.getName().contentEquals(mineName))
-                .map(mine -> (SuperiorMine) mine)
-                .findFirst();
+        return Optional.ofNullable(getDataMap().get(mineName));
     }
 
     @Override
     public Optional<SuperiorMine> getMineAt(Location location) {
+
         return stream()
                 .filter(mine -> mine.isInside(location))
                 .map(mine -> (SuperiorMine) mine)

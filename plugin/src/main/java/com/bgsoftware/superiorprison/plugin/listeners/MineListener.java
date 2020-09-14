@@ -2,6 +2,7 @@ package com.bgsoftware.superiorprison.plugin.listeners;
 
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
 import com.bgsoftware.superiorprison.api.data.mine.area.AreaEnum;
+import com.bgsoftware.superiorprison.api.data.mine.settings.MineSettings;
 import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 import com.bgsoftware.superiorprison.api.data.player.rank.LadderRank;
 import com.bgsoftware.superiorprison.api.data.player.rank.Rank;
@@ -19,9 +20,13 @@ import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.util.SPair;
 import com.bgsoftware.superiorprison.plugin.util.frameworks.Framework;
 import com.oop.orangeengine.main.events.SyncEvents;
+import com.oop.orangeengine.material.OMaterial;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.entity.Animals;
+import org.bukkit.entity.Cow;
+import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntitySpawnEvent;
@@ -191,13 +196,21 @@ public class MineListener {
 
         SyncEvents.listen(EntitySpawnEvent.class, EventPriority.LOWEST, event -> {
             if (event.getEntity() instanceof Player) return;
+            if (event.getEntity().hasMetadata("NPC")) return;
 
             // World check
             Set<String> worldNames = mineHolder.getMinesWorlds();
             if (!worldNames.contains(event.getEntity().getWorld().getName()))
                 return;
 
-            if (mineHolder.getMineAt(event.getLocation()).isPresent())
+            Optional<SuperiorMine> mineAt = mineHolder.getMineAt(event.getLocation());
+            if (!mineAt.isPresent()) return;
+
+            MineSettings settings = mineAt.get().getSettings();
+            if (event.getEntity() instanceof Monster && settings.isDisableMonsterSpawn())
+                event.setCancelled(true);
+
+            else if (event.getEntity() instanceof Animals && settings.isDisableAnimalSpawn())
                 event.setCancelled(true);
         });
     }

@@ -21,7 +21,7 @@ import java.util.*;
 import java.util.function.Function;
 
 @Getter
-public class AdvancedBackPackView extends OPagedMenu<ItemStack> {
+public class AdvancedBackPackView extends OPagedMenu<ItemStack> implements BackpackLockable {
 
     private SBackPack backPack;
     private final OMenuButton[] top = new OMenuButton[9];
@@ -119,10 +119,7 @@ public class AdvancedBackPackView extends OPagedMenu<ItemStack> {
         backPack.save();
         backPack.setCurrentView(null);
 
-        if (!event.getPlayer().getInventory().addItem(backPack.getItem()).isEmpty()) {
-            event.getPlayer().getWorld().dropItem(event.getPlayer().getLocation(), backPack.getItem());
-            LocaleEnum.BACKPACK_DROPPED_INVENTORY_FULL.getWithPrefix().send(event.getPlayer());
-        }
+        updateBackpackAndUnlock();
     }
 
     @Override

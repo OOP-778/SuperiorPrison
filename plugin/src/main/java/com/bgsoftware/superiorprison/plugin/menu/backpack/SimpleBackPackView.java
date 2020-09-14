@@ -14,7 +14,7 @@ import org.bukkit.inventory.PlayerInventory;
 
 import java.util.HashMap;
 
-public class SimpleBackPackView extends OMenu {
+public class SimpleBackPackView extends OMenu implements BackpackLockable {
 
     private SBackPack backPack;
 
@@ -52,7 +52,6 @@ public class SimpleBackPackView extends OMenu {
                         }
                         break;
                     }
-                    backPack.save();
                 });
 
         clickHandler("full withdraw")
@@ -65,13 +64,11 @@ public class SimpleBackPackView extends OMenu {
                         HashMap<Integer, ItemStack> left = inventory.addItem(itemStack);
                         backPack.getData().getStored()[i] = left.isEmpty() ? null : left.values().toArray(new ItemStack[0])[0];
                     }
-                    backPack.save();
                 });
 
         clickHandler("sellContentsFlag")
                 .handle(event -> {
                     backPack.getData().setSell(!backPack.getData().isSell());
-                    backPack.save();
                     refresh();
                 });
 
@@ -87,10 +84,8 @@ public class SimpleBackPackView extends OMenu {
         if (getCurrentAction() != null)
             return;
 
-        if (!event.getPlayer().getInventory().addItem(backPack.getItem()).isEmpty()) {
-            event.getPlayer().getWorld().dropItem(event.getPlayer().getLocation(), backPack.getItem());
-            LocaleEnum.BACKPACK_DROPPED_INVENTORY_FULL.getWithPrefix().send(event.getPlayer());
-        }
+        backPack.save();
+        updateBackpackAndUnlock();
     }
 
     @Override

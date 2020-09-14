@@ -11,6 +11,7 @@ import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.config.PrisonerDefaults;
 import com.bgsoftware.superiorprison.plugin.data.SPrisonerHolder;
 import com.bgsoftware.superiorprison.plugin.hook.impl.ShopGuiPlusHook;
+import com.bgsoftware.superiorprison.plugin.object.backpack.SBackPack;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.player.booster.SBoosters;
 import com.bgsoftware.superiorprison.plugin.object.player.rank.SLadderRank;
@@ -26,6 +27,7 @@ import com.oop.datamodule.gson.JsonElement;
 import com.oop.datamodule.util.DataUtil;
 import com.oop.orangeengine.main.util.OSimpleReflection;
 import com.oop.orangeengine.main.util.data.cache.OCache;
+import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.main.util.data.set.OConcurrentSet;
 import lombok.Getter;
 import lombok.NonNull;
@@ -44,7 +46,6 @@ import java.util.stream.Collectors;
 import static com.bgsoftware.superiorprison.plugin.util.AccessUtil.findRank;
 
 public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.Prisoner, MultiTypeBody, Removeable {
-
     private static String defaultHeadTexture = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYmM4ZWExZjUxZjI1M2ZmNTE0MmNhMTFhZTQ1MTkz\n" +
             "YTRhZDhjM2FiNWU5YzZlZWM4YmE3YTRmY2I3YmFjNDAifX19";
 
@@ -98,6 +99,8 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
     @Getter
     @Setter
     private boolean removed;
+
+    private OPair<Integer, SBackPack> openedBackpack;
 
     public SPrisoner() {
     }
@@ -497,5 +500,17 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
             textureValue = getOnlineSkullTexture();
 
         return textureValue;
+    }
+
+    public Optional<OPair<Integer, SBackPack>> getOpenedBackpack() {
+        return Optional.ofNullable(openedBackpack);
+    }
+
+    public void unlockBackpack() {
+        openedBackpack = null;
+    }
+
+    public void lockBackpack(int slot, SBackPack backPack) {
+        openedBackpack = new OPair<>(slot, backPack);
     }
 }

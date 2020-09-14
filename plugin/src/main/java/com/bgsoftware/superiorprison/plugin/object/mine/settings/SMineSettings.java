@@ -29,6 +29,8 @@ public class SMineSettings implements Attachable<SNormalMine>, com.bgsoftware.su
     private transient SNormalMine mine;
     private boolean teleportation = true;
     private boolean disableEnderPearls = false;
+    private boolean disableMonsterSpawn = false;
+    private boolean disableAnimalSpawn = false;
 
     SMineSettings() {
     }
@@ -66,6 +68,8 @@ public class SMineSettings implements Attachable<SNormalMine>, com.bgsoftware.su
         data.write("reset", resetSettings);
         data.write("teleportation", teleportation);
         data.write("disableEnderPearls", disableEnderPearls);
+        data.write("disableAnimalSpawn", disableAnimalSpawn);
+        data.write("disableMonsterSpawn", disableMonsterSpawn);
     }
 
     @Override
@@ -74,6 +78,12 @@ public class SMineSettings implements Attachable<SNormalMine>, com.bgsoftware.su
         this.resetSettings = SResetSettings.of(data.getElement("reset").get().getAsJsonObject());
         this.teleportation = data.applyAs("teleportation", boolean.class, () -> true);
         this.disableEnderPearls = data.getChildren("disableEnderPearls")
+                .map(sd -> sd.applyAs(boolean.class)).orElse(false);
+
+        this.disableMonsterSpawn = data.getChildren("disableMonsterSpawn")
+                .map(sd -> sd.applyAs(boolean.class)).orElse(false);
+
+        this.disableAnimalSpawn = data.getChildren("disableAnimalSpawn")
                 .map(sd -> sd.applyAs(boolean.class)).orElse(false);
     }
 
@@ -84,6 +94,8 @@ public class SMineSettings implements Attachable<SNormalMine>, com.bgsoftware.su
         objects.add(new ResetValueSetting(this));
         objects.add(new MineTeleporationSetting(this));
         objects.add(new DisableEnderPearlsSetting(this));
+        objects.add(new DisableAnimalSpawnSetting(this));
+        objects.add(new DisableMonsterSpawnSetting(this));
         return objects;
     }
 
@@ -104,6 +116,8 @@ public class SMineSettings implements Attachable<SNormalMine>, com.bgsoftware.su
         this.playerLimit = from.playerLimit;
         this.resetSettings = this.resetSettings.clone();
         this.disableEnderPearls = from.disableEnderPearls;
+        this.disableAnimalSpawn = from.disableAnimalSpawn;
+        this.disableMonsterSpawn = from.disableMonsterSpawn;
         if (resetSettings instanceof Attachable)
             ((Attachable)this.resetSettings).attach(mine);
     }

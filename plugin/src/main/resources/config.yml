@@ -59,8 +59,14 @@ mine defaults:
   # Is teleportation to the mine enabled?
   teleporation: true
 
-  # Is enderpearls disabled?
+  # Is ender pearls disabled?
   disable enderpearls: true
+
+  # Is animal spawning disabled?
+  disable animal spawn: false
+
+  # Is monster spawning disabled?
+  disable monster spawn: false
 
   # How resetting works?
   resetting:

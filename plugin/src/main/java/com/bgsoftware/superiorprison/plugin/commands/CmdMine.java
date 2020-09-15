@@ -18,6 +18,11 @@ public class CmdMine extends OCommand {
         ableToExecute(Player.class);
         onCommand(command -> {
             SPrisoner prisoner = SuperiorPrisonPlugin.getInstance().getPrisonerController().getInsertIfAbsent(command.getSenderAsPlayer());
+            if (SuperiorPrisonPlugin.getInstance().getMineController().getMines().isEmpty()) {
+                LocaleEnum.MINES_NOT_FOUND.getWithErrorPrefix().send(command.getSender());
+                return;
+            }
+
             SNormalMine mine = (SNormalMine) prisoner.getHighestMine();
             if (mine == null) {
                 LocaleEnum.PRISONER_HIGHEST_MINE_SEARCH_FAILED.getWithErrorPrefix().send(command.getSender());

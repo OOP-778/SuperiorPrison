@@ -283,7 +283,8 @@ public enum LocaleEnum {
     ),
     MIGRATION_SUCCESSFUL("Migration of {type} is done."),
     MIGRATION_CREDENTIALS_ASK("Please provide the {credential} of the database"),
-    PRISONER_HIGHEST_MINE_SEARCH_FAILED("Failed to find highest mine for you. This might be a bug!");
+    PRISONER_HIGHEST_MINE_SEARCH_FAILED("Failed to find highest mine for you. This might be a bug!"),
+    MINES_NOT_FOUND("There's 0 mines created. Please create at least one mine!");
 
     private final OMessage[] cache = new OMessage[2];
 

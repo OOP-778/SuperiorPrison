@@ -51,6 +51,7 @@ allprojects {
             compile "com.oop.orangeengine:command:4.8"
             compile "com.oop.orangeengine:eventssubscription:4.8"
             compile "com.oop.orangeengine:message:4.8"
+            compile "com.oop.orangeengine:sound:4.8"
             compile "io.papermc:paperlib:1.0.4"
 
             // Dependencies

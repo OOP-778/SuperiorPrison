@@ -72,6 +72,7 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
     @Setter
     private transient SArea mineArea;
     private AtomicLong blocksRegenerated = new AtomicLong();
+    private Cuboid cuboid;
 
     protected SMineGenerator() {
         caching = false;
@@ -175,7 +176,7 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
 
         Location pos1 = mineArea.getMinPoint();
         Location pos2 = mineArea.getHighPoint();
-        Cuboid cuboid = new Cuboid(pos1, pos2);
+        cuboid = new Cuboid(pos1, pos2);
         caching = true;
 
         World world = pos1.getWorld();

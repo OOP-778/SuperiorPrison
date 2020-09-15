@@ -4,29 +4,23 @@ mode:
   type: automatic
 
   automatic:
-    limit: 200
-    prefix: "&8[&dP%prestige_level%"
+    start: "A"
+    end: "Z"
+    prefix: "&8[&dP%rank_name%&8]"
 
     # Requirements template for each prestige
     requirements:
-      "rank requirement":
-        type: rank
-        value: "Z"
-
       "block requirement":
         type: blocks
-        value: "1000 * %prestige_level%"
+        value: "1000 * %rank_order%"
 
       "eco requirement":
         type: eco
-        value: "95% of {1500 * %prestige_level%}"
+        value: "95% of {1500 * %rank_order%}"
 
       "papi requirement":
         type: papi
         placeholder: ""
-
-    permissions:
-      - "playervaults.level.%prestige_level%"
 
     specific:
       100:

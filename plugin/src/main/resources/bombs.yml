@@ -1,0 +1,18 @@
+"exampleBomb":
+  item:
+    material:
+
+  # Cool down before another use of this bomb
+  cooldown: "10m"
+
+  # Size of the bomb
+  size: 10
+
+  # Explosion particle
+  particle: EXPLOSION_LARGE
+
+  # On how much % of the blocks there should be a particle shown?
+  particle shown at: 30
+
+  # What sound should play
+  sound: EXPLODE

@@ -3,6 +3,7 @@ package com.bgsoftware.superiorprison.plugin.util;
 import com.oop.datamodule.SerializableObject;
 import com.oop.datamodule.SerializedData;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -10,13 +11,14 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.util.NumberConversions;
+import org.bukkit.util.Vector;
 
 @Getter
 @Setter
 @Accessors(fluent = true, chain = true)
 @AllArgsConstructor
+@EqualsAndHashCode
 public class SPLocation implements Cloneable, SerializableObject {
-
     private double x;
     private double y;
     private double z;
@@ -105,5 +107,9 @@ public class SPLocation implements Cloneable, SerializableObject {
         this.z = data.applyAs("z", double.class);
         this.yaw = data.applyAs("yaw", float.class, () -> 0f);
         this.pitch = data.applyAs("pitch", float.class, () -> 0f);
+    }
+
+    public Vector toVector() {
+        return new Vector(x, y, z);
     }
 }

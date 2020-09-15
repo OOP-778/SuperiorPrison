@@ -105,6 +105,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
             new PrisonerListener();
             new StatisticsListener();
             new BackPackListener();
+            new BombListener();
 
             // Initialize tasks
             new TasksStarter();

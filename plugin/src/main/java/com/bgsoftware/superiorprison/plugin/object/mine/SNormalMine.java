@@ -159,7 +159,7 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
     }
 
     @Override
-    public Area getArea(AreaEnum type) {
+    public SArea getArea(AreaEnum type) {
         return areas.get(type);
     }
 

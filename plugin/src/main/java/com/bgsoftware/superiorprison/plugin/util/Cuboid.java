@@ -187,12 +187,35 @@ public class Cuboid {
         return future;
     }
 
-    private int convertToChunkDistance(Vector first, Vector second) {
-        double distanceBetweenLocations = NumberConversions.square(first.getX() - second.getX()) + NumberConversions.square(first.getZ() - second.getZ());
-        if (distanceBetweenLocations < 16)
-            return 1;
+    public Set<SPLocation> getSphereAt(Location location, int radius) {
+        Set<SPLocation> locations = new HashSet<>();
 
-        else
-            return (int) (distanceBetweenLocations / 16);
+        int X = location.getBlockX();
+        int Y = location.getBlockY();
+        int Z = location.getBlockZ();
+
+        int
+                minX = X - radius, maxX = X + radius,
+                minY = Y - radius, maxY = Y + radius,
+                minZ = Z - radius, maxZ = Z + radius;
+
+        String worldName = location.getWorld().getName();
+
+        for (int x = minX; x <= maxX; x++) {
+            int diffXSqr = (X - x) * (X - x);
+            for (int y = minY; y <= maxY; y++) {
+                int diffYSqr = (Y - y) * (Y - y);
+                for (int z = minZ; z <= maxZ; z++) {
+                    int diffZSqr = (Z - z) * (Z - z);
+                    SPLocation spLocation = new SPLocation(worldName, x, y, z);
+
+                    if (diffXSqr + diffYSqr + diffZSqr > radius * radius) continue;
+                    if (!containsVector(spLocation.toVector())) continue;
+
+                    locations.add(spLocation);
+                }
+            }
+        }
+        return locations;
     }
 }

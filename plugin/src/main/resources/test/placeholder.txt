@@ -4,3 +4,6 @@ Ranks/Prestiges expressions:
 - dividing (value / value)
 - adding (value + value)
 - removing (value - value)
+
+Placeholder API parse
+{parse %placeholder%}

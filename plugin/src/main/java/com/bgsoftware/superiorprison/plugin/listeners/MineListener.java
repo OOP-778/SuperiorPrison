@@ -29,6 +29,7 @@ import org.bukkit.entity.Cow;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -194,7 +195,7 @@ public class MineListener {
             }
         });
 
-        SyncEvents.listen(EntitySpawnEvent.class, EventPriority.LOWEST, event -> {
+        SyncEvents.listen(CreatureSpawnEvent.class, EventPriority.LOWEST, event -> {
             if (event.getEntity() instanceof Player) return;
             if (event.getEntity().hasMetadata("NPC")) return;
 
@@ -207,11 +208,17 @@ public class MineListener {
             if (!mineAt.isPresent()) return;
 
             MineSettings settings = mineAt.get().getSettings();
-            if (event.getEntity() instanceof Monster && settings.isDisableMonsterSpawn())
+            if (event.getEntity() instanceof Monster && settings.isDisableMonsterSpawn()) {
+                System.out.println("is monster");
+                event.getEntity().remove();
                 event.setCancelled(true);
+            }
 
-            else if (event.getEntity() instanceof Animals && settings.isDisableAnimalSpawn())
+            else if (event.getEntity() instanceof Animals && settings.isDisableAnimalSpawn()) {
+                System.out.println("is animal");
+                event.getEntity().remove();
                 event.setCancelled(true);
+            }
         });
     }
 }

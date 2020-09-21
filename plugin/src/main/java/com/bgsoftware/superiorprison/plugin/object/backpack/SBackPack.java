@@ -12,6 +12,7 @@ import com.google.common.base.Preconditions;
 import com.oop.datamodule.gson.JsonObject;
 import com.oop.datamodule.SerializedData;
 import com.oop.datamodule.StorageInitializer;
+import com.oop.orangeengine.item.ItemBuilder;
 import com.oop.orangeengine.item.custom.OItem;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.material.OMaterial;
@@ -160,7 +161,7 @@ public class SBackPack implements BackPack {
     }
 
     public void updateNbt() {
-        OItem oItem = config.getItem().clone().makeUnstackable();
+        ItemBuilder oItem = config.getItem().clone().makeUnstackable();
         List<String> oldLore = oItem.getLore();
         List<String> newLore = new ArrayList<>();
 

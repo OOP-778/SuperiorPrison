@@ -2,6 +2,7 @@ package com.bgsoftware.superiorprison.plugin.config.backpack;
 
 import com.bgsoftware.superiorprison.plugin.object.backpack.BackPackData;
 import com.bgsoftware.superiorprison.plugin.object.backpack.SBackPack;
+import com.oop.orangeengine.item.ItemBuilder;
 import com.oop.orangeengine.item.custom.OItem;
 import com.oop.orangeengine.yaml.ConfigSection;
 import com.oop.orangeengine.yaml.ConfigValue;
@@ -22,13 +23,13 @@ public abstract class BackPackConfig<T extends BackPackConfig<T>> {
     }
 
     static {
-        registerUpgrade("item", BackPackConfig.class, ConfigSection.class, (backpack, section) -> backpack.item = new OItem().load(section));
+        registerUpgrade("item", BackPackConfig.class, ConfigSection.class, (backpack, section) -> backpack.item = ItemBuilder.fromConfiguration(section));
     }
 
     private Map<Integer, BackPackUpgrade<T>> upgrades = new HashMap<>();
 
     @Getter
-    private OItem item;
+    private ItemBuilder item;
 
     @Getter
     private String id;

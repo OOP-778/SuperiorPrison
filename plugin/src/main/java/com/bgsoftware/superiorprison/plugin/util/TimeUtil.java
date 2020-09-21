@@ -19,6 +19,8 @@ public class TimeUtil {
         } catch (Exception ignored) {
         }
 
+        string = string.toLowerCase();
+
         List<String> characters = Arrays.stream(string.split("\\d")).filter(s -> !s.isEmpty()).collect(Collectors.toList());
         List<String> numbers = Arrays.asList(string.split("\\D"));
 

@@ -41,8 +41,6 @@ public class SStatisticsContainer implements StatisticsContainer, MultiTypeBody,
         if (cachedPrisoner == null)
             cachedPrisoner = (SPrisoner) SuperiorPrisonPlugin.getInstance().getPrisonerController().getPrisoner(uuid).orElse(null);
 
-        Preconditions.checkArgument(cachedPrisoner != null, "Prisoner is invalid!");
-        Preconditions.checkArgument(!cachedPrisoner.isRemoved(), "Prisoner is invalid!");
         return cachedPrisoner;
     }
 

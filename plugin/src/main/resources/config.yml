@@ -121,6 +121,13 @@ rankup message interval: "6s"
 # Should it use mine shop of the current rank of the player
 use mine shops by rank: false
 
+# How much chunks per tick should the block setting use
+# Please be careful with this. As it can cause serious performance issues, test the values you set before using.
+chunks per tick: 5
+
+# Disable or Enable dropping items
+dropping items: true
+
 # Disable interactable blocks
 disable interactable blocks:
   - "CRAFTING_TABLE"

@@ -31,6 +31,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
+import org.bukkit.event.entity.ItemSpawnEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
@@ -209,14 +211,24 @@ public class MineListener {
 
             MineSettings settings = mineAt.get().getSettings();
             if (event.getEntity() instanceof Monster && settings.isDisableMonsterSpawn()) {
-                System.out.println("is monster");
-                event.getEntity().remove();
                 event.setCancelled(true);
             }
 
             else if (event.getEntity() instanceof Animals && settings.isDisableAnimalSpawn()) {
-                System.out.println("is animal");
-                event.getEntity().remove();
+                event.setCancelled(true);
+            }
+        });
+
+        SyncEvents.listen(PlayerDropItemEvent.class, event -> {
+            // World check
+            Set<String> worldNames = mineHolder.getMinesWorlds();
+            if (!worldNames.contains(event.getItemDrop().getWorld().getName()))
+                return;
+
+            Optional<SuperiorMine> mineAt = mineHolder.getMineAt(event.getItemDrop().getLocation());
+            if (!mineAt.isPresent()) return;
+
+            if (!SuperiorPrisonPlugin.getInstance().getMainConfig().isItemDropping()) {
                 event.setCancelled(true);
             }
         });

@@ -2,9 +2,8 @@ package com.bgsoftware.superiorprison.plugin;
 
 import com.bgsoftware.superiorprison.api.SuperiorPrison;
 import com.bgsoftware.superiorprison.api.SuperiorPrisonAPI;
-import com.bgsoftware.superiorprison.api.controller.StatisticsController;
 import com.bgsoftware.superiorprison.plugin.commands.CommandsRegister;
-import com.bgsoftware.superiorprison.plugin.config.MainConfig;
+import com.bgsoftware.superiorprison.plugin.config.main.MainConfig;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.controller.*;
 import com.bgsoftware.superiorprison.plugin.data.SMineHolder;
@@ -17,9 +16,9 @@ import com.bgsoftware.superiorprison.plugin.listeners.*;
 import com.bgsoftware.superiorprison.plugin.mterics.Metrics;
 import com.bgsoftware.superiorprison.plugin.nms.SuperiorNms;
 import com.bgsoftware.superiorprison.plugin.requirement.RequirementRegisterer;
+import com.bgsoftware.superiorprison.plugin.tasks.ResetQueueTask;
 import com.bgsoftware.superiorprison.plugin.tasks.TasksStarter;
 import com.bgsoftware.superiorprison.plugin.util.menu.MenuListener;
-import com.oop.orangeengine.command.CommandController;
 import com.oop.orangeengine.main.Helper;
 import com.oop.orangeengine.main.plugin.EnginePlugin;
 import com.oop.orangeengine.main.task.ClassicTaskController;
@@ -27,10 +26,6 @@ import com.oop.orangeengine.main.task.TaskController;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_12_R1.block.CraftSkull;
-
-import java.util.Comparator;
-import java.util.stream.Stream;
 
 @Getter
 public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison {
@@ -50,7 +45,9 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
     private DatabaseController databaseController;
     private ChatController chatController;
     private STopController topController;
+    private BombController bombController;
     private SuperiorNms nms;
+    private ResetQueueTask resetQueueTask;
 
     public static SuperiorPrisonPlugin getInstance() {
         return instance;
@@ -82,17 +79,22 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
             this.requirementController = new RequirementController();
             new RequirementRegisterer();
 
+            resetQueueTask = new ResetQueueTask();
+
             this.configController = new ConfigController();
             this.chatController = new ChatController();
             this.backPackController = new SBackPackController();
             this.prestigeController = new PrestigeController();
             this.rankController = new RankController();
+            this.bombController = new BombController();
+
             getPluginComponentController()
                     .add(configController, true)
                     .add(rankController, true)
                     .add(prestigeController, true)
                     .add(chatController, true)
                     .add(backPackController, true)
+                    //.add(bombController, true)
                     .load();
 
             this.databaseController = new DatabaseController(mainConfig);

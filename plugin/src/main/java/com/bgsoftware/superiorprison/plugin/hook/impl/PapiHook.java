@@ -5,7 +5,9 @@ import com.bgsoftware.superiorprison.plugin.hook.SHook;
 import com.bgsoftware.superiorprison.plugin.util.placeholders.PlaceholderParser;
 import com.bgsoftware.superiorprison.plugin.util.placeholders.parser.ObjectCache;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
+import com.oop.orangeengine.main.events.SyncEvents;
 import me.clip.placeholderapi.PlaceholderAPI;
+import me.clip.placeholderapi.events.ExpansionUnregisterEvent;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -79,6 +81,11 @@ public class PapiHook extends SHook {
             if (p != null)
                 SuperiorPrisonPlugin.getInstance().getPrisonerController().getPrisoner(p.getUniqueId()).ifPresent(cache::add);
             return PlaceholderParser.parse(split, cache);
+        }
+
+        @Override
+        public boolean persist() {
+            return true;
         }
     }
 }

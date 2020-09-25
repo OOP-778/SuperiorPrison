@@ -9,6 +9,7 @@ import com.bgsoftware.superiorprison.plugin.controller.*;
 import com.bgsoftware.superiorprison.plugin.data.SMineHolder;
 import com.bgsoftware.superiorprison.plugin.data.SPrisonerHolder;
 import com.bgsoftware.superiorprison.plugin.data.SStatisticHolder;
+import com.bgsoftware.superiorprison.plugin.hook.impl.MVDWPapi;
 import com.bgsoftware.superiorprison.plugin.hook.impl.PapiHook;
 import com.bgsoftware.superiorprison.plugin.hook.impl.ShopGuiPlusHook;
 import com.bgsoftware.superiorprison.plugin.hook.impl.VaultHook;
@@ -67,7 +68,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
             new MenuListener();
 
             this.hookController = new HookController();
-            hookController.registerHooks(() -> VaultHook.class, () -> ShopGuiPlusHook.class, () -> PapiHook.class);
+            hookController.registerHooks(() -> VaultHook.class, () -> ShopGuiPlusHook.class, () -> PapiHook.class, () -> MVDWPapi.class);
 
             // Setup API
             new SuperiorPrisonAPI(this);

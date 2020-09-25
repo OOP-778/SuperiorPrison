@@ -123,6 +123,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
             }
 
             new Metrics(this);
+            resetQueueTask.execute();
         } catch (Throwable thrw) {
             throw new IllegalStateException("Failed to start SuperiorPrison", thrw);
         }

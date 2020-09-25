@@ -2,11 +2,10 @@ package com.bgsoftware.superiorprison.plugin.object.mine;
 
 import com.bgsoftware.superiorprison.api.data.mine.MineBlockData;
 import com.bgsoftware.superiorprison.plugin.util.Attachable;
-import com.bgsoftware.superiorprison.plugin.util.ClassDebugger;
-import com.oop.datamodule.gson.JsonArray;
-import com.oop.datamodule.gson.JsonObject;
 import com.oop.datamodule.SerializableObject;
 import com.oop.datamodule.SerializedData;
+import com.oop.datamodule.gson.JsonArray;
+import com.oop.datamodule.gson.JsonObject;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.material.OMaterial;
 import lombok.Getter;
@@ -18,11 +17,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class SMineBlockData implements Attachable<SMineGenerator>, MineBlockData, SerializableObject {
 
-    private SMineGenerator generator;
-
     // Material, current value, starting value
     private final Map<OMaterial, OPair<Long, Long>> materials = new ConcurrentHashMap<>();
-
+    private SMineGenerator generator;
     @Getter
     private long blocksLeft;
 

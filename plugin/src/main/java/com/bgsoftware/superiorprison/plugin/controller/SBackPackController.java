@@ -22,7 +22,7 @@ import java.util.*;
 public class SBackPackController implements BackPackController, OComponent<SuperiorPrisonPlugin> {
 
     public static final String NBT_KEY = "BACKPACK_DATA";
-    private Map<String, BackPackConfig<?>> backpackConfigs = new HashMap<>();
+    private final Map<String, BackPackConfig<?>> backpackConfigs = new HashMap<>();
     private boolean playerBound = false;
 
     @Override

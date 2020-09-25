@@ -1,14 +1,11 @@
 package com.bgsoftware.superiorprison.plugin.menu.backpack;
 
-import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.object.backpack.SBackPack;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.util.menu.OMenu;
 import com.bgsoftware.superiorprison.plugin.util.menu.OMenuButton;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftInventoryPlayer;
 import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
@@ -16,7 +13,7 @@ import java.util.HashMap;
 
 public class SimpleBackPackView extends OMenu implements BackpackLockable {
 
-    private SBackPack backPack;
+    private final SBackPack backPack;
 
     public SimpleBackPackView(SPrisoner viewer, SBackPack backPack) {
         super("simpleBackPackView", viewer);

@@ -22,34 +22,27 @@ import java.util.function.Function;
 @Accessors(chain = true, fluent = true)
 public class MultiPlayerInput {
 
-    @Setter
-    @Getter
-    private boolean commandsEnabled = false;
-
     @Getter
     private @NonNull
     final Player player;
-
+    private final Set<SubscribedEvent> events = new HashSet<>();
+    @Setter
+    @Getter
+    private boolean commandsEnabled = false;
     @Getter
     @Setter
     private @NonNull BiConsumer<MultiPlayerInput, Throwable> onError;
-
     @Getter
     @Setter
     private @NonNull MultiInputCompletion onInput;
-
     @Setter
     private Runnable onCancel;
-
     @Getter
     private long timeOut;
-
     @Getter
     private boolean cancelled;
-
-    private final Set<SubscribedEvent> events = new HashSet<>();
-    private Queue<InputData> queue = new ConcurrentLinkedDeque<>();
-    private Map<String, Object> parsedData = new HashMap<>();
+    private final Queue<InputData> queue = new ConcurrentLinkedDeque<>();
+    private final Map<String, Object> parsedData = new HashMap<>();
 
     public MultiPlayerInput(Player player) {
         this.player = player;

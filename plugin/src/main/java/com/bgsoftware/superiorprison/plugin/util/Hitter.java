@@ -1,14 +1,10 @@
 package com.bgsoftware.superiorprison.plugin.util;
 
 import com.oop.orangeengine.main.events.SyncEvents;
-import org.bukkit.block.Block;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.util.Vector;
-
-import java.util.function.BiConsumer;
 
 public class Hitter {
     static {
@@ -16,10 +12,6 @@ public class Hitter {
             if (event.getEntity().getShooter() instanceof Tracker)
                 ((Tracker) event.getEntity().getShooter()).onHit();
         });
-    }
-
-    private interface Tracker extends ProjectileSource {
-        void onHit();
     }
 
     public static void listenForHit(Projectile projectile, Runnable onHit) {
@@ -40,6 +32,10 @@ public class Hitter {
                 return shooter.launchProjectile(aClass, vector);
             }
         });
+    }
+
+    private interface Tracker extends ProjectileSource {
+        void onHit();
     }
 
 }

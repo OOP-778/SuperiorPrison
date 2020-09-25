@@ -8,6 +8,7 @@ import com.bgsoftware.superiorprison.plugin.util.frameworks.Framework;
 import com.oop.orangeengine.main.task.OTask;
 import com.oop.orangeengine.main.task.StaticTask;
 import com.oop.orangeengine.material.OMaterial;
+import lombok.Setter;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 
@@ -18,12 +19,15 @@ public class ResetQueueTask extends OTask {
     private boolean gettingChunk = false;
     private boolean running = false;
 
-    private ChunkResetData currentChunk;
+    @Setter
+    private int chunksPerTick = 4;
+
+    private volatile ChunkResetData currentChunk;
     private Chunk bukkitChunk;
 
     public ResetQueueTask() {
         sync(false);
-        delay(100);
+        delay(70);
         repeat(true);
 
         runnable(() -> {
@@ -43,7 +47,7 @@ public class ResetQueueTask extends OTask {
             double tps = TPS.getCurrentTps();
             if (lastTps != 0) {
                 double diff = lastTps - tps;
-                if (diff > 0 && diff >= 0.3) {
+                if (diff > 0 && diff >= 0.25) {
                     skip = 20 * 3;
                     lastTps = 0;
                     cancel = true;
@@ -58,29 +62,42 @@ public class ResetQueueTask extends OTask {
             if (!running && !gettingChunk) {
                 running = true;
                 cancel = false;
+
                 StaticTask.getInstance().sync(() -> {
-                    while (currentChunk != null && !currentChunk.getData().isEmpty()) {
-                        if (cancel || currentChunk == null || currentChunk.getData().isEmpty())
-                            break;
+                    int proccedChunks = 0;
+                    try {
+                        while (currentChunk != null && !currentChunk.getData().isEmpty()) {
+                            if (cancel || currentChunk == null || currentChunk.getData().isEmpty())
+                                break;
 
-                        if (bukkitChunk == null) {
-                            gettingChunk = true;
-                            Framework.FRAMEWORK.loadChunk(currentChunk.getWorld(), currentChunk.getX(), currentChunk.getZ(), chunk -> {
-                                this.bukkitChunk = chunk;
-                                this.gettingChunk = false;
-                            });
-                            break;
+                            if (bukkitChunk == null) {
+                                gettingChunk = true;
+                                Framework.FRAMEWORK.loadChunk(currentChunk.getWorld(), currentChunk.getX(), currentChunk.getZ(), chunk -> {
+                                    this.bukkitChunk = chunk;
+                                    this.gettingChunk = false;
+                                });
+                                break;
+                            }
+
+                            ListenablePair<Location, OMaterial> poll = currentChunk.getData().poll();
+                            SuperiorPrisonPlugin.getInstance().getNms().setBlock(bukkitChunk, poll.getFirst(), poll.getSecond());
+                            poll.complete();
+
+                            if (currentChunk != null && currentChunk.getData().isEmpty()) {
+                                proccedChunks++;
+                                if (proccedChunks == chunksPerTick)
+                                    break;
+
+                                currentChunk = SuperiorPrisonPlugin.getInstance().getMineController().getQueue().next();
+                                bukkitChunk = null;
+                            }
                         }
-
-                        ListenablePair<Location, OMaterial> poll = currentChunk.getData().poll();
-                        SuperiorPrisonPlugin.getInstance().getNms().setBlock(bukkitChunk, poll.getFirst(), poll.getSecond());
-                        poll.complete();
+                    } catch (Exception exception) {
+                        exception.printStackTrace();
                     }
                     running = false;
                 });
             }
         });
-
-        execute();
     }
 }

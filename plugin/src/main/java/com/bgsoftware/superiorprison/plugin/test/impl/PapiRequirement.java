@@ -1,6 +1,6 @@
 package com.bgsoftware.superiorprison.plugin.test.impl;
 
-import com.bgsoftware.superiorprison.plugin.test.Requirement;
+import com.bgsoftware.superiorprison.plugin.test.requirement.Requirement;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 
 public class PapiRequirement extends Requirement<PapiRequirementData> {
@@ -16,5 +16,10 @@ public class PapiRequirement extends Requirement<PapiRequirementData> {
     @Override
     public String getId() {
         return "papi";
+    }
+
+    @Override
+    public Class<PapiRequirementData> getDataClass() {
+        return PapiRequirementData.class;
     }
 }

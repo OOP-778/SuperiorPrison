@@ -78,7 +78,8 @@ public class CmdMigrate extends OCommand {
                     AtomicReference<DatabaseWrapper> databaseReference = new AtomicReference<>();
                     DatabaseWrapper wrapper = migrateMines(source, command.getSenderAsPlayer(), () -> {
                         migratePrisoners(source, command.getSenderAsPlayer(), () -> {
-                            migrateStatistics(source, command.getSenderAsPlayer(), () -> {}, databaseReference.get());
+                            migrateStatistics(source, command.getSenderAsPlayer(), () -> {
+                            }, databaseReference.get());
                         }, databaseReference.get());
                     }, null);
                     databaseReference.set(wrapper);
@@ -319,24 +320,7 @@ public class CmdMigrate extends OCommand {
             currentStorage.add(migratedObject);
     }
 
-    private static class EnumArg<T extends Enum> extends CommandArgument<T> {
-        private Supplier<T[]> valuesSupplier;
-
-        public EnumArg(Supplier<T[]> valuesSupplier, Function<String, T> mapper) {
-            this.valuesSupplier = valuesSupplier;
-            setMapper(in -> {
-                T value = mapper.apply(in);
-                return new OPair<>(value, "Failed to find " + getIdentity() + " by " + in);
-            });
-        }
-
-        @Override
-        public void onAdd(OCommand command) {
-            command.nextTabComplete(((completionResult, strings) -> Arrays.stream(valuesSupplier.get()).map(Enum::name).collect(Collectors.toList())));
-        }
-    }
-
-    private static enum MigrationType {
+    private enum MigrationType {
         ALL,
         PRISONERS,
         MINES,
@@ -350,7 +334,7 @@ public class CmdMigrate extends OCommand {
         }
     }
 
-    private static enum MigrationSource {
+    private enum MigrationSource {
         MYSQL,
         FLAT,
         SQLITE;
@@ -360,6 +344,23 @@ public class CmdMigrate extends OCommand {
                 if (value.name().equalsIgnoreCase(in)) return value;
 
             return null;
+        }
+    }
+
+    private static class EnumArg<T extends Enum> extends CommandArgument<T> {
+        private final Supplier<T[]> valuesSupplier;
+
+        public EnumArg(Supplier<T[]> valuesSupplier, Function<String, T> mapper) {
+            this.valuesSupplier = valuesSupplier;
+            setMapper(in -> {
+                T value = mapper.apply(in);
+                return new OPair<>(value, "Failed to find " + getIdentity() + " by " + in);
+            });
+        }
+
+        @Override
+        public void onAdd(OCommand command) {
+            command.nextTabComplete(((completionResult, strings) -> Arrays.stream(valuesSupplier.get()).map(Enum::name).collect(Collectors.toList())));
         }
     }
 }

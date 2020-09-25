@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
-import static com.bgsoftware.superiorprison.plugin.util.TextUtil.*;
+import static com.bgsoftware.superiorprison.plugin.util.TextUtil.mergeText;
 
 public class MessageEditMenu extends OMenu {
 

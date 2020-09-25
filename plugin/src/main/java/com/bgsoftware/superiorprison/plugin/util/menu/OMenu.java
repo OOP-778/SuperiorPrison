@@ -37,25 +37,18 @@ public abstract class OMenu implements InventoryHolder {
 
     private final SPrisoner viewer;
     private final String identifier;
-    protected boolean previousMove = true;
     private final Map<String, Object> data = Maps.newConcurrentMap();
-    private OMenu previousMenu;
-
     @Getter
     private final Map<Integer, OMenuButton> fillerItems = Maps.newHashMap();
-
     private final Set<OMenuButton> miscButtons = Sets.newHashSet();
-
     private final Map<String, ClickHandler> clickHandlers = Maps.newHashMap();
-
+    private final StateRequester stateRequester = new StateRequester();
+    protected boolean previousMove = true;
+    private OMenu previousMenu;
     @Setter
     private String title;
-
     @Setter
     private int menuRows;
-
-    private final StateRequester stateRequester = new StateRequester();
-
     private OMenu moving;
     private MenuAction currentAction;
 

@@ -1,6 +1,5 @@
 package com.bgsoftware.superiorprison.plugin.object.top;
 
-import com.bgsoftware.superiorprison.api.data.top.TopEntry;
 import com.bgsoftware.superiorprison.api.data.top.TopSystem;
 import lombok.SneakyThrows;
 

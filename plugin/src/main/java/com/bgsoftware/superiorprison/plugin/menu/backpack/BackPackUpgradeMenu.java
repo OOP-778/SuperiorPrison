@@ -19,7 +19,7 @@ import java.util.Optional;
 
 public class BackPackUpgradeMenu extends OMenu implements BackpackLockable {
 
-    private SBackPack backPack;
+    private final SBackPack backPack;
 
     public BackPackUpgradeMenu(SPrisoner viewer, SBackPack backPack) {
         super("backpackupgrade", viewer);

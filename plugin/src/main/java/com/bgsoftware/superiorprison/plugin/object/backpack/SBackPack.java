@@ -7,13 +7,11 @@ import com.bgsoftware.superiorprison.plugin.config.backpack.BackPackConfig;
 import com.bgsoftware.superiorprison.plugin.config.backpack.SimpleBackPackConfig;
 import com.bgsoftware.superiorprison.plugin.menu.backpack.AdvancedBackPackView;
 import com.bgsoftware.superiorprison.plugin.util.TextUtil;
-import com.bgsoftware.superiorprison.plugin.util.menu.OMenuButton;
 import com.google.common.base.Preconditions;
-import com.oop.datamodule.gson.JsonObject;
 import com.oop.datamodule.SerializedData;
 import com.oop.datamodule.StorageInitializer;
+import com.oop.datamodule.gson.JsonObject;
 import com.oop.orangeengine.item.ItemBuilder;
-import com.oop.orangeengine.item.custom.OItem;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.material.OMaterial;
 import com.oop.orangeengine.nbt.NBTItem;
@@ -56,30 +54,7 @@ public class SBackPack implements BackPack {
     private int lastRows = -1;
     private int lastPages = -1;
 
-    private SBackPack() {}
-
-    public static SBackPack of(BackPackConfig<?> config, Player player) {
-        SBackPack backPack = new SBackPack();
-        backPack.config = config;
-        backPack.oldData = new JsonObject();
-        backPack.owner = player;
-        backPack.itemStack = config.getItem().getItemStack().clone();
-        backPack.data = new BackPackData(backPack);
-        backPack.nbtItem = new NBTItem(backPack.itemStack);
-
-        if (config instanceof AdvancedBackPackConfig) {
-            backPack.lastRows = ((AdvancedBackPackConfig) config).getRows();
-            backPack.lastPages = ((AdvancedBackPackConfig) config).getPages();
-        }
-
-        backPack.updateNbt();
-        backPack.save();
-        backPack.updateHash();
-        return backPack;
-    }
-
-    private void updateHash() {
-        this.hashcode = data.hashCode();
+    private SBackPack() {
     }
 
     @SneakyThrows
@@ -121,6 +96,30 @@ public class SBackPack implements BackPack {
             data.updateData();
 
         updateHash();
+    }
+
+    public static SBackPack of(BackPackConfig<?> config, Player player) {
+        SBackPack backPack = new SBackPack();
+        backPack.config = config;
+        backPack.oldData = new JsonObject();
+        backPack.owner = player;
+        backPack.itemStack = config.getItem().getItemStack().clone();
+        backPack.data = new BackPackData(backPack);
+        backPack.nbtItem = new NBTItem(backPack.itemStack);
+
+        if (config instanceof AdvancedBackPackConfig) {
+            backPack.lastRows = ((AdvancedBackPackConfig) config).getRows();
+            backPack.lastPages = ((AdvancedBackPackConfig) config).getPages();
+        }
+
+        backPack.updateNbt();
+        backPack.save();
+        backPack.updateHash();
+        return backPack;
+    }
+
+    private void updateHash() {
+        this.hashcode = data.hashCode();
     }
 
     @Override

@@ -19,10 +19,10 @@ import java.util.Set;
 public class ObjectLinker implements Attachable<SNormalMine>, SerializableObject {
     private SNormalMine mine;
 
-    private Map<String, Set<LinkInfo>> linkedObjects = new HashMap<>();
+    private final Map<String, Set<LinkInfo>> linkedObjects = new HashMap<>();
 
     @Getter
-    private Map<String, String> linkedTo = new HashMap<>();
+    private final Map<String, String> linkedTo = new HashMap<>();
 
     public <T extends LinkableObject<T>> void link(SNormalMine to, T object) {
         Set<LinkInfo> linkInfos = linkedObjects.computeIfAbsent(object.getLinkId(), key -> Sets.newConcurrentHashSet());
@@ -135,8 +135,12 @@ public class ObjectLinker implements Attachable<SNormalMine>, SerializableObject
             this.linkedTo.put(jsonElement.getAsJsonObject().get("key").getAsString(), jsonElement.getAsJsonObject().get("value").getAsString());
     }
 
+    public boolean isLinked(String linkId) {
+        return linkedTo.containsKey(linkId);
+    }
+
     private class LinkInfo {
-        private String to;
+        private final String to;
         private LinkableObject linkedObject;
 
         private SNormalMine cache;
@@ -145,9 +149,5 @@ public class ObjectLinker implements Attachable<SNormalMine>, SerializableObject
             this.to = to;
             this.linkedObject = linkedObject;
         }
-    }
-
-    public boolean isLinked(String linkId) {
-        return linkedTo.containsKey(linkId);
     }
 }

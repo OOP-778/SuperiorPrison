@@ -9,7 +9,7 @@ import com.bgsoftware.superiorprison.api.data.player.rank.LadderRank;
 import com.bgsoftware.superiorprison.api.data.player.rank.Rank;
 import com.bgsoftware.superiorprison.api.data.player.rank.SpecialRank;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
-import com.bgsoftware.superiorprison.plugin.config.MineDefaultsSection;
+import com.bgsoftware.superiorprison.plugin.config.main.MineDefaultsSection;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.data.SMineHolder;
 import com.bgsoftware.superiorprison.plugin.object.mine.area.SArea;
@@ -28,11 +28,11 @@ import com.bgsoftware.superiorprison.plugin.util.Removeable;
 import com.bgsoftware.superiorprison.plugin.util.SPLocation;
 import com.bgsoftware.superiorprison.plugin.util.frameworks.Framework;
 import com.google.common.collect.Maps;
+import com.oop.datamodule.SerializedData;
+import com.oop.datamodule.body.MultiTypeBody;
 import com.oop.datamodule.gson.JsonArray;
 import com.oop.datamodule.gson.JsonElement;
 import com.oop.datamodule.gson.JsonObject;
-import com.oop.datamodule.SerializedData;
-import com.oop.datamodule.body.MultiTypeBody;
 import com.oop.datamodule.util.DataUtil;
 import com.oop.orangeengine.item.ItemBuilder;
 import com.oop.orangeengine.main.Helper;
@@ -56,23 +56,16 @@ import java.util.stream.Collectors;
 public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.type.NormalMine, Serializable, MultiTypeBody, Removeable {
 
     private final Set<Prisoner> prisoners = ConcurrentHashMap.newKeySet();
-
-    @Setter
-    private String name;
-
-    private MineEnum type = MineEnum.NORMAL_MINE;
-
-    @Setter
-    private SPLocation spawnPoint = null;
-
-    private SMineGenerator generator;
-
-    @Setter
-    private SShop shop;
-
     private final Set<String> ranks = new OConcurrentSet<>();
     private final Set<String> prestiges = new OConcurrentSet<>();
-
+    @Setter
+    private String name;
+    private MineEnum type = MineEnum.NORMAL_MINE;
+    @Setter
+    private SPLocation spawnPoint = null;
+    private SMineGenerator generator;
+    @Setter
+    private SShop shop;
     @Getter
     @Setter
     private SMineSettings settings;
@@ -93,18 +86,24 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
 
     private SLadderRank highestRank;
 
-    private Set<SpecialRank> specialRanks = new HashSet<>();
+    private final Set<SpecialRank> specialRanks = new HashSet<>();
 
     @Getter
     private ObjectLinker linker = new ObjectLinker();
 
-    private Map<String, LinkableObject> linkableObjectMap = new HashMap<>();
+    private final Map<String, LinkableObject> linkableObjectMap = new HashMap<>();
 
     @Getter
     @Setter
     private boolean removed = false;
+    private final OCache<UUID, Boolean> canEnterCache = OCache
+            .builder()
+            .concurrencyLevel(1)
+            .expireAfter(5, TimeUnit.SECONDS)
+            .build();
 
-    private SNormalMine() {}
+    private SNormalMine() {
+    }
 
     public SNormalMine(@NonNull String name, @NonNull SPLocation regionPos1, @NonNull SPLocation regionPos2, @NonNull SPLocation minePos1, @NonNull SPLocation minePos2, @NonNull SPLocation spawnPoint) {
         this.name = name;
@@ -128,7 +127,7 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
         generator = new SMineGenerator();
         defaults.getMaterials().forEach(material -> generator.getGeneratorMaterials().add(material));
         generator.setMine(this);
-        generator.setMineArea((SArea) getArea(AreaEnum.MINE));
+        generator.setMineArea(getArea(AreaEnum.MINE));
 
         defaults.getShopPrices().forEach(item -> shop.addItem(item.getFirst().parseItem(), item.getSecond()));
         StaticTask.getInstance().async(() -> generator.initCache(() -> generator.generate()));
@@ -262,12 +261,6 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
         return icon;
     }
 
-    private OCache<UUID, Boolean> canEnterCache = OCache
-            .builder()
-            .concurrencyLevel(1)
-            .expireAfter(5, TimeUnit.SECONDS)
-            .build();
-
     @Override
     public boolean canEnter(Prisoner prisoner) {
         Boolean canEnter = canEnterCache.get(prisoner.getUUID());
@@ -346,7 +339,7 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
         getPrisoners().removeIf(prisoner -> {
             boolean online = false;
             if (!prisoner.isOnline()) {
-                ((SPrisoner)prisoner).setLogoutMine(getName());
+                ((SPrisoner) prisoner).setLogoutMine(getName());
                 prisoner.save(true);
                 online = true;
             }

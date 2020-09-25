@@ -3,13 +3,11 @@ package com.bgsoftware.superiorprison.plugin.controller;
 import com.bgsoftware.superiorprison.api.controller.TopController;
 import com.bgsoftware.superiorprison.api.data.top.TopSystem;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
-import com.bgsoftware.superiorprison.plugin.config.TopSystemsSection;
+import com.bgsoftware.superiorprison.plugin.config.main.TopSystemsSection;
 import com.bgsoftware.superiorprison.plugin.object.top.blocks.SBlocksTopSystem;
 import com.bgsoftware.superiorprison.plugin.object.top.prestige.SPrestigeTopSystem;
-import com.bgsoftware.superiorprison.plugin.util.ClassDebugger;
 import com.oop.orangeengine.main.task.OTask;
 
-import java.time.Duration;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -17,6 +15,9 @@ import java.util.concurrent.TimeUnit;
 
 public class STopController implements TopController {
     private final Set<TopSystem> registeredSystems = new HashSet<>();
+    private final long defaultInterval = 10;
+    private final Map<String, Long> updateTimes = new HashMap<>();
+    private final Map<String, ZonedDateTime> timesWhenRan = new HashMap<>();
 
     public STopController() {
         registerSystem(new SBlocksTopSystem());
@@ -43,10 +44,6 @@ public class STopController implements TopController {
     public void registerSystem(TopSystem system) {
         registeredSystems.add(system);
     }
-
-    private final long defaultInterval = 10;
-    private Map<String, Long> updateTimes = new HashMap<>();
-    private Map<String, ZonedDateTime> timesWhenRan = new HashMap<>();
 
     public void update() {
         TopSystemsSection config = SuperiorPrisonPlugin.getInstance().getMainConfig().getTopSystemsSection();

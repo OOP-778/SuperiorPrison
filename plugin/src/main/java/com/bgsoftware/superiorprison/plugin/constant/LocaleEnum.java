@@ -272,19 +272,22 @@ public enum LocaleEnum {
     MIGRATION_SOURCE_LOADED("Migration source data has been loaded!"),
     MIGRATION_DUPLICATE(
             new OChatMessage("&cThere has been duplicate object found in current data. Please select if you wanna to use the data from Current Database or From Source")
-                .append("&c&l* &7Object Identity: &c{identity}")
-                .append("")
-                .append(
-                        new ChatLine()
-                            .append(new LineContent("&c&l[CURRENT]").hover().add("&cClick to select data from current database").parent().chat().message("current").parent())
-                            .append(" ")
-                            .append(new LineContent("&c&l[SOURCE]").hover().add("&cClick to select data from source").parent().chat().message("source").parent())
-                )
+                    .append("&c&l* &7Object Identity: &c{identity}")
+                    .append("")
+                    .append(
+                            new ChatLine()
+                                    .append(new LineContent("&c&l[CURRENT]").hover().add("&cClick to select data from current database").parent().chat().message("current").parent())
+                                    .append(" ")
+                                    .append(new LineContent("&c&l[SOURCE]").hover().add("&cClick to select data from source").parent().chat().message("source").parent())
+                    )
     ),
     MIGRATION_SUCCESSFUL("Migration of {type} is done."),
     MIGRATION_CREDENTIALS_ASK("Please provide the {credential} of the database"),
     PRISONER_HIGHEST_MINE_SEARCH_FAILED("Failed to find highest mine for you. This might be a bug!"),
-    MINES_NOT_FOUND("There's 0 mines created. Please create at least one mine!");
+    MINES_NOT_FOUND("There's 0 mines created. Please create at least one mine!"),
+
+    BOMB_STILL_ON_COOLDOWN("You cannot use this bomb for {cooldown}"),
+    BOMB_FAILED_TO_LAND_IN_MINE("Your bomb failed to land on mine, returning it to you.");
 
     private final OMessage[] cache = new OMessage[2];
 

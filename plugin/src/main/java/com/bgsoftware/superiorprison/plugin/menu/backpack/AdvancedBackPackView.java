@@ -2,7 +2,6 @@ package com.bgsoftware.superiorprison.plugin.menu.backpack;
 
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.config.backpack.AdvancedBackPackConfig;
-import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.controller.ConfigController;
 import com.bgsoftware.superiorprison.plugin.object.backpack.SBackPack;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
@@ -17,15 +16,18 @@ import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 
 @Getter
 public class AdvancedBackPackView extends OPagedMenu<ItemStack> implements BackpackLockable {
 
-    private SBackPack backPack;
     private final OMenuButton[] top = new OMenuButton[9];
     private final OMenuButton[] bottom = new OMenuButton[9];
+    private final SBackPack backPack;
 
     public AdvancedBackPackView(SPrisoner viewer, SBackPack backPack) {
         super("backpackview", viewer);
@@ -174,7 +176,8 @@ public class AdvancedBackPackView extends OPagedMenu<ItemStack> implements Backp
     }
 
     @Override
-    public void handleDrag(InventoryDragEvent event) {}
+    public void handleDrag(InventoryDragEvent event) {
+    }
 
     private OMenuButton.ButtonItemBuilder getToggleableState(OMenuButton button, boolean state) {
         if (state)

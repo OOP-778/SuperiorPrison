@@ -1,7 +1,8 @@
 package com.bgsoftware.superiorprison.plugin.commands;
 
 import com.bgsoftware.superiorprison.plugin.commands.backpacks.CmdBackpacks;
-import com.bgsoftware.superiorprison.plugin.commands.mines.*;
+import com.bgsoftware.superiorprison.plugin.commands.bombs.CmdBombs;
+import com.bgsoftware.superiorprison.plugin.commands.mines.CmdMines;
 import com.bgsoftware.superiorprison.plugin.commands.pcp.CmdPrisonerCP;
 import com.bgsoftware.superiorprison.plugin.commands.prisoner.CmdPrisoner;
 import com.bgsoftware.superiorprison.plugin.commands.rankup.CmdMaxRankup;
@@ -11,7 +12,10 @@ import com.bgsoftware.superiorprison.plugin.commands.top.CmdTop;
 import com.oop.orangeengine.command.CommandController;
 import com.oop.orangeengine.command.scheme.SchemeHolder;
 import com.oop.orangeengine.file.OFile;
+import com.oop.orangeengine.main.task.OTask;
 import com.oop.orangeengine.yaml.Config;
+
+import java.util.concurrent.TimeUnit;
 
 import static com.oop.orangeengine.main.Engine.getEngine;
 
@@ -48,6 +52,15 @@ public class CommandsRegister {
         controller.register(new CmdMine());
 
         new PermissionsInitializer(controller);
+
+        controller.register(new CmdBombs());
         //new CommandsPrinter(controller, new File(SuperiorPrisonPlugin.getInstance().getDataFolder(), "commands.txt"));
+
+        // Unregister all similar commands from other plugins
+        new OTask()
+                .delay(TimeUnit.SECONDS, 1)
+                .runnable(controller::unregisterSimilar)
+                .execute();
+
     }
 }

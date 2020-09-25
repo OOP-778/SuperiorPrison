@@ -11,14 +11,12 @@ import com.bgsoftware.superiorprison.plugin.util.LoadHookable;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.oop.orangeengine.main.plugin.OComponent;
-import com.oop.orangeengine.main.task.OTask;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.yaml.Config;
 import com.oop.orangeengine.yaml.ConfigSection;
 import lombok.Getter;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public class RankController implements com.bgsoftware.superiorprison.api.controller.RankController, OComponent<SuperiorPrisonPlugin>, LoadHookable<RankController> {
@@ -28,7 +26,7 @@ public class RankController implements com.bgsoftware.superiorprison.api.control
     private SLadderRank defaultRank;
 
     @Getter
-    private List<Consumer<RankController>> loadHooks = new ArrayList<>();
+    private final List<Consumer<RankController>> loadHooks = new ArrayList<>();
 
     private List<Runnable> onLoadHooks;
 

@@ -12,9 +12,8 @@ import java.util.function.Consumer;
 @Accessors(fluent = true, chain = true)
 public class ClickHandler {
 
-    private String action;
     private final Set<ClickType> acceptsTypes = Sets.newHashSet(ClickType.values());
-
+    private String action;
     private Consumer<ButtonClickEvent> consumer;
 
     public static ClickHandler of(OMenuButton button) {

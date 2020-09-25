@@ -1,6 +1,5 @@
 package com.bgsoftware.superiorprison.plugin.config.backpack;
 
-import com.google.common.base.Preconditions;
 import com.oop.orangeengine.yaml.ConfigSection;
 
 public class SimpleBackPackConfig extends BackPackConfig<SimpleBackPackConfig> {
@@ -11,11 +10,13 @@ public class SimpleBackPackConfig extends BackPackConfig<SimpleBackPackConfig> {
     }
 
     private int capacity;
+
     public SimpleBackPackConfig(ConfigSection section) {
         super(section);
     }
 
-    public SimpleBackPackConfig() {}
+    public SimpleBackPackConfig() {
+    }
 
     @Override
     public SimpleBackPackConfig clone() {

@@ -27,19 +27,14 @@ import static com.bgsoftware.superiorprison.plugin.util.TextUtil.replaceText;
 @Accessors(fluent = true, chain = true)
 public class OMenuButton implements Cloneable {
 
+    private final char identifier;
     private Map<String, ButtonItemBuilder> itemStates = Maps.newHashMap();
-
     @Setter
     private ItemStack currentItem;
-
     @Setter
     private String requiredPermission = "";
-
     @Setter
     private String action = "";
-
-    private final char identifier;
-
     @Setter
     private int slot = -1;
 

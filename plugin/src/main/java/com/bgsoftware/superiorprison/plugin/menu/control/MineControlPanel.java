@@ -45,6 +45,7 @@ import static com.bgsoftware.superiorprison.plugin.util.TextUtil.mergeText;
 public class MineControlPanel extends OPagedMenu<OptionEnum> implements OMenu.Templateable {
 
     private final SNormalMine mine;
+
     public MineControlPanel(SPrisoner viewer, SNormalMine mine) {
         super("mineControlPanel", viewer);
         this.mine = mine;

@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 public class ChatController implements OComponent<SuperiorPrisonPlugin> {
 
-    private Map<String, ChatFormat> formatMap = new ConcurrentHashMap<>();
+    private final Map<String, ChatFormat> formatMap = new ConcurrentHashMap<>();
 
     @Getter
     private boolean enabled;

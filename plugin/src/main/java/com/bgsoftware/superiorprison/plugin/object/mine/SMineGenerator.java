@@ -7,11 +7,11 @@ import com.bgsoftware.superiorprison.plugin.object.mine.area.SArea;
 import com.bgsoftware.superiorprison.plugin.object.mine.linkable.LinkableObject;
 import com.bgsoftware.superiorprison.plugin.util.*;
 import com.bgsoftware.superiorprison.plugin.util.frameworks.Framework;
+import com.oop.datamodule.SerializableObject;
+import com.oop.datamodule.SerializedData;
 import com.oop.datamodule.gson.JsonArray;
 import com.oop.datamodule.gson.JsonElement;
 import com.oop.datamodule.gson.JsonObject;
-import com.oop.datamodule.SerializableObject;
-import com.oop.datamodule.SerializedData;
 import com.oop.datamodule.util.DataUtil;
 import com.oop.orangeengine.eventssubscription.SubscriptionFactory;
 import com.oop.orangeengine.eventssubscription.SubscriptionProperties;
@@ -158,7 +158,7 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
             return;
 
         if (mineArea == null)
-            mineArea = (SArea) mine.getArea(AreaEnum.MINE);
+            mineArea = mine.getArea(AreaEnum.MINE);
 
         if (mineArea.getWorld() == null) {
             worldLoadWait = true;
@@ -286,7 +286,7 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
     }
 
     private class RandomMaterialData {
-        private HashSet<RandomMaterial> selection = new HashSet<>();
+        private final HashSet<RandomMaterial> selection = new HashSet<>();
         private double higherBounds;
 
         public RandomMaterialData(List<OPair<Double, OMaterial>> list) {
@@ -306,9 +306,9 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
         @AllArgsConstructor
         @Getter
         private class RandomMaterial {
-            private OMaterial material;
-            private double lower;
-            private double higher;
+            private final OMaterial material;
+            private final double lower;
+            private final double higher;
         }
     }
 

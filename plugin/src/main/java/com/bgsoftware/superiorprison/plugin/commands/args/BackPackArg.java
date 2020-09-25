@@ -1,7 +1,6 @@
 package com.bgsoftware.superiorprison.plugin.commands.args;
 
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
-import com.bgsoftware.superiorprison.plugin.config.backpack.AdvancedBackPackConfig;
 import com.bgsoftware.superiorprison.plugin.config.backpack.BackPackConfig;
 import com.oop.orangeengine.command.OCommand;
 import com.oop.orangeengine.command.arg.CommandArgument;

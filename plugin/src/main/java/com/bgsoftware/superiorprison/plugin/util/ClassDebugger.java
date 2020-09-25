@@ -26,7 +26,7 @@ public class ClassDebugger {
         }
     }
 
-    private static Object[] mergeArrays(Object[] ...arr) {
+    private static Object[] mergeArrays(Object[]... arr) {
         List<Object> allObjects = new LinkedList<>();
         for (Object[] objects : arr) {
             allObjects.addAll(Arrays.asList(objects));

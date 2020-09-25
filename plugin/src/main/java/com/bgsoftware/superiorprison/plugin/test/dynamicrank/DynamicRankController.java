@@ -8,11 +8,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 public class DynamicRankController {
-    private Map<UUID, Map<String, DynamicRankTemplate>> cachedRanks = new HashMap<>();
-    private Map<Character, DynamicRankTemplate> loadedRanks = new HashMap<>();
+    private final Map<UUID, Map<String, DynamicRankTemplate>> cachedRanks = new HashMap<>();
+    private final Map<Character, DynamicRankTemplate> loadedRanks = new HashMap<>();
 
-    private List<Character> availableRanks = new ArrayList<>();
-    private DynamicRankTemplate template;
+    private final List<Character> availableRanks = new ArrayList<>();
+    private final DynamicRankTemplate template;
 
     public DynamicRankController(Config config) {
         Optional<ConfigSection> mode = config.getSection("mode");

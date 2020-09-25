@@ -5,7 +5,6 @@ import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.data.SStatisticHolder;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.util.Removeable;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 import com.oop.datamodule.SerializedData;
 import com.oop.datamodule.body.MultiTypeBody;
@@ -30,7 +29,8 @@ public class SStatisticsContainer implements StatisticsContainer, MultiTypeBody,
     @Getter
     private SPrisoner cachedPrisoner;
 
-    private SStatisticsContainer() {}
+    private SStatisticsContainer() {
+    }
 
     public SStatisticsContainer(UUID uuid) {
         this.uuid = uuid;

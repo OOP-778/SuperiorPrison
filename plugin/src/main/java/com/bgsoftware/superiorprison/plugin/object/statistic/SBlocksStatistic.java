@@ -8,7 +8,6 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Maps;
 import com.oop.datamodule.SerializableObject;
 import com.oop.datamodule.SerializedData;
-import com.oop.datamodule.util.DataUtil;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.material.OMaterial;
 import lombok.EqualsAndHashCode;
@@ -28,20 +27,16 @@ import static com.bgsoftware.superiorprison.plugin.util.TimeUtil.getDate;
 @EqualsAndHashCode
 public class SBlocksStatistic implements BlocksStatistic, Attachable<SStatisticsContainer>, SStatistic, SerializableObject {
 
-    @Getter
-    private transient SStatisticsContainer container;
-
-    @Getter
-    private transient long lastUpdated = 0;
-
-    private AtomicLong totalBlocks = new AtomicLong();
-
     private final Map<OMaterial, Long> minedBlocks = Maps.newConcurrentMap();
-
     private final transient Cache<Long, OPair<OMaterial, Long>> timedCache = CacheBuilder.newBuilder()
             .concurrencyLevel(4)
             .expireAfterAccess(SuperiorPrisonPlugin.getInstance().getMainConfig().getCacheTime(), TimeUnit.SECONDS)
             .build();
+    @Getter
+    private transient SStatisticsContainer container;
+    @Getter
+    private transient long lastUpdated = 0;
+    private final AtomicLong totalBlocks = new AtomicLong();
 
     @Override
     public void update(Material material, byte data, long amount) {

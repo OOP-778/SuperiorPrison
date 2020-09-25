@@ -2,7 +2,6 @@ package com.bgsoftware.superiorprison.plugin.util;
 
 import com.oop.orangeengine.main.util.data.OQueue;
 
-import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -38,8 +37,8 @@ public class ChunkDataQueue {
     }
 
     private OQueue<ChunkResetData> listReady() {
-       OQueue<ChunkResetData> queue = new OQueue<>();
-       queue.addAll(stream().filter(ChunkResetData::isReady).collect(Collectors.toSet()));
-       return queue;
+        OQueue<ChunkResetData> queue = new OQueue<>();
+        queue.addAll(stream().filter(ChunkResetData::isReady).collect(Collectors.toSet()));
+        return queue;
     }
 }

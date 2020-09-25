@@ -4,8 +4,8 @@ import java.util.Arrays;
 
 public class ArgsCrawler {
 
-    private int index = -1;
     private final String[] args;
+    private int index = -1;
 
     public ArgsCrawler(String[] args) {
         this.args = args;

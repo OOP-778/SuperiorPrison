@@ -9,8 +9,8 @@ import lombok.Getter;
 @AllArgsConstructor
 public class STopEntry<T> implements TopEntry<T> {
 
-    private SPrisoner prisoner;
-    private T object;
-    private int position;
+    private final SPrisoner prisoner;
+    private final T object;
+    private final int position;
 
 }

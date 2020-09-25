@@ -1,6 +1,5 @@
-package com.bgsoftware.superiorprison.plugin.config;
+package com.bgsoftware.superiorprison.plugin.config.main;
 
-import com.bgsoftware.superiorprison.api.data.top.TopSystem;
 import com.bgsoftware.superiorprison.plugin.util.TimeUtil;
 import com.bgsoftware.superiorprison.plugin.util.configwrapper.SectionWrapper;
 import com.oop.orangeengine.yaml.ConfigSection;
@@ -11,7 +10,7 @@ import java.util.Map;
 
 public class TopSystemsSection extends SectionWrapper {
 
-    private Map<String, TopSystemConfig> configs = new HashMap<>();
+    private final Map<String, TopSystemConfig> configs = new HashMap<>();
 
     @Override
     protected void initialize() {
@@ -36,8 +35,8 @@ public class TopSystemsSection extends SectionWrapper {
 
     @Getter
     public class TopSystemConfig {
-        private int limit;
-        private long interval;
+        private final int limit;
+        private final long interval;
 
         public TopSystemConfig(ConfigSection section) {
             this.limit = section.getAs("entries limit");

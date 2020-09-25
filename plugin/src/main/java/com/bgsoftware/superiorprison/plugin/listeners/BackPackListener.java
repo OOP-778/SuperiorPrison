@@ -26,7 +26,8 @@ public class BackPackListener {
         SyncEvents.listen(InventoryClickEvent.class, EventPriority.LOWEST, event -> {
             if (event.getClickedInventory() == null) return;
             if (event.getWhoClicked().getOpenInventory().getTopInventory() == null) return;
-            if (!(event.getWhoClicked().getOpenInventory().getTopInventory().getHolder() instanceof BackpackLockable)) return;
+            if (!(event.getWhoClicked().getOpenInventory().getTopInventory().getHolder() instanceof BackpackLockable))
+                return;
 
             SPrisoner viewer =
                     ((BackpackLockable) event.getWhoClicked().getOpenInventory().getTopInventory().getHolder()).getViewer();

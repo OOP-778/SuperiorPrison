@@ -25,8 +25,8 @@ import java.util.stream.Stream;
 public abstract class UniversalDataHolder<I, T extends MultiTypeBody> extends Storage<T> {
     public Map<I, T> dataMap = new ConcurrentHashMap<>();
     public Storage<T> currentHolder;
-    private Function<T, I> keyExtractor;
-    private Set<Class<? extends T>> classCache = new HashSet<>();
+    private final Function<T, I> keyExtractor;
+    private final Set<Class<? extends T>> classCache = new HashSet<>();
 
     public UniversalDataHolder(DatabaseController controller, Function<T, I> keyExtractor) {
         super(controller);
@@ -156,8 +156,8 @@ public abstract class UniversalDataHolder<I, T extends MultiTypeBody> extends St
     }
 
     protected static class FlatStorageImpl<T extends MultiTypeBody> extends MultiFileStorage<T> {
-        private Map<String, Class<? extends T>> variants;
-        private UniversalDataHolder<?, T> parent;
+        private final Map<String, Class<? extends T>> variants;
+        private final UniversalDataHolder<?, T> parent;
 
         public FlatStorageImpl(UniversalDataHolder<?, T> parent, Map<String, Class<? extends T>> variants, File directory) {
             super(parent.getStorageHolder(), directory);
@@ -197,8 +197,8 @@ public abstract class UniversalDataHolder<I, T extends MultiTypeBody> extends St
     }
 
     protected static class SqlStorageImpl<T extends MultiTypeBody> extends SqlStorage<T> {
-        private UniversalDataHolder<?, T> parent;
-        private Class<? extends T>[] variants;
+        private final UniversalDataHolder<?, T> parent;
+        private final Class<? extends T>[] variants;
 
         public SqlStorageImpl(UniversalDataHolder<?, T> parent, Class<? extends T>[] variants, DatabaseWrapper database) {
             super(parent.getStorageHolder(), database);

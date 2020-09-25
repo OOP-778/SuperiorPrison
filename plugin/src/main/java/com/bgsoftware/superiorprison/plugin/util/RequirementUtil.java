@@ -4,10 +4,13 @@ import com.bgsoftware.superiorprison.api.requirement.Requirement;
 import com.bgsoftware.superiorprison.api.requirement.RequirementData;
 import com.bgsoftware.superiorprison.api.requirement.RequirementException;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
-import com.bgsoftware.superiorprison.plugin.config.ProgressionScaleSection;
+import com.bgsoftware.superiorprison.plugin.config.main.ProgressionScaleSection;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 
 public class RequirementUtil {
     public static List<RequirementException> test(Collection<RequirementData> reqColl, SPrisoner prisoner) {

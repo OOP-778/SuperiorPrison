@@ -6,11 +6,11 @@ import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.mine.linkable.LinkableObject;
 import com.bgsoftware.superiorprison.plugin.util.Attachable;
+import com.oop.datamodule.SerializableObject;
+import com.oop.datamodule.SerializedData;
 import com.oop.datamodule.gson.JsonArray;
 import com.oop.datamodule.gson.JsonElement;
 import com.oop.datamodule.gson.JsonObject;
-import com.oop.datamodule.SerializableObject;
-import com.oop.datamodule.SerializedData;
 import lombok.Getter;
 import org.bukkit.potion.PotionEffectType;
 
@@ -23,10 +23,9 @@ import java.util.stream.Collectors;
 
 public class SMineEffects implements MineEffects, SerializableObject, Attachable<SNormalMine>, LinkableObject<SMineEffects> {
 
+    private final Map<PotionEffectType, SMineEffect> effects = new ConcurrentHashMap<>();
     @Getter
     private SNormalMine mine;
-
-    private final Map<PotionEffectType, SMineEffect> effects = new ConcurrentHashMap<>();
 
     @Override
     public Optional<MineEffect> get(PotionEffectType type) {

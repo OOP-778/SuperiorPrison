@@ -2,18 +2,16 @@ package com.bgsoftware.superiorprison.plugin;
 
 import com.oop.datamodule.gson.Gson;
 import com.oop.datamodule.gson.JsonObject;
-import sun.misc.Unsafe;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.net.URL;
 
 public class Updater {
 
-    private static SuperiorPrisonPlugin plugin = SuperiorPrisonPlugin.getInstance();
+    private static final SuperiorPrisonPlugin plugin = SuperiorPrisonPlugin.getInstance();
     private static String latestVersion, versionDescription;
 
     static {
@@ -21,7 +19,8 @@ public class Updater {
     }
 
     // Just so no one would be able to call the constructor
-    private Updater() {}
+    private Updater() {
+    }
 
     public static boolean isOutdated() {
         return !plugin.getDescription().getVersion().equals(latestVersion);
@@ -45,7 +44,7 @@ public class Updater {
             connection.setDoInput(true);
 
             try (InputStream reader = connection.getInputStream()) {
-                BufferedReader jsonReader  = new BufferedReader(new InputStreamReader(reader));
+                BufferedReader jsonReader = new BufferedReader(new InputStreamReader(reader));
                 JsonObject allVersions = new Gson().fromJson(jsonReader, JsonObject.class);
                 JsonObject superiorprison = allVersions.getAsJsonObject("superiorprison");
 

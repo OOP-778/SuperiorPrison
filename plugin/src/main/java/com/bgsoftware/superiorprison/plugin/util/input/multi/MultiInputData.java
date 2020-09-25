@@ -1,11 +1,10 @@
 package com.bgsoftware.superiorprison.plugin.util.input.multi;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
 public class MultiInputData {
-    private Map<String, Object> data;
+    private final Map<String, Object> data;
 
     public MultiInputData(Map<String, Object> parsedData) {
         this.data = parsedData;

@@ -1,6 +1,6 @@
 package com.bgsoftware.superiorprison.plugin.test.dynamicrank;
 
-import com.bgsoftware.superiorprison.plugin.test.RequirementData;
+import com.bgsoftware.superiorprison.plugin.test.requirement.RequirementData;
 import com.oop.orangeengine.yaml.ConfigSection;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 
 @Getter
 public class DynamicRankTemplate {
-
     @Setter
     private int order;
 
@@ -19,7 +18,7 @@ public class DynamicRankTemplate {
     private List<String> permissions = new ArrayList<>();
     private List<String> commands = new ArrayList<>();
 
-    private List<RequirementData> requirements = new ArrayList<>();
+    private final List<RequirementData> requirements = new ArrayList<>();
 
     public DynamicRankTemplate(ConfigSection section) {
         this.prefix = section.getAs("prefix");

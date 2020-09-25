@@ -3,7 +3,6 @@ package com.bgsoftware.superiorprison.plugin.object.mine.shop;
 import com.bgsoftware.superiorprison.api.data.mine.shop.ShopItem;
 import com.oop.datamodule.SerializableObject;
 import com.oop.datamodule.SerializedData;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -19,7 +18,8 @@ public class SShopItem implements ShopItem, SerializableObject {
     @Getter
     private BigDecimal price;
 
-    private SShopItem() {}
+    private SShopItem() {
+    }
 
     protected SShopItem(@NonNull ItemStack item, BigDecimal price) {
         this.item = item;

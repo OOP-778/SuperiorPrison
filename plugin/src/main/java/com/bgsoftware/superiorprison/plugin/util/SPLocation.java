@@ -2,10 +2,7 @@ package com.bgsoftware.superiorprison.plugin.util;
 
 import com.oop.datamodule.SerializableObject;
 import com.oop.datamodule.SerializedData;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.Accessors;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -26,7 +23,8 @@ public class SPLocation implements Cloneable, SerializableObject {
     private float pitch = 0;
     private float yaw = 0;
 
-    protected SPLocation() {}
+    protected SPLocation() {
+    }
 
     public SPLocation(String worldName, double x, double y, double z) {
         this.worldName = worldName;
@@ -48,6 +46,10 @@ public class SPLocation implements Cloneable, SerializableObject {
         World world = getWorld();
         if (world == null) return null;
 
+        return new Location(world, x, y, z, yaw, pitch);
+    }
+
+    public Location toBukkit(@NonNull World world) {
         return new Location(world, x, y, z, yaw, pitch);
     }
 

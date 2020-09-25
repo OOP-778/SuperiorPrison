@@ -14,14 +14,11 @@ import java.util.Set;
 public class SLadderRank extends SRank implements LadderRank {
 
     private final int order;
-
+    private final Set<RequirementData> requirements;
     @Setter
     private SLadderRank nextRank;
-
     @Setter
     private SLadderRank previousRank;
-
-    private final Set<RequirementData> requirements;
 
     public SLadderRank(int order, String name, String prefix, List<String> commands, List<String> permissions, Set<RequirementData> requirements, SLadderRank previousRank, SLadderRank nextRank) {
         super(name, prefix, commands, permissions);

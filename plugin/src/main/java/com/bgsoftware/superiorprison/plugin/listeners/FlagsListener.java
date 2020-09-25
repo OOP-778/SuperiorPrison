@@ -7,11 +7,8 @@ import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.data.SMineHolder;
 import com.oop.orangeengine.main.events.SyncEvents;
 import com.oop.orangeengine.material.OMaterial;
-import net.minecraft.server.v1_12_R1.EntityItemFrame;
 import org.bukkit.Location;
-import org.bukkit.Rotation;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventPriority;
@@ -19,7 +16,6 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
-import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
@@ -91,7 +87,7 @@ public class FlagsListener {
             if (material == null) {
                 String name = event.getRightClicked().getType().name();
                 if (name.contains("_")) {
-                    String split[] = name.split("_");
+                    String[] split = name.split("_");
                     name = split[1] + "_" + split[0];
                     material = OMaterial.matchMaterial(name);
                     if (material == null) return;

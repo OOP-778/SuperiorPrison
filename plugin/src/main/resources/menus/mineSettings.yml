@@ -99,7 +99,7 @@ buttons:
 
     disable-animal-spawn:
       material: cow spawn egg
-      display name: "&dDisable Cow Spawning"
+      display name: "&dDisable Animal Spawning"
       lore:
         - "&d&l* &7Click to change"
         - "&d&l* &7Current: &d{setting_value}"

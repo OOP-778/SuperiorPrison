@@ -1,7 +1,6 @@
 package com.bgsoftware.superiorprison.plugin.menu;
 
 import com.bgsoftware.superiorprison.api.data.mine.effects.MineEffect;
-import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 import com.bgsoftware.superiorprison.plugin.object.mine.effects.SMineEffect;
 import com.bgsoftware.superiorprison.plugin.object.mine.effects.SMineEffects;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;

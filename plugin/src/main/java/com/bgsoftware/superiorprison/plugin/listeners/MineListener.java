@@ -20,18 +20,14 @@ import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.util.SPair;
 import com.bgsoftware.superiorprison.plugin.util.frameworks.Framework;
 import com.oop.orangeengine.main.events.SyncEvents;
-import com.oop.orangeengine.material.OMaterial;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Animals;
-import org.bukkit.entity.Cow;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.CreatureSpawnEvent;
-import org.bukkit.event.entity.EntitySpawnEvent;
-import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -212,9 +208,7 @@ public class MineListener {
             MineSettings settings = mineAt.get().getSettings();
             if (event.getEntity() instanceof Monster && settings.isDisableMonsterSpawn()) {
                 event.setCancelled(true);
-            }
-
-            else if (event.getEntity() instanceof Animals && settings.isDisableAnimalSpawn()) {
+            } else if (event.getEntity() instanceof Animals && settings.isDisableAnimalSpawn()) {
                 event.setCancelled(true);
             }
         });

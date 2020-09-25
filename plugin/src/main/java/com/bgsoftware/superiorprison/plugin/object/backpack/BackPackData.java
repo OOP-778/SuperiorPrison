@@ -29,7 +29,8 @@ public class BackPackData implements SerializableObject {
     @Setter
     private int level;
     private @NonNull String configId;
-    private @NonNull SBackPack holder;
+    private @NonNull
+    final SBackPack holder;
 
     @Setter
     private boolean sell = false;
@@ -212,8 +213,8 @@ public class BackPackData implements SerializableObject {
     }
 
     public int allocateMore() {
-        stored = Arrays.copyOfRange(stored, 0, stored.length+1);
-        return stored.length-1;
+        stored = Arrays.copyOfRange(stored, 0, stored.length + 1);
+        return stored.length - 1;
     }
 
     public Optional<OPair<Integer, ItemStack>> findSimilar(ItemStack to, boolean amountCheck) {

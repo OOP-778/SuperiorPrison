@@ -1,7 +1,6 @@
 package com.bgsoftware.superiorprison.plugin.hook.impl;
 
 import com.bgsoftware.superiorprison.plugin.hook.SHook;
-import com.oop.orangeengine.material.OMaterial;
 import lombok.SneakyThrows;
 import net.brcdev.shopgui.ShopGuiPlusApi;
 import org.bukkit.entity.Player;

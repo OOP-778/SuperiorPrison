@@ -1,4 +1,4 @@
-package com.bgsoftware.superiorprison.plugin.config;
+package com.bgsoftware.superiorprison.plugin.config.main;
 
 import com.oop.orangeengine.yaml.ConfigSection;
 import lombok.Getter;
@@ -6,9 +6,9 @@ import lombok.Getter;
 @Getter
 public class ProgressionScaleSection {
 
-    private String symbols;
-    private String color;
-    private String completedColor;
+    private final String symbols;
+    private final String color;
+    private final String completedColor;
 
     public ProgressionScaleSection(ConfigSection section) {
         this.symbols = section.getAs("symbols");

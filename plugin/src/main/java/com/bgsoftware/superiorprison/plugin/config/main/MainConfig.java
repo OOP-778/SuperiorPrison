@@ -1,4 +1,4 @@
-package com.bgsoftware.superiorprison.plugin.config;
+package com.bgsoftware.superiorprison.plugin.config.main;
 
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.util.TimeUtil;
@@ -39,6 +39,9 @@ public class MainConfig extends ConfigWrapper {
 
     private List<OMaterial> disabledInteractableBlocks = new ArrayList<>();
 
+    private int chunksPerTick;
+    private boolean itemDropping = false;
+
     public MainConfig() {
         load();
     }
@@ -56,7 +59,6 @@ public class MainConfig extends ConfigWrapper {
 
         // Load prisoner defaults
         this.prisonerDefaults = addSection("prisoner defaults", new PrisonerDefaults());
-
         this.topSystemsSection = addSection("top systems", new TopSystemsSection());
 
         // Load Mine Defaults
@@ -70,6 +72,11 @@ public class MainConfig extends ConfigWrapper {
         rankupMessageInterval = TimeUtil.toSeconds(configuration.getAs("rankup message interval", String.class, () -> "6s", "How often it should check the rankup"));
         resetRanks = configuration.getAs("reset ranks after prestige up", boolean.class, () -> false, "Should it reset the ranks after prestige");
         useMineShopsByRank = configuration.getAs("use mine shops by rank", boolean.class, () -> false, "Should it use mine shop of the current rank of the player");
+        chunksPerTick = configuration.getAs(
+                "chunks per tick", int.class, () -> 4,
+                "How much chunks per tick should the block setting use",
+                "Please be careful with this. As it can cause serious performance issues, test the values you set before using."
+        );
         disabledInteractableBlocks = (List<OMaterial>) configuration
                 .getAs("disabled interactable blocks", List.class, () -> Lists.newArrayList("CRAFTING_TABLE", "ANVIL", "CHEST", "ITEM_FRAME"), "Disable interactable blocks")
                 .stream()
@@ -77,8 +84,10 @@ public class MainConfig extends ConfigWrapper {
                 .collect(Collectors.toList());
 
         scaleSection = new ProgressionScaleSection(configuration.getSection("progression scale").get());
+        itemDropping = configuration.getAs("item dropping", boolean.class, () -> true, "Disable or Enable dropping items");
 
         SuperiorPrisonPlugin.getInstance().getOLogger().setDebugMode(configuration.getAs("debug", boolean.class, () -> false));
+        SuperiorPrisonPlugin.getInstance().getResetQueueTask().setChunksPerTick(chunksPerTick);
         initialize();
 
         configuration.save();

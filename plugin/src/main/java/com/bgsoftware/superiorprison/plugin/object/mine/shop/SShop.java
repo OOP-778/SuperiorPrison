@@ -7,7 +7,6 @@ import com.bgsoftware.superiorprison.plugin.object.mine.linkable.LinkableObject;
 import com.bgsoftware.superiorprison.plugin.util.Attachable;
 import com.oop.datamodule.SerializableObject;
 import com.oop.datamodule.SerializedData;
-import com.oop.datamodule.util.DataUtil;
 import com.oop.orangeengine.main.util.data.set.OConcurrentSet;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -22,8 +21,8 @@ import java.util.Set;
 @Getter
 public class SShop implements MineShop, Attachable<SNormalMine>, SerializableObject, LinkableObject<SShop> {
 
-    private transient SNormalMine mine;
     private final Set<SShopItem> items = new OConcurrentSet<>();
+    private transient SNormalMine mine;
 
     public SShop() {
     }

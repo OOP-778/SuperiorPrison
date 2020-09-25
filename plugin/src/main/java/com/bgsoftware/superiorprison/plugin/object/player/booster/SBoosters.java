@@ -19,10 +19,9 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode
 public class SBoosters implements Boosters, Attachable<SPrisoner>, SerializableObject {
 
+    private final Set<Booster> boosters = new OConcurrentSet<>();
     @Getter
     private transient SPrisoner prisoner;
-
-    private final Set<Booster> boosters = new OConcurrentSet<>();
 
     @Override
     public boolean hasActiveBoosters() {

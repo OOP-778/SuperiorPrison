@@ -173,7 +173,7 @@ public abstract class OPagedMenu<T> extends OMenu {
         return items.get(slot);
     }
 
-    public static enum SwitchEnum {
+    public enum SwitchEnum {
         NEXT,
         PREVIOUS
     }

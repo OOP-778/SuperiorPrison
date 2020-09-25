@@ -108,7 +108,7 @@ public class SPrisonerHolder extends UniversalDataHolder<UUID, SPrisoner> implem
     public SPrisoner getInsertIfAbsent(Player player) {
         return getInsertIfAbsent(player.getUniqueId());
     }
-    
+
     private SPrisoner newPrisoner(SPrisoner prisoner) {
         add(prisoner);
         return prisoner;

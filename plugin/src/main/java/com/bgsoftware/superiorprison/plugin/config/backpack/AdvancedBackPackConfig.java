@@ -20,7 +20,8 @@ public class AdvancedBackPackConfig extends BackPackConfig<AdvancedBackPackConfi
         super(section);
     }
 
-    public AdvancedBackPackConfig() {}
+    public AdvancedBackPackConfig() {
+    }
 
     @SneakyThrows
     public AdvancedBackPackConfig clone() {

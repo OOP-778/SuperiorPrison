@@ -8,10 +8,8 @@ import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.util.Attachable;
 import com.bgsoftware.superiorprison.plugin.util.SPLocation;
 import com.google.common.collect.Maps;
-import com.oop.datamodule.gson.JsonElement;
 import com.oop.datamodule.SerializableObject;
 import com.oop.datamodule.SerializedData;
-import com.oop.datamodule.util.DataUtil;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.bukkit.Location;
@@ -23,13 +21,11 @@ import java.util.Map;
 public class SArea implements Area, Attachable<SNormalMine>, SerializableObject {
 
     @Getter
+    private final Map<Flag, Boolean> flags = Maps.newConcurrentMap();
+    @Getter
     private transient SNormalMine mine;
-
     private SPLocation minPoint;
     private SPLocation highPoint;
-
-    @Getter
-    private final Map<Flag, Boolean> flags = Maps.newConcurrentMap();
     private AreaEnum type;
 
     private SArea() {

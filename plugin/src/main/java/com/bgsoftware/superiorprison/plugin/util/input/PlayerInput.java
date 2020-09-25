@@ -21,36 +21,28 @@ import java.util.function.Function;
 @Accessors(chain = true, fluent = true)
 public class PlayerInput<T> {
 
-    @Setter
-    @Getter
-    private boolean commandsEnabled = false;
-
     @Getter
     private @NonNull
     final Player player;
-
+    private final Set<SubscribedEvent> events = new HashSet<>();
+    @Setter
+    @Getter
+    private boolean commandsEnabled = false;
     @Getter
     @Setter
     private @NonNull BiConsumer<PlayerInput<T>, Throwable> onError;
-
     @Getter
     @Setter
     private @NonNull Function<String, T> parser;
-
     @Getter
     @Setter
     private @NonNull BiConsumer<PlayerInput<T>, T> onInput;
-
     @Setter
     private Runnable onCancel;
-
     @Getter
     private long timeOut;
-
     @Getter
     private boolean cancelled;
-
-    private final Set<SubscribedEvent> events = new HashSet<>();
 
     public PlayerInput(Player player) {
         this.player = player;

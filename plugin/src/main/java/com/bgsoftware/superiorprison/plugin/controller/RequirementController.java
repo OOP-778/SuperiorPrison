@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class RequirementController implements com.bgsoftware.superiorprison.api.controller.RequirementController {
 
     private final Map<String, Requirement> requirements = Maps.newHashMap();
-    private Set<LoadingRequirementData> loadingRequirementDataSet = new ConcurrentSet<>();
+    private final Set<LoadingRequirementData> loadingRequirementDataSet = new ConcurrentSet<>();
 
     public Optional<Requirement> findRequirement(String id) {
         return Optional.ofNullable(requirements.get(id.toUpperCase()));

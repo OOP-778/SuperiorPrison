@@ -1,4 +1,4 @@
-package com.bgsoftware.superiorprison.plugin.config;
+package com.bgsoftware.superiorprison.plugin.config.main;
 
 import com.bgsoftware.superiorprison.api.data.mine.settings.ResetType;
 import com.bgsoftware.superiorprison.plugin.util.configwrapper.SectionWrapper;
@@ -16,10 +16,9 @@ import java.util.stream.Collectors;
 @Getter
 public class MineDefaultsSection extends SectionWrapper {
 
+    private final OPair<ResetType, String> resetting = new OPair<>(ResetType.PERCENTAGE, "50");
     private OItem icon;
     private int limit = -1;
-
-    private final OPair<ResetType, String> resetting = new OPair<>(ResetType.PERCENTAGE, "50");
     private List<OPair<Double, OMaterial>> materials;
 
     private List<OPair<OMaterial, BigDecimal>> shopPrices;

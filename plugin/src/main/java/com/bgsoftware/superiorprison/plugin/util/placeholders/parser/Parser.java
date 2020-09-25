@@ -7,19 +7,16 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import static com.oop.orangeengine.main.Engine.getEngine;
-
 public class Parser<P, T> implements Cloneable {
 
+    private final Map<String, Parser> children = new HashMap<>();
+    private final Map<String, PlaceholderFunction<P, T, Object>> parsers = new HashMap<>();
     private int index;
     private @NonNull Parser<P, Object> parent;
     private String id;
     private T object;
     private Class<T> clazz;
     private PlaceholderFunction<P, T, T> mapper;
-    private final Map<String, Parser> children = new HashMap<>();
-
-    private final Map<String, PlaceholderFunction<P, T, Object>> parsers = new HashMap<>();
 
     public Parser(Parser parent, Class<T> clazz, String id) {
         this.parent = parent;

@@ -2,7 +2,7 @@ package com.bgsoftware.superiorprison.plugin.object.mine.settings;
 
 import com.bgsoftware.superiorprison.api.data.mine.settings.ResetSettings;
 import com.bgsoftware.superiorprison.api.data.mine.settings.ResetType;
-import com.bgsoftware.superiorprison.plugin.config.MineDefaultsSection;
+import com.bgsoftware.superiorprison.plugin.config.main.MineDefaultsSection;
 import com.bgsoftware.superiorprison.plugin.menu.settings.SettingsObject;
 import com.bgsoftware.superiorprison.plugin.menu.settings.impl.*;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
@@ -119,7 +119,7 @@ public class SMineSettings implements Attachable<SNormalMine>, com.bgsoftware.su
         this.disableAnimalSpawn = from.disableAnimalSpawn;
         this.disableMonsterSpawn = from.disableMonsterSpawn;
         if (resetSettings instanceof Attachable)
-            ((Attachable)this.resetSettings).attach(mine);
+            ((Attachable) this.resetSettings).attach(mine);
     }
 
     @Override

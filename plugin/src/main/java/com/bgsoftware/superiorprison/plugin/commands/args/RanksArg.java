@@ -17,8 +17,8 @@ import java.util.stream.Collectors;
 @Accessors(chain = true, fluent = true)
 public class RanksArg extends CommandArgument<Rank> {
 
-    private boolean ladderOnly;
-    private boolean filterOut;
+    private final boolean ladderOnly;
+    private final boolean filterOut;
 
     public RanksArg(boolean ladderOnly, boolean filterOut) {
         this.ladderOnly = ladderOnly;

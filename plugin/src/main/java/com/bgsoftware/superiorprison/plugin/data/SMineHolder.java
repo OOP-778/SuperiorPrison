@@ -3,7 +3,6 @@ package com.bgsoftware.superiorprison.plugin.data;
 import com.bgsoftware.superiorprison.api.controller.MineHolder;
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
-import com.bgsoftware.superiorprison.plugin.commands.mines.link.Option;
 import com.bgsoftware.superiorprison.plugin.controller.DatabaseController;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
@@ -25,6 +24,12 @@ public class SMineHolder extends UniversalDataHolder<String, SNormalMine> implem
 
     @Getter
     private final ChunkDataQueue queue = new ChunkDataQueue();
+    private final OCache<UUID, List<SNormalMine>> minesCache = OCache
+            .builder()
+            .concurrencyLevel(1)
+            .resetExpireAfterAccess(true)
+            .expireAfter(5, TimeUnit.SECONDS)
+            .build();
 
     public SMineHolder(DatabaseController controller) {
         super(controller, SNormalMine::getKey);
@@ -76,13 +81,6 @@ public class SMineHolder extends UniversalDataHolder<String, SNormalMine> implem
                 .map(mine -> (SuperiorMine) mine)
                 .findFirst();
     }
-
-    private OCache<UUID, List<SNormalMine>> minesCache = OCache
-            .builder()
-            .concurrencyLevel(1)
-            .resetExpireAfterAccess(true)
-            .expireAfter(5, TimeUnit.SECONDS)
-            .build();
 
     public List<SNormalMine> getMinesFor(SPrisoner prisoner) {
         List<SNormalMine> mines = minesCache.get(prisoner.getUUID());

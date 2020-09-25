@@ -20,7 +20,7 @@ mode:
 
       "papi requirement":
         type: papi
-        placeholder: ""
+        placeholder: "prison.%prestige_order%.20"
 
     specific:
       100:

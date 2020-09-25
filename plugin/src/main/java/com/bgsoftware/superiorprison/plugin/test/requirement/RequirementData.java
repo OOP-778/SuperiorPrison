@@ -1,11 +1,12 @@
-package com.bgsoftware.superiorprison.plugin.test;
+package com.bgsoftware.superiorprison.plugin.test.requirement;
 
 import com.oop.orangeengine.yaml.ConfigSection;
+import lombok.Getter;
 
+@Getter
 public abstract class RequirementData {
-
     private boolean take = false;
-    private String id;
+    private final String id;
 
     public RequirementData(ConfigSection section) {
         section.ensureHasValues("type");

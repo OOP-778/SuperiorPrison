@@ -1,7 +1,6 @@
 package com.bgsoftware.superiorprison.plugin.commands.prisoner;
 
 import com.bgsoftware.superiorprison.api.data.player.Prisoner;
-import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.commands.args.PrisonerArg;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.oop.orangeengine.command.OCommand;

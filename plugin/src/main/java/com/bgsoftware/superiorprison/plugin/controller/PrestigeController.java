@@ -9,14 +9,12 @@ import com.bgsoftware.superiorprison.plugin.util.LoadHookable;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.oop.orangeengine.main.plugin.OComponent;
-import com.oop.orangeengine.main.task.OTask;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.yaml.Config;
 import com.oop.orangeengine.yaml.ConfigSection;
 import lombok.Getter;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -24,7 +22,7 @@ public class PrestigeController implements com.bgsoftware.superiorprison.api.con
     private final Map<Integer, SPrestige> prestigeMap = Maps.newConcurrentMap();
 
     @Getter
-    private List<Consumer<PrestigeController>> loadHooks = new ArrayList<>();
+    private final List<Consumer<PrestigeController>> loadHooks = new ArrayList<>();
 
     @Override
     public List<Prestige> getPrestiges() {

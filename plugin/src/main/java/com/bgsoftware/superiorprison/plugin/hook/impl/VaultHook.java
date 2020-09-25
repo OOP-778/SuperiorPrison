@@ -11,7 +11,10 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -20,10 +23,10 @@ import static org.bukkit.Bukkit.getServer;
 @Getter
 public class VaultHook extends SHook {
 
+    private static final BigDecimal MAX_DOUBLE = BigDecimal.valueOf(Double.MAX_VALUE);
     private Economy ecoProvider;
     private Permission permProvider;
-    private Map<UUID, BigDecimal> owed = new ConcurrentHashMap<>();
-    private static final BigDecimal MAX_DOUBLE = BigDecimal.valueOf(Double.MAX_VALUE);
+    private final Map<UUID, BigDecimal> owed = new ConcurrentHashMap<>();
 
     public VaultHook() {
         super(null);
@@ -61,7 +64,7 @@ public class VaultHook extends SHook {
         owed.put(prisoner.getUUID(), currentOwed.add(amount));
     }
 
-    public void handleDeposit(){
+    public void handleDeposit() {
         owed.forEach((key, currentPrice) -> {
             OfflinePlayer prisoner = Bukkit.getOfflinePlayer(key);
             while (currentPrice.compareTo(BigDecimal.ZERO) > 0) {

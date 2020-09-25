@@ -1,7 +1,6 @@
 package com.bgsoftware.superiorprison.plugin.commands;
 
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.oop.orangeengine.command.WrappedCommand;
@@ -53,6 +52,31 @@ public class CommandHelper {
         return new ListedBuilder<>();
     }
 
+    public static Map<String, Object> mapOfArray(Object... array) {
+        if (array.length % 2 != 0)
+            throw new IllegalStateException("Failed to convert array to map, because the size is not even!");
+
+        Map<String, Object> map = new HashMap<>();
+
+        int len = array.length;
+        int i = 0;
+
+        boolean inside = true;
+        while (inside) {
+            Object key = array[i++];
+            Object value = array[i++];
+
+            map.put(
+                    key == null ? "null" : key.toString(),
+                    value
+            );
+            if (i == len)
+                inside = false;
+        }
+
+        return map;
+    }
+
     public static class MessageBuilder {
         private final Sendable sendable;
 
@@ -99,18 +123,14 @@ public class CommandHelper {
     @Accessors(fluent = true, chain = true)
     public static class ListedBuilder<T> {
 
+        private final Map<Class, Set<OPair<String, Function<Object, String>>>> placeholders = Maps.newHashMap();
         private @NonNull OMessage message;
-
         @Setter
         private @NonNull String identifier;
-
         @Setter
         private Set<T> objects = Sets.newHashSet();
-
         @Setter
         private Set<Object> placeholderObjects = Sets.newHashSet();
-
-        private final Map<Class, Set<OPair<String, Function<Object, String>>>> placeholders = Maps.newHashMap();
 
         public ListedBuilder<T> addObject(T... objects) {
             this.objects.addAll(Arrays.asList(objects));
@@ -230,30 +250,5 @@ public class CommandHelper {
         public void send(WrappedCommand command) {
             sendMessage(command.getSender(), build());
         }
-    }
-
-    public static Map<String, Object> mapOfArray(Object... array) {
-        if (array.length % 2 != 0)
-            throw new IllegalStateException("Failed to convert array to map, because the size is not even!");
-
-        Map<String, Object> map = new HashMap<>();
-
-        int len = array.length;
-        int i = 0;
-
-        boolean inside = true;
-        while (inside) {
-            Object key = array[i++];
-            Object value = array[i++];
-
-            map.put(
-                    key == null ? "null" : key.toString(),
-                    value
-            );
-            if (i == len)
-                inside = false;
-        }
-
-        return map;
     }
 }

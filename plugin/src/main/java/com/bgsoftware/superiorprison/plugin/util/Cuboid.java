@@ -2,11 +2,9 @@ package com.bgsoftware.superiorprison.plugin.util;
 
 import com.oop.orangeengine.main.task.OTask;
 import com.oop.orangeengine.main.util.data.pair.OPair;
-import net.minecraft.server.v1_12_R1.MojangsonParser;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 
 import java.util.*;
@@ -187,8 +185,8 @@ public class Cuboid {
         return future;
     }
 
-    public Set<SPLocation> getSphereAt(Location location, int radius) {
-        Set<SPLocation> locations = new HashSet<>();
+    public List<Location> getSphereAt(Location location, int radius) {
+        List<Location> locations = new ArrayList<>();
 
         int X = location.getBlockX();
         int Y = location.getBlockY();
@@ -199,7 +197,7 @@ public class Cuboid {
                 minY = Y - radius, maxY = Y + radius,
                 minZ = Z - radius, maxZ = Z + radius;
 
-        String worldName = location.getWorld().getName();
+        World world = location.getWorld();
 
         for (int x = minX; x <= maxX; x++) {
             int diffXSqr = (X - x) * (X - x);
@@ -207,7 +205,7 @@ public class Cuboid {
                 int diffYSqr = (Y - y) * (Y - y);
                 for (int z = minZ; z <= maxZ; z++) {
                     int diffZSqr = (Z - z) * (Z - z);
-                    SPLocation spLocation = new SPLocation(worldName, x, y, z);
+                    Location spLocation = new Location(world, x, y, z);
 
                     if (diffXSqr + diffYSqr + diffZSqr > radius * radius) continue;
                     if (!containsVector(spLocation.toVector())) continue;

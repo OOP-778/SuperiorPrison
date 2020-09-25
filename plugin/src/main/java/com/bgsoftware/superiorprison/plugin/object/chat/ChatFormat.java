@@ -2,7 +2,6 @@ package com.bgsoftware.superiorprison.plugin.object.chat;
 
 import com.oop.orangeengine.message.OMessage;
 import com.oop.orangeengine.message.YamlMessage;
-import com.oop.orangeengine.message.impl.OChatMessage;
 import com.oop.orangeengine.yaml.ConfigSection;
 import lombok.Getter;
 

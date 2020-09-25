@@ -4,7 +4,6 @@ import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.oop.orangeengine.command.OCommand;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 
 public class CmdReload extends OCommand {
 

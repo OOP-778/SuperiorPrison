@@ -14,8 +14,8 @@ import java.util.List;
 
 public class TopMenu extends OPagedMenu<STopEntry> implements OMenu.Templateable {
 
-    private STopSystem system;
-    private TopTypeArg.TopType type;
+    private final STopSystem system;
+    private final TopTypeArg.TopType type;
 
     public TopMenu(SPrisoner viewer, TopTypeArg.TopType type, STopSystem system) {
         super("topMenu", viewer);

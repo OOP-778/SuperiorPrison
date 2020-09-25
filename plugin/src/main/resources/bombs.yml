@@ -1,18 +1,32 @@
 "exampleBomb":
   item:
-    material:
+    material: PLAYER HEAD
+    texture: "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNzYzMThhMTMxNzJhOTllYmZhYjg2NTVlNmM5MjFjNzc0MmQ0ZDdmODcwNTg1ZjQ4OTllYWE0ZjM2NTE5NSJ9fX0="
+    display name: "ExampleBomb"
+    lore:
+      - "&dThis bomb contains huge power"
+      - "&dIt will destroy anything in it's path!"
+
+  # Size of the bomb
+  # The radius in each side
+  radius: 4
+
+  # << All below values are optional >>
 
   # Cool down before another use of this bomb
   cooldown: "10m"
 
-  # Size of the bomb
-  size: 10
-
   # Explosion particle
-  particle: EXPLOSION_LARGE
+  explosion particle: EXPLOSION_LARGE
 
   # On how much % of the blocks there should be a particle shown?
   particle shown at: 30
 
-  # What sound should play
-  sound: EXPLODE
+  # The trail of the bomb
+  trail particle: CLOUD
+
+  # What sound should play at the center of the explosion
+  sound:
+    type: EXPLODE
+    volume: 0.5
+    pitch: 0.1

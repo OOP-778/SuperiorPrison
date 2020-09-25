@@ -40,7 +40,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerItemBreakEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
@@ -101,7 +100,7 @@ public class PrisonerListener {
         SyncEvents.listen(EntityDamageEvent.class, event -> {
             if (!(event.getEntity() instanceof Player)) return;
             Player player = (Player) event.getEntity();
-            
+
             if (player.hasMetadata("NPC")) return;
 
             SPrisoner prisoner = SuperiorPrisonPlugin.getInstance().getPrisonerController().getInsertIfAbsent(player);
@@ -112,7 +111,7 @@ public class PrisonerListener {
         });
 
         SyncEvents.listen(PlayerQuitEvent.class, event -> {
-            SuperiorPrisonPlugin.getInstance().getDatabaseController().getPrisonerHolder().getPrisoner(event.getPlayer().getUniqueId()).map(prisoner -> (SPrisoner)prisoner).ifPresent(prisoner -> {
+            SuperiorPrisonPlugin.getInstance().getDatabaseController().getPrisonerHolder().getPrisoner(event.getPlayer().getUniqueId()).map(prisoner -> (SPrisoner) prisoner).ifPresent(prisoner -> {
                 prisoner.getCurrentMine().ifPresent(mine -> {
                     prisoner.setLogoutMine(mine.getKey().getName());
                     prisoner.save(true);

@@ -3,7 +3,6 @@ package com.bgsoftware.superiorprison.plugin.config.backpack;
 import com.bgsoftware.superiorprison.plugin.object.backpack.BackPackData;
 import com.bgsoftware.superiorprison.plugin.object.backpack.SBackPack;
 import com.oop.orangeengine.item.ItemBuilder;
-import com.oop.orangeengine.item.custom.OItem;
 import com.oop.orangeengine.yaml.ConfigSection;
 import com.oop.orangeengine.yaml.ConfigValue;
 import lombok.Getter;
@@ -18,26 +17,20 @@ import java.util.function.BiConsumer;
 public abstract class BackPackConfig<T extends BackPackConfig<T>> {
     protected static Map<String, BiConsumer<BackPackConfig, Object>> upgradeHandlers = new HashMap<>();
 
-    protected static <B extends BackPackConfig, T extends Object> void registerUpgrade(String path, Class<B> backpackClass, Class<T> type, BiConsumer<B, T> consumer) {
-        upgradeHandlers.put(path, (BiConsumer<BackPackConfig, Object>) consumer);
-    }
-
     static {
         registerUpgrade("item", BackPackConfig.class, ConfigSection.class, (backpack, section) -> backpack.item = ItemBuilder.fromConfiguration(section));
     }
 
     private Map<Integer, BackPackUpgrade<T>> upgrades = new HashMap<>();
-
     @Getter
     private ItemBuilder item;
-
     @Getter
     private String id;
-
     @Getter
     private int level = 1;
 
-    protected BackPackConfig() {}
+    protected BackPackConfig() {
+    }
 
     public BackPackConfig(ConfigSection section) {
         this.id = section.getKey();
@@ -56,6 +49,10 @@ public abstract class BackPackConfig<T extends BackPackConfig<T>> {
                         lastClone = clone;
                     }
                 });
+    }
+
+    protected static <B extends BackPackConfig, T extends Object> void registerUpgrade(String path, Class<B> backpackClass, Class<T> type, BiConsumer<B, T> consumer) {
+        upgradeHandlers.put(path, (BiConsumer<BackPackConfig, Object>) consumer);
     }
 
     public abstract T clone();

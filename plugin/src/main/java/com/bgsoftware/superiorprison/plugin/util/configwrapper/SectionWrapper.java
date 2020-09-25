@@ -8,8 +8,6 @@ import lombok.Setter;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.BiFunction;
-import java.util.function.Supplier;
 
 public class SectionWrapper implements DefaultValues {
 

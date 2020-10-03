@@ -96,12 +96,10 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
     private final OCache<ItemStack, BigDecimal> pricesCache = OCache
             .builder()
             .concurrencyLevel(1)
-            .resetExpireAfterAccess(true)
             .expireAfter(5, TimeUnit.SECONDS)
             .build();
 
-    public SPrisoner() {
-    }
+    public SPrisoner() {}
 
     public SPrisoner(UUID uuid) {
         this.uuid = uuid;
@@ -248,7 +246,7 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
     public BigDecimal getPrice(ItemStack itemStack) {
         BigDecimal bigDecimal = pricesCache.get(itemStack);
         if (bigDecimal != null) {
-            SuperiorPrisonPlugin.getInstance().getOLogger().printDebug("[Prisoner Price] Found cached price: " + bigDecimal.toString());
+            SuperiorPrisonPlugin.getInstance().getOLogger().printDebug("[Prisoner Price] {}'s Found cached price of {}: {}", getOfflinePlayer().getName(), itemStack, bigDecimal.toString());
             return bigDecimal;
         }
 
@@ -262,10 +260,10 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
 
         } else
             for (SuperiorMine mine : getMines()) {
-                SuperiorPrisonPlugin.getInstance().getOLogger().printDebug("[Prisoner Price]: Checking {} mine shop", mine.getShop());
+                SuperiorPrisonPlugin.getInstance().getOLogger().printDebug("[Prisoner Price]: {}'s Checking {} mine shop", getOfflinePlayer().getName(), mine.getName());
                 BigDecimal minePrice = mine.getShop().getPrice(itemStack);
                 if (minePrice.compareTo(price[0]) > 0) {
-                    SuperiorPrisonPlugin.getInstance().getOLogger().printDebug("[Prisoner Price] Using price from {}: {}", mine.getName(), minePrice.toString());
+                    SuperiorPrisonPlugin.getInstance().getOLogger().printDebug("[Prisoner Price] {}'s Using price from {}: {}", getOfflinePlayer().getName(), mine.getName(), minePrice.toString());
                     price[0] = minePrice;
                 }
             }
@@ -277,7 +275,7 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
         bigDecimal = price[0];
         pricesCache.put(itemStack, bigDecimal);
 
-        SuperiorPrisonPlugin.getInstance().getOLogger().printDebug("[Prisoner Price] Final price of {} is {}", itemStack, price[0]);
+        SuperiorPrisonPlugin.getInstance().getOLogger().printDebug("[Prisoner Price] {}'s Final price of {} is {}", getOfflinePlayer().getName(), itemStack, price[0]);
 
         return bigDecimal;
     }

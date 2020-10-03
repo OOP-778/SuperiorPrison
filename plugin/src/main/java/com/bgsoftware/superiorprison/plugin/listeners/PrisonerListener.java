@@ -243,7 +243,7 @@ public class PrisonerListener {
 
                 // Handle auto sell
                 if (prisoner.isAutoSell()) {
-                    SuperiorPrisonPlugin.getInstance().getOLogger().printDebug("Handling Prisoner AutoSell");
+                    SuperiorPrisonPlugin.getInstance().getOLogger().printDebug("Handling Prisoner {}'s AutoSell", prisoner.getOfflinePlayer().getName());
                     for (ItemStack drop : new HashSet<>(drops)) {
                         BigDecimal price = prisoner.getPrice(drop).multiply(BigDecimal.valueOf(drop.getAmount()));
                         if (price.doubleValue() == 0) continue;

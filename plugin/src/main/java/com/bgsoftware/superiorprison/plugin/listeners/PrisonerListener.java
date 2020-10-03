@@ -244,21 +244,16 @@ public class PrisonerListener {
                 // Handle auto sell
                 if (prisoner.isAutoSell()) {
                     SuperiorPrisonPlugin.getInstance().getOLogger().printDebug("Handling Prisoner AutoSell");
-                    SNormalMine mine = (SNormalMine) prisoner.getCurrentMine().get().getKey();
-                    mine.getShop().getItems().forEach(shopItem -> {
-                        for (ItemStack drop : new HashSet<>(drops)) {
-                            if (shopItem.getItem().isSimilar(drop)) {
-                                BigDecimal price = prisoner.getPrice(drop).multiply(BigDecimal.valueOf(drop.getAmount()));
-                                if (price.doubleValue() == 0) continue;
+                    for (ItemStack drop : new HashSet<>(drops)) {
+                        BigDecimal price = prisoner.getPrice(drop).multiply(BigDecimal.valueOf(drop.getAmount()));
+                        if (price.doubleValue() == 0) continue;
 
-                                SuperiorPrisonPlugin.getInstance().getHookController().executeIfFound(() -> VaultHook.class, vault -> vault.depositPlayer(prisoner, price));
-                                drops.remove(drop);
-                                SPair<BigDecimal, Long> soldData = prisoner.getSoldData();
-                                soldData.setKey(soldData.getKey().add(price));
-                                soldData.setValue(soldData.getValue() + drop.getAmount());
-                            }
-                        }
-                    });
+                        SuperiorPrisonPlugin.getInstance().getHookController().executeIfFound(() -> VaultHook.class, vault -> vault.depositPlayer(prisoner, price));
+                        drops.remove(drop);
+                        SPair<BigDecimal, Long> soldData = prisoner.getSoldData();
+                        soldData.setKey(soldData.getKey().add(price));
+                        soldData.setValue(soldData.getValue() + drop.getAmount());
+                    }
                 }
 
                 // Handle auto pickup

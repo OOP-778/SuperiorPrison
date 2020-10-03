@@ -262,6 +262,7 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
 
         } else
             for (SuperiorMine mine : getMines()) {
+                SuperiorPrisonPlugin.getInstance().getOLogger().printDebug("[Prisoner Price]: Checking {} mine shop", mine.getShop());
                 BigDecimal minePrice = mine.getShop().getPrice(itemStack);
                 if (minePrice.compareTo(price[0]) > 0) {
                     SuperiorPrisonPlugin.getInstance().getOLogger().printDebug("[Prisoner Price] Using price from {}: {}", mine.getName(), minePrice.toString());

@@ -94,7 +94,7 @@ public class AdvancedBackPackView extends OPagedMenu<ItemStack> implements Backp
         if (!isEmpty(bottom))
             contents = Arrays.copyOfRange(contents, 0, contents.length - 9);
 
-        int startingIndex = page == 1 ? 0 : page * 9;
+        int startingIndex = page == 1 ? 0 : (page * contents.length) - contents.length;
         for (int i = 0; i < contents.length; i++) {
             backPack.getData().setItem(startingIndex, contents[i]);
             startingIndex++;
@@ -110,9 +110,10 @@ public class AdvancedBackPackView extends OPagedMenu<ItemStack> implements Backp
             if (getSwitchAction() != null) {
                 int updatingPage = getSwitchAction() == SwitchEnum.NEXT ? getCurrentPage() - 1 : getCurrentPage() + 1;
                 updatePage(updatingPage, event.getInventory());
+                return;
+            }
 
-            } else
-                updatePage(getCurrentPage(), event.getInventory());
+            updatePage(getCurrentPage(), event.getInventory());
             return;
         }
 

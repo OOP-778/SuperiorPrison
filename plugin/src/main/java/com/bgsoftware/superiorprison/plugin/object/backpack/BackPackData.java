@@ -26,6 +26,8 @@ import static com.oop.datamodule.util.DataUtil.wrap;
 @Getter
 public class BackPackData implements SerializableObject {
 
+    private UUID uuid;
+
     @Setter
     private int level;
     private @NonNull String configId;
@@ -131,6 +133,9 @@ public class BackPackData implements SerializableObject {
         // Is sell
         serializedData.write("sell", sell);
 
+        // Write UUID
+        serializedData.write("uuid", uuid);
+
         // Items
         JsonArray dataArray = new JsonArray();
         for (int i = 0; i < stored.length; i++) {
@@ -151,6 +156,7 @@ public class BackPackData implements SerializableObject {
         this.level = serializedData.applyAs("level", int.class);
         this.configId = serializedData.applyAs("configId", String.class);
         this.sell = serializedData.applyAs("sell", boolean.class, () -> false);
+        this.uuid = serializedData.applyAs("uuid", UUID.class, UUID::randomUUID);
 
         JsonArray itemsArray = serializedData.getJsonElement().getAsJsonObject().getAsJsonArray("items");
         if (itemsArray.size() == 0) return;

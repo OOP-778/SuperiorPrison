@@ -115,7 +115,7 @@ sold message interval: "1m"
 # Should it reset the ranks after prestige
 reset ranks after prestige up: false
 
-# How often it should check the rankup
+# How often should it send the rankup available message
 rankup message interval: "6s"
 
 # Should it use mine shop of the current rank of the player
@@ -127,6 +127,9 @@ chunks per tick: 5
 
 # Disable or Enable dropping items
 dropping items: true
+
+# Update backpacks every
+update backpacks every: "1s"
 
 # Disable interactable blocks
 disable interactable blocks:

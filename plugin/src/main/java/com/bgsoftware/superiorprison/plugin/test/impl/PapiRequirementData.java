@@ -15,9 +15,6 @@ public class PapiRequirementData extends RequirementData {
     public PapiRequirementData(ConfigSection section, GlobalVariableMap map) {
         super(section);
 
-        map.newOrReplace("prestige_order", createVariable(5));
-        map.newOrReplace("prestige_order", createVariable(1000));
-
         Function<?> placeholder = ScriptEngine.getInstance().initializeFunction(section.getAs("placeholder"), map);
         placeholder.execute(map);
     }

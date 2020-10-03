@@ -17,6 +17,7 @@ import com.bgsoftware.superiorprison.plugin.listeners.*;
 import com.bgsoftware.superiorprison.plugin.mterics.Metrics;
 import com.bgsoftware.superiorprison.plugin.nms.SuperiorNms;
 import com.bgsoftware.superiorprison.plugin.requirement.RequirementRegisterer;
+import com.bgsoftware.superiorprison.plugin.tasks.PlayerInventoryUpdateTask;
 import com.bgsoftware.superiorprison.plugin.tasks.ResetQueueTask;
 import com.bgsoftware.superiorprison.plugin.tasks.TasksStarter;
 import com.bgsoftware.superiorprison.plugin.util.menu.MenuListener;
@@ -49,6 +50,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
     private BombController bombController;
     private SuperiorNms nms;
     private ResetQueueTask resetQueueTask;
+    private PlayerInventoryUpdateTask inventoryUpdateTask;
 
     public static SuperiorPrisonPlugin getInstance() {
         return instance;
@@ -57,6 +59,12 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
     @Override
     public void enable() {
         instance = this;
+
+        getOLogger()
+                .setMainColor("&d");
+
+        getOLogger()
+                .setSecondaryColor("&5");
 
         try {
             // Setup NMS
@@ -81,6 +89,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
             new RequirementRegisterer();
 
             resetQueueTask = new ResetQueueTask();
+            inventoryUpdateTask = new PlayerInventoryUpdateTask();
 
             this.configController = new ConfigController();
             this.chatController = new ChatController();
@@ -95,7 +104,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
                     .add(prestigeController, true)
                     .add(chatController, true)
                     .add(backPackController, true)
-                    //.add(bombController, true)
+                    .add(bombController, true)
                     .load();
 
             this.databaseController = new DatabaseController(mainConfig);

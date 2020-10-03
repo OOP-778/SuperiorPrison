@@ -207,7 +207,6 @@ public class PrisonerListener {
                 else
                     drops.addAll(event.getBlock().getDrops(new ItemStack(tool.getItemStack())));
 
-
                 // Handle auto burn
                 if (prisoner.isAutoBurn()) {
                     new HashSet<>(drops)

@@ -6,6 +6,7 @@ import com.bgsoftware.superiorprison.plugin.config.backpack.AdvancedBackPackConf
 import com.bgsoftware.superiorprison.plugin.config.backpack.BackPackConfig;
 import com.bgsoftware.superiorprison.plugin.config.backpack.SimpleBackPackConfig;
 import com.bgsoftware.superiorprison.plugin.menu.backpack.AdvancedBackPackView;
+import com.bgsoftware.superiorprison.plugin.object.inventory.PatchedInventory;
 import com.bgsoftware.superiorprison.plugin.util.TextUtil;
 import com.google.common.base.Preconditions;
 import com.oop.datamodule.SerializedData;
@@ -49,6 +50,10 @@ public class SBackPack implements BackPack {
     @Getter
     private AdvancedBackPackView currentView;
     private int hashcode;
+
+    @Getter
+    @Setter
+    private long lastUpdated = -1;
 
     // Advanced Backpack Data
     private int lastRows = -1;
@@ -96,6 +101,8 @@ public class SBackPack implements BackPack {
             data.updateData();
 
         updateHash();
+        save();
+        update();
     }
 
     public static SBackPack of(BackPackConfig<?> config, Player player) {
@@ -197,7 +204,6 @@ public class SBackPack implements BackPack {
 
     @Override
     public void save() {
-        if (!isModified()) return;
         updateNbt();
         SerializedData serializedData = new SerializedData();
         data.serialize(serializedData);
@@ -342,12 +348,20 @@ public class SBackPack implements BackPack {
     public void update() {
         // Update the inventory
         int first = owner.getInventory().first(itemStack);
-        owner.getInventory().setItem(first, nbtItem.getItem());
-        owner.updateInventory();
+        if (first != -1) {
+            if (owner.getInventory() instanceof PatchedInventory)
+                ((PatchedInventory) owner.getInventory()).setOwnerCalling();
+            owner.getInventory().setItem(first, nbtItem.getItem());
+            owner.updateInventory();
+        }
 
         // Update the menu
         if (currentView != null)
             currentView.refresh();
+    }
+
+    public ItemStack updateManually() {
+        return nbtItem.getItem();
     }
 
     @Override
@@ -372,5 +386,10 @@ public class SBackPack implements BackPack {
     @Override
     public boolean isModified() {
         return data.hashCode() != hashcode;
+    }
+
+    @Override
+    public boolean isFull() {
+        return getCapacity() == getUsed();
     }
 }

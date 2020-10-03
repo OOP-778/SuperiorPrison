@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorprison.plugin.test.dynamicrank;
 
 import com.bgsoftware.superiorprison.plugin.test.requirement.RequirementData;
+import com.bgsoftware.superiorprison.plugin.test.script.variable.GlobalVariableMap;
 import com.oop.orangeengine.yaml.ConfigSection;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,8 +18,9 @@ public class DynamicRankTemplate {
     private String prefix;
     private List<String> permissions = new ArrayList<>();
     private List<String> commands = new ArrayList<>();
-
     private final List<RequirementData> requirements = new ArrayList<>();
+
+    private GlobalVariableMap variableMap;
 
     public DynamicRankTemplate(ConfigSection section) {
         this.prefix = section.getAs("prefix");

@@ -40,6 +40,7 @@ public class MainConfig extends ConfigWrapper {
     private List<OMaterial> disabledInteractableBlocks = new ArrayList<>();
 
     private int chunksPerTick;
+    private long updateBackpacksEvery;
     private boolean itemDropping = false;
 
     public MainConfig() {
@@ -85,9 +86,12 @@ public class MainConfig extends ConfigWrapper {
 
         scaleSection = new ProgressionScaleSection(configuration.getSection("progression scale").get());
         itemDropping = configuration.getAs("item dropping", boolean.class, () -> true, "Disable or Enable dropping items");
+        updateBackpacksEvery = TimeUnit.SECONDS
+                .toMillis(TimeUtil.toSeconds(configuration.getAs("update backpacks every", String.class, () -> "1s", "Update backpacks every")));
 
         SuperiorPrisonPlugin.getInstance().getOLogger().setDebugMode(configuration.getAs("debug", boolean.class, () -> false));
         SuperiorPrisonPlugin.getInstance().getResetQueueTask().setChunksPerTick(chunksPerTick);
+        SuperiorPrisonPlugin.getInstance().getInventoryUpdateTask().setUpdateEvery(updateBackpacksEvery);
         initialize();
 
         configuration.save();

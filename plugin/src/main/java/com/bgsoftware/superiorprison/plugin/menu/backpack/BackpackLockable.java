@@ -9,10 +9,7 @@ public interface BackpackLockable {
     SPrisoner getViewer();
 
     default void updateBackpackAndUnlock() {
-        OPair<Integer, SBackPack> pair =
-                getViewer().getOpenedBackpack().get();
-        getViewer().getPlayer().getInventory().setItem(pair.getFirst(), pair.getSecond().getItem());
-        getViewer().unlockBackpack();
+        getViewer().getOpenedBackpack().get().getValue().update();
     }
 
 }

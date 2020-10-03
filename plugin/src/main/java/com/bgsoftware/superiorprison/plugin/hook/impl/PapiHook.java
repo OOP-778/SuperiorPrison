@@ -2,23 +2,17 @@ package com.bgsoftware.superiorprison.plugin.hook.impl;
 
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.hook.SHook;
+import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.util.placeholders.PlaceholderParser;
 import com.bgsoftware.superiorprison.plugin.util.placeholders.parser.ObjectCache;
-import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
-import com.oop.orangeengine.main.events.SyncEvents;
 import me.clip.placeholderapi.PlaceholderAPI;
-import me.clip.placeholderapi.events.ExpansionUnregisterEvent;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.util.List;
 
-import static com.bgsoftware.superiorprison.plugin.util.TimeUtil.getDate;
-
 public class PapiHook extends SHook {
-
     public PapiHook() {
         super(null);
         new Expansion();

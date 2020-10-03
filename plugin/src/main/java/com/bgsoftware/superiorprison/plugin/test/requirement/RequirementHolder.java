@@ -8,16 +8,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static com.bgsoftware.superiorprison.plugin.test.script.variable.VariableHelper.createVariable;
-
 public class RequirementHolder {
     private final List<HoldingData> holdingData = new LinkedList<>();
-    private final GlobalVariableMap scriptVars = new GlobalVariableMap();
+    private final GlobalVariableMap scriptVars;
 
-    public RequirementHolder() {
-
-        scriptVars.newOrReplace("rank_order", createVariable(2));
-        scriptVars.newOrReplace("rank_order", createVariable(2));
+    public RequirementHolder(GlobalVariableMap scriptVars) {
+        this.scriptVars = scriptVars;
     }
 
     @Getter

@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorprison.plugin.test.script.function;
 
+import com.bgsoftware.superiorprison.plugin.test.script.util.RegexHelper;
 import com.bgsoftware.superiorprison.plugin.test.script.util.Values;
 import com.bgsoftware.superiorprison.plugin.test.script.variable.GlobalVariableMap;
 import com.bgsoftware.superiorprison.plugin.test.script.variable.Variable;
@@ -10,13 +11,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.bgsoftware.superiorprison.plugin.test.script.variable.VariableHelper.createVariable;
+import static com.bgsoftware.superiorprison.plugin.test.script.variable.VariableHelper.getVariableAsNumber;
 
 public class RandomNumberFunction implements Function<Number> {
     public static final Pattern RANDOM_NUMBER_PATTERN = Pattern
             .compile("random (?:number|num) between ([0-9]+|[0-9]+V) (?:and|&) ([0-9]+|[0-9]+V)$");
 
-    private Variable<Number> from;
-    private Variable<Number> to;
+    private int fromId;
+    private int toId;
 
     @Override
     public void initialize(String string, GlobalVariableMap variableMap) {
@@ -28,18 +30,17 @@ public class RandomNumberFunction implements Function<Number> {
         String stringFrom = matcher.group(1);
         String stringTo = matcher.group(2);
 
+        // Initialize from id
         if (!Values.isNumber(stringFrom))
-            from = variableMap.getRequiredVariableById(stringFrom, Number.class);
+            fromId = getVariableAsNumber(RegexHelper.removeNonNumberAndParse(stringFrom), variableMap).getId();
         else
-            from = createVariable(Values.parseAsInt(stringFrom));
+            fromId = variableMap.newOrPut(stringFrom, () -> createVariable(Values.parseAsInt(stringFrom))).getId();
 
+        // Initialize to id
         if (!Values.isNumber(stringTo))
-            to = variableMap.getRequiredVariableById(stringTo, Number.class);
+            toId = getVariableAsNumber(RegexHelper.removeNonNumberAndParse(stringTo), variableMap).getId();
         else
-            to = createVariable(Values.parseAsInt(stringTo));
-
-        Preconditions.checkArgument(from != null, "Failed to initialize RandomNumberFunction cause `from` is null!");
-        Preconditions.checkArgument(to != null, "Failed to initialize RandomNumberFunction cause `to` is null!");
+            toId = variableMap.newOrPut(stringTo, () -> createVariable(Values.parseAsInt(stringTo))).getId();
     }
 
     @Override
@@ -54,6 +55,9 @@ public class RandomNumberFunction implements Function<Number> {
 
     @Override
     public Number execute(GlobalVariableMap globalVariables) {
+        Variable<Number> from = globalVariables.getRequiredVariableById(fromId, Number.class);
+        Variable<Number> to = globalVariables.getRequiredVariableById(toId, Number.class);
+
         Number number = from.get(globalVariables);
         Number number1 = to.get(globalVariables);
         Preconditions.checkArgument(number.intValue() < number1.intValue(), "Bound is lower than the origin. (" + number + " and " + number1 + ")");

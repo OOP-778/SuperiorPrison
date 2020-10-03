@@ -247,7 +247,10 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
     @Override
     public BigDecimal getPrice(ItemStack itemStack) {
         BigDecimal bigDecimal = pricesCache.get(itemStack);
-        if (bigDecimal != null) return bigDecimal;
+        if (bigDecimal != null) {
+            SuperiorPrisonPlugin.getInstance().getOLogger().printDebug("[Prisoner Price] Found cached price: " + bigDecimal.toString());
+            return bigDecimal;
+        }
 
         final BigDecimal[] price = new BigDecimal[]{new BigDecimal(0)};
         if (SuperiorPrisonPlugin.getInstance().getMainConfig().isUseMineShopsByRank()) {
@@ -260,8 +263,10 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
         } else
             for (SuperiorMine mine : getMines()) {
                 BigDecimal minePrice = mine.getShop().getPrice(itemStack);
-                if (minePrice.compareTo(price[0]) > 0)
+                if (minePrice.compareTo(price[0]) > 0) {
+                    SuperiorPrisonPlugin.getInstance().getOLogger().printDebug("[Prisoner Price] Using price from {}: {}", mine.getName(), minePrice.toString());
                     price[0] = minePrice;
+                }
             }
 
         if (price[0].doubleValue() == 0 && SuperiorPrisonPlugin.getInstance().getMainConfig().isShopGuiAsFallBack())
@@ -270,6 +275,9 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
         getBoosters().findBoostersBy(MoneyBooster.class).forEach(booster -> price[0] = price[0] = price[0].multiply(BigDecimal.valueOf(booster.getRate())));
         bigDecimal = price[0];
         pricesCache.put(itemStack, bigDecimal);
+
+        SuperiorPrisonPlugin.getInstance().getOLogger().printDebug("[Prisoner Price] Final price of {} is {}", itemStack, price[0]);
+
         return bigDecimal;
     }
 

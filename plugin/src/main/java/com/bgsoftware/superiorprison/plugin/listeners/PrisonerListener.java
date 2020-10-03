@@ -207,7 +207,6 @@ public class PrisonerListener {
                 else
                     drops.addAll(event.getBlock().getDrops(new ItemStack(tool.getItemStack())));
 
-
                 // Handle auto burn
                 if (prisoner.isAutoBurn()) {
                     new HashSet<>(drops)
@@ -244,6 +243,7 @@ public class PrisonerListener {
 
                 // Handle auto sell
                 if (prisoner.isAutoSell()) {
+                    SuperiorPrisonPlugin.getInstance().getOLogger().printDebug("Handling Prisoner AutoSell");
                     SNormalMine mine = (SNormalMine) prisoner.getCurrentMine().get().getKey();
                     mine.getShop().getItems().forEach(shopItem -> {
                         for (ItemStack drop : new HashSet<>(drops)) {

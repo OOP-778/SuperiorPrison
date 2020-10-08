@@ -36,6 +36,7 @@ public class MainConfig extends ConfigWrapper {
 
     private PrisonerDefaults prisonerDefaults;
     private TopSystemsSection topSystemsSection;
+    private PlaceholdersSection placeholdersSection;
 
     private List<OMaterial> disabledInteractableBlocks = new ArrayList<>();
 
@@ -60,6 +61,7 @@ public class MainConfig extends ConfigWrapper {
         // Load prisoner defaults
         this.prisonerDefaults = addSection("prisoner defaults", new PrisonerDefaults());
         this.topSystemsSection = addSection("top systems", new TopSystemsSection());
+        this.placeholdersSection = addSection("placeholders", new PlaceholdersSection());
 
         // Load Mine Defaults
         this.mineDefaults = addSection("mine defaults", new MineDefaultsSection());

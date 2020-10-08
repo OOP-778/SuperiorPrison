@@ -128,6 +128,7 @@ chunks per tick: 5
 # Disable or Enable dropping items
 dropping items: true
 
+
 # Disable interactable blocks
 disable interactable blocks:
   - "CRAFTING_TABLE"

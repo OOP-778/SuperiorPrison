@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorprison.plugin.util.placeholders;
 
+import com.bgsoftware.superiorprison.api.SuperiorPrison;
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
 import com.bgsoftware.superiorprison.api.data.mine.settings.ResetSettings;
 import com.bgsoftware.superiorprison.api.data.player.Prestige;
@@ -56,7 +57,7 @@ public class PlaceholderParser {
                         nextPrestige = (SPrestige) prisoner.getCurrentPrestige().get().getNext().orElse(null);
                     else
                         nextPrestige = (SPrestige) SuperiorPrisonPlugin.getInstance().getPrestigeController().getPrestige(1).orElse(null);
-                    if (nextPrestige == null) return "N/A";
+                    if (nextPrestige == null) return SuperiorPrisonPlugin.getInstance().getMainConfig().getPlaceholdersSection().getPrestigeNotFound();
 
                     return RequirementUtil.getProgressScale(prisoner, nextPrestige.getRequirements());
                 }
@@ -72,7 +73,7 @@ public class PlaceholderParser {
                         nextPrestige = (SPrestige) prisoner.getCurrentPrestige().get().getNext().orElse(null);
                     else
                         nextPrestige = (SPrestige) SuperiorPrisonPlugin.getInstance().getPrestigeController().getPrestige(1).orElse(null);
-                    if (nextPrestige == null) return "N/A";
+                    if (nextPrestige == null) return SuperiorPrisonPlugin.getInstance().getMainConfig().getPlaceholdersSection().getPrestigeNotFound();
 
                     return RequirementUtil.getPercentageCompleted(nextPrestige.getRequirements(), prisoner);
                 }
@@ -83,31 +84,31 @@ public class PlaceholderParser {
 
             .add("prestige", SPrestige.class)
             .mapper((none, prisoner, crawler) -> (SPrestige) prisoner.getCurrentPrestige().orElse(null))
-            .parse("prefix/order/name", (prestige, prisoner, crawler) -> getFromAccess(prestige, crawler.current()))
+            .parse("prefix/order/name", (prestige, prisoner, crawler) -> getFromAccess(prestige, crawler.current(), true))
 
             .add("next", SPrestige.class)
             .mapper((none, prestige, crawler) -> (SPrestige) prestige.getNext().orElse(null))
-            .parse("prefix/order/name", (prestige, none, crawler) -> getFromAccess(prestige, crawler.current()))
+            .parse("prefix/order/name", (prestige, none, crawler) -> getFromAccess(prestige, crawler.current(), true))
             .parent(SPrestige.class, SPrisoner.class)
 
             .add("previous", SPrestige.class)
             .mapper((none, prestige, crawler) -> (SPrestige) prestige.getPrevious().orElse(null))
-            .parse("prefix/order/name", (prestige, none, crawler) -> getFromAccess(prestige, crawler.current()))
+            .parse("prefix/order/name", (prestige, none, crawler) -> getFromAccess(prestige, crawler.current(), true))
             .parent(SPrestige.class, SPrisoner.class)
 
             .parent(SPrisoner.class, Object.class)
             .add("ladderrank", SLadderRank.class)
             .mapper((none, prisoner, crawler) -> (SLadderRank) prisoner.getCurrentLadderRank())
-            .parse("prefix/order/name", (rank, none, crawler) -> getFromAccess(rank, crawler.current()))
+            .parse("prefix/order/name", (rank, none, crawler) -> getFromAccess(rank, crawler.current(), true))
 
             .add("next", SLadderRank.class)
             .mapper((none, rank, crawler) -> (SLadderRank) rank.getNext().orElse(null))
-            .parse("prefix/order/name", (rank, none, crawler) -> getFromAccess(rank, crawler.current()))
+            .parse("prefix/order/name", (rank, none, crawler) -> getFromAccess(rank, crawler.current(), true))
             .parent(SLadderRank.class, SPrisoner.class)
 
             .add("previous", SLadderRank.class)
             .mapper((none, rank, crawler) -> (SLadderRank) rank.getPrevious().orElse(null))
-            .parse("prefix/order/name", (rank, none, crawler) -> getFromAccess(rank, crawler.current()))
+            .parse("prefix/order/name", (rank, none, crawler) -> getFromAccess(rank, crawler.current(), true))
             .parent(SLadderRank.class, SPrisoner.class)
 
             .parent(SPrisoner.class, Object.class)
@@ -203,8 +204,8 @@ public class PlaceholderParser {
         return "Invalid identifier";
     }
 
-    private static String getFromAccess(Object object, String identifier) {
-        if (object == null) return "N/A";
+    private static String getFromAccess(Object object, String identifier, boolean rank) {
+        if (object == null) return !rank ? SuperiorPrisonPlugin.getInstance().getMainConfig().getPlaceholdersSection().getPrestigeNotFound() : SuperiorPrisonPlugin.getInstance().getMainConfig().getPlaceholdersSection().getRankNotFound();
         if (identifier == null)
             return object instanceof Rank ? ((Rank) object).getName() : ((Prestige) object).getName();
 

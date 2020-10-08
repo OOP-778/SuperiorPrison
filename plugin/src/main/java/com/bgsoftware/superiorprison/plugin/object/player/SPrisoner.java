@@ -332,7 +332,7 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
                     return hasPrestige && hasRank;
                 })
                 .findFirst()
-                .orElse(SuperiorPrisonPlugin.getInstance().getDatabaseController().getMineHolder().getMinesFor(this).get(0));
+                .orElse(SuperiorPrisonPlugin.getInstance().getDatabaseController().getMineHolder().getMinesFor(this).stream().findFirst().orElse(null));
     }
 
     @Override

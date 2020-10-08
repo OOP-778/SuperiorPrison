@@ -15,8 +15,10 @@ import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.data.SMineHolder;
 import com.bgsoftware.superiorprison.plugin.data.SPrisonerHolder;
+import com.bgsoftware.superiorprison.plugin.object.mine.SMineBlockData;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
+import com.bgsoftware.superiorprison.plugin.util.ClassDebugger;
 import com.bgsoftware.superiorprison.plugin.util.SPair;
 import com.bgsoftware.superiorprison.plugin.util.frameworks.Framework;
 import com.oop.orangeengine.main.events.SyncEvents;
@@ -31,6 +33,7 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.Comparator;
 import java.util.Optional;
@@ -59,10 +62,9 @@ public class MineListener {
 
             SNormalMine superiorMine = (SNormalMine) prisoner.getCurrentMine().get().getKey();
             AreaEnum areaTypeAt = superiorMine.getAreaTypeAt(event.getBlock().getLocation());
-            Material blockType = event.getBlock().getType();
 
             if (areaTypeAt == AreaEnum.MINE && !superiorMine.getGenerator().isCaching()) {
-                superiorMine.getGenerator().getBlockData().decrease(blockType, 1);
+                superiorMine.getGenerator().getBlockData().remove(event.getBlock().getLocation());
                 superiorMine.save(true);
 
                 if (superiorMine.getSettings().getResetSettings().isTimed()) return;

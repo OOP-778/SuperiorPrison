@@ -20,6 +20,7 @@ import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.mine.area.SArea;
 import com.bgsoftware.superiorprison.plugin.object.mine.effects.SMineEffect;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
+import com.bgsoftware.superiorprison.plugin.util.ClassDebugger;
 import com.bgsoftware.superiorprison.plugin.util.SPLocation;
 import com.bgsoftware.superiorprison.plugin.util.SPair;
 import com.bgsoftware.superiorprison.plugin.util.frameworks.Framework;
@@ -41,6 +42,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -59,7 +61,7 @@ public class PrisonerListener {
     public PrisonerListener() {
         SyncEvents.listen(PlayerJoinEvent.class, event -> {
             new OTask()
-                    .delay(TimeUnit.SECONDS, 1)
+                    .delay(100)
                     .runnable(() -> {
                         if (!event.getPlayer().isOnline()) return;
 
@@ -74,6 +76,7 @@ public class PrisonerListener {
                                                 .map(SuperiorMine::getSpawnPoint)
                                                 .ifPresent(location -> Framework.FRAMEWORK.teleport(event.getPlayer(), location));
                                         prisoner.setLogoutMine(null);
+                                        System.out.println("Teleporting");
                                     })
                                     .execute();
                         }
@@ -110,19 +113,9 @@ public class PrisonerListener {
                 event.setCancelled(true);
         });
 
-        SyncEvents.listen(PlayerQuitEvent.class, event -> {
-            SuperiorPrisonPlugin.getInstance().getDatabaseController().getPrisonerHolder().getPrisoner(event.getPlayer().getUniqueId()).map(prisoner -> (SPrisoner) prisoner).ifPresent(prisoner -> {
-                prisoner.getCurrentMine().ifPresent(mine -> {
-                    prisoner.setLogoutMine(mine.getKey().getName());
-                    prisoner.save(true);
+        SyncEvents.listen(PlayerKickEvent.class, event -> handleLeave(event.getPlayer()));
 
-                    prisoner.getCurrentMine().get().getKey().getPrisoners().remove(prisoner);
-                    prisoner.setCurrentMine(null);
-                });
-
-                prisoner.clearCache();
-            });
-        });
+        SyncEvents.listen(PlayerQuitEvent.class, event -> handleLeave(event.getPlayer()));
 
         SyncEvents.listen(BlockBreakEvent.class, EventPriority.LOWEST, event -> {
             if (ignoreEvents.get(event) != null) return;
@@ -201,102 +194,14 @@ public class PrisonerListener {
                     return;
                 }
 
-                if (tool.hasEnchant(Enchantment.SILK_TOUCH))
-                    drops.add(new ItemStack(event.getBlock().getType(), 1, event.getBlock().getData()));
-
-                else
-                    drops.addAll(event.getBlock().getDrops(new ItemStack(tool.getItemStack())));
-
-                // Handle auto burn
-                if (prisoner.isAutoBurn()) {
-                    new HashSet<>(drops)
-                            .stream()
-                            .filter(item -> item.getType().isBlock())
-                            .filter(item -> OMaterial.matchMaterial(item).name().contains("ORE"))
-                            .forEach(item -> {
-                                OMaterial type = OMaterial.matchMaterial(item);
-                                if (type == OMaterial.GOLD_ORE) {
-                                    drops.remove(item);
-                                    drops.add(OMaterial.GOLD_INGOT.parseItem());
-                                }
-
-                                if (type == OMaterial.IRON_ORE) {
-                                    drops.remove(item);
-                                    drops.add(OMaterial.IRON_INGOT.parseItem());
-                                }
-                            });
-                }
-
-                Set<DropsBooster> boosters = prisoner.getBoosters().findBoostersBy(DropsBooster.class);
-                if (!boosters.isEmpty()) {
-                    double[] rate = new double[]{0};
-                    boosters.forEach(booster -> rate[0] = rate[0] + booster.getRate());
-                    drops.forEach(itemStack -> itemStack.setAmount((int) Math.round(rate[0] * itemStack.getAmount())));
-                }
-
-                // Handle Fortune
-                if (tool.hasEnchant(Enchantment.LOOT_BONUS_BLOCKS))
-                    for (ItemStack itemStack : drops) {
-                        if (!prisoner.isFortuneBlocks() && itemStack.getType().isBlock()) continue;
-                        itemStack.setAmount(getItemCountWithFortune(itemStack.getType(), tool.getEnchantLevel(Enchantment.LOOT_BONUS_BLOCKS)));
-                    }
-
-                // Handle auto sell
-                if (prisoner.isAutoSell()) {
-                    SNormalMine mine = (SNormalMine) prisoner.getCurrentMine().get().getKey();
-                    mine.getShop().getItems().forEach(shopItem -> {
-                        for (ItemStack drop : new HashSet<>(drops)) {
-                            if (shopItem.getItem().isSimilar(drop)) {
-                                BigDecimal price = prisoner.getPrice(drop).multiply(BigDecimal.valueOf(drop.getAmount()));
-                                if (price.doubleValue() == 0) continue;
-
-                                SuperiorPrisonPlugin.getInstance().getHookController().executeIfFound(() -> VaultHook.class, vault -> vault.depositPlayer(prisoner, price));
-                                drops.remove(drop);
-                                SPair<BigDecimal, Long> soldData = prisoner.getSoldData();
-                                soldData.setKey(soldData.getKey().add(price));
-                                soldData.setValue(soldData.getValue() + drop.getAmount());
-                            }
-                        }
-                    });
-                }
-
-                // Handle auto pickup
-                if (prisoner.isAutoPickup()) {
-                    List<BackPack> backpacks = SuperiorPrisonPlugin.getInstance().getBackPackController().findBackPacks(player);
-                    for (BackPack backpack : backpacks) {
-                        Map<ItemStack, Integer> add = backpack.add(drops.toArray(new ItemStack[0]));
-
-                        Runnable modify = () -> {
-                            if (!backpack.isModified()) return;
-                            backpack.save();
-                            backpack.update();
-                        };
-
-                        if (add.isEmpty()) {
-                            drops.clear();
-                            modify.run();
-                            break;
-
-                        } else {
-                            modify.run();
-                            drops.clear();
-                            drops.addAll(add.keySet());
-                        }
-                    }
-
-                    if (!drops.isEmpty()) {
-                        HashMap<Integer, ItemStack> left = player.getInventory().addItem(drops.toArray(new ItemStack[0]));
-                        if (left.isEmpty())
-                            drops.clear();
-
-                        else {
-                            drops.clear();
-                            drops.addAll(left.values());
-
-                            LocaleEnum.AUTO_PICKUP_PRISONER_INVENTORY_FULL.getWithErrorPrefix().send(player);
-                        }
-                    }
-                }
+                long start = System.currentTimeMillis();
+                SuperiorPrisonPlugin.getInstance().getBlockController().syncHandleBlockBreak(
+                        prisoner,
+                        event.getMine(),
+                        player.getItemInHand(),
+                        event.getBlock().getLocation()
+                );
+                ClassDebugger.debug("Took {}ms", (System.currentTimeMillis() - start));
 
                 if (!player.hasPermission("prison.prisoner.ignoredurability")) {
                     int enchantmentLevel = tool.getEnchantLevel(Enchantment.DURABILITY);
@@ -314,8 +219,6 @@ public class PrisonerListener {
                     }
                 } else
                     tool.setDurability(0);
-
-                drops.forEach(item -> event.getBlock().getLocation().getWorld().dropItem(event.getBlock().getLocation().add(0.5, 0, 0.5), item));
 
                 event.getBlock().getDrops().clear();
                 event.setCancelled(true);
@@ -365,5 +268,20 @@ public class PrisonerListener {
 
         int i = material == Material.LAPIS_BLOCK ? 4 + ThreadLocalRandom.current().nextInt(5) : 1;
         return i * (drops + 1);
+    }
+
+    public void handleLeave(Player player) {
+        SuperiorPrisonPlugin.getInstance().getDatabaseController().getPrisonerHolder().getPrisoner(player.getUniqueId()).map(prisoner -> (SPrisoner) prisoner).ifPresent(prisoner -> {
+            prisoner.getCurrentMine().ifPresent(mine -> {
+                prisoner.setLogoutMine(mine.getKey().getName());
+                System.out.println("logged out in mine");
+
+                prisoner.getCurrentMine().get().getKey().getPrisoners().remove(prisoner);
+                prisoner.setCurrentMine(null);
+                prisoner.save(false);
+            });
+
+            prisoner.clearCache();
+        });
     }
 }

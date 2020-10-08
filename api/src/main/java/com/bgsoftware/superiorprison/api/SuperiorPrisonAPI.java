@@ -15,4 +15,8 @@ public class SuperiorPrisonAPI {
     public static SuperiorPrison getPlugin() {
         return plugin;
     }
+
+    public static void onDisable() {
+        plugin = null;
+    }
 }

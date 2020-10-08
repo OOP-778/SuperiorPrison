@@ -24,34 +24,32 @@ public class PlayerInventoryUpdateTask extends OTask {
                 if (!(onlinePlayer.getInventory() instanceof PatchedInventory)) continue;
 
                 SPlayerInventory patchedInventory = ((PatchedInventory) onlinePlayer.getInventory()).getOwner();
-                for (SBackPack backPack : patchedInventory.getBackPackMap().values()) {
+                patchedInventory.getBackPackMap().forEach((slot, backPack) -> {
                     long lastUpdated = backPack.getLastUpdated();
 
                     // If last updated is not set, set it to now
                     if (lastUpdated == -1) {
                         backPack.setLastUpdated(System.currentTimeMillis());
-                        continue;
+                        return;
                     }
 
                     long currentMillis = System.currentTimeMillis();
                     long difference = currentMillis - lastUpdated;
+
                     if (difference >= updateEvery) {
-                        ItemStack lastItemStack = backPack.getItem();
+                        if (!backPack.isModified()) return;
+
                         backPack.save();
                         StaticTask.getInstance().sync(() -> {
                             if (!onlinePlayer.isOnline()) return;
 
-                            int first = onlinePlayer.getInventory().first(lastItemStack);
-                            if (first == -1) return;
-
-                            if (backPack.isModified()) {
-                                ItemStack itemStack = backPack.updateManually();
-                                onlinePlayer.getInventory().setItem(first, itemStack);
-                            }
+                            System.out.println("Is modified");
+                            ItemStack itemStack = backPack.updateManually();
+                            onlinePlayer.getInventory().setItem(slot, itemStack);
                         });
                         backPack.setLastUpdated(currentMillis);
                     }
-                }
+                });
             }
         });
     }

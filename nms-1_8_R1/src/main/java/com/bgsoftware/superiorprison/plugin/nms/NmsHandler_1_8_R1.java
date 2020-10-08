@@ -1,31 +1,21 @@
 package com.bgsoftware.superiorprison.plugin.nms;
 
-import com.bgsoftware.superiorprison.plugin.util.SingleHashablePair;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.material.OMaterial;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.NonNull;
-import lombok.Setter;
 import net.minecraft.server.v1_8_R1.*;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_8_R1.CraftChunk;
 import org.bukkit.craftbukkit.v1_8_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_8_R1.block.CraftBlock;
-import org.bukkit.craftbukkit.v1_8_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_8_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_8_R1.entity.CraftWolf;
-import org.bukkit.craftbukkit.v1_8_R1.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_8_R1.util.CraftMagicNumbers;
 import org.bukkit.entity.Player;
-import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class NmsHandler_1_8_R1 implements SuperiorNms {
     private Map<OMaterial, IBlockData> dataMap = new HashMap<>();
@@ -53,7 +43,7 @@ public class NmsHandler_1_8_R1 implements SuperiorNms {
 
         for (Location location : locations) {
             if (world == null)
-                world = ((CraftWorld)location.getWorld()).getHandle();
+                world = ((CraftWorld) location.getWorld()).getHandle();
 
             net.minecraft.server.v1_8_R1.World finalWorld = world;
             net.minecraft.server.v1_8_R1.Chunk chunk = pairToChunk.computeIfAbsent(new OPair<>(location.getBlockX() >> 4, location.getBlockZ() >> 4), key -> finalWorld.getChunkAt(location.getBlockX() >> 4, location.getBlockZ() >> 4));
@@ -87,10 +77,10 @@ public class NmsHandler_1_8_R1 implements SuperiorNms {
             byte data = (byte) block.toLegacyData(block.getBlockData());
             int count = block.getDropCount(0, chunk.getWorld().random);
 
-            for(int i = 0; i < count; ++i) {
+            for (int i = 0; i < count; ++i) {
                 Item item = block.getDropType(block.fromLegacyData(data), chunk.getWorld().random, 0);
                 if (item != null) {
-                    drops.add(new org.bukkit.inventory.ItemStack(CraftMagicNumbers.getMaterial(item), 1, (short)block.getDropData(block.fromLegacyData(data))));
+                    drops.add(new org.bukkit.inventory.ItemStack(CraftMagicNumbers.getMaterial(item), 1, (short) block.getDropData(block.fromLegacyData(data))));
                 }
             }
         }
@@ -125,7 +115,7 @@ public class NmsHandler_1_8_R1 implements SuperiorNms {
 
         for (Packet packet : packets) {
             for (Player receiver : receivers) {
-                ((CraftPlayer)receiver).getHandle().playerConnection.sendPacket(packet);
+                ((CraftPlayer) receiver).getHandle().playerConnection.sendPacket(packet);
             }
         }
     }

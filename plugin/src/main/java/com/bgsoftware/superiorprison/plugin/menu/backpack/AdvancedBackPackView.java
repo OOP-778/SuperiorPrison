@@ -85,6 +85,10 @@ public class AdvancedBackPackView extends OPagedMenu<ItemStack> implements Backp
         initializeBackpack();
     }
 
+    public void onUpdate() {
+        refresh();
+    }
+
     void updatePage(int page, Inventory inventory) {
         ItemStack[] contents = inventory.getContents();
 
@@ -118,8 +122,6 @@ public class AdvancedBackPackView extends OPagedMenu<ItemStack> implements Backp
         }
 
         updatePage(getCurrentPage(), event.getInventory());
-
-        backPack.save();
         backPack.setCurrentView(null);
 
         updateBackpackAndUnlock();

@@ -10,9 +10,7 @@ import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.controller.BombController;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
-import com.bgsoftware.superiorprison.plugin.util.ChunkResetData;
-import com.bgsoftware.superiorprison.plugin.util.Directional;
-import com.bgsoftware.superiorprison.plugin.util.TimeUtil;
+import com.bgsoftware.superiorprison.plugin.util.*;
 import com.oop.orangeengine.main.events.SyncEvents;
 import com.oop.orangeengine.main.task.OTask;
 import com.oop.orangeengine.main.task.StaticTask;
@@ -22,6 +20,7 @@ import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import java.util.HashSet;
@@ -120,6 +119,15 @@ public class BombListener {
                                             OParticle.getProvider().display(bomb.getExplosionParticle(), loc, 1);
                                         }
                                     };
+
+                                    long dropStart = System.currentTimeMillis();
+                                    SuperiorPrisonPlugin.getInstance().getBlockController().syncHandleBlockBreak(
+                                            SuperiorPrisonPlugin.getInstance().getPrisonerController().getInsertIfAbsent(event.getPlayer()),
+                                            mine.getKey(),
+                                            null,
+                                            sphereAt.toArray(new Location[0])
+                                    );
+                                    ClassDebugger.debug("Took {}ms", (System.currentTimeMillis() - dropStart));
 
                                     for (Location location : sphereAt) {
                                         data.add(

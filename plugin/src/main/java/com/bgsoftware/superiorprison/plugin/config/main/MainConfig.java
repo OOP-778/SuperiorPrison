@@ -43,6 +43,8 @@ public class MainConfig extends ConfigWrapper {
     private long updateBackpacksEvery;
     private boolean itemDropping = false;
 
+    private boolean handleNamedItems;
+
     public MainConfig() {
         load();
     }
@@ -78,6 +80,7 @@ public class MainConfig extends ConfigWrapper {
                 "How much chunks per tick should the block setting use",
                 "Please be careful with this. As it can cause serious performance issues, test the values you set before using."
         );
+
         disabledInteractableBlocks = (List<OMaterial>) configuration
                 .getAs("disabled interactable blocks", List.class, () -> Lists.newArrayList("CRAFTING_TABLE", "ANVIL", "CHEST", "ITEM_FRAME"), "Disable interactable blocks")
                 .stream()
@@ -88,6 +91,8 @@ public class MainConfig extends ConfigWrapper {
         itemDropping = configuration.getAs("item dropping", boolean.class, () -> true, "Disable or Enable dropping items");
         updateBackpacksEvery = TimeUnit.SECONDS
                 .toMillis(TimeUtil.toSeconds(configuration.getAs("update backpacks every", String.class, () -> "1s", "Update backpacks every")));
+
+        handleNamedItems = configuration.getAs("handle named items", boolean.class, () -> false, "Handle items with name, lore, etc.", "In shops, auto sell, etc.");
 
         SuperiorPrisonPlugin.getInstance().getOLogger().setDebugMode(configuration.getAs("debug", boolean.class, () -> false));
         SuperiorPrisonPlugin.getInstance().getResetQueueTask().setChunksPerTick(chunksPerTick);

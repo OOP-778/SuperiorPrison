@@ -7,6 +7,7 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
 
@@ -25,5 +26,9 @@ public interface SuperiorNms {
         Map<Chunk, Set<Location>> finalLocations = new HashMap<>();
         mapped.forEach((chunk, l) -> finalLocations.put(world.getChunkAt(chunk.getFirst(), chunk.getSecond()), l));
         StaticTask.getInstance().ensureSync(() -> refreshChunks(world, finalLocations, players));
+    }
+
+    default Set<ItemStack> getDrops(OMaterial oMaterial) {
+        return new HashSet<>();
     }
 }

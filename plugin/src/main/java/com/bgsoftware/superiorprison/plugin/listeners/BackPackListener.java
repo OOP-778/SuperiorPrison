@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorprison.plugin.listeners;
 
 import com.bgsoftware.superiorprison.api.SuperiorPrison;
+import com.bgsoftware.superiorprison.api.data.backpack.BackPack;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.config.backpack.SimpleBackPackConfig;
 import com.bgsoftware.superiorprison.plugin.menu.backpack.AdvancedBackPackView;
@@ -22,6 +23,7 @@ import org.bukkit.event.inventory.InventoryEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
 
 import javax.sound.midi.Patch;
@@ -44,11 +46,24 @@ public class BackPackListener {
                     ((BackpackLockable) event.getWhoClicked().getOpenInventory().getTopInventory().getHolder()).getViewer();
 
             viewer.getOpenedBackpack().ifPresent(pair -> {
-                if (event.getSlot() == pair.getFirst()) {
+                if (event.getSlot() == pair.getFirst())
                     event.setCancelled(true);
-                }
             });
         });
+
+        // Listen for backpack click event (Backpack slot lock)
+        SyncEvents.listen(InventoryClickEvent.class, EventPriority.LOWEST, event -> {
+            if (event.getClickedInventory() == null) return;
+            if (event.getWhoClicked().getOpenInventory().getTopInventory() == null) return;
+            if (!(event.getWhoClicked().getOpenInventory().getTopInventory().getHolder() instanceof AdvancedBackPackView))
+                return;
+
+            new OTask()
+                    .delay(100)
+                    .runnable(() -> ((AdvancedBackPackView) event.getWhoClicked().getOpenInventory().getTopInventory().getHolder()).onUpdate())
+                    .execute();
+        });
+
 
         // Listen for menu
         SyncEvents.listen(PlayerInteractEvent.class, event -> {
@@ -113,7 +128,7 @@ public class BackPackListener {
                 if (sBackPack != null) {
                     if (sBackPack.isModified()) {
                         ItemStack itemStack = sBackPack.updateManually();
-                        event.getClickedInventory().setItem(event.getSlot(), itemStack);
+                        event.setCursor(itemStack);
                         sBackPack.setLastUpdated(System.currentTimeMillis());
                     }
                 }
@@ -135,13 +150,27 @@ public class BackPackListener {
             SBackPack backPackBy = inventory.findBackPackBy(event.getItemDrop().getItemStack());
             if (backPackBy == null) return;
 
+            inventory.removeItem(event.getItemDrop().getItemStack());
+
             if (backPackBy.isModified()) {
                 backPackBy.save();
                 event.getItemDrop().setItemStack(backPackBy.updateManually());
             }
 
-            inventory.getBackPackMap().remove(backPackBy);
             SuperiorPrisonPlugin.getInstance().getOLogger().printDebug("Player {} Dropped Backpack", event.getPlayer().getName());
+        });
+
+        SyncEvents.listen(PlayerPickupItemEvent.class, EventPriority.HIGHEST, event -> {
+            if (event.isCancelled()) return;
+            if (!(event.getPlayer().getInventory() instanceof PatchedInventory)) return;
+
+            new OTask()
+                    .delay(100)
+                    .runnable(() -> {
+                        SPlayerInventory inventory = ((PatchedInventory)event.getPlayer().getInventory()).getOwner();
+                        inventory.init();
+                    })
+                    .execute();
         });
     }
 }

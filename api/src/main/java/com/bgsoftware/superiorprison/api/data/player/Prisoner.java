@@ -37,6 +37,10 @@ public interface Prisoner {
 
     boolean isAutoPickup();
 
+    boolean isAutoBurn();
+
+    boolean isFortuneBlocks();
+
     List<Rank> getSpecialRanks();
 
     LadderRank getCurrentLadderRank();

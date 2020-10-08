@@ -7,7 +7,9 @@ import net.minecraft.server.v1_8_R3.PlayerInventory;
 import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftInventoryPlayer;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class PlayerInventory_v1_8_R3 extends CraftInventoryPlayer implements PatchedInventory {
@@ -28,6 +30,7 @@ public class PlayerInventory_v1_8_R3 extends CraftInventoryPlayer implements Pat
         else
             calling.set(false);
 
+        if (Arrays.stream(items).noneMatch(Objects::nonNull)) return new HashMap<>();
         return super.addItem(items);
     }
 
@@ -38,6 +41,7 @@ public class PlayerInventory_v1_8_R3 extends CraftInventoryPlayer implements Pat
         else
             calling.set(false);
 
+        if (Arrays.stream(items).noneMatch(Objects::nonNull)) return new HashMap<>();
         return super.removeItem(items);
     }
 

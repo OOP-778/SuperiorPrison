@@ -131,6 +131,10 @@ dropping items: true
 # Update backpacks every
 update backpacks every: "1s"
 
+# Handle items with name, lore, etc.
+# In shops, auto sell, etc.
+handle named items: false
+
 # Disable interactable blocks
 disable interactable blocks:
   - "CRAFTING_TABLE"

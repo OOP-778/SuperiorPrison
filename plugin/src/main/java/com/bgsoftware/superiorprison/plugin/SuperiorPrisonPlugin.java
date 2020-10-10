@@ -136,6 +136,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
             resetQueueTask.execute();
             inventoryUpdateTask.execute();
         } catch (Throwable thrw) {
+            Bukkit.getPluginManager().disablePlugin(this);
             throw new IllegalStateException("Failed to start SuperiorPrison", thrw);
         }
     }
@@ -153,7 +154,8 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
         Updater.plugin = null;
         SuperiorPrisonAPI.onDisable();
 
-        databaseController.getMineHolder().clear();
+        if (databaseController != null)
+            databaseController.getMineHolder().clear();
     }
 
     @Override

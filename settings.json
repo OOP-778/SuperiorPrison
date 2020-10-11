@@ -1,0 +1,289 @@
+{
+  "title": "SuperiorPrison | BG-Software",
+  "background": "255, 172, 221",
+  "purchase-color": "#ff6bc2",
+  "purchase-hover-color": "#cd318d",
+  "logo": "https://bg-software.com/imgs/superiorprison-logo.png",
+  "resource": "#",
+  "description": "SuperiorPrison is an all-in-one prison core, first of it's kind! Rankups, mines, prestiges, shops and lots of perks are inside!<br>The core is optimized and it's designed to fit your needs. Make sure you test the plugin before you purchase on <b>sp.bg-software.com</b>",
+  "features2": "<div style=\"display: grid; grid-template-columns: 100%;\"><p>- Optimizations<br>- Mines<br>- Rankups<br>- Prestiges<br>- Player boosts<br>- Mine shops<br>- Fully customized guis<br>- Fully customized messages<br></p></div>",
+  "features": [
+    {
+      "sections": [
+        {
+          "size": "100%",
+          "labels": [
+            "- Optimizations",
+            "- Mines",
+            "- Rankups",
+            "- Prestiges",
+            "- Player boosts",
+            "- Mine shops",
+            "- Auto Sell",
+            "- Auto Burn",
+            "- Fortune Blocks",
+            "- Auto Pickup",
+            "- Fully customized guis",
+            "- Fully customized messages"
+          ]
+        }
+      ]
+    }
+  ],
+  "commands": [
+    {
+      "title": "Player Commands:",
+      "sections": [
+        {
+          "size": "170px",
+          "labels": [
+            "/mines"
+          ]
+        },
+        {
+          "size": "220px",
+          "labels": [
+            "/pcp"
+          ]
+        },
+        {
+          "size": "270px",
+          "labels": [
+            "/rankup"
+          ]
+        },
+        {
+          "size": "270px",
+          "labels": [
+            "/sell inventory",
+            "/sell gui",
+            "/sell hand"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Admin Commands:",
+      "sections": [
+        {
+          "size": "170px",
+          "labels": [
+            "/mines",
+            "/mines reload",
+            "/mines create",
+            "/mines reset",
+            "/mines copy",
+            "/mines delete"
+          ]
+        },
+        {
+          "size": "220px",
+          "labels": [
+            "/prisoner ranks add",
+            "/prisoner ranks remove",
+            "/prisoner ranks clear",
+            "/prisoner ranks list"
+          ]
+        },
+        {
+          "size": "270px",
+          "labels": [
+            "/prisoner boosters add",
+            "/prisoner boosters remove",
+            "/prisoner boosters list"
+          ]
+        },
+        {
+          "size": "270px",
+          "labels": [
+            "/prisoner prestiges add",
+            "/prisoner prestiges remove",
+            "/prisoner prestiges list",
+            "/prisoner prestiges clear"
+          ]
+        },
+        {
+          "size": "170px",
+          "labels": [
+            "/prisoner teleport",
+            "/prisoner reset",
+            "/backpack give"
+          ]
+        }
+      ]
+    }
+  ],
+  "permissions": [
+    {
+      "title": "Player Permissions:",
+      "sections": [
+        {
+          "size": "470px",
+          "labels": [
+            "prison.prisoner.*",
+            "prison.prisoner.feature.*",
+            "prison.prisoner.feature.autosell",
+            "prison.prisoner.feature.fortuneblocks",
+            "prison.prisoner.feature.autoburn",
+            "prison.prisoner.feature.autopickup",
+            "prison.prisoner.ignoredurability"
+          ]
+        },
+        {
+          "size": "470px",
+          "labels": [
+            "prison.prisoner.cmds.*",
+            "prison.prisoner.cmds.pcp",
+            "prison.prisoner.cmds.rankup",
+            "prison.prisoner.cmds.sell.*",
+            "prison.prisoner.cmds.sell.gui",
+            "prison.prisoner.cmds.sell.inventory",
+            "prison.prisoner.cmds.sell.hand"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Admin Permissions:",
+      "sections": [
+        {
+          "size": "470px",
+          "labels": [
+            "prison.admin.cmds.*",
+            "prison.admin.cmds.mines.*",
+            "prison.admin.cmds.mines.copy",
+            "prison.admin.cmds.mines.create",
+            "prison.admin.cmds.mines.delete",
+            "prison.admin.cmds.mines.reload",
+            "prison.admin.cmds.mines.reset",
+            "prison.admin.cmds.prisoner.*",
+            "prison.admin.cmds.prisoner.boosters.*",
+            "prison.admin.cmds.prisoner.boosters.add",
+            "prison.admin.cmds.prisoner.boosters.clear",
+            "prison.admin.cmds.prisoner.boosters.list",
+            "prison.admin.cmds.prisoner.boosters.remove"
+          ]
+        },
+        {
+          "size": "470px",
+          "labels": [
+            "prison.admin.cmds.prisoner.ranks.*",
+            "prison.admin.cmds.prisoner.ranks.add",
+            "prison.admin.cmds.prisoner.ranks.clear",
+            "prison.admin.cmds.prisoner.ranks.list",
+            "prison.admin.cmds.prisoner.ranks.remove",
+            "prison.admin.cmds.prisoner.prestiges.*",
+            "prison.admin.cmds.prisoner.prestiges.add",
+            "prison.admin.cmds.prisoner.prestiges.clear",
+            "prison.admin.cmds.prisoner.prestiges.list",
+            "prison.admin.cmds.prisoner.prestiges.remove",
+            "prison.admin.cmds.prisoner.teleport",
+            "prison.admin.cmds.prisoner.reset",
+            "prison.admin.bypass"
+          ]
+        }
+      ]
+    }
+  ],
+  "placeholders": [
+    {
+      "title": "Mine Placeholders:",
+      "sections": [
+        {
+          "size": "470px",
+          "labels": [
+            "%prison_mine_&#60;name>_type%",
+            "%prison_mine_&#60;name>_accessranks%",
+            "%prison_mine_&#60;name>_prisonercount%",
+            "%prison_mine_&#60;name>_spawnpoint_world%",
+            "%prison_mine_&#60;name>_spawnpoint_x%",
+            "%prison_mine_&#60;name>_spawnpoint_z%",
+            "%prison_mine_&#60;name>_spawnpoint_y%",
+            "%prison_mine_&#60;name>_spawnpoint_world%",
+            "%prison_mine_&#60;name>_settings_limit%",
+            "%prison_mine_&#60;name>_settings_reset_type%",
+            "%prison_mine_&#60;name>_settings_reset_value%",
+            "%prison_mine_&#60;name>_settings_reset_current%"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Prisoner Placeholders:",
+      "sections": [
+        {
+          "size": "470px",
+          "labels": [
+            "%prison_prisoner_autosell%",
+            "%prison_prisoner_autopickup%",
+            "%prison_prisoner_autoburn%",
+            "%prison_prisoner_fortuneblocks%",
+            "%prison_prisoner_currentmine%",
+            "%prison_prisoner_canenter_<mine>%",
+            "%prison_prisoner_statistics_blocks_total_[material]%",
+            "%prison_prisoner_statistics_blocks_withinTime_<start>_[end]%"
+          ]
+        },
+        {
+          "size": "470px",
+          "labels": [
+            "%prison_prisoner_prestige_prefix%",
+            "%prison_prisoner_prestige_order%",
+            "%prison_prisoner_prestige_name%",
+            "%prison_prisoner_prestige_next_prefix%",
+            "%prison_prisoner_prestige_next_order%",
+            "%prison_prisoner_prestige_next_name%",
+            "%prison_prisoner_prestige_previous_prefix%",
+            "%prison_prisoner_prestige_previous_order%",
+            "%prison_prisoner_prestige_previous_name%"
+          ]
+        },
+        {
+          "size": "470px",
+          "labels": [
+            "%prison_prisoner_ladderrank_prefix%",
+            "%prison_prisoner_ladderrank_order%",
+            "%prison_prisoner_ladderrank_name%",
+            "%prison_prisoner_ladderrank_next_prefix%",
+            "%prison_prisoner_ladderrank_next_order%",
+            "%prison_prisoner_ladderrank_next_name%",
+            "%prison_prisoner_ladderrank_previous_prefix%",
+            "%prison_prisoner_ladderrank_previous_order%",
+            "%prison_prisoner_ladderrank_previous_name%"
+          ]
+        }
+      ]
+    }
+  ],
+  "sidebar": [
+    {
+      "link": "#description",
+      "label": "Description"
+    },
+    {
+      "link": "#features",
+      "label": "Features"
+    },
+    {
+      "link": "#commands",
+      "label": "Commands"
+    },
+    {
+      "link": "#permissions",
+      "label": "Permissions"
+    },
+    {
+      "link": "#placeholders",
+      "label": "Placeholders"
+    },
+    {
+      "link": "wiki/",
+      "label": "Documents"
+    },
+    {
+      "link": "api/",
+      "label":
+      "API Javadocs"
+    }
+  ]
+}

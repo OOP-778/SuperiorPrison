@@ -11,10 +11,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableMap;
 import com.oop.orangeengine.main.task.OTask;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class RankupTask extends OTask {
@@ -31,7 +28,7 @@ public class RankupTask extends OTask {
             SuperiorPrisonPlugin.getInstance().getPrisonerController()
                     .streamOnline()
                     .filter(prisoner -> prisoner.getCurrentMine().isPresent())
-                    .filter(prisoner -> cache.getIfPresent(prisoner.getUUID()) == null || !cache.getIfPresent(prisoner.getUUID()).contentEquals(prisoner.getCurrentLadderRank().getName()))
+                    .filter(prisoner -> cache.getIfPresent(prisoner.getUUID()) == null || !Objects.requireNonNull(cache.getIfPresent(prisoner.getUUID())).contentEquals(prisoner.getCurrentLadderRank().getName()))
                     .filter(prisoner -> {
                         LadderRank rank = prisoner.getCurrentLadderRank();
                         if (rank == null) return false;

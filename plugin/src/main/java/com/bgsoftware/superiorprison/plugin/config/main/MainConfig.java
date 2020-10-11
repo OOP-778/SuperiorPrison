@@ -36,6 +36,7 @@ public class MainConfig extends ConfigWrapper {
 
     private PrisonerDefaults prisonerDefaults;
     private TopSystemsSection topSystemsSection;
+    private PlaceholdersSection placeholdersSection;
 
     private List<OMaterial> disabledInteractableBlocks = new ArrayList<>();
 
@@ -52,9 +53,6 @@ public class MainConfig extends ConfigWrapper {
     private void load() {
         addDefault("blocks cache time limit", "1h");
         this.configuration = new Config(new OFile(SuperiorPrisonPlugin.getInstance().getDataFolder(), "config.yml").createIfNotExists(true));
-        configuration.getSections().keySet().forEach(System.out::println);
-
-
         setConfig(configuration);
 
         // Set Locale
@@ -66,6 +64,7 @@ public class MainConfig extends ConfigWrapper {
         // Load prisoner defaults
         this.prisonerDefaults = addSection("prisoner defaults", new PrisonerDefaults());
         this.topSystemsSection = addSection("top systems", new TopSystemsSection());
+        this.placeholdersSection = addSection("placeholders", new PlaceholdersSection());
 
         // Load Mine Defaults
         this.mineDefaults = addSection("mine defaults", new MineDefaultsSection());

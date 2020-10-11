@@ -50,6 +50,7 @@ public class CmdCopy extends OCommand {
                     break;
 
                 case GENERATOR:
+                    to.getGenerator().getGeneratorMaterials().clear();
                     to.getGenerator().getGeneratorMaterials().addAll(from.getGenerator().getGeneratorMaterials());
                     to.getGenerator().setMaterialsChanged(true);
                     break;

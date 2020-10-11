@@ -65,7 +65,7 @@ public class SBackPack implements BackPack {
 
     @Setter
     @Getter
-    private int currentSlot;
+    private int currentSlot = -1;
 
     @Getter
     private UUID uuid;
@@ -114,8 +114,6 @@ public class SBackPack implements BackPack {
                 localData = oldData.getAsJsonObject("global");
         }
 
-        System.out.println("using local data: " + oldData);
-
         data = new BackPackData(this);
         if (localData != null)
             data.deserialize(new SerializedData(localData));
@@ -132,8 +130,6 @@ public class SBackPack implements BackPack {
         updateHash();
         save();
         update();
-
-        System.out.println("new backpack:" + getUsed());
     }
 
     public static SBackPack of(BackPackConfig<?> config, Player player) {
@@ -259,7 +255,6 @@ public class SBackPack implements BackPack {
 
         String data = StorageInitializer.getInstance().getGson().toJson(oldData);
 
-        System.out.println("Saving: " + getUsed() + " items, data: " + data);
 
         // Compress the data
         data = compress(data.getBytes(StandardCharsets.UTF_8));
@@ -405,12 +400,13 @@ public class SBackPack implements BackPack {
         ItemStack newItem = getItem();
 
         // Update the inventory
-        if (owner.getInventory() instanceof PatchedInventory) {
-            ((PatchedInventory) this.owner.getInventory()).setOwnerCalling();
-            this.owner.getInventory().setItem(currentSlot, newItem);
+        if (currentSlot != -1)
+            if (owner.getInventory() instanceof PatchedInventory) {
+                ((PatchedInventory) this.owner.getInventory()).setOwnerCalling();
+                this.owner.getInventory().setItem(currentSlot, newItem);
 
-        } else
-            owner.getInventory().setItem(currentSlot, newItem);
+            } else
+                owner.getInventory().setItem(currentSlot, newItem);
 
         // Update the menu
         if (currentView != null)

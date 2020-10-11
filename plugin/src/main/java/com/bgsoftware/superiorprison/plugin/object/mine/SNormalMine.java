@@ -30,6 +30,7 @@ import com.bgsoftware.superiorprison.plugin.util.Removeable;
 import com.bgsoftware.superiorprison.plugin.util.SPLocation;
 import com.bgsoftware.superiorprison.plugin.util.frameworks.Framework;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.oop.datamodule.SerializedData;
 import com.oop.datamodule.body.MultiTypeBody;
 import com.oop.datamodule.gson.JsonArray;
@@ -97,7 +98,11 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
     private final Map<String, LinkableObject> linkableObjectMap = new HashMap<>();
 
     @Getter
-    private Set<Lock> pendingTasks = new HashSet<>();
+    private OCache<Lock, Boolean> pendingTasks = OCache
+            .builder()
+            .concurrencyLevel(1)
+            .expireAfter(5, TimeUnit.SECONDS)
+            .build();
 
     @Getter
     @Setter
@@ -576,7 +581,7 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
     @Override
     public Lock newLock() {
         SMineLock lock = new SMineLock();
-        pendingTasks.add(lock);
+        pendingTasks.put(lock, true);
         return lock;
     }
 

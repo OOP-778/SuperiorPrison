@@ -15,7 +15,7 @@ public class DropsHandler {
     static {
         register(OMaterial.DIAMOND_ORE, () -> new ItemStack(Material.DIAMOND));
         register(OMaterial.EMERALD_ORE, () -> new ItemStack(Material.EMERALD));
-        register(OMaterial.COAL, () -> new ItemStack(Material.COAL, 1));
+        register(OMaterial.COAL_ORE, () -> new ItemStack(Material.COAL, 1));
         register(OMaterial.LAPIS_ORE, () -> OMaterial.LAPIS_LAZULI.parseItem(ThreadLocalRandom.current().nextInt(4, 9)));
         register(OMaterial.REDSTONE_ORE, () -> new ItemStack(Material.REDSTONE, 5));
         register(OMaterial.NETHER_QUARTZ_ORE, () -> new ItemStack(Material.QUARTZ, 1));

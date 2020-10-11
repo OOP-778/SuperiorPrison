@@ -77,6 +77,8 @@ public class SBlockController implements BlockController {
 
         SMineBlockData mineBlockData = (SMineBlockData) mine.getGenerator().getBlockData();
 
+        Map<OMaterial, Integer> materialsAmount = new HashMap<>();
+
         for (Location location : locations) {
             if (addToLock)
                 if (mine.getGenerator().getBlockData().isLocked(location))
@@ -87,7 +89,7 @@ public class SBlockController implements BlockController {
             mineBlockData
                     .getOMaterialAt(location)
                     .ifPresent(mat -> {
-                        DebuggableList<ItemStack> drops = new DebuggableList<>("drops", new ArrayList<>());
+                        List<ItemStack> drops = new ArrayList<>();
 
                         // Handle auto burn
                         if (prisoner.isAutoBurn()) {
@@ -95,6 +97,8 @@ public class SBlockController implements BlockController {
                                 drops.add(OMaterial.GOLD_INGOT.parseItem());
                             else if (mat == OMaterial.IRON_ORE)
                                 drops.add(OMaterial.IRON_INGOT.parseItem());
+                            else
+                                drops.add(finalSilkTouch ? mat.parseItem() : DropsHandler.getDrop(mat));
                         } else
                             drops.add(finalSilkTouch ? mat.parseItem() : DropsHandler.getDrop(mat));
 
@@ -119,9 +123,12 @@ public class SBlockController implements BlockController {
                                 mat.parseMaterial(),
                                 drops));
 
+                        materialsAmount.merge(mat, 1, Integer::sum);
                         mineBlockData.remove(location);
                     });
         }
+
+        materialsAmount.forEach((mat, amount) -> SuperiorPrisonPlugin.getInstance().getStatisticsController().getContainer(prisoner.getUUID()).getBlocksStatistic().update(mat, amount));
 
         // Call block break event for the blocks
         MultiBlockBreakEvent event = new MultiBlockBreakEvent(mine, prisoner, tool, blockData, lock, experience[0]);

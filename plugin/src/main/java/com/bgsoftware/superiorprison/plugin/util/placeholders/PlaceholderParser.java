@@ -84,16 +84,16 @@ public class PlaceholderParser {
 
             .add("prestige", SPrestige.class)
             .mapper((none, prisoner, crawler) -> (SPrestige) prisoner.getCurrentPrestige().orElse(null))
-            .parse("prefix/order/name", (prestige, prisoner, crawler) -> getFromAccess(prestige, crawler.current(), true))
+            .parse("prefix/order/name", (prestige, prisoner, crawler) -> getFromAccess(prestige, crawler.current(), false))
 
             .add("next", SPrestige.class)
             .mapper((none, prestige, crawler) -> (SPrestige) prestige.getNext().orElse(null))
-            .parse("prefix/order/name", (prestige, none, crawler) -> getFromAccess(prestige, crawler.current(), true))
+            .parse("prefix/order/name", (prestige, none, crawler) -> getFromAccess(prestige, crawler.current(), false))
             .parent(SPrestige.class, SPrisoner.class)
 
             .add("previous", SPrestige.class)
             .mapper((none, prestige, crawler) -> (SPrestige) prestige.getPrevious().orElse(null))
-            .parse("prefix/order/name", (prestige, none, crawler) -> getFromAccess(prestige, crawler.current(), true))
+            .parse("prefix/order/name", (prestige, none, crawler) -> getFromAccess(prestige, crawler.current(), false))
             .parent(SPrestige.class, SPrisoner.class)
 
             .parent(SPrisoner.class, Object.class)

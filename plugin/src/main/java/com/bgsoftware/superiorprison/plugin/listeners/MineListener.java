@@ -19,6 +19,7 @@ import com.bgsoftware.superiorprison.plugin.data.SMineHolder;
 import com.bgsoftware.superiorprison.plugin.data.SPrisonerHolder;
 import com.bgsoftware.superiorprison.plugin.object.mine.SMineBlockData;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
+import com.bgsoftware.superiorprison.plugin.object.mine.settings.SResetSettings;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.util.ClassDebugger;
 import com.bgsoftware.superiorprison.plugin.util.SPair;
@@ -233,11 +234,11 @@ public class MineListener {
         });
 
         SyncEvents.listen(MultiBlockBreakEvent.class, EventPriority.LOWEST, event -> {
-           if (!event.getMine().getSettings().getResetSettings().isTimed()) {
+           if (event.getMine().getSettings().getResetSettings() instanceof SResetSettings.SPercentage) {
                ResetSettings.Percentage percentage = event.getMine().getSettings().getResetSettings().asPercentage();
                int percentageLeft = event.getMine().getGenerator().getBlockData().getPercentageLeft();
                if (percentageLeft <= percentage.getValue())
-                   StaticTask.getInstance().async(() -> event.getMine().getGenerator().reset());
+                   event.getMine().getGenerator().generate();
            }
         });
     }

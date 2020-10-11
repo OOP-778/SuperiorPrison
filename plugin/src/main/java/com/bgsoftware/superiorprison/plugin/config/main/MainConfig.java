@@ -53,9 +53,6 @@ public class MainConfig extends ConfigWrapper {
     private void load() {
         addDefault("blocks cache time limit", "1h");
         this.configuration = new Config(new OFile(SuperiorPrisonPlugin.getInstance().getDataFolder(), "config.yml").createIfNotExists(true));
-        configuration.getSections().keySet().forEach(System.out::println);
-
-
         setConfig(configuration);
 
         // Set Locale

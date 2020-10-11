@@ -134,17 +134,18 @@ public class PrisonerListener {
                 return;
             }
 
+            // Check when prisoner mines in a different area
+            if (minePair.getKey().getArea(event.getBlock().getLocation()).getType() != area.getType()) {
+                event.setCancelled(true);
+                return;
+            }
+
             // Check if prisoner is breaking under the mine
             if (!area.isInsideWithY(new SPLocation(event.getBlock().getLocation()), true)) {
                 event.setCancelled(true);
                 return;
             }
 
-            // Check when prisoner mines in a different area
-            if (minePair.getKey().getArea(event.getBlock().getLocation()).getType() != area.getType()) {
-                event.setCancelled(true);
-                return;
-            }
 
             if (!minePair.getKey().isReady()) {
                 LocaleEnum.CANCELED_ACTION_CAUSE_MINE_RESET
@@ -185,7 +186,6 @@ public class PrisonerListener {
             }
 
             MultiBlockBreakEvent multiBlockBreakEvent = SuperiorPrisonPlugin.getInstance().getBlockController().breakBlock(prisoner, minePair.getKey(), event.getPlayer().getItemInHand(), event.getBlock().getLocation());
-            Bukkit.broadcastMessage("% left: " + minePair.getKey().getSettings().getResetSettings().getCurrentHumanified());
         });
 
         SyncEvents.listen(MineEnterEvent.class, EventPriority.LOWEST, event -> {

@@ -75,20 +75,16 @@ public class SPlayerInventory {
     }
 
     public ItemStack[] addItem(ItemStack... itemStacks) {
-        SuperiorPrisonPlugin.getInstance().getOLogger().printDebug("Add item");
         // If for some reason the inventory is not patched
         if (!(player.getInventory() instanceof PatchedInventory)) return itemStacks;
 
         // If auto pickup is disabled return
         if (!prisoner.isAutoPickup()) return itemStacks;
-        SuperiorPrisonPlugin.getInstance().getOLogger().printDebug("Prisoner has enabled Auto Pickup");
 
         // If prisoner is not in a mine return
         if (!prisoner.getCurrentMine().isPresent()) return itemStacks;
-        SuperiorPrisonPlugin.getInstance().getOLogger().printDebug("Prisoner is in mine");
 
         ItemStack[] itemStacks1 = Arrays.copyOfRange(itemStacks, 0, itemStacks.length);
-
         // Clean out named items if config says so
         if (!SuperiorPrisonPlugin.getInstance().getMainConfig().isHandleNamedItems()) {
             for (int i = 0; i < itemStacks.length; i++) {
@@ -96,17 +92,17 @@ public class SPlayerInventory {
                 if (itemStack == null) continue;
 
                 if (isNamed(itemStack)) {
-                    SuperiorPrisonPlugin.getInstance().getOLogger().printDebug("Removing {} from the adding items.", itemStack);
                     itemStacks1[i] = null;
                 }
             }
         }
 
         // If the item stacks are empty, return
-        SuperiorPrisonPlugin.getInstance().getOLogger().printDebug("Given ItemStacks: {}", Arrays.toString(itemStacks));
         if (Arrays.stream(itemStacks1).noneMatch(Objects::nonNull)) return itemStacks;
 
-        SuperiorPrisonPlugin.getInstance().getOLogger().printDebug("Given itemstacks are not empty :)");
+        SuperiorPrisonPlugin.getInstance()
+                .getOLogger()
+                .printDebug("Adding items to player `{}` inventory: {}", player.getName(), Arrays.toString(itemStacks));
 
         for (SBackPack backpack : backPackMap.values()) {
             // If backpack is full, ignore
@@ -114,7 +110,7 @@ public class SPlayerInventory {
 
             // Try to add the items
             Map<ItemStack, Integer> add = backpack.add(itemStacks1);
-            SuperiorPrisonPlugin.getInstance().getOLogger().printDebug("Add left: " + add.size());
+            SuperiorPrisonPlugin.getInstance().getOLogger().printDebug("Added items to a backpack of {} players. Left: {}", player.getName(), add.size());
 
             // Added all the items
             if (add.isEmpty())
@@ -168,13 +164,13 @@ public class SPlayerInventory {
             // Check if the itemstack had last location
             SBackPack currentBackpack = backPackMap.get(slot);
 
-            System.out.println("had backpack?: " + (currentBackpack != null));
+
             UUID uuid = SuperiorPrisonPlugin.getInstance().getBackPackController().getUUID(itemStack);
             if (uuid != null && currentBackpack != null && uuid.equals(currentBackpack.getUuid())) return itemStack;
 
             else {
                 SBackPack pack = (SBackPack) SuperiorPrisonPlugin.getInstance().getBackPackController().getBackPack(itemStack, player);
-                System.out.println("new backpack:" + pack.getUsed());
+
                 backPackMap.put(slot, pack);
             }
 

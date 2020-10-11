@@ -16,6 +16,14 @@ public class CmdReset extends OCommand {
         argument(new MinesArg().setRequired(true));
         onCommand(command -> {
             SNormalMine mine = command.getArgAsReq("mine");
+            if (mine.getGenerator().isResetting() || mine.getGenerator().isCaching() || mine.getGenerator().isWorldLoadWait()) {
+                LocaleEnum
+                        .MINE_IS_ALREADY_RESETTING
+                        .getWithErrorPrefix()
+                        .send(command.getSender());
+                return;
+            }
+
             StaticTask.getInstance().async(() -> mine.getGenerator().reset());
 
             messageBuilder(LocaleEnum.MINE_RESET_SUCCESSFUL.getWithPrefix())

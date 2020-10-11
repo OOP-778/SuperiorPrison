@@ -1,7 +1,6 @@
 package com.bgsoftware.superiorprison.plugin.object.player.booster;
 
-import com.bgsoftware.superiorprison.api.data.player.booster.Booster;
-import com.bgsoftware.superiorprison.api.data.player.booster.Boosters;
+import com.bgsoftware.superiorprison.api.data.player.booster.*;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.util.Attachable;
 import com.oop.datamodule.SerializableObject;
@@ -35,11 +34,13 @@ public class SBoosters implements Boosters, Attachable<SPrisoner>, SerializableO
 
     @Override
     public SBooster addBooster(Class<? extends Booster> boosterClazz, long validTill, double rate) {
-        SBooster booster;
-        if (boosterClazz.isAssignableFrom(SDropsBooster.class))
+        SBooster booster = null;
+        if (DropsBooster.class.isAssignableFrom(boosterClazz))
             booster = new SDropsBooster(generateId(), validTill, rate);
-        else
+        else if (MoneyBooster.class.isAssignableFrom(boosterClazz))
             booster = new SMoneyBooster(generateId(), validTill, rate);
+        else if (XPBooster.class.isAssignableFrom(boosterClazz))
+            booster = new SXPBooster(generateId(), validTill, rate);
 
         addBooster(booster);
         return booster;

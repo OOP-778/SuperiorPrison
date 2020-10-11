@@ -2,6 +2,7 @@ package com.bgsoftware.superiorprison.plugin.controller;
 
 import com.bgsoftware.superiorprison.api.data.mine.flags.Flag;
 import com.bgsoftware.superiorprison.api.data.player.Prestige;
+import com.bgsoftware.superiorprison.api.data.player.booster.Booster;
 import com.bgsoftware.superiorprison.api.data.player.booster.MoneyBooster;
 import com.bgsoftware.superiorprison.api.data.player.rank.LadderRank;
 import com.bgsoftware.superiorprison.api.data.player.rank.Rank;
@@ -77,7 +78,7 @@ public class PlaceholderController {
 
         // Placeholders for boosters
         add(SBooster.class, "{booster_id}", SBooster::getId);
-        add(SBooster.class, "{booster_type}", booster -> booster instanceof MoneyBooster ? "money" : "drops");
+        add(SBooster.class, "{booster_type}", Booster::getType);
         add(SBooster.class, "{booster_rate}", SBooster::getRate);
         add(SBooster.class, "{booster_time}", booster -> TimeUtil.leftToString(TimeUtil.getDate(booster.getValidTill())));
 

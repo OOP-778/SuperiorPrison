@@ -3,12 +3,14 @@ package com.bgsoftware.superiorprison.plugin.listeners;
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
 import com.bgsoftware.superiorprison.api.data.mine.area.AreaEnum;
 import com.bgsoftware.superiorprison.api.data.mine.settings.MineSettings;
+import com.bgsoftware.superiorprison.api.data.mine.settings.ResetSettings;
 import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 import com.bgsoftware.superiorprison.api.data.player.rank.LadderRank;
 import com.bgsoftware.superiorprison.api.data.player.rank.Rank;
 import com.bgsoftware.superiorprison.api.event.mine.MineBlockBreakEvent;
 import com.bgsoftware.superiorprison.api.event.mine.MineEnterEvent;
 import com.bgsoftware.superiorprison.api.event.mine.MineLeaveEvent;
+import com.bgsoftware.superiorprison.api.event.mine.MultiBlockBreakEvent;
 import com.bgsoftware.superiorprison.api.event.mine.area.MineAreaChangeEvent;
 import com.bgsoftware.superiorprison.api.util.Pair;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
@@ -22,6 +24,7 @@ import com.bgsoftware.superiorprison.plugin.util.ClassDebugger;
 import com.bgsoftware.superiorprison.plugin.util.SPair;
 import com.bgsoftware.superiorprison.plugin.util.frameworks.Framework;
 import com.oop.orangeengine.main.events.SyncEvents;
+import com.oop.orangeengine.main.task.StaticTask;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -227,6 +230,15 @@ public class MineListener {
             if (!SuperiorPrisonPlugin.getInstance().getMainConfig().isItemDropping()) {
                 event.setCancelled(true);
             }
+        });
+
+        SyncEvents.listen(MultiBlockBreakEvent.class, EventPriority.LOWEST, event -> {
+           if (!event.getMine().getSettings().getResetSettings().isTimed()) {
+               ResetSettings.Percentage percentage = event.getMine().getSettings().getResetSettings().asPercentage();
+               int percentageLeft = event.getMine().getGenerator().getBlockData().getPercentageLeft();
+               if (percentageLeft <= percentage.getValue())
+                   StaticTask.getInstance().async(() -> event.getMine().getGenerator().reset());
+           }
         });
     }
 }

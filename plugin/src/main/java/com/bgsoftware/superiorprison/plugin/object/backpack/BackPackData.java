@@ -30,6 +30,7 @@ public class BackPackData implements SerializableObject {
 
     @Setter
     private int level;
+    @Setter
     private @NonNull String configId;
     private @NonNull
     final SBackPack holder;
@@ -41,10 +42,13 @@ public class BackPackData implements SerializableObject {
 
     public BackPackData(SBackPack backPack) {
         this.holder = backPack;
-        if (holder.getConfig() != null) {
-            this.level = holder.getConfig().getLevel();
-            this.configId = holder.getConfig().getId();
-        }
+
+        try {
+            if (holder.getConfig() != null) {
+                this.level = holder.getConfig().getLevel();
+                this.configId = holder.getConfig().getId();
+            }
+        } catch (Throwable ignored) {}
     }
 
     public Optional<OPair<Integer, ItemStack>> first(Predicate<ItemStack> filter) {
@@ -263,7 +267,6 @@ public class BackPackData implements SerializableObject {
             if (unparsedString.endsWith("\""))
                 unparsedString = unparsedString.substring(0, unparsedString.length() - 1);
 
-            System.out.println("unwrapping: " + unparsedString);
             String[] split = unparsedString.split("-");
             return OMaterial.matchMaterial(split[0]).parseItem(Integer.parseInt(split[1]));
         } else

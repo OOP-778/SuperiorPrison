@@ -7,7 +7,10 @@ public class SDropsBooster extends SBooster implements DropsBooster {
         super(id, validTill, rate);
     }
 
-    public SDropsBooster() {
-    }
+    public SDropsBooster() {}
 
+    @Override
+    public String getType() {
+        return "drops";
+    }
 }

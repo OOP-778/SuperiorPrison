@@ -122,6 +122,9 @@ public class SMineHolder extends UniversalDataHolder<String, SNormalMine> implem
 
     public void clear() {
         minesCache.clear();
+        for (SNormalMine value : dataMap.values())
+            value.clean();
+
         dataMap.clear();
     }
 }

@@ -11,8 +11,9 @@ import com.bgsoftware.superiorprison.plugin.data.SPrisonerHolder;
 import com.bgsoftware.superiorprison.plugin.data.SStatisticHolder;
 import com.bgsoftware.superiorprison.plugin.hook.impl.*;
 import com.bgsoftware.superiorprison.plugin.listeners.*;
-import com.bgsoftware.superiorprison.plugin.mterics.Metrics;
+import com.bgsoftware.superiorprison.plugin.metrics.Metrics;
 import com.bgsoftware.superiorprison.plugin.nms.SuperiorNms;
+import com.bgsoftware.superiorprison.plugin.object.inventory.PatchedInventory;
 import com.bgsoftware.superiorprison.plugin.requirement.RequirementRegisterer;
 import com.bgsoftware.superiorprison.plugin.tasks.PlayerInventoryUpdateTask;
 import com.bgsoftware.superiorprison.plugin.tasks.ResetQueueTask;
@@ -149,7 +150,16 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
         getHookController()
                 .executeIfFound(() -> PapiHook.class, PapiHook::disable);
 
-        Bukkit.getOnlinePlayers().forEach(player -> player.kickPlayer(Helper.color(LocaleEnum.PRISON_SHUTDOWN.getMessage().raw()[0])));
+        Bukkit.getOnlinePlayers().forEach(player -> {
+            if (player.getInventory() instanceof PatchedInventory) {
+                ((PatchedInventory) player.getInventory()).getOwner().getBackPackMap().forEach((key, backpack) -> {
+                    backpack.save();
+                    player.getInventory().setItem(key, backpack.updateManually());
+                });
+            }
+
+            player.kickPlayer(Helper.color(LocaleEnum.PRISON_SHUTDOWN.getMessage().raw()[0]));
+        });
         instance = null;
         Updater.plugin = null;
         SuperiorPrisonAPI.onDisable();

@@ -138,6 +138,7 @@ public class SResetSettings implements Cloneable {
 
         @Override
         public String getCurrentHumanified() {
+            System.out.println("Getting current percentage");
             return getMine().getGenerator().getBlockData().getPercentageLeft() + "";
         }
 

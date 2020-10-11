@@ -104,9 +104,9 @@ public class SPlayerInventory {
 
         // If the item stacks are empty, return
         SuperiorPrisonPlugin.getInstance().getOLogger().printDebug("Given ItemStacks: {}", Arrays.toString(itemStacks));
-        if (Arrays.stream(itemStacks).noneMatch(Objects::nonNull)) return itemStacks;
+        if (Arrays.stream(itemStacks1).noneMatch(Objects::nonNull)) return itemStacks;
 
-        SuperiorPrisonPlugin.getInstance().getOLogger().printDebug("Given itemstacks are not empty");
+        SuperiorPrisonPlugin.getInstance().getOLogger().printDebug("Given itemstacks are not empty :)");
 
         for (SBackPack backpack : backPackMap.values()) {
             // If backpack is full, ignore
@@ -135,7 +135,6 @@ public class SPlayerInventory {
 
             if (getBPC().isBackPack(itemStack)) {
                 SBackPack backPack = (SBackPack) getBPC().getBackPack(itemStack, player);
-                backPack.setCurrentSlot(i);
                 backPackMap.put(i, backPack);
             }
         }
@@ -144,13 +143,14 @@ public class SPlayerInventory {
 
     public ItemStack[] removeItem(ItemStack... itemStacks) {
         // If for some reason the inventory is not patched.
-        if (player.getInventory() instanceof PatchedInventory) return itemStacks;
+        if (!(player.getInventory() instanceof PatchedInventory)) return itemStacks;
 
         for (ItemStack itemStack : itemStacks) {
             SBackPack backPackBy = findBackPackBy(itemStack);
             if (backPackBy == null) continue;
 
-            backPackMap.remove(backPackBy);
+            int slotByBackPack = backPackBy.getCurrentSlot();
+            backPackMap.remove(slotByBackPack);
         }
 
         return itemStacks;
@@ -168,10 +168,13 @@ public class SPlayerInventory {
             // Check if the itemstack had last location
             SBackPack currentBackpack = backPackMap.get(slot);
 
+            System.out.println("had backpack?: " + (currentBackpack != null));
             UUID uuid = SuperiorPrisonPlugin.getInstance().getBackPackController().getUUID(itemStack);
             if (uuid != null && currentBackpack != null && uuid.equals(currentBackpack.getUuid())) return itemStack;
+
             else {
                 SBackPack pack = (SBackPack) SuperiorPrisonPlugin.getInstance().getBackPackController().getBackPack(itemStack, player);
+                System.out.println("new backpack:" + pack.getUsed());
                 backPackMap.put(slot, pack);
             }
 
@@ -195,7 +198,7 @@ public class SPlayerInventory {
 
         NBTItem nbtItem = new NBTItem(itemStack);
         String serializedUUID = nbtItem.getString(UUID_KEY);
-        if (serializedUUID == null) return null;
+        if (serializedUUID == null || serializedUUID.equalsIgnoreCase("")) return null;
 
         UUID uuid = UUID.fromString(serializedUUID);
 

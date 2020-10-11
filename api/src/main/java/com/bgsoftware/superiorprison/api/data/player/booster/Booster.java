@@ -9,4 +9,7 @@ public interface Booster {
 
     // Get rate of the booster
     double getRate();
+
+    // Get type of the booster
+    String getType();
 }

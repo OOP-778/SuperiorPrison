@@ -7,10 +7,8 @@ import com.bgsoftware.superiorprison.plugin.config.backpack.BackPackConfig;
 import com.bgsoftware.superiorprison.plugin.config.backpack.SimpleBackPackConfig;
 import com.bgsoftware.superiorprison.plugin.menu.backpack.AdvancedBackPackView;
 import com.bgsoftware.superiorprison.plugin.object.inventory.PatchedInventory;
-import com.bgsoftware.superiorprison.plugin.object.inventory.SPlayerInventory;
 import com.bgsoftware.superiorprison.plugin.util.TextUtil;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import com.oop.datamodule.SerializedData;
 import com.oop.datamodule.StorageInitializer;
 import com.oop.datamodule.gson.JsonObject;
@@ -25,8 +23,6 @@ import lombok.SneakyThrows;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
 
 import javax.annotation.Nonnull;
 import java.io.ByteArrayOutputStream;
@@ -35,7 +31,6 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
@@ -44,9 +39,6 @@ import static com.bgsoftware.superiorprison.plugin.controller.SBackPackControlle
 
 @AllArgsConstructor
 public class SBackPack implements BackPack {
-
-    @Getter
-    private BackPackConfig<?> config;
 
     @Getter
     private BackPackData data;
@@ -71,11 +63,12 @@ public class SBackPack implements BackPack {
     private int lastRows = -1;
     private int lastPages = -1;
 
+    @Setter
+    @Getter
+    private int currentSlot;
+
     @Getter
     private UUID uuid;
-
-    @Setter
-    private int currentSlot = -1;
 
     private final Object lock = false;
 
@@ -87,25 +80,26 @@ public class SBackPack implements BackPack {
         this.owner = player;
         this.itemStack = itemStack;
         this.nbtItem = new NBTItem(itemStack);
+
+        this.currentSlot = player.getInventory().first(itemStack);
         Preconditions.checkArgument(nbtItem.getKeys().stream().anyMatch(in -> in.startsWith(NBT_KEY)), "The given item is not an backpack");
 
         String serialized = uncoverData(nbtItem);
         try {
             serialized = decompress(serialized);
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
+
         oldData = StorageInitializer.getInstance().getGson().fromJson(serialized, JsonObject.class);
 
         // Initialize UUID
         String stringUUID = nbtItem.getString(UUID_KEY);
         if (stringUUID != null && stringUUID.trim().length() != 0)
             uuid = UUID.fromString(stringUUID);
-
-        else {
+        else
             uuid = UUID.randomUUID();
-            nbtItem.setString(UUID_KEY, uuid.toString());
-        }
 
-        JsonObject localData = null;
+        JsonObject localData;
         // Check if this is an outdated bool nbt value
         if (SuperiorPrisonPlugin.getInstance().getBackPackController().isPlayerBound()) {
             if (oldData.has("global"))
@@ -113,18 +107,20 @@ public class SBackPack implements BackPack {
             else
                 localData = oldData.getAsJsonObject(player.getUniqueId().toString());
 
-        } else if (!SuperiorPrisonPlugin.getInstance().getBackPackController().isPlayerBound()) {
+        } else {
             if (!oldData.has("global"))
                 localData = oldData.getAsJsonObject(player.getUniqueId().toString());
             else
                 localData = oldData.getAsJsonObject("global");
         }
 
+        System.out.println("using local data: " + oldData);
+
         data = new BackPackData(this);
         if (localData != null)
             data.deserialize(new SerializedData(localData));
 
-        config = SuperiorPrisonPlugin.getInstance().getBackPackController().getConfig(data.getConfigId()).orElseThrow(() -> new IllegalStateException("Failed to find backPack by id " + data.getConfigId() + " level " + data.getLevel())).getByLevel(data.getLevel());
+        BackPackConfig<?> config = SuperiorPrisonPlugin.getInstance().getBackPackController().getConfig(data.getConfigId()).orElseThrow(() -> new IllegalStateException("Failed to find backPack by id " + data.getConfigId() + " level " + data.getLevel())).getByLevel(data.getLevel());
         if (config instanceof AdvancedBackPackConfig) {
             data.updateDataAdvanced(((AdvancedBackPackConfig) config).getRows(), ((AdvancedBackPackConfig) config).getRows(), ((AdvancedBackPackConfig) config).getPages(), ((AdvancedBackPackConfig) config).getPages());
             lastPages = ((AdvancedBackPackConfig) config).getPages();
@@ -135,22 +131,19 @@ public class SBackPack implements BackPack {
 
         updateHash();
         save();
-        updateByItem(itemStack);
-    }
+        update();
 
-    private void updateByItem(ItemStack itemStack) {
-        int first = owner.getInventory().first(itemStack);
-        if (first != -1)
-            owner.getInventory().setItem(first, getItem());
+        System.out.println("new backpack:" + getUsed());
     }
 
     public static SBackPack of(BackPackConfig<?> config, Player player) {
         SBackPack backPack = new SBackPack();
-        backPack.config = config;
         backPack.oldData = new JsonObject();
+        backPack.data = new BackPackData(backPack);
+        backPack.data.setLevel(1);
+        backPack.data.setConfigId(config.getId());
         backPack.owner = player;
         backPack.itemStack = config.getItem().getItemStack().clone();
-        backPack.data = new BackPackData(backPack);
         backPack.nbtItem = new NBTItem(backPack.itemStack);
         backPack.uuid = UUID.randomUUID();
 
@@ -170,11 +163,11 @@ public class SBackPack implements BackPack {
 
     @Override
     public int getCapacity() {
-        return config.getCapacity();
+        return getConfig().getCapacity();
     }
 
     public int getSlots() {
-        return config.getCapacity() / 64;
+        return getConfig().getCapacity() / 64;
     }
 
     @Override
@@ -202,11 +195,11 @@ public class SBackPack implements BackPack {
 
     @Override
     public String getId() {
-        return config.getId();
+        return data.getConfigId();
     }
 
     public void updateNbt() {
-        ItemBuilder<?> oItem = config.getItem().clone().makeUnstackable();
+        ItemBuilder<?> oItem = getConfig().getItem().clone().makeUnstackable();
         List<String> oldLore = oItem.getLore();
         List<String> newLore = new ArrayList<>();
 
@@ -242,9 +235,15 @@ public class SBackPack implements BackPack {
         return nbtItem.getItem();
     }
 
+    public BackPackConfig<?> getConfig() {
+        return SuperiorPrisonPlugin.getInstance().getBackPackController().getConfig(data.getConfigId()).orElseThrow(() -> new IllegalStateException("Failed to find backpack by id: " + data.getConfigId() + " level: " + data.getLevel())).getByLevel(data.getLevel());
+    }
+
     @SneakyThrows
     @Override
-    public void save() {
+    public synchronized void save() {
+        if (!isModified()) return;
+
         updateNbt();
         SerializedData serializedData = new SerializedData();
         data.serialize(serializedData);
@@ -260,19 +259,13 @@ public class SBackPack implements BackPack {
 
         String data = StorageInitializer.getInstance().getGson().toJson(oldData);
 
+        System.out.println("Saving: " + getUsed() + " items, data: " + data);
+
         // Compress the data
-        String compress = compress(data.getBytes(StandardCharsets.UTF_8));
-        System.out.println("len: " + data.length());
-        System.out.println("compressed len: " + compress.length());
-
-        int percentageDecreased = 100 - (data.length() * 100) / compress.length();
-        System.out.println("Compression rate: " + percentageDecreased);
-
-        data = compress;
+        data = compress(data.getBytes(StandardCharsets.UTF_8));
 
         if (data.length() > 32767) {
             String[] strings = splitData(data);
-            System.out.println("Split into " + strings.length + " parts");
             for (int i = 0; i < strings.length; i++)
                 nbtItem.setString(NBT_KEY + "_" + i, strings[i]);
 
@@ -280,8 +273,9 @@ public class SBackPack implements BackPack {
             nbtItem.setString(NBT_KEY, data);
 
         nbtItem.setString(UUID_KEY, uuid.toString());
-
         updateHash();
+
+        nbtItem.getKeys().forEach(System.out::println);
     }
 
     @Override
@@ -321,7 +315,7 @@ public class SBackPack implements BackPack {
                     } else {
                         Optional<OPair<Integer, ItemStack>> firstNull = data.firstNull();
                         if (!firstNull.isPresent()) {
-                            if (!(config instanceof SimpleBackPackConfig)) break;
+                            if (!(getConfig() instanceof SimpleBackPackConfig)) break;
 
                             // Check how much we can still add
                             int canFit = getCapacity() - getUsed();
@@ -412,18 +406,11 @@ public class SBackPack implements BackPack {
 
         // Update the inventory
         if (owner.getInventory() instanceof PatchedInventory) {
-            SPlayerInventory owner = ((PatchedInventory) this.owner.getInventory()).getOwner();
-            int slotByBackPack = owner.getSlotByBackPack(this);
-
             ((PatchedInventory) this.owner.getInventory()).setOwnerCalling();
-            this.owner.getInventory().setItem(slotByBackPack, newItem);
+            this.owner.getInventory().setItem(currentSlot, newItem);
 
-        } else {
-            int first = owner.getInventory().first(itemStack);
-            if (first != -1)
-                owner.getInventory().setItem(first, newItem);
-
-        }
+        } else
+            owner.getInventory().setItem(currentSlot, newItem);
 
         // Update the menu
         if (currentView != null)
@@ -433,12 +420,12 @@ public class SBackPack implements BackPack {
     }
 
     public ItemStack updateManually() {
-        return nbtItem.getItem();
+        return getItem();
     }
 
     @Override
     public void upgrade(int level) {
-        config = config.getByLevel(level);
+        BackPackConfig<?> config = getConfig().getByLevel(level);
         data.setLevel(level);
 
         if (config instanceof AdvancedBackPackConfig) {
@@ -448,8 +435,6 @@ public class SBackPack implements BackPack {
 
         } else
             data.updateData();
-
-        save();
 
         if (currentView != null)
             currentView.onUpgrade();
@@ -486,7 +471,6 @@ public class SBackPack implements BackPack {
             Matcher matcher = BACKPACK_DATA_PATTERN.matcher(key);
             if (matcher.find()) {
                 uncoveredData.add(new OPair<>(Integer.parseInt(matcher.group(1)), nbtItem.getString(key)));
-                nbtItem.removeKey(key);
             }
         }
 
@@ -533,7 +517,7 @@ public class SBackPack implements BackPack {
         deflater.finish();
         ByteArrayOutputStream bos = new ByteArrayOutputStream(bytes.length);
         byte[] buffer = new byte[1024];
-        while(!deflater.finished()) {
+        while (!deflater.finished()) {
             int count = deflater.deflate(buffer);
             bos.write(buffer, 0, count);
         }
@@ -548,22 +532,22 @@ public class SBackPack implements BackPack {
         inflater.setInput(bytes);
         ByteArrayOutputStream bos = new ByteArrayOutputStream(bytes.length);
         byte[] buffer = new byte[1024];
+
         while (!inflater.finished()) {
             int count = inflater.inflate(buffer);
             bos.write(buffer, 0, count);
         }
+
         bos.close();
         byte[] output = bos.toByteArray();
         return new String(output);
     }
 
-    public static String encodeBase64(byte[] bytes) throws Exception {
-        BASE64Encoder base64Encoder = new BASE64Encoder();
-        return base64Encoder.encodeBuffer(bytes).replace("\r\n", "").replace("\n", "");
+    public static String encodeBase64(byte[] bytes) {
+        return Base64.getEncoder().encodeToString(bytes).replace("\r\n", "").replace("\n", "");
     }
 
-    public static byte[] decodeBase64(String str) throws Exception {
-        BASE64Decoder base64Decoder = new BASE64Decoder();
-        return base64Decoder.decodeBuffer(str);
+    public static byte[] decodeBase64(String str) {
+        return Base64.getDecoder().decode(str);
     }
 }

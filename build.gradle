@@ -113,7 +113,7 @@ subprojects.each { subproject -> evaluationDependsOn(subproject.path) }
 
 shadowJar {
     archiveName = 'SuperiorPrison.jar'
-    destinationDir = file("G:\\Serrvers\\OOP\\1.8.8\\plugins")
+    destinationDir = file("G:\\Serrvers\\OOP\\1.16\\plugins")
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
     from fileTree(dir: "archive").collect {

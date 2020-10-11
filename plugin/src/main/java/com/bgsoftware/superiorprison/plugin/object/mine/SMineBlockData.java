@@ -1,12 +1,10 @@
 package com.bgsoftware.superiorprison.plugin.object.mine;
 
+import com.bgsoftware.superiorprison.api.data.mine.locks.Lock;
 import com.bgsoftware.superiorprison.api.data.mine.MineBlockData;
-import com.bgsoftware.superiorprison.plugin.commands.mines.link.Option;
+import com.bgsoftware.superiorprison.plugin.object.mine.locks.SBLocksLock;
 import com.bgsoftware.superiorprison.plugin.util.Attachable;
-import com.oop.datamodule.SerializableObject;
-import com.oop.datamodule.SerializedData;
-import com.oop.datamodule.gson.JsonArray;
-import com.oop.datamodule.gson.JsonObject;
+import com.oop.orangeengine.main.util.data.cache.OCache;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.material.OMaterial;
 import lombok.Getter;
@@ -18,13 +16,23 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 public class SMineBlockData implements Attachable<SMineGenerator>, MineBlockData {
 
     // Material, current value, starting value
+    @Getter
     private final HashMap<Location, OMaterial> locToMaterial = new HashMap<>();
 
+    @Getter
     private final Map<OMaterial, OPair<Long, Long>> materials = new ConcurrentHashMap<>();
+
+    @Getter
+    private final OCache<SBLocksLock, Boolean> lockedBlocks = OCache
+            .builder()
+            .concurrencyLevel(1)
+            .expireAfter(5, TimeUnit.SECONDS)
+            .build();
 
     private SMineGenerator generator;
 
@@ -82,5 +90,38 @@ public class SMineBlockData implements Attachable<SMineGenerator>, MineBlockData
     @Override
     public int getPercentageLeft() {
         return (int) (blocksLeft * 100.0 / generator.getBlocksInRegion());
+    }
+
+    @Override
+    public Lock newBlockDataLock() {
+        SBLocksLock sLock = new SBLocksLock();
+        lockedBlocks.put(sLock, true);
+        return sLock;
+    }
+
+    @Override
+    public void lock(Location location, Lock lock) {
+        ((SBLocksLock) lock).getLockedLocations().add(location);
+    }
+
+    @Override
+    public void unlock(Lock lock) {
+        lockedBlocks.remove((SBLocksLock) lock);
+    }
+
+    @Override
+    public boolean isLocked(Location location) {
+        System.out.println("locks: " + lockedBlocks.keySet().size());
+        return getLockAt(location).isPresent();
+    }
+
+    @Override
+    public Optional<Lock> getLockAt(Location location) {
+        return lockedBlocks.keySet().stream().filter(lock -> lock.getLockedLocations().contains(location)).map(lock -> (Lock) lock).findFirst();
+    }
+
+    @Override
+    public boolean has(Location location) {
+        return locToMaterial.containsKey(location);
     }
 }

@@ -37,7 +37,7 @@ public class SellCommand extends OCommand {
         subCommand(
                 new OCommand()
                         .label("hand")
-                        .permission("superiorprison.sell.hand")
+                        .permission("prison.sell.hand")
                         .ableToExecute(Player.class)
                         .description("Sell your inventory matched by hand")
                         .onCommand(command -> {
@@ -70,7 +70,7 @@ public class SellCommand extends OCommand {
         subCommand(
                 new OCommand()
                         .label("inventory")
-                        .permission("superiorprison.sell.inventory")
+                        .permission("prison.sell.inventory")
                         .ableToExecute(Player.class)
                         .description("Sell your whole inventory")
                         .onCommand(command -> {
@@ -81,7 +81,9 @@ public class SellCommand extends OCommand {
                             ItemStack[] contents = player.getInventory().getContents();
 
                             Collection<SBackPack> backpacks = ((PatchedInventory) player.getInventory()).getOwner().getBackPackMap().values();
-                            backpacks.forEach(backpack -> backpack.getStored().forEach(itemStack -> items.add(new OPair<>(itemStack, () -> backpack.remove(itemStack)))));
+                            backpacks.stream()
+                                    .filter(backpack -> backpack.getData().isSell())
+                                    .forEach(backpack -> backpack.getStored().forEach(itemStack -> items.add(new OPair<>(itemStack, () -> backpack.remove(itemStack)))));
 
                             for (int i = 0; i < contents.length; i++) {
                                 ItemStack itemStack = contents[i];
@@ -106,7 +108,7 @@ public class SellCommand extends OCommand {
         subCommand(
                 new OCommand()
                         .label("gui")
-                        .permission("superiorprison.sell.gui")
+                        .permission("prison.sell.gui")
                         .description("Drop items into a gui to sell them")
                         .ableToExecute(Player.class)
                         .onCommand(command -> new SellMenu(SuperiorPrisonPlugin.getInstance().getPrisonerController().getInsertIfAbsent(command.getSenderAsPlayer())).open())

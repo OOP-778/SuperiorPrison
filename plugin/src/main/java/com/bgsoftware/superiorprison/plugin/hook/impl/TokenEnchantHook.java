@@ -7,10 +7,6 @@ import com.vk2gpz.tokenenchant.event.TEBlockExplodeEvent;
 public class TokenEnchantHook extends SHook {
     public TokenEnchantHook() {
         super(null);
-
-        SyncEvents.listen(TEBlockExplodeEvent.class, event -> {
-           event.blockList().forEach(b -> System.out.println(b.getType()));
-        });
     }
 
     @Override

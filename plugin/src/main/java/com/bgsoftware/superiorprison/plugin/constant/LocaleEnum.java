@@ -287,7 +287,12 @@ public enum LocaleEnum {
     MINES_NOT_FOUND("There's 0 mines created. Please create at least one mine!"),
 
     BOMB_STILL_ON_COOLDOWN("You cannot use this bomb for {cooldown}"),
-    BOMB_FAILED_TO_LAND_IN_MINE("Your bomb failed to land on mine, returning it to you.");
+    BOMB_FAILED_TO_LAND_IN_MINE("Your bomb failed to land on mine, returning it to you."),
+    BOMB_CAN_ONLY_BE_USED_INSIDE_MINE("You can only use bombs inside mine!"),
+
+    BLOCK_CANNOT_MINE_LOCKED("The block you're trying to mine is being used by other process"),
+    CANCELED_ACTION_CAUSE_MINE_RESET("Cancelled your action. Cause mine is either resetting or initializing..."),
+    MINE_IS_ALREADY_RESETTING("Mine is already resetting");
 
     private final OMessage[] cache = new OMessage[2];
 

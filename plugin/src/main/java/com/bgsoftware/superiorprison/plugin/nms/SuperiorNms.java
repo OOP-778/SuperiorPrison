@@ -14,6 +14,8 @@ import java.util.*;
 public interface SuperiorNms {
     void setBlock(Chunk chunk, Location location, OMaterial material);
 
+    default void setBlockAndUpdate(Chunk chunk, Location location, OMaterial material, Collection<Player> players) {}
+
     void refreshChunks(World world, Map<Chunk, Set<Location>> locations, Collection<Player> players);
 
     default void refreshChunks(World world, Collection<Location> locations, Collection<Player> players) {
@@ -26,9 +28,5 @@ public interface SuperiorNms {
         Map<Chunk, Set<Location>> finalLocations = new HashMap<>();
         mapped.forEach((chunk, l) -> finalLocations.put(world.getChunkAt(chunk.getFirst(), chunk.getSecond()), l));
         StaticTask.getInstance().ensureSync(() -> refreshChunks(world, finalLocations, players));
-    }
-
-    default Set<ItemStack> getDrops(OMaterial oMaterial) {
-        return new HashSet<>();
     }
 }

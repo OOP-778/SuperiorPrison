@@ -34,9 +34,9 @@ public class SPLocation implements Cloneable, SerializableObject {
     }
 
     public SPLocation(Location location) {
-        this.x = location.getBlockX();
-        this.z = location.getBlockZ();
-        this.y = location.getBlockY();
+        this.x = location.getX();
+        this.z = location.getZ();
+        this.y = location.getY();
         this.worldName = location.getWorld().getName();
         this.pitch = location.getPitch();
         this.yaw = location.getYaw();

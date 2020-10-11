@@ -1,41 +1,31 @@
 package com.bgsoftware.superiorprison.plugin.listeners;
 
-import com.bgsoftware.superiorprison.api.data.backpack.BackPack;
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
 import com.bgsoftware.superiorprison.api.data.mine.area.AreaEnum;
-import com.bgsoftware.superiorprison.api.data.player.Prisoner;
-import com.bgsoftware.superiorprison.api.data.player.booster.DropsBooster;
-import com.bgsoftware.superiorprison.api.event.mine.MineBlockBreakEvent;
 import com.bgsoftware.superiorprison.api.event.mine.MineEnterEvent;
 import com.bgsoftware.superiorprison.api.event.mine.MineLeaveEvent;
+import com.bgsoftware.superiorprison.api.event.mine.MultiBlockBreakEvent;
 import com.bgsoftware.superiorprison.api.event.mine.area.MineAreaChangeEvent;
 import com.bgsoftware.superiorprison.api.util.Pair;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.Updater;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.hook.impl.PapiHook;
-import com.bgsoftware.superiorprison.plugin.hook.impl.VaultHook;
 import com.bgsoftware.superiorprison.plugin.object.chat.ChatFormat;
-import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.mine.area.SArea;
 import com.bgsoftware.superiorprison.plugin.object.mine.effects.SMineEffect;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
-import com.bgsoftware.superiorprison.plugin.util.ClassDebugger;
 import com.bgsoftware.superiorprison.plugin.util.SPLocation;
-import com.bgsoftware.superiorprison.plugin.util.SPair;
 import com.bgsoftware.superiorprison.plugin.util.frameworks.Framework;
-import com.oop.orangeengine.item.custom.OItem;
 import com.oop.orangeengine.main.Helper;
 import com.oop.orangeengine.main.events.SyncEvents;
 import com.oop.orangeengine.main.task.OTask;
 import com.oop.orangeengine.main.task.StaticTask;
 import com.oop.orangeengine.main.util.data.cache.OCache;
-import com.oop.orangeengine.material.OMaterial;
 import com.oop.orangeengine.message.OMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -44,11 +34,9 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.inventory.ItemStack;
 
-import java.math.BigDecimal;
-import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class PrisonerListener {
@@ -76,7 +64,6 @@ public class PrisonerListener {
                                                 .map(SuperiorMine::getSpawnPoint)
                                                 .ifPresent(location -> Framework.FRAMEWORK.teleport(event.getPlayer(), location));
                                         prisoner.setLogoutMine(null);
-                                        System.out.println("Teleporting");
                                     })
                                     .execute();
                         }
@@ -159,71 +146,46 @@ public class PrisonerListener {
                 return;
             }
 
-            MineBlockBreakEvent mineBlockBreakEvent = new MineBlockBreakEvent(minePair.getKey(), prisoner, event.getBlock());
-            Bukkit.getPluginManager().callEvent(mineBlockBreakEvent);
+            if (!minePair.getKey().isReady()) {
+                LocaleEnum.CANCELED_ACTION_CAUSE_MINE_RESET
+                        .getWithErrorPrefix()
+                        .send(event.getPlayer());
+                event.setCancelled(true);
+                return;
+            }
 
-            if (mineBlockBreakEvent.isCancelled()) {
+            if (minePair.getKey().getGenerator().getBlockData().isLocked(event.getBlock().getLocation())) {
+                LocaleEnum
+                        .BLOCK_CANNOT_MINE_LOCKED
+                        .getWithErrorPrefix()
+                        .send(prisoner.getPlayer());
+                event.setCancelled(true);
+                return;
+            }
+
+            BlockBreakEvent bouncedEvent = new BlockBreakEvent(event.getBlock(), prisoner.getPlayer());
+            ignoreEvents.put(bouncedEvent, true);
+
+            Bukkit.getPluginManager().callEvent(bouncedEvent);
+
+            if (bouncedEvent.isCancelled()) {
                 event.setExpToDrop(0);
                 event.setCancelled(true);
+
+                // If they cancelled and set the block to AIR
+                if (event.getBlock().getType() == Material.AIR)
+                    minePair.getKey().getGenerator().getBlockData().remove(event.getBlock().getLocation());
+                return;
             }
-        });
 
-        SyncEvents.listen(MineBlockBreakEvent.class, EventPriority.HIGHEST, event -> {
-            if (event.isCancelled()) return;
-
-            Player player = event.getPrisoner().getPlayer();
-            if (player.getItemInHand().getType() == Material.AIR) return;
-
-            Optional<Prisoner> optionalPrisoner = SuperiorPrisonPlugin.getInstance().getPrisonerController().getPrisoner(player.getUniqueId());
-            if (optionalPrisoner.isPresent()) {
-                SPrisoner prisoner = (SPrisoner) optionalPrisoner.get();
-                if (!prisoner.getCurrentMine().isPresent()) return;
-
-                Set<ItemStack> drops = new HashSet<>();
-                OItem tool = new OItem(player.getItemInHand());
-
-                BlockBreakEvent bouncedEvent = new BlockBreakEvent(event.getBlock(), event.getPrisoner().getPlayer());
-                ignoreEvents.put(bouncedEvent, true);
-
-                Bukkit.getPluginManager().callEvent(bouncedEvent);
-
-                if (bouncedEvent.isCancelled()) {
-                    event.getBlock().getDrops().clear();
-                    event.setCancelled(true);
-                    event.getBlock().setType(Material.AIR);
-                    return;
-                }
-
-                long start = System.currentTimeMillis();
-                SuperiorPrisonPlugin.getInstance().getBlockController().syncHandleBlockBreak(
-                        prisoner,
-                        event.getMine(),
-                        player.getItemInHand(),
-                        event.getBlock().getLocation()
-                );
-                ClassDebugger.debug("Took {}ms", (System.currentTimeMillis() - start));
-
-                if (!player.hasPermission("prison.prisoner.ignoredurability")) {
-                    int enchantmentLevel = tool.getEnchantLevel(Enchantment.DURABILITY);
-                    if (enchantmentLevel != 0) {
-                        double chance = (100 / enchantmentLevel + 1);
-                        double generatedChance = ThreadLocalRandom.current().nextDouble(0, 100);
-
-                        if (chance > generatedChance)
-                            tool.setDurability((short) (tool.getDurability() + 1));
-                    } else
-                        tool.setDurability((short) (tool.getDurability() + 1));
-
-                    if (tool.getDurability() == tool.getMaterial().getMaxDurability()) {
-                        player.setItemInHand(null);
-                    }
-                } else
-                    tool.setDurability(0);
-
-                event.getBlock().getDrops().clear();
-                event.setCancelled(true);
-                event.getBlock().setType(Material.AIR);
+            // If they not cancelled it, but set the block to air. Same...
+            if (event.getBlock().getType() == Material.AIR) {
+                minePair.getKey().getGenerator().getBlockData().remove(event.getBlock().getLocation());
+                return;
             }
+
+            MultiBlockBreakEvent multiBlockBreakEvent = SuperiorPrisonPlugin.getInstance().getBlockController().breakBlock(prisoner, minePair.getKey(), event.getPlayer().getItemInHand(), event.getBlock().getLocation());
+            Bukkit.broadcastMessage("% left: " + minePair.getKey().getSettings().getResetSettings().getCurrentHumanified());
         });
 
         SyncEvents.listen(MineEnterEvent.class, EventPriority.LOWEST, event -> {
@@ -233,6 +195,8 @@ public class PrisonerListener {
             }
 
             event.getMine().getEffects().get().stream().map(effect -> (SMineEffect) effect).map(SMineEffect::create).forEach(effect -> event.getPrisoner().getPlayer().addPotionEffect(effect, false));
+            ((SPrisoner) event.getPrisoner()).setLogoutMine(event.getMine().getName());
+            event.getPrisoner().save(true);
         });
 
         SyncEvents.listen(MineAreaChangeEvent.class, EventPriority.LOWEST, event -> {
@@ -240,6 +204,11 @@ public class PrisonerListener {
                 event.setCancelled(true);
                 LocaleEnum.CANNOT_ENTER_MINE_MINE_NOT_READY.getWithPrefix().send(event.getPrisoner().getPlayer());
             }
+        });
+
+        SyncEvents.listen(MineLeaveEvent.class, event -> {
+            ((SPrisoner) event.getPrisoner()).setLogoutMine(null);
+            event.getPrisoner().save(true);
         });
 
         SyncEvents.listen(AsyncPlayerChatEvent.class, EventPriority.HIGHEST, event -> {
@@ -261,20 +230,10 @@ public class PrisonerListener {
         SyncEvents.listen(MineLeaveEvent.class, EventPriority.LOWEST, event -> event.getMine().getEffects().get().forEach(effect -> event.getPrisoner().getPlayer().removePotionEffect(effect.getType())));
     }
 
-    private int getItemCountWithFortune(Material material, int enchant_level) {
-        int drops = ThreadLocalRandom.current().nextInt(enchant_level + 2) - 1;
-        if (drops < 0)
-            drops = 0;
-
-        int i = material == Material.LAPIS_BLOCK ? 4 + ThreadLocalRandom.current().nextInt(5) : 1;
-        return i * (drops + 1);
-    }
-
     public void handleLeave(Player player) {
         SuperiorPrisonPlugin.getInstance().getDatabaseController().getPrisonerHolder().getPrisoner(player.getUniqueId()).map(prisoner -> (SPrisoner) prisoner).ifPresent(prisoner -> {
             prisoner.getCurrentMine().ifPresent(mine -> {
                 prisoner.setLogoutMine(mine.getKey().getName());
-                System.out.println("logged out in mine");
 
                 prisoner.getCurrentMine().get().getKey().getPrisoners().remove(prisoner);
                 prisoner.setCurrentMine(null);

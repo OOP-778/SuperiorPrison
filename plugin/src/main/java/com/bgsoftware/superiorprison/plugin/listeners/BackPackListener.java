@@ -20,10 +20,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryEvent;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerPickupItemEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 
 import javax.sound.midi.Patch;
@@ -63,7 +60,6 @@ public class BackPackListener {
                     .runnable(() -> ((AdvancedBackPackView) event.getWhoClicked().getOpenInventory().getTopInventory().getHolder()).onUpdate())
                     .execute();
         });
-
 
         // Listen for menu
         SyncEvents.listen(PlayerInteractEvent.class, event -> {
@@ -107,7 +103,6 @@ public class BackPackListener {
                     .delay(100)
                     .runnable(() -> {
                         if (!event.getPlayer().isOnline()) return;
-
                         SPlayerInventory.patch(event.getPlayer());
                     })
                     .execute();
@@ -126,11 +121,14 @@ public class BackPackListener {
             if (event.getAction().name().contains("PICKUP")) {
                 SBackPack sBackPack = patchedInventory.getBackPackMap().get(event.getSlot());
                 if (sBackPack != null) {
-                    if (sBackPack.isModified()) {
-                        ItemStack itemStack = sBackPack.updateManually();
-                        event.setCursor(itemStack);
-                        sBackPack.setLastUpdated(System.currentTimeMillis());
-                    }
+                    event.setCancelled(true);
+
+                    sBackPack.save();
+                    ItemStack itemStack = sBackPack.updateManually();
+
+                    patchedInventory.getBackPackMap().remove(event.getSlot());
+                    event.getClickedInventory().setItem(event.getSlot(), null);
+                    event.getWhoClicked().setItemOnCursor(itemStack);
                 }
             }
 
@@ -171,6 +169,17 @@ public class BackPackListener {
                         inventory.init();
                     })
                     .execute();
+        });
+
+        SyncEvents.listen(PlayerQuitEvent.class, event -> {
+            if (!(event.getPlayer().getInventory() instanceof PatchedInventory)) return;
+
+            ((PatchedInventory) event.getPlayer().getInventory()).getOwner().getBackPackMap().forEach((key, backpack) -> {
+                backpack.save();
+                event.getPlayer().getInventory().setItem(key, backpack.updateManually());
+            });
+
+            ((PatchedInventory) event.getPlayer().getInventory()).getOwner().getBackPackMap().clear();
         });
     }
 }

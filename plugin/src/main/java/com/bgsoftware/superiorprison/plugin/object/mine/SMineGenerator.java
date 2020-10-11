@@ -15,6 +15,7 @@ import com.oop.datamodule.gson.JsonObject;
 import com.oop.datamodule.util.DataUtil;
 import com.oop.orangeengine.eventssubscription.SubscriptionFactory;
 import com.oop.orangeengine.eventssubscription.SubscriptionProperties;
+import com.oop.orangeengine.main.task.OTask;
 import com.oop.orangeengine.main.task.StaticTask;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.material.OMaterial;
@@ -82,57 +83,73 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
 
     public void generate() {
         if (cachedChunksData.isEmpty() || resetting || caching) return;
+        if (SuperiorPrisonPlugin.getInstance() == null) return;
 
         resetting = true;
-        if (cachedMaterials.length == 0 || materialsChanged) {
-            cachedMaterials = new OMaterial[blocksInRegion];
-            RandomMaterialData data = new RandomMaterialData(generatorMaterials);
+        Runnable executeGenerate = () -> {
+            if (cachedMaterials.length == 0 || materialsChanged) {
+                cachedMaterials = new OMaterial[blocksInRegion];
+                RandomMaterialData data = new RandomMaterialData(generatorMaterials);
 
-            for (int i = 0; i < blocksInRegion; i++)
-                cachedMaterials[i] = data.getMaterial();
-        }
+                for (int i = 0; i < blocksInRegion; i++)
+                    cachedMaterials[i] = data.getMaterial();
+            }
 
-        shuffleArray(cachedMaterials);
+            shuffleArray(cachedMaterials);
 
-        World world = getMine().getWorld();
-        long start = System.currentTimeMillis();
-        Set<ChunkResetData> data = new HashSet<>();
+            World world = getMine().getWorld();
+            long start = System.currentTimeMillis();
+            Set<ChunkResetData> data = new HashSet<>();
 
-        Queue<Location> locationQueue = cachedChunksData.values().stream().flatMap(c -> c.getLocations().stream()).collect(Collectors.toCollection(LinkedList::new));
+            Queue<Location> locationQueue = cachedChunksData.values().stream().flatMap(c -> c.getLocations().stream()).collect(Collectors.toCollection(LinkedList::new));
 
-        Map<Chunk, Set<Location>> locations = new HashMap<>();
-        cachedChunksData.values().forEach(c -> locations.put(c.chunk, c.locations));
+            Map<Chunk, Set<Location>> locations = new HashMap<>();
+            cachedChunksData.values().forEach(c -> locations.put(c.chunk, c.locations));
 
-        blockData.reset();
-        for (int index = 0; index < blocksInRegion; index++) {
-            Location location = locationQueue.poll();
-            if (location == null) continue;
+            blockData.reset();
+            for (int index = 0; index < blocksInRegion; index++) {
+                Location location = locationQueue.poll();
+                if (location == null) continue;
 
-            OMaterial material = cachedMaterials[index];
+                OMaterial material = cachedMaterials[index];
 
-            blockData.set(location, material);
-            ChunkResetData chunkResetData = SuperiorPrisonPlugin.getInstance().getMineController().addResetBlock(location.clone(), material,
-                    () -> {
-                        long l = blocksRegenerated.incrementAndGet();
-                        if (l >= blocksInRegion) {
-                            ClassDebugger.debug("Finished mine resetting. Prisoners count: " + mine.getPrisoners().size());
-                            SuperiorPrisonPlugin.getInstance().getNms().refreshChunks(world, locations, mine.getSpawnPoint().getWorld().getPlayers());
-                            blocksRegenerated.set(0);
+                blockData.set(location, material);
+                ChunkResetData chunkResetData = SuperiorPrisonPlugin.getInstance().getMineController().addResetBlock(location.clone(), material,
+                        () -> {
+                            long l = blocksRegenerated.incrementAndGet();
+                            if (l >= blocksInRegion) {
+                                ClassDebugger.debug("Finished mine resetting. Prisoners count: " + mine.getPrisoners().size());
+                                SuperiorPrisonPlugin.getInstance().getNms().refreshChunks(world, locations, mine.getSpawnPoint().getWorld().getPlayers());
+                                blocksRegenerated.set(0);
 
-                            SuperiorPrisonPlugin.getInstance().getOLogger().printDebug("Finished mine {} reset. Took {}ms", mine.getName(), (System.currentTimeMillis() - start));
-                            resetting = false;
-                            data.clear();
-                        }
-                    });
-            data.add(chunkResetData);
-        }
+                                SuperiorPrisonPlugin.getInstance().getOLogger().printDebug("Finished mine {} reset. Took {}ms", mine.getName(), (System.currentTimeMillis() - start));
+                                resetting = false;
+                                data.clear();
+                            }
+                        });
+                data.add(chunkResetData);
+            }
 
-        blockData.setBlocksLeft(blocksInRegion);
-        data.forEach(chunkData -> chunkData.setReady(true));
+            blockData.setBlocksLeft(blocksInRegion);
+            data.forEach(chunkData -> chunkData.setReady(true));
+        };
+
+        if (!mine.getPendingTasks().isEmpty()) {
+            new OTask()
+                    .stopIf(task -> mine.getPendingTasks().isEmpty())
+                    .whenFinished(this::generate)
+                    .repeat(true)
+                    .delay(200)
+                    .execute();
+
+        } else
+            executeGenerate.run();
     }
 
     @Override
     public void reset() {
+        if (resetting || caching) return;
+
         // Check for cache
         StaticTask.getInstance().async(() -> {
             if (blocksInRegion == -1)
@@ -299,11 +316,18 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
         }
     }
 
+    public void clean() {
+        cachedChunksData.clear();
+        blockData.getLockedBlocks().clear();
+        blockData.getLocToMaterial().clear();
+        blockData.getMaterials().clear();
+        Arrays.fill(cachedMaterials, null);
+    }
+
     @Getter
     @AllArgsConstructor
     private class ChunkData {
         private Chunk chunk;
         private Set<Location> locations;
     }
-
 }

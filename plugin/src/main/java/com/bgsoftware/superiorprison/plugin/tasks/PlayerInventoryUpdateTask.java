@@ -38,12 +38,13 @@ public class PlayerInventoryUpdateTask extends OTask {
 
                     if (difference >= updateEvery) {
                         if (!backPack.isModified()) return;
+                        if (!patchedInventory.getBackPackMap().containsKey(slot)) return;
 
                         backPack.save();
                         StaticTask.getInstance().sync(() -> {
                             if (!onlinePlayer.isOnline()) return;
+                            if (!patchedInventory.getBackPackMap().containsKey(slot)) return;
 
-                            System.out.println("Is modified");
                             ItemStack itemStack = backPack.updateManually();
                             onlinePlayer.getInventory().setItem(slot, itemStack);
                         });

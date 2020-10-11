@@ -1,4 +1,4 @@
-package com.bgsoftware.superiorprison.plugin.drops;
+package com.bgsoftware.superiorprison.plugin.block;
 
 import com.oop.orangeengine.material.OMaterial;
 import org.bukkit.Material;
@@ -19,6 +19,7 @@ public class DropsHandler {
         register(OMaterial.LAPIS_ORE, () -> OMaterial.LAPIS_LAZULI.parseItem(ThreadLocalRandom.current().nextInt(4, 9)));
         register(OMaterial.REDSTONE_ORE, () -> new ItemStack(Material.REDSTONE, 5));
         register(OMaterial.NETHER_QUARTZ_ORE, () -> new ItemStack(Material.QUARTZ, 1));
+        register(OMaterial.STONE, () -> new ItemStack(Material.COBBLESTONE, 1));
     }
 
     private static void register(OMaterial oMaterial, Supplier<ItemStack> supplier) {
@@ -26,6 +27,7 @@ public class DropsHandler {
     }
 
     public static ItemStack getDrop(OMaterial material) {
-        return Optional.ofNullable(drops.get(material.getCombinedData())).map(Supplier::get).orElse(material.parseItem());
+        ItemStack itemStack = Optional.ofNullable(drops.get(material.getCombinedData())).map(Supplier::get).orElse(material.parseItem());
+        return itemStack;
     }
 }

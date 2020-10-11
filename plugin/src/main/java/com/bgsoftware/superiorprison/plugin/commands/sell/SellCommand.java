@@ -7,6 +7,7 @@ import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.hook.impl.VaultHook;
 import com.bgsoftware.superiorprison.plugin.menu.SellMenu;
 import com.bgsoftware.superiorprison.plugin.object.backpack.SBackPack;
+import com.bgsoftware.superiorprison.plugin.object.inventory.PatchedInventory;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.util.TextUtil;
 import com.google.common.collect.Sets;
@@ -36,7 +37,7 @@ public class SellCommand extends OCommand {
         subCommand(
                 new OCommand()
                         .label("hand")
-                        .permission("superiorprison.sell.hand")
+                        .permission("prison.sell.hand")
                         .ableToExecute(Player.class)
                         .description("Sell your inventory matched by hand")
                         .onCommand(command -> {
@@ -69,7 +70,7 @@ public class SellCommand extends OCommand {
         subCommand(
                 new OCommand()
                         .label("inventory")
-                        .permission("superiorprison.sell.inventory")
+                        .permission("prison.sell.inventory")
                         .ableToExecute(Player.class)
                         .description("Sell your whole inventory")
                         .onCommand(command -> {
@@ -79,24 +80,19 @@ public class SellCommand extends OCommand {
                             Set<OPair<ItemStack, Runnable>> items = new HashSet<>();
                             ItemStack[] contents = player.getInventory().getContents();
 
-                            List<BackPack> backpacks = new ArrayList<>();
+                            Collection<SBackPack> backpacks = ((PatchedInventory) player.getInventory()).getOwner().getBackPackMap().values();
+                            backpacks.stream()
+                                    .filter(backpack -> backpack.getData().isSell())
+                                    .forEach(backpack -> backpack.getStored().forEach(itemStack -> items.add(new OPair<>(itemStack, () -> backpack.remove(itemStack)))));
 
                             for (int i = 0; i < contents.length; i++) {
                                 ItemStack itemStack = contents[i];
                                 if (itemStack == null || itemStack.getType() == Material.AIR) continue;
 
-                                // Backpack check
-                                if (SuperiorPrisonPlugin.getInstance().getBackPackController().isBackPack(itemStack)) {
-                                    SBackPack backPack = (SBackPack) SuperiorPrisonPlugin.getInstance().getBackPackController().getBackPack(itemStack, player);
-                                    if (!backPack.getData().isSell()) continue;
-
-                                    items.addAll(backPack.getStored().stream().map(item -> new OPair<ItemStack, Runnable>(item, () -> backPack.remove(item))).collect(Collectors.toSet()));
-                                    backpacks.add(backPack);
-                                }
-
                                 int finalI = i;
                                 items.add(new OPair<>(itemStack, () -> player.getInventory().setItem(finalI, null)));
                             }
+
                             handleSell(
                                     items,
                                     prisoner
@@ -112,7 +108,7 @@ public class SellCommand extends OCommand {
         subCommand(
                 new OCommand()
                         .label("gui")
-                        .permission("superiorprison.sell.gui")
+                        .permission("prison.sell.gui")
                         .description("Drop items into a gui to sell them")
                         .ableToExecute(Player.class)
                         .onCommand(command -> new SellMenu(SuperiorPrisonPlugin.getInstance().getPrisonerController().getInsertIfAbsent(command.getSenderAsPlayer())).open())

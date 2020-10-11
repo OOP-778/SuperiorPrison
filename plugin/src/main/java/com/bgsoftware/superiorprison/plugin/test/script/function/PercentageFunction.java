@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorprison.plugin.test.script.function;
 
+import com.bgsoftware.superiorprison.plugin.test.script.util.RegexHelper;
 import com.bgsoftware.superiorprison.plugin.test.script.util.Values;
 import com.bgsoftware.superiorprison.plugin.test.script.variable.GlobalVariableMap;
 import com.bgsoftware.superiorprison.plugin.test.script.variable.Variable;
@@ -9,13 +10,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.bgsoftware.superiorprison.plugin.test.script.variable.VariableHelper.createVariable;
-
+import static com.bgsoftware.superiorprison.plugin.test.script.variable.VariableHelper.getVariableAsNumber;
 
 public class PercentageFunction implements Function<Number> {
     public static final Pattern PATTERN = Pattern.compile("([0-9]+V|[0-9]+)(?: ?(?:%|percent)) of ([0-9]+V|[0-9]+)");
 
-    private Variable<Number> percent;
-    private Variable<Number> number;
+    private int percentId;
+    private int numberId;
 
     @Override
     public void initialize(String string, GlobalVariableMap variableMap) {
@@ -25,19 +26,17 @@ public class PercentageFunction implements Function<Number> {
         String stringPercent = matcher.group(1);
         String stringNumber = matcher.group(2);
 
+        // Initialize from id
         if (!Values.isNumber(stringPercent))
-            percent = variableMap.getRequiredVariableById(stringPercent, Number.class);
+            percentId = getVariableAsNumber(RegexHelper.removeNonNumberAndParse(stringPercent), variableMap).getId();
         else
-            percent = createVariable(Values.parseAsInt(stringPercent));
+            percentId = variableMap.newOrPut(stringPercent, () -> createVariable(Values.parseAsInt(stringPercent))).getId();
 
-        System.out.println(stringNumber);
+        // Initialize to id
         if (!Values.isNumber(stringNumber))
-            number = variableMap.getRequiredVariableById(stringNumber, Number.class);
+            numberId = getVariableAsNumber(RegexHelper.removeNonNumberAndParse(stringNumber), variableMap).getId();
         else
-            number = createVariable(Values.parseAsInt(stringNumber));
-
-        Preconditions.checkArgument(percent != null, "Failed to initialize RandomNumberFunction cause `from` is null!");
-        Preconditions.checkArgument(number != null, "Failed to initialize RandomNumberFunction cause `to` is null!");
+            numberId = variableMap.newOrPut(stringNumber, () -> createVariable(Values.parseAsInt(stringNumber))).getId();
     }
 
     @Override
@@ -52,8 +51,11 @@ public class PercentageFunction implements Function<Number> {
 
     @Override
     public Number execute(GlobalVariableMap globalVariables) {
-        int percentage = percent.get(globalVariables).intValue();
-        int number = this.number.get(globalVariables).intValue();
+        Variable<Number> percentVar = globalVariables.getRequiredVariableById(percentId, Number.class);
+        Variable<Number> numberVar = globalVariables.getRequiredVariableById(numberId, Number.class);
+
+        int percentage = percentVar.get(globalVariables).intValue();
+        int number = numberVar.get(globalVariables).intValue();
 
         Preconditions.checkArgument(percentage <= 100, "Percentage cannot be higher than 100!");
         return Math.round((float) number / 100 * percentage);

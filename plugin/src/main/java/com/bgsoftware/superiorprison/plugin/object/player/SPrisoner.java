@@ -494,6 +494,7 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
     }
 
     public String getTextureValue() {
+        if (textureValue == null) return defaultHeadTexture;
         if (textureValue.contentEquals(defaultHeadTexture) && isOnline())
             textureValue = getOnlineSkullTexture();
 

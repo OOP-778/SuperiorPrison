@@ -9,14 +9,13 @@ import com.bgsoftware.superiorprison.plugin.controller.*;
 import com.bgsoftware.superiorprison.plugin.data.SMineHolder;
 import com.bgsoftware.superiorprison.plugin.data.SPrisonerHolder;
 import com.bgsoftware.superiorprison.plugin.data.SStatisticHolder;
-import com.bgsoftware.superiorprison.plugin.hook.impl.MVDWPapi;
-import com.bgsoftware.superiorprison.plugin.hook.impl.PapiHook;
-import com.bgsoftware.superiorprison.plugin.hook.impl.ShopGuiPlusHook;
-import com.bgsoftware.superiorprison.plugin.hook.impl.VaultHook;
+import com.bgsoftware.superiorprison.plugin.hook.impl.*;
 import com.bgsoftware.superiorprison.plugin.listeners.*;
-import com.bgsoftware.superiorprison.plugin.mterics.Metrics;
+import com.bgsoftware.superiorprison.plugin.metrics.Metrics;
 import com.bgsoftware.superiorprison.plugin.nms.SuperiorNms;
+import com.bgsoftware.superiorprison.plugin.object.inventory.PatchedInventory;
 import com.bgsoftware.superiorprison.plugin.requirement.RequirementRegisterer;
+import com.bgsoftware.superiorprison.plugin.tasks.PlayerInventoryUpdateTask;
 import com.bgsoftware.superiorprison.plugin.tasks.ResetQueueTask;
 import com.bgsoftware.superiorprison.plugin.tasks.TasksStarter;
 import com.bgsoftware.superiorprison.plugin.util.menu.MenuListener;
@@ -45,10 +44,12 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
     private SBackPackController backPackController;
     private DatabaseController databaseController;
     private ChatController chatController;
+    private SBlockController blockController;
     private STopController topController;
     private BombController bombController;
     private SuperiorNms nms;
     private ResetQueueTask resetQueueTask;
+    private PlayerInventoryUpdateTask inventoryUpdateTask;
 
     public static SuperiorPrisonPlugin getInstance() {
         return instance;
@@ -57,6 +58,12 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
     @Override
     public void enable() {
         instance = this;
+
+        getOLogger()
+                .setMainColor("&d");
+
+        getOLogger()
+                .setSecondaryColor("&5");
 
         try {
             // Setup NMS
@@ -68,7 +75,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
             new MenuListener();
 
             this.hookController = new HookController();
-            hookController.registerHooks(() -> VaultHook.class, () -> ShopGuiPlusHook.class, () -> PapiHook.class, () -> MVDWPapi.class);
+            hookController.registerHooks(() -> VaultHook.class, () -> ShopGuiPlusHook.class, () -> PapiHook.class, () -> MVDWPapi.class, () -> TokenEnchantHook.class);
 
             // Setup API
             new SuperiorPrisonAPI(this);
@@ -81,6 +88,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
             new RequirementRegisterer();
 
             resetQueueTask = new ResetQueueTask();
+            inventoryUpdateTask = new PlayerInventoryUpdateTask();
 
             this.configController = new ConfigController();
             this.chatController = new ChatController();
@@ -88,6 +96,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
             this.prestigeController = new PrestigeController();
             this.rankController = new RankController();
             this.bombController = new BombController();
+            this.blockController = new SBlockController();
 
             getPluginComponentController()
                     .add(configController, true)
@@ -95,7 +104,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
                     .add(prestigeController, true)
                     .add(chatController, true)
                     .add(backPackController, true)
-                    //.add(bombController, true)
+                    .add(bombController, true)
                     .load();
 
             this.databaseController = new DatabaseController(mainConfig);
@@ -116,6 +125,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
             // Register commands
             CommandsRegister.register();
 
+            Updater.plugin = this;
             if (Updater.isOutdated()) {
                 getOLogger().printWarning("");
                 getOLogger().printWarning("A new version is available {}!", Updater.getLatestVersion());
@@ -125,7 +135,9 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
 
             new Metrics(this);
             resetQueueTask.execute();
+            inventoryUpdateTask.execute();
         } catch (Throwable thrw) {
+            Bukkit.getPluginManager().disablePlugin(this);
             throw new IllegalStateException("Failed to start SuperiorPrison", thrw);
         }
     }
@@ -138,8 +150,22 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
         getHookController()
                 .executeIfFound(() -> PapiHook.class, PapiHook::disable);
 
-        Bukkit.getOnlinePlayers().forEach(player -> player.kickPlayer(Helper.color(LocaleEnum.PRISON_SHUTDOWN.getMessage().raw()[0])));
+        Bukkit.getOnlinePlayers().forEach(player -> {
+            if (player.getInventory() instanceof PatchedInventory) {
+                ((PatchedInventory) player.getInventory()).getOwner().getBackPackMap().forEach((key, backpack) -> {
+                    backpack.save();
+                    player.getInventory().setItem(key, backpack.updateManually());
+                });
+            }
+
+            player.kickPlayer(Helper.color(LocaleEnum.PRISON_SHUTDOWN.getMessage().raw()[0]));
+        });
         instance = null;
+        Updater.plugin = null;
+        SuperiorPrisonAPI.onDisable();
+
+        if (databaseController != null)
+            databaseController.getMineHolder().clear();
     }
 
     @Override

@@ -3,7 +3,6 @@ package com.bgsoftware.superiorprison.plugin.commands.mines;
 import com.bgsoftware.superiorprison.plugin.commands.args.MinesArg;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
-import com.bgsoftware.superiorprison.plugin.util.SPLocation;
 import com.oop.orangeengine.command.OCommand;
 import org.bukkit.entity.Player;
 
@@ -18,7 +17,8 @@ public class CmdSetSpawn extends OCommand {
 
         onCommand(command -> {
             SNormalMine mine = command.getArgAsReq("mine");
-            mine.setSpawnPoint(new SPLocation(command.getSenderAsPlayer().getEyeLocation().add(0.5, 0.8, 0.5)));
+
+            mine.setSpawnPointOf(command.getSenderAsPlayer());
             mine.save(true);
 
             messageBuilder(LocaleEnum.MINE_SET_SPAWN_POS.getWithPrefix())

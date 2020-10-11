@@ -40,14 +40,14 @@ public class ConfigController implements OComponent<SuperiorPrisonPlugin> {
             OFile prestigesFile = new OFile(dataFolder, "prestiges.yml").createIfNotExists(true);
             OFile chatFile = new OFile(dataFolder, "chat.yml").createIfNotExists(true);
             OFile backpacksFile = new OFile(dataFolder, "backpacks.yml").createIfNotExists(true);
-            //OFile bombsFile = new OFile(dataFolder, "bombs.yml").createIfNotExists(true);
+            OFile bombsFile = new OFile(dataFolder, "bombs.yml").createIfNotExists(true);
 
             this.chatConfig = new Config(chatFile);
             this.localeConfig = new Config(localeFile);
             this.ranksConfig = new Config(ranksFile);
             this.prestigesConfig = new Config(prestigesFile);
             this.backPacksConfig = new Config(backpacksFile);
-            //this.bombsConfig = new Config(bombsFile);
+            this.bombsConfig = new Config(bombsFile);
 
             JarUtil.copyFolderFromJar("menus", dataFolder, JarUtil.CopyOption.COPY_IF_NOT_EXIST, SuperiorPrisonPlugin.class);
             for (File menuFile : Objects.requireNonNull(new File(dataFolder + "/menus").listFiles(File::isFile)))

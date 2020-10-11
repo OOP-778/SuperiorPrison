@@ -9,4 +9,9 @@ public class SMoneyBooster extends SBooster implements MoneyBooster {
 
     public SMoneyBooster() {
     }
+
+    @Override
+    public String getType() {
+        return "money";
+    }
 }

@@ -19,6 +19,11 @@ public interface BackPackController {
     */
     BackPack getBackPack(@NonNull ItemStack itemStack, @NonNull Player owner) throws IllegalArgumentException;
 
+    /*
+    Returns backpack at a slot
+    */
+    BackPack getBackPack(int slot, @NonNull Player player);
+
     // Check if the backpacks are set to be player bound
     boolean isPlayerBound();
 

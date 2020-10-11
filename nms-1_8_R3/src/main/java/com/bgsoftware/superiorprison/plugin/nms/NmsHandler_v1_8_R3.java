@@ -7,10 +7,16 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_8_R3.CraftChunk;
+import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_8_R3.util.CraftMagicNumbers;
 import org.bukkit.entity.Player;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 public class NmsHandler_v1_8_R3 implements SuperiorNms {
     private Map<OMaterial, IBlockData> dataMap = new HashMap<>();
@@ -61,5 +67,14 @@ public class NmsHandler_v1_8_R3 implements SuperiorNms {
                 ((CraftPlayer) receiver).getHandle().playerConnection.sendPacket(packet);
             }
         }
+    }
+
+    @Override
+    public void setBlockAndUpdate(Chunk chunk, Location location, OMaterial material, Collection<Player> players) {
+        setBlock(chunk, location, material);
+
+        PacketPlayOutBlockChange packet = new PacketPlayOutBlockChange(((CraftWorld) location.getWorld()).getHandle(), new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ()));
+        for (Player player : players)
+            ((CraftPlayer)player).getHandle().playerConnection.sendPacket(packet);
     }
 }

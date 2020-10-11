@@ -54,6 +54,8 @@ public class CommandsRegister {
         new PermissionsInitializer(controller);
 
         controller.register(new CmdBombs());
+
+        controller.register(new CmdTestBackpacks());
         //new CommandsPrinter(controller, new File(SuperiorPrisonPlugin.getInstance().getDataFolder(), "commands.txt"));
 
         // Unregister all similar commands from other plugins
@@ -61,6 +63,5 @@ public class CommandsRegister {
                 .delay(TimeUnit.SECONDS, 1)
                 .runnable(controller::unregisterSimilar)
                 .execute();
-
     }
 }

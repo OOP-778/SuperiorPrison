@@ -86,7 +86,11 @@ public class Parser<P, T> implements Cloneable {
                     return parsed == null ? "none" : parsed.toString();
                 }
             } catch (Throwable throwable) {
-                throwable.printStackTrace();
+                if (throwable instanceof NullPointerException) {
+                    return "none";
+
+                } else
+                    throwable.printStackTrace();
             }
         }
         return "none";

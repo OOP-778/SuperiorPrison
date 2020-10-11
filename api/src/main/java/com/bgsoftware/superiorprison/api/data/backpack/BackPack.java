@@ -61,4 +61,7 @@ public interface BackPack {
 
     // Check if backpack was modified
     boolean isModified();
+
+    // Check if backpack is full
+    boolean isFull();
 }

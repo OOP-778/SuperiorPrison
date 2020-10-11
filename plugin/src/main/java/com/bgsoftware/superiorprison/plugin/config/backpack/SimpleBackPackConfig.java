@@ -15,8 +15,7 @@ public class SimpleBackPackConfig extends BackPackConfig<SimpleBackPackConfig> {
         super(section);
     }
 
-    public SimpleBackPackConfig() {
-    }
+    public SimpleBackPackConfig() {}
 
     @Override
     public SimpleBackPackConfig clone() {

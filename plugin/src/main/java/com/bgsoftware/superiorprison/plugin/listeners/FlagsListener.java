@@ -122,7 +122,6 @@ public class FlagsListener {
 
         if (!area.getFlagState(flag) && !hasBypass(player))
             event.setCancelled(true);
-
     }
 
     public boolean hasBypass(Player player) {

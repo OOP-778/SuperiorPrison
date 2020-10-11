@@ -15,6 +15,7 @@ import com.oop.datamodule.gson.JsonObject;
 import com.oop.datamodule.util.DataUtil;
 import com.oop.orangeengine.eventssubscription.SubscriptionFactory;
 import com.oop.orangeengine.eventssubscription.SubscriptionProperties;
+import com.oop.orangeengine.main.task.OTask;
 import com.oop.orangeengine.main.task.StaticTask;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.material.OMaterial;
@@ -36,6 +37,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 import static com.bgsoftware.superiorprison.plugin.util.TimeUtil.getDate;
 
@@ -64,10 +66,7 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
     private transient boolean materialsChanged;
 
     private int blocksInRegion = -1;
-    private Map<OPair<Integer, Integer>, Chunk> cachedChunks = new ConcurrentHashMap<>();
-    private RepeatableQueue<Location> locationsQueue;
-
-    private Map<Chunk, Set<Location>> cachedLocations = new HashMap<>();
+    private Map<OPair<Integer, Integer>, ChunkData> cachedChunksData = new ConcurrentHashMap<>();
 
     @Setter
     private transient SArea mineArea;
@@ -83,59 +82,74 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
     }
 
     public void generate() {
-        if (cachedChunks.isEmpty() || resetting || caching || locationsQueue == null) return;
+        if (cachedChunksData.isEmpty() || resetting || caching) return;
+        if (SuperiorPrisonPlugin.getInstance() == null) return;
 
         resetting = true;
-        if (cachedMaterials.length == 0 || materialsChanged) {
-            cachedMaterials = new OMaterial[blocksInRegion];
-            RandomMaterialData data = new RandomMaterialData(generatorMaterials);
+        Runnable executeGenerate = () -> {
+            if (cachedMaterials.length == 0 || materialsChanged) {
+                cachedMaterials = new OMaterial[blocksInRegion];
+                RandomMaterialData data = new RandomMaterialData(generatorMaterials);
 
-            for (int i = 0; i < blocksInRegion; i++)
-                cachedMaterials[i] = data.getMaterial();
-
-            blockData.initialize();
-        }
-
-        shuffleArray(cachedMaterials);
-
-        World world = getMine().getWorld();
-        ZonedDateTime dateTime = getDate();
-        Set<ChunkResetData> data = new HashSet<>();
-
-        for (int index = 0; index < blocksInRegion; index++) {
-            Location location = locationsQueue.poll();
-            OMaterial material = cachedMaterials[index];
-            if (material == null) {
-                ClassDebugger.debug("Skipping block");
-                continue;
+                for (int i = 0; i < blocksInRegion; i++)
+                    cachedMaterials[i] = data.getMaterial();
             }
 
-            if (location.getBlockX() == -65 && location.getBlockY() == 80 && location.getBlockZ() == 160)
-                ClassDebugger.debug("Setting block");
+            shuffleArray(cachedMaterials);
 
-            ChunkResetData chunkResetData = SuperiorPrisonPlugin.getInstance().getMineController().addResetBlock(location, material,
-                    () -> {
-                        long l = blocksRegenerated.incrementAndGet();
-                        if (l >= blocksInRegion) {
-                            ClassDebugger.debug("Finished mine resetting. Prisoners count: " + mine.getPrisoners().size());
-                            SuperiorPrisonPlugin.getInstance().getNms().refreshChunks(world, cachedLocations, mine.getSpawnPoint().getWorld().getPlayers());
-                            blocksRegenerated.set(0);
-                            blockData.reset();
+            World world = getMine().getWorld();
+            long start = System.currentTimeMillis();
+            Set<ChunkResetData> data = new HashSet<>();
 
-                            SuperiorPrisonPlugin.getInstance().getOLogger().printDebug("Finished reseting mine. Took " + (Duration.between(dateTime, getDate()).getSeconds() + "s"));
-                            locationsQueue.reset();
-                            resetting = false;
-                            data.clear();
-                        }
-                    });
-            data.add(chunkResetData);
-        }
+            Queue<Location> locationQueue = cachedChunksData.values().stream().flatMap(c -> c.getLocations().stream()).collect(Collectors.toCollection(LinkedList::new));
 
-        data.forEach(chunkData -> chunkData.setReady(true));
+            Map<Chunk, Set<Location>> locations = new HashMap<>();
+            cachedChunksData.values().forEach(c -> locations.put(c.chunk, c.locations));
+
+            blockData.reset();
+            for (int index = 0; index < blocksInRegion; index++) {
+                Location location = locationQueue.poll();
+                if (location == null) continue;
+
+                OMaterial material = cachedMaterials[index];
+
+                blockData.set(location, material);
+                ChunkResetData chunkResetData = SuperiorPrisonPlugin.getInstance().getMineController().addResetBlock(location.clone(), material,
+                        () -> {
+                            long l = blocksRegenerated.incrementAndGet();
+                            if (l >= blocksInRegion) {
+                                ClassDebugger.debug("Finished mine resetting. Prisoners count: " + mine.getPrisoners().size());
+                                SuperiorPrisonPlugin.getInstance().getNms().refreshChunks(world, locations, mine.getSpawnPoint().getWorld().getPlayers());
+                                blocksRegenerated.set(0);
+
+                                SuperiorPrisonPlugin.getInstance().getOLogger().printDebug("Finished mine {} reset. Took {}ms", mine.getName(), (System.currentTimeMillis() - start));
+                                resetting = false;
+                                data.clear();
+                            }
+                        });
+                data.add(chunkResetData);
+            }
+
+            blockData.setBlocksLeft(blocksInRegion);
+            data.forEach(chunkData -> chunkData.setReady(true));
+        };
+
+        if (!mine.getPendingTasks().isEmpty()) {
+            new OTask()
+                    .stopIf(task -> mine.getPendingTasks().isEmpty())
+                    .whenFinished(this::generate)
+                    .repeat(true)
+                    .delay(200)
+                    .execute();
+
+        } else
+            executeGenerate.run();
     }
 
     @Override
     public void reset() {
+        if (resetting || caching) return;
+
         // Check for cache
         StaticTask.getInstance().async(() -> {
             if (blocksInRegion == -1)
@@ -171,8 +185,7 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
             return;
         }
 
-        cachedChunks.clear();
-        cachedLocations.clear();
+        cachedChunksData.clear();
 
         Location pos1 = mineArea.getMinPoint();
         Location pos2 = mineArea.getHighPoint();
@@ -180,34 +193,28 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
         caching = true;
 
         World world = pos1.getWorld();
+
+        long start = System.currentTimeMillis();
         cuboid.getFutureArrayWithChunks().whenCompleteAsync((locations, throwable) -> {
             AtomicInteger chunkCompleted = new AtomicInteger(0);
             int required = locations.keySet().size();
-            long chunkStart = System.currentTimeMillis();
 
-            List<Location> tempLocations = new ArrayList<>();
             for (OPair<Integer, Integer> chunkPair : locations.keySet()) {
                 Set<Location> pairLocations = locations.get(chunkPair);
-                tempLocations.addAll(pairLocations);
 
                 Framework.FRAMEWORK.loadChunk(world, chunkPair.getFirst(), chunkPair.getSecond(), chunk -> {
-                    cachedChunks.put(chunkPair, chunk);
-                    cachedLocations.put(chunk, pairLocations);
+                    cachedChunksData.put(new OPair<>(chunk.getX(), chunk.getZ()), new ChunkData(chunk, pairLocations));
                     if (chunkCompleted.incrementAndGet() == required) {
                         caching = false;
-                        ClassDebugger.debug("Finished Chunk Cache Took " + (System.currentTimeMillis() - chunkStart) + "ms");
+                        blocksInRegion = (int) cachedChunksData.values().stream().mapToLong(c -> c.getLocations().size()).sum();
+
+                        ClassDebugger.debug("Finished initializing cache of {} with {} blocks. Took {}ms", mine.getName(), blocksInRegion, (System.currentTimeMillis() - start));
 
                         if (whenFinished != null)
                             whenFinished.run();
                     }
                 });
             }
-
-            locationsQueue = new RepeatableQueue<>(tempLocations.toArray(new Location[0]));
-            blocksInRegion = locationsQueue.size();
-
-            ClassDebugger.debug("Initialized cache");
-            ClassDebugger.debug("Blocks: " + blocksInRegion);
         });
     }
 
@@ -216,7 +223,7 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
         this.mine = (SNormalMine) obj;
         this.mineArea = (SArea) obj.getArea(AreaEnum.MINE);
         this.blockData.attach(this);
-        initCache(null);
+        initCache(this::reset);
     }
 
     private <T> T[] shuffleArray(T[] array) {
@@ -256,7 +263,6 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
             array.add(object);
         }
         serializedData.getJsonElement().getAsJsonObject().add("materials", array);
-        serializedData.write("blockData", blockData);
     }
 
     @Override
@@ -269,8 +275,6 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
                     OMaterial.valueOf(object.get("m").getAsString())
             ));
         }
-        blockData = serializedData.applyAs("blockData", SMineBlockData.class, SMineBlockData::new);
-        blockData.attach(this);
     }
 
     @Override
@@ -312,4 +316,18 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
         }
     }
 
+    public void clean() {
+        cachedChunksData.clear();
+        blockData.getLockedBlocks().clear();
+        blockData.getLocToMaterial().clear();
+        blockData.getMaterials().clear();
+        Arrays.fill(cachedMaterials, null);
+    }
+
+    @Getter
+    @AllArgsConstructor
+    private class ChunkData {
+        private Chunk chunk;
+        private Set<Location> locations;
+    }
 }

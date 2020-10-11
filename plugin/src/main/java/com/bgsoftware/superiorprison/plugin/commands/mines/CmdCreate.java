@@ -139,6 +139,8 @@ public class CmdCreate extends OCommand {
                                         .replace(sNormalMine)
                                         .send(command);
 
+                                sNormalMine.setSpawnPointOf(player);
+
                                 SuperiorPrisonPlugin.getInstance().getMineController().add(sNormalMine);
                                 creating.invalidate(player.getUniqueId());
                             },

@@ -1,4 +1,4 @@
-package com.bgsoftware.superiorprison.plugin.mterics;
+package com.bgsoftware.superiorprison.plugin.metrics;
 
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;

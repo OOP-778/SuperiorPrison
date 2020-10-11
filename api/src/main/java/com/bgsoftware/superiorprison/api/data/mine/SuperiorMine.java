@@ -2,9 +2,8 @@ package com.bgsoftware.superiorprison.api.data.mine;
 
 import com.bgsoftware.superiorprison.api.data.mine.area.Area;
 import com.bgsoftware.superiorprison.api.data.mine.area.AreaEnum;
-import com.bgsoftware.superiorprison.api.data.mine.effects.MineEffect;
 import com.bgsoftware.superiorprison.api.data.mine.effects.MineEffects;
-import com.bgsoftware.superiorprison.api.data.mine.messages.MineMessage;
+import com.bgsoftware.superiorprison.api.data.mine.locks.Lock;
 import com.bgsoftware.superiorprison.api.data.mine.messages.MineMesssages;
 import com.bgsoftware.superiorprison.api.data.mine.settings.MineSettings;
 import com.bgsoftware.superiorprison.api.data.mine.shop.MineShop;
@@ -16,9 +15,7 @@ import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nullable;
-import java.util.Optional;
 import java.util.Set;
-import java.util.function.Predicate;
 
 public interface SuperiorMine {
 
@@ -165,4 +162,13 @@ public interface SuperiorMine {
 
     // Check if mine has prestige by name
     boolean hasPrestige(String name);
+
+    // Check if mine is ready to use
+    boolean isReady();
+
+    // Lock the mine from being reset
+    Lock newLock();
+
+    // Remove the lock from the mine
+    void unlock(Lock lock);
 }

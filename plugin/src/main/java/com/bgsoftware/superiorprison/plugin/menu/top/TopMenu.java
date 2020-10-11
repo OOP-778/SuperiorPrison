@@ -13,7 +13,6 @@ import org.bukkit.inventory.Inventory;
 import java.util.List;
 
 public class TopMenu extends OPagedMenu<STopEntry> implements OMenu.Templateable {
-
     private final STopSystem system;
     private final TopTypeArg.TopType type;
 

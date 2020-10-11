@@ -13,6 +13,7 @@ import org.bukkit.craftbukkit.v1_16_R2.CraftWorld;
 import org.bukkit.craftbukkit.v1_16_R2.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_16_R2.util.CraftMagicNumbers;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.SimplePluginManager;
 
 import java.lang.reflect.Constructor;
 import java.util.*;
@@ -59,23 +60,29 @@ public class NmsHandler_v1_16_R2 implements SuperiorNms {
     public void refreshChunks(World world, Map<Chunk, Set<Location>> locations, Collection<Player> receivers) {
         List<Packet> packets = new ArrayList<>();
 
+        boolean usePacketChunk = locations.size() > 15;
         locations.forEach((chunk, locs) -> {
             Map<Integer, Set<Short>> blocks = new HashMap<>();
 
             net.minecraft.server.v1_16_R2.Chunk nmsChunk = ((CraftChunk) chunk).getHandle();
             nmsChunk.markDirty();
 
-            for (Location location : locs)
-                blocks.computeIfAbsent(location.getBlockY() >> 4, key -> createShortSet())
-                        .add((short) ((location.getBlockX() & 15) << 8 | (location.getBlockZ() & 15) << 4 | (location.getBlockY() & 15)));
+            if (!usePacketChunk) {
+                for (Location location : locs)
+                    blocks.computeIfAbsent(location.getBlockY() >> 4, key -> createShortSet())
+                            .add((short) ((location.getBlockX() & 15) << 8 | (location.getBlockZ() & 15) << 4 | (location.getBlockY() & 15)));
 
-            blocks.forEach((y, b) -> packets.add(
-                    createMultiBlockChangePacket(
-                            SectionPosition.a(nmsChunk.getPos(), y),
-                            b,
-                            nmsChunk.getSections()[y]
-                    )
-            ));
+                blocks.forEach((y, b) -> packets.add(
+                        createMultiBlockChangePacket(
+                                SectionPosition.a(nmsChunk.getPos(), y),
+                                b,
+                                nmsChunk.getSections()[y]
+                        )
+                ));
+            } else {
+                packets.add(new PacketPlayOutMapChunk(((CraftChunk) chunk).getHandle(), 65280));
+                packets.add(new PacketPlayOutMapChunk(((CraftChunk) chunk).getHandle(), 255));
+            }
         });
 
         for (Packet packet : packets) {
@@ -113,6 +120,15 @@ public class NmsHandler_v1_16_R2 implements SuperiorNms {
             ex.printStackTrace();
             return null;
         }
+    }
+
+    @Override
+    public void setBlockAndUpdate(Chunk chunk, Location location, OMaterial material, Collection<Player> players) {
+        setBlock(chunk, location, material);
+
+        PacketPlayOutBlockChange packet = new PacketPlayOutBlockChange(((CraftWorld) location.getWorld()).getHandle(), new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ()));
+        for (Player player : players)
+            ((CraftPlayer)player).getHandle().playerConnection.sendPacket(packet);
     }
 
 }

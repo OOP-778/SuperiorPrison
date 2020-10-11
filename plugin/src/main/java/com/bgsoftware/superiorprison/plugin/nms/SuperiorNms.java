@@ -7,11 +7,14 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
 
 public interface SuperiorNms {
     void setBlock(Chunk chunk, Location location, OMaterial material);
+
+    default void setBlockAndUpdate(Chunk chunk, Location location, OMaterial material, Collection<Player> players) {}
 
     void refreshChunks(World world, Map<Chunk, Set<Location>> locations, Collection<Player> players);
 

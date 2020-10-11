@@ -2,6 +2,7 @@ package com.bgsoftware.superiorprison.plugin.data;
 
 import com.bgsoftware.superiorprison.api.controller.MineHolder;
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
+import com.bgsoftware.superiorprison.api.data.mine.type.NormalMine;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.controller.DatabaseController;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
@@ -117,5 +118,13 @@ public class SMineHolder extends UniversalDataHolder<String, SNormalMine> implem
         }
 
         return data;
+    }
+
+    public void clear() {
+        minesCache.clear();
+        for (SNormalMine value : dataMap.values())
+            value.clean();
+
+        dataMap.clear();
     }
 }

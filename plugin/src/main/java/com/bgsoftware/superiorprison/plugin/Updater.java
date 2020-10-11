@@ -11,7 +11,7 @@ import java.net.URL;
 
 public class Updater {
 
-    private static final SuperiorPrisonPlugin plugin = SuperiorPrisonPlugin.getInstance();
+    public static SuperiorPrisonPlugin plugin = SuperiorPrisonPlugin.getInstance();
     private static String latestVersion, versionDescription;
 
     static {

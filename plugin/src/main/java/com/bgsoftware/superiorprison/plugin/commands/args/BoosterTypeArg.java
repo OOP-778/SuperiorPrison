@@ -9,11 +9,11 @@ public class BoosterTypeArg extends CommandArgument<String> {
     public BoosterTypeArg() {
         setIdentity("type");
         setDescription("Booster type either drops or money");
-        setMapper(in -> new OPair<Object, String>((in.equalsIgnoreCase("drops") || in.equalsIgnoreCase("money")) ? in : null, "Cannot find booster type by " + in));
+        setMapper(in -> new OPair<Object, String>((in.equalsIgnoreCase("drops") || in.equalsIgnoreCase("money")) || in.equalsIgnoreCase("xp") ? in : null, "Cannot find booster type by " + in));
     }
 
     @Override
     public void onAdd(OCommand command) {
-        command.nextTabComplete((previous, args) -> Lists.newArrayList("drops", "money"));
+        command.nextTabComplete((previous, args) -> Lists.newArrayList("drops", "money", "xp"));
     }
 }

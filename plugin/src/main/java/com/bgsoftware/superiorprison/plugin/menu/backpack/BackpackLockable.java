@@ -1,18 +1,26 @@
 package com.bgsoftware.superiorprison.plugin.menu.backpack;
 
 import com.bgsoftware.superiorprison.plugin.object.backpack.SBackPack;
+import com.bgsoftware.superiorprison.plugin.object.inventory.PatchedInventory;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.oop.orangeengine.main.util.data.pair.OPair;
+import org.bukkit.inventory.PlayerInventory;
 
 public interface BackpackLockable {
 
     SPrisoner getViewer();
 
     default void updateBackpackAndUnlock() {
-        OPair<Integer, SBackPack> pair =
-                getViewer().getOpenedBackpack().get();
-        getViewer().getPlayer().getInventory().setItem(pair.getFirst(), pair.getSecond().getItem());
+        SBackPack sBackPack = getViewer().getOpenedBackpack().get().getValue();
+        sBackPack.save();
+        sBackPack.update();
+
         getViewer().unlockBackpack();
     }
 
+    default void updateBackpack() {
+        SBackPack sBackPack = getViewer().getOpenedBackpack().get().getValue();
+        sBackPack.save();
+        sBackPack.update();
+    }
 }

@@ -9,9 +9,11 @@ import com.oop.datamodule.SerializedData;
 import com.oop.datamodule.gson.JsonArray;
 import com.oop.datamodule.gson.JsonElement;
 import com.oop.datamodule.gson.JsonObject;
+import com.oop.datamodule.gson.JsonPrimitive;
 import com.oop.datamodule.util.DataUtil;
 import com.oop.orangeengine.item.ItemStackUtil;
 import com.oop.orangeengine.main.util.data.pair.OPair;
+import com.oop.orangeengine.material.OMaterial;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -21,13 +23,14 @@ import org.bukkit.inventory.ItemStack;
 import java.util.*;
 import java.util.function.Predicate;
 
-import static com.oop.datamodule.util.DataUtil.wrap;
+import static com.bgsoftware.superiorprison.plugin.util.ItemStackUtil.isNamed;
 
 @Getter
 public class BackPackData implements SerializableObject {
 
     @Setter
     private int level;
+    @Setter
     private @NonNull String configId;
     private @NonNull
     final SBackPack holder;
@@ -39,10 +42,13 @@ public class BackPackData implements SerializableObject {
 
     public BackPackData(SBackPack backPack) {
         this.holder = backPack;
-        if (holder.getConfig() != null) {
-            this.level = holder.getConfig().getLevel();
-            this.configId = holder.getConfig().getId();
-        }
+
+        try {
+            if (holder.getConfig() != null) {
+                this.level = holder.getConfig().getLevel();
+                this.configId = holder.getConfig().getId();
+            }
+        } catch (Throwable ignored) {}
     }
 
     public Optional<OPair<Integer, ItemStack>> first(Predicate<ItemStack> filter) {
@@ -170,7 +176,7 @@ public class BackPackData implements SerializableObject {
 
                 ItemStack[] arrayPageData = new ItemStack[pageSize];
                 for (int i = 0; i < arrayPageData.length; i++)
-                    arrayPageData[i] = DataUtil.fromElement(itemsData.get("" + i++), ItemStack.class);
+                    arrayPageData[i] = unwrap(itemsData.get("" + i++));
 
                 halfConvertedData.put(page, arrayPageData);
                 page++;
@@ -195,8 +201,7 @@ public class BackPackData implements SerializableObject {
                 List<ItemStack> list = new ArrayList<>();
                 for (JsonElement element : itemsArray) {
                     JsonArray itemArray = element.getAsJsonArray();
-                    ItemStack itemStack = DataUtil.fromElement(itemArray.get(1), ItemStack.class);
-                    list.add(itemStack);
+                    list.add(unwrap(itemArray.get(1)));
                 }
 
                 stored = list.toArray(new ItemStack[0]);
@@ -205,7 +210,7 @@ public class BackPackData implements SerializableObject {
                 for (JsonElement element : itemsArray) {
                     JsonArray itemArray = element.getAsJsonArray();
                     int index = itemArray.get(0).getAsInt();
-                    ItemStack itemStack = DataUtil.fromElement(itemArray.get(1), ItemStack.class);
+                    ItemStack itemStack = unwrap(itemArray.get(1));
                     stored[index] = itemStack;
                 }
             }
@@ -245,5 +250,26 @@ public class BackPackData implements SerializableObject {
         int result = Objects.hash(level, configId, sell);
         result = 31 * result + Arrays.hashCode(stored);
         return result;
+    }
+
+    private static JsonElement wrap(ItemStack itemStack) {
+        if (isNamed(itemStack))
+            return DataUtil.wrap(itemStack);
+        else
+            return new JsonPrimitive(OMaterial.matchMaterial(itemStack).name() + "-" + itemStack.getAmount());
+    }
+
+    private static ItemStack unwrap(JsonElement element) {
+        String unparsedString = element.toString();
+        if (!unparsedString.contains("id")) {
+            if (unparsedString.startsWith("\""))
+                unparsedString = unparsedString.substring(1);
+            if (unparsedString.endsWith("\""))
+                unparsedString = unparsedString.substring(0, unparsedString.length() - 1);
+
+            String[] split = unparsedString.split("-");
+            return OMaterial.matchMaterial(split[0]).parseItem(Integer.parseInt(split[1]));
+        } else
+            return DataUtil.fromElement(element, ItemStack.class);
     }
 }

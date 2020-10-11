@@ -3,6 +3,7 @@ package com.bgsoftware.superiorprison.plugin.object.mine;
 import com.bgsoftware.superiorprison.api.data.mine.MineEnum;
 import com.bgsoftware.superiorprison.api.data.mine.area.Area;
 import com.bgsoftware.superiorprison.api.data.mine.area.AreaEnum;
+import com.bgsoftware.superiorprison.api.data.mine.locks.Lock;
 import com.bgsoftware.superiorprison.api.data.player.Prestige;
 import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 import com.bgsoftware.superiorprison.api.data.player.rank.LadderRank;
@@ -16,6 +17,7 @@ import com.bgsoftware.superiorprison.plugin.object.mine.area.SArea;
 import com.bgsoftware.superiorprison.plugin.object.mine.effects.SMineEffects;
 import com.bgsoftware.superiorprison.plugin.object.mine.linkable.LinkableObject;
 import com.bgsoftware.superiorprison.plugin.object.mine.linkable.ObjectLinker;
+import com.bgsoftware.superiorprison.plugin.object.mine.locks.SMineLock;
 import com.bgsoftware.superiorprison.plugin.object.mine.messages.SMineMessages;
 import com.bgsoftware.superiorprison.plugin.object.mine.settings.SMineSettings;
 import com.bgsoftware.superiorprison.plugin.object.mine.shop.SShop;
@@ -44,6 +46,7 @@ import lombok.NonNull;
 import lombok.Setter;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import javax.annotation.Nullable;
@@ -92,6 +95,9 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
     private ObjectLinker linker = new ObjectLinker();
 
     private final Map<String, LinkableObject> linkableObjectMap = new HashMap<>();
+
+    @Getter
+    private Set<Lock> pendingTasks = new HashSet<>();
 
     @Getter
     @Setter
@@ -560,5 +566,35 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
 
     public Map<String, LinkableObject> getLinkableObjects() {
         return linkableObjectMap;
+    }
+
+    @Override
+    public boolean isReady() {
+        return !generator.isCaching() && !generator.isResetting() && !generator.isWorldLoadWait();
+    }
+
+    @Override
+    public Lock newLock() {
+        SMineLock lock = new SMineLock();
+        pendingTasks.add(lock);
+        return lock;
+    }
+
+    @Override
+    public void unlock(Lock lock) {
+        pendingTasks.remove(lock);
+    }
+
+    public void clean() {
+        generator.clean();
+    }
+
+    public void setSpawnPointOf(Player player) {
+        Location location = new Location(player.getWorld(), player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
+        location.add(0.5, 0.5, 0.5);
+
+        location.setPitch(player.getEyeLocation().getPitch());
+        location.setYaw(player.getEyeLocation().getYaw());
+        setSpawnPoint(new SPLocation(location));
     }
 }

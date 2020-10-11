@@ -14,7 +14,7 @@ group 'SuperiorPrison'
 apply plugin: 'maven'
 apply plugin: 'base'
 
-version = "0.1.10-BETA"
+version = "0.1.11-BETA"
 
 allprojects {
     apply plugin: 'java'
@@ -57,7 +57,7 @@ allprojects {
             compileOnly("com.github.MilkBowl:VaultAPI:1.7")
             compileOnly 'me.clip:placeholderapi:2.10.4'
 
-            compile "com.oop:data:1.3"
+            compile "com.oop:data:1.4"
             compileOnly 'com.github.brcdev-minecraft:shopgui-api:1.5.0'
             compileOnly 'be.maximvdw:MVdWPlaceholderAPI:3.1.1-SNAPSHOT'
             compileOnly fileTree("../lib")
@@ -113,7 +113,7 @@ subprojects.each { subproject -> evaluationDependsOn(subproject.path) }
 
 shadowJar {
     archiveName = 'SuperiorPrison.jar'
-    destinationDir = file("G:\\Serrvers\\OOP\\1.16\\plugins")
+    destinationDir = file("D:\\Work\\Allatori\\SuperiorPrison")
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
     from fileTree(dir: "archive").collect {

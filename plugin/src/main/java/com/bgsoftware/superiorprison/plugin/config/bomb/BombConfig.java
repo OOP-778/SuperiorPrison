@@ -35,6 +35,6 @@ public class BombConfig {
     }
 
     public ItemStack getItem() {
-        return item.addNBTTag("SP_BOMB", name).getItemStack();
+        return item.clone().addNBTTag("SP_BOMB", name).getItemStack();
     }
 }

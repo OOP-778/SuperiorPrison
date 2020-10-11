@@ -11,6 +11,8 @@ public interface BackpackLockable {
     SPrisoner getViewer();
 
     default void updateBackpackAndUnlock() {
+        if (!getViewer().getOpenedBackpack().isPresent()) return;
+
         SBackPack sBackPack = getViewer().getOpenedBackpack().get().getValue();
         sBackPack.save();
         sBackPack.update();
@@ -19,6 +21,8 @@ public interface BackpackLockable {
     }
 
     default void updateBackpack() {
+        if (!getViewer().getOpenedBackpack().isPresent()) return;
+
         SBackPack sBackPack = getViewer().getOpenedBackpack().get().getValue();
         sBackPack.save();
         sBackPack.update();

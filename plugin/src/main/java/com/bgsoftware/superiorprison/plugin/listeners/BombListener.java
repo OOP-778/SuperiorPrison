@@ -21,6 +21,7 @@ import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import java.util.HashSet;
@@ -81,6 +82,10 @@ public class BombListener {
                 }
                 controller.removeCooldown(event.getPlayer(), bomb);
             }
+            ItemStack clone = event.getPlayer().getItemInHand().clone();
+            clone.setAmount(1);
+
+            event.getPlayer().getInventory().removeItem(clone);
 
             ArmorStand a = event.getPlayer().getWorld().spawn(event.getPlayer().getEyeLocation().add(0, -1, 0), ArmorStand.class);
 
@@ -150,15 +155,19 @@ public class BombListener {
                                 );
                                 ClassDebugger.debug("Took {}ms", (System.currentTimeMillis() - dropStart));
 
+                                int[] amount = new int[]{0};
+
                                 for (Location location : sphereAt) {
                                     if (!mine.getKey().getGenerator().getBlockData().has(location))
                                         continue;
 
+                                    amount[0] = amount[0] + 1;
                                     data.add(
                                             SuperiorPrisonPlugin.getInstance().getMineController().addResetBlock(location, OMaterial.AIR, () -> {
                                                 particleExecution.accept(location);
-                                                if (counter.incrementAndGet() == sphereAt.size()) {
+                                                if (counter.incrementAndGet() == amount[0]) {
                                                     async(() -> SuperiorPrisonPlugin.getInstance().getNms().refreshChunks(checkLocation.getWorld(), sphereAt, checkLocation.getWorld().getPlayers()));
+                                                    key.unlock(lock);
                                                 }
                                             })
                                     );
@@ -167,9 +176,8 @@ public class BombListener {
                                 for (ChunkResetData datum : data)
                                     datum.setReady(true);
                             } catch (Exception ex) {
-                                ex.printStackTrace();
-                            } finally {
                                 key.unlock(lock);
+                                ex.printStackTrace();
                             }
                         } else if (bomb.getTrailParticle() != null)
                             OParticle.getProvider().display(bomb.getTrailParticle(), checkLocation.clone().add(0, 0.2, 0.0), 1);

@@ -111,7 +111,6 @@ public class SMineBlockData implements Attachable<SMineGenerator>, MineBlockData
 
     @Override
     public boolean isLocked(Location location) {
-        System.out.println("locks: " + lockedBlocks.keySet().size());
         return getLockAt(location).isPresent();
     }
 

@@ -11,8 +11,8 @@ public class PlaceholdersSection extends SectionWrapper {
 
     @Override
     protected void initialize() {
-        addDefault("rank not found", "N\\A", "What's displayed when rank is not found");
-        addDefault("prestige not found", "N\\A", "What's displayed when prestige is not found");
+        addDefault("rank not found", "N/A", "What's displayed when rank is not found");
+        addDefault("prestige not found", "N/A", "What's displayed when prestige is not found");
         super.initialize();
 
         rankNotFound = getSection().getAs("rank not found");

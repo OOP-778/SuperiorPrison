@@ -58,9 +58,7 @@ public class MessageEditMenu extends OMenu {
         clickHandler("content")
                 .handle(event -> {
                     forceClose();
-
-                    AtomicBoolean cancel = new AtomicBoolean(false);
-                    ChatCommands chatCommands = new ChatCommands();
+                    ChatCommands chatCommands = new ChatCommands((Player) event.getWhoClicked());
                     final AtomicReference<OMessage> localeMessage = new AtomicReference<>(null);
 
                     Runnable sendMessage = () -> messageBuilder(localeMessage.get())
@@ -80,7 +78,6 @@ public class MessageEditMenu extends OMenu {
                             messageBuilder(LocaleEnum.EDIT_MESSAGE_CONTENT_SUCCESS.getWithPrefix())
                                     .replace(message)
                                     .send(player);
-                            sendMessage.run();
                         });
 
                     } else if (message instanceof SMineTitleMessage) {
@@ -91,7 +88,6 @@ public class MessageEditMenu extends OMenu {
                             messageBuilder(LocaleEnum.EDIT_MESSAGE_TITLE_SUCCESS.getWithPrefix())
                                     .replace(message)
                                     .send(player);
-                            sendMessage.run();
                         });
 
                         chatCommands.appendCommand("setSubTitle", (player, args) -> {
@@ -100,7 +96,6 @@ public class MessageEditMenu extends OMenu {
                             messageBuilder(LocaleEnum.EDIT_MESSAGE_TITLE_SUBTITLE_SUCCESS.getWithPrefix())
                                     .replace(message)
                                     .send(player);
-                            sendMessage.run();
                         });
 
                         chatCommands.appendCommand("setFadeIn", (player, args) -> {
@@ -109,7 +104,6 @@ public class MessageEditMenu extends OMenu {
                             messageBuilder(LocaleEnum.EDIT_MESSAGE_TITLE_FADEIN_SUCCESS.getWithPrefix())
                                     .replace(message)
                                     .send(player);
-                            sendMessage.run();
                         });
 
                         chatCommands.appendCommand("setStay", (player, args) -> {
@@ -118,7 +112,6 @@ public class MessageEditMenu extends OMenu {
                             messageBuilder(LocaleEnum.EDIT_MESSAGE_TITLE_STAY_SUCCESS.getWithPrefix())
                                     .replace(message)
                                     .send(player);
-                            sendMessage.run();
                         });
 
                         chatCommands.appendCommand("setFadeOut", (player, args) -> {
@@ -127,32 +120,28 @@ public class MessageEditMenu extends OMenu {
                             messageBuilder(LocaleEnum.EDIT_MESSAGE_TITLE_FADEOUT_SUCCESS.getWithPrefix())
                                     .replace(message)
                                     .send(player);
-                            sendMessage.run();
                         });
                     }
 
-                    chatCommands.appendCommand("cancel", (player, args) -> {
+                    chatCommands.appendCommand("cancel", (player, canceller, args) -> {
                         refresh();
-                        cancel.set(true);
+                        messages.getMine().save(true);
+                        refresh();
+                        messages.getMine().getLinker().call(messages);
+                        canceller.set(true);
                     });
 
-                    chatCommands.appendCommand("save", (player, args) -> {
+                    chatCommands.appendCommand("save", (player, canceller, args) -> {
                         messageBuilder(LocaleEnum.EDIT_MESSAGE_SAVE.getWithPrefix()).replace(message).send(player);
                         messages.getMine().save(true);
                         refresh();
                         messages.getMine().getLinker().call(messages);
-                        cancel.set(true);
+                        canceller.set(true);
                     });
 
-                    SubscriptionFactory.getInstance().subscribeTo(
-                            AsyncPlayerChatEvent.class,
-                            chatCommands::handle,
-                            new SubscriptionProperties<AsyncPlayerChatEvent>()
-                                    .runTill(e -> cancel.get())
-                                    .priority(EventPriority.HIGHEST)
-                                    .async(false)
-                                    .timeOut(TimeUnit.MINUTES, 4)
-                    );
+                    chatCommands.listen();
+                    chatCommands.onFinish(this::refresh);
+                    chatCommands.afterInput(sendMessage);
 
                     chatCommands.setExceptionHandler(((player, throwable) -> {
                         OMessage clone = LocaleEnum.PREFIX_ERROR.getMessage().clone();

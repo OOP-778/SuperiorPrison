@@ -19,6 +19,8 @@ import com.bgsoftware.superiorprison.plugin.object.mine.linkable.LinkableObject;
 import com.bgsoftware.superiorprison.plugin.object.mine.linkable.ObjectLinker;
 import com.bgsoftware.superiorprison.plugin.object.mine.locks.SMineLock;
 import com.bgsoftware.superiorprison.plugin.object.mine.messages.SMineMessages;
+import com.bgsoftware.superiorprison.plugin.object.mine.reward.SMineReward;
+import com.bgsoftware.superiorprison.plugin.object.mine.reward.SMineRewards;
 import com.bgsoftware.superiorprison.plugin.object.mine.settings.SMineSettings;
 import com.bgsoftware.superiorprison.plugin.object.mine.shop.SShop;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrestige;
@@ -90,6 +92,9 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
 
     private SLadderRank highestRank;
 
+    @Getter
+    private SMineRewards rewards;
+
     private final Set<SpecialRank> specialRanks = new HashSet<>();
 
     @Getter
@@ -155,6 +160,7 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
         generator.reset();
         updateHighests();
 
+        this.rewards = new SMineRewards();
         initializeLinkableObjects();
     }
 
@@ -409,7 +415,8 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
                 "areas",
                 "effects",
                 "messages",
-                "linker"
+                "linker",
+                "rewards"
         };
     }
 
@@ -427,6 +434,7 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
         serializedData.write("effects", effects);
         serializedData.write("messages", messages);
         serializedData.write("linker", linker);
+        serializedData.write("rewards", rewards);
 
         JsonArray areasArray = new JsonArray();
         areas.forEach((key, value) -> {
@@ -471,6 +479,7 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
             areas.put(AreaEnum.valueOf(key.getAsString()), DataUtil.fromElement(value, SArea.class));
         }
         this.icon = data.applyAs("icon", ItemStack.class);
+        this.rewards = data.has("rewards") ? data.applyAs("rewards", SMineRewards.class) : new SMineRewards();
 
         generator.attach(this);
         shop.attach(this);
@@ -506,6 +515,7 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
         getLinkableObjects().put("shop", shop);
         getLinkableObjects().put("generator", generator);
         getLinkableObjects().put("messages", messages);
+        getLinkableObjects().put("rewards", rewards);
     }
 
     @Override

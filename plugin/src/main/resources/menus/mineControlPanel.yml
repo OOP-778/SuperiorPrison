@@ -109,6 +109,12 @@ buttons:
         - "&7In order to change the option"
         - "&7You'll have to unlink!"
 
+    rewards-option:
+      material: glowstone dust
+      display name: "&dRewards"
+      lore:
+        - "&d&l* &7Click to edit!"
+
     soon:
       material: barrier
       display name: "&cSoon"

@@ -8,6 +8,7 @@ public enum Option {
     SETTINGS,
     EFFECTS,
     MESSAGES,
+    REWARDS,
     ALL;
 
     public static Option match(String in) {

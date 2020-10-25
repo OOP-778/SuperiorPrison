@@ -292,7 +292,28 @@ public enum LocaleEnum {
 
     BLOCK_CANNOT_MINE_LOCKED("The block you're trying to mine is being used by other process"),
     CANCELED_ACTION_CAUSE_MINE_RESET("Cancelled your action. Cause mine is either resetting or initializing..."),
-    MINE_IS_ALREADY_RESETTING("Mine is already resetting");
+    MINE_IS_ALREADY_RESETTING("Mine is already resetting"),
+
+    EDIT_REWARD(
+            new OChatMessage()
+                    .append("&7&l-----------------")
+                    .append("")
+                    .append("   &d&lREWARD EDITOR")
+                    .append("   &7Chance: &d{reward_chance}%")
+                    .append("   &7Commands: &d{reward_commands}")
+                    .append("")
+                    .append("   &5Available functions")
+                    .append("   &d&l* &7setChance (double) &5=>&f set chance of the reward")
+                    .append("   &d&l* &7addCmd (command) &5=>&f add command with placeholder %player%")
+                    .append("   &d&l* &7remCmd (index) &5=>&f remove command at an index starting from 0")
+                    .append(" ")
+                    .append("   &d&l(!) &7When you're done write '&ddone&7'")
+                    .append("")
+                    .append("&7&l-----------------")
+    ),
+    EDIT_REWARD_ADDED_CMD("Successfully added &d{command} to the commands list"),
+    EDIT_REWARD_CHANCE("Successfully set chance of the reward to {chance}"),
+    EDIT_REWARD_REMOVED_COMMAND("Successfully removed command at index {index}");
 
     private final OMessage[] cache = new OMessage[2];
 

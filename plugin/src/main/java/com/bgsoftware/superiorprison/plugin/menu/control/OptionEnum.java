@@ -8,6 +8,7 @@ public enum OptionEnum {
     SHOP,
     EFFECTS,
     SETTINGS,
+    REWARDS,
     MESSAGES;
 
     public static OptionEnum from(String string) {

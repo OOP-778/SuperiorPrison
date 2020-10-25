@@ -1,0 +1,68 @@
+title: "&d&l{mine_name} &8&l> &5Rewards"
+
+templates:
+  - "reward:R"
+
+actions:
+  - "reward:R"
+  - "create:C"
+  - "next page:N"
+  - "previous page:P"
+
+layout:
+  - "@ @ @ @ @ @ @ @ @"
+  - "# $ $ $ $ $ $ $ #"
+  - "# $ $ $ $ $ $ $ #"
+  - "C @ P @ @ @ N @ @"
+
+buttons:
+  "@":
+    material: gray_stained_glass_pane
+    display name: "&r"
+
+  "#":
+    material: pink_stained_glass_pane
+    display name: "&r"
+
+  "P":
+    shown:
+      material: arrow
+      display name: "&d<<"
+      lore:
+        - "&7Click to go to"
+        - "&7The previous page!"
+
+    hidden:
+      material: gray_stained_glass_pane
+      display name: "&r"
+
+  "N":
+    shown:
+      material: arrow
+      display name: "&d>>"
+      lore:
+        - "&7Click to go to"
+        - "&7The next page!"
+
+    hidden:
+      material: gray_stained_glass_pane
+      display name: "&r"
+
+  "C":
+    material: sign
+    display name: "&d&lCREATE NEW"
+    lore:
+      - "&7Click to create"
+      - "&7New reward"
+
+  "R":
+    display name: "&7Reward: &d{reward_index}"
+    material: glowstone dust
+    lore:
+      - "&d&l* &7Chance: &d{reward_chance}%"
+      - "  "
+      - "&d&l* &7Commands:"
+      - "{template}&d&l* &7{reward_command}"
+      - ""
+      - "&dLeft-Click to edit"
+      - "&cRight-Click to remove"

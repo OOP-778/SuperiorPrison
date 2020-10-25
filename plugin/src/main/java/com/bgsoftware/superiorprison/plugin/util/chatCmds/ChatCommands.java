@@ -1,38 +1,79 @@
 package com.bgsoftware.superiorprison.plugin.util.chatCmds;
 
+import com.bgsoftware.superiorprison.plugin.util.input.PlayerInput;
 import com.google.common.collect.Maps;
 import com.oop.orangeengine.main.Helper;
 import lombok.Setter;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 
 public class ChatCommands {
-
     // command label = command
-    private final Map<String, BiConsumer<Player, String[]>> commandMap = Maps.newHashMap();
+    private final Map<String, CommandHandler> commandMap = Maps.newHashMap();
 
     @Setter
     private BiConsumer<Player, Throwable> exceptionHandler;
+    private Player player;
+    private Runnable finish;
 
-    public ChatCommands appendCommand(String label, BiConsumer<Player, String[]> handler) {
-        this.commandMap.put(label, handler);
-        return this;
+    private Runnable afterInput;
+
+    private AtomicBoolean canceller = new AtomicBoolean(false);
+
+    public ChatCommands(Player player) {
+        this.player = player;
     }
 
-    public void handle(AsyncPlayerChatEvent event) {
-        event.setCancelled(true);
+    public void appendCommand(String label, BiConsumer<Player, String[]> handler) {
+        this.commandMap.put(label, (player, cancelled, args) -> handler.accept(player, args));
+    }
+
+    public void appendCommand(String label, CommandHandler handler) {
+        this.commandMap.put(label, handler);
+    }
+
+    public void onFinish(Runnable finish) {
+        this.finish = finish;
+    }
+
+    public void afterInput(Runnable runnable) {
+        this.afterInput = runnable;
+    }
+
+    private PlayerInput<String> input;
+
+    public void listen() {
+        input = new PlayerInput<String>(player)
+                .timeOut(TimeUnit.MINUTES, 4)
+                .commandsEnabled(false)
+                .parser(in -> in)
+                .onError((b, t) -> {
+                    if (exceptionHandler == null)
+                        player.sendMessage(Helper.color("&c&lERROR: &4" + t.getMessage()));
+
+                    else
+                        exceptionHandler.accept(player, t);
+                })
+                .onInput((o, in) -> handle(in));
+        input.listen();
+    }
+
+    private void handle(String message) {
         if (commandMap.isEmpty()) return;
 
-        String message = event.getMessage();
+        message = ChatColor.stripColor(message);
 
         // Try to find labels
+        String finalMessage = message;
         Optional<String> first = commandMap.keySet()
                 .stream()
-                .filter(label -> message.toLowerCase().startsWith(label.toLowerCase()))
+                .filter(label -> finalMessage.toLowerCase().startsWith(label.toLowerCase()))
                 .findFirst();
 
         if (!first.isPresent()) {
@@ -40,33 +81,45 @@ public class ChatCommands {
                 throw new IllegalStateException("Failed to find command by " + message);
             } catch (Throwable th) {
                 if (exceptionHandler == null)
-                    event.getPlayer().sendMessage(Helper.color("&c&lERROR: &4" + th.getMessage()));
+                    player.sendMessage(Helper.color("&c&lERROR: &4" + th.getMessage()));
 
                 else
-                    exceptionHandler.accept(event.getPlayer(), th);
+                    exceptionHandler.accept(player, th);
             }
             return;
         }
 
-        BiConsumer<Player, String[]> cmd = commandMap.get(first.get());
+        CommandHandler cmd = commandMap.get(first.get());
         String messageNoLabel = removeLabel(first.get(), message);
         String[] args = messageNoLabel.split("\\s+");
 
         try {
-            cmd.accept(event.getPlayer(), args);
+            cmd.handle(player, canceller, args);
         } catch (Throwable th) {
             if (th instanceof NullPointerException)
                 th.printStackTrace();
 
             if (exceptionHandler == null)
-                event.getPlayer().sendMessage(Helper.color("&c&lERROR: &4" + th.getMessage()));
+                player.sendMessage(Helper.color("&c&lERROR: &4" + th.getMessage()));
 
             else
-                exceptionHandler.accept(event.getPlayer(), th);
+                exceptionHandler.accept(player, th);
         }
+
+        if (canceller.get()) {
+            input.cancel();
+            if (finish != null)
+                finish.run();
+        } else if (afterInput != null)
+            afterInput.run();
     }
 
     private String removeLabel(String label, String message) {
         return message.length() == label.length() ? "" : message.substring(label.length() + 1);
+    }
+
+    @FunctionalInterface
+    public interface CommandHandler {
+        void handle(Player player, AtomicBoolean canceller, String[] args);
     }
 }

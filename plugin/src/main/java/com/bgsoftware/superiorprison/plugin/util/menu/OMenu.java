@@ -344,7 +344,9 @@ public abstract class OMenu implements InventoryHolder {
     */
     public interface Mappable {
 
-        OMenu getMenu();
+        default OMenu getMenu() {
+            return (OMenu) this;
+        }
 
         default Map<String, Object> getMap() {
             return getMenu().getData();

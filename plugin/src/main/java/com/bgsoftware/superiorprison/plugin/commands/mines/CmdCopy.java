@@ -69,9 +69,15 @@ public class CmdCopy extends OCommand {
                 case EFFECTS:
                     to.getEffects().clear();
                     to.getEffects().addAll(from.getEffects().get().stream().map(effect -> new SMineEffect(effect.getType(), effect.getAmplifier())).collect(Collectors.toSet()));
+                    break;
 
                 case MESSAGES:
                     from.getMessages().get().stream().map(message -> ((SMineMessage) message).clone()).forEach(message -> to.getMessages().add(message));
+                    break;
+
+                case REWARDS:
+                    from.getRewards().getRewards().forEach(reward -> to.getRewards().addReward(reward));
+                    break;
             }
 
             // Save changes made

@@ -18,6 +18,7 @@ import com.bgsoftware.superiorprison.plugin.object.mine.messages.SMineActionBarM
 import com.bgsoftware.superiorprison.plugin.object.mine.messages.SMineChatMessage;
 import com.bgsoftware.superiorprison.plugin.object.mine.messages.SMineMessage;
 import com.bgsoftware.superiorprison.plugin.object.mine.messages.SMineTitleMessage;
+import com.bgsoftware.superiorprison.plugin.object.mine.reward.SMineReward;
 import com.bgsoftware.superiorprison.plugin.object.mine.shop.SShopItem;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.object.player.booster.SBooster;
@@ -114,6 +115,9 @@ public class PlaceholderController {
         add(STopEntry.class, "{entry_position}", STopEntry::getPosition);
         add(BlockTopEntry.class, "{entry_blocks}", entry -> TextUtil.beautifyNumber(entry.getObject().getTotal()));
         add(SPrestigeTopEntry.class, "{entry_prestige}", entry -> entry.getObject().getCurrentPrestige().get().getName());
+
+        add(SMineReward.class, "{reward_chance}", SMineReward::getChance);
+        add(SMineReward.class, "{reward_commands}", r -> String.join(", ", r.getCommands()));
     }
 
     private <T> void add(Class<T> type, String placeholder, Function<T, Object> handler) {

@@ -5,6 +5,8 @@ import com.bgsoftware.superiorprison.api.data.mine.area.AreaEnum;
 import com.bgsoftware.superiorprison.api.data.mine.effects.MineEffects;
 import com.bgsoftware.superiorprison.api.data.mine.locks.Lock;
 import com.bgsoftware.superiorprison.api.data.mine.messages.MineMesssages;
+import com.bgsoftware.superiorprison.api.data.mine.reward.MineReward;
+import com.bgsoftware.superiorprison.api.data.mine.reward.MineRewards;
 import com.bgsoftware.superiorprison.api.data.mine.settings.MineSettings;
 import com.bgsoftware.superiorprison.api.data.mine.shop.MineShop;
 import com.bgsoftware.superiorprison.api.data.player.Prestige;
@@ -171,4 +173,7 @@ public interface SuperiorMine {
 
     // Remove the lock from the mine
     void unlock(Lock lock);
+
+    // Get mine rewards
+    MineRewards getRewards();
 }

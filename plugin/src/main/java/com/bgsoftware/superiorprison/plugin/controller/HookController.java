@@ -12,8 +12,7 @@ import java.util.function.Consumer;
 public class HookController {
     private final Map<Class<?>, SHook> hooks = new HashMap<>();
 
-    public HookController() {
-    }
+    public HookController() {}
 
     public void registerHooks(HookClassSupplier... hooks) {
         for (HookClassSupplier<?> clazzSupplier : hooks) {

@@ -42,15 +42,15 @@ allprojects {
         annotationProcessor 'org.projectlombok:lombok:1.18.8'
 
         if (project.name.equalsIgnoreCase("plugin")) {
-            compile "com.oop.orangeengine:file:4.8"
-            compile "com.oop.orangeengine:item:4.8"
-            compile "com.oop.orangeengine:engine:4.8"
-            compile "com.oop.orangeengine:particle:4.8"
-            compile "com.oop.orangeengine:inventory:4.8"
-            compile "com.oop.orangeengine:command:4.8"
-            compile "com.oop.orangeengine:eventssubscription:4.8"
-            compile "com.oop.orangeengine:message:4.8"
-            compile "com.oop.orangeengine:sound:4.8"
+            compile "com.oop.orangeengine:file:4.9"
+            compile "com.oop.orangeengine:item:4.9"
+            compile "com.oop.orangeengine:engine:4.9"
+            compile "com.oop.orangeengine:particle:4.9"
+            compile "com.oop.orangeengine:inventory:4.9"
+            compile "com.oop.orangeengine:command:4.9"
+            compile "com.oop.orangeengine:eventssubscription:4.9"
+            compile "com.oop.orangeengine:message:4.9"
+            compile "com.oop.orangeengine:sound:4.9"
             compile "io.papermc:paperlib:1.0.4"
 
             // Dependencies
@@ -63,15 +63,15 @@ allprojects {
             compileOnly fileTree("../lib")
 
         } else {
-            compileOnly "com.oop.orangeengine:file:4.8"
-            compileOnly "com.oop.orangeengine:item:4.8"
-            compileOnly "com.oop.orangeengine:engine:4.8"
-            compileOnly "com.oop.orangeengine:particle:4.8"
-            compileOnly "com.oop.orangeengine:inventory:4.8"
-            compileOnly "com.oop.orangeengine:command:4.8"
-            compileOnly "com.oop.orangeengine:database:4.8"
-            compileOnly "com.oop.orangeengine:eventssubscription:4.8"
-            compileOnly "com.oop.orangeengine:message:4.8"
+            compileOnly "com.oop.orangeengine:file:4.9"
+            compileOnly "com.oop.orangeengine:item:4.9"
+            compileOnly "com.oop.orangeengine:engine:4.9"
+            compileOnly "com.oop.orangeengine:particle:4.9"
+            compileOnly "com.oop.orangeengine:inventory:4.9"
+            compileOnly "com.oop.orangeengine:command:4.9"
+            compileOnly "com.oop.orangeengine:database:4.9"
+            compileOnly "com.oop.orangeengine:eventssubscription:4.9"
+            compileOnly "com.oop.orangeengine:message:4.9"
         }
 
         if (project.name.equalsIgnoreCase("plugin")) {

@@ -136,6 +136,7 @@ public class SBackPack implements BackPack {
         SBackPack backPack = new SBackPack();
         backPack.oldData = new JsonObject();
         backPack.data = new BackPackData(backPack);
+        backPack.data.setSell(config.isSellByDefault());
         backPack.data.setLevel(1);
         backPack.data.setConfigId(config.getId());
         backPack.owner = player;
@@ -269,8 +270,6 @@ public class SBackPack implements BackPack {
 
         nbtItem.setString(UUID_KEY, uuid.toString());
         updateHash();
-
-        nbtItem.getKeys().forEach(System.out::println);
     }
 
     @Override

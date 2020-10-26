@@ -23,6 +23,9 @@ global options:
   # How many pages will the backpack have?
   pages: 1
 
+  # If the backpack should be sellable by default
+  sellable: true
+
   # Upgrades for the backpack
   # The default backpack is level 1, so next is 2
   upgrades:

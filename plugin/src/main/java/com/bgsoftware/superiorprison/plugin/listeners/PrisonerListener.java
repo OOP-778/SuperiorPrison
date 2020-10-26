@@ -146,7 +146,6 @@ public class PrisonerListener {
                 return;
             }
 
-
             if (!minePair.getKey().isReady()) {
                 LocaleEnum.CANCELED_ACTION_CAUSE_MINE_RESET
                         .getWithErrorPrefix()
@@ -196,7 +195,6 @@ public class PrisonerListener {
 
             event.getMine().getEffects().get().stream().map(effect -> (SMineEffect) effect).map(SMineEffect::create).forEach(effect -> event.getPrisoner().getPlayer().addPotionEffect(effect, false));
             ((SPrisoner) event.getPrisoner()).setLogoutMine(event.getMine().getName());
-            event.getPrisoner().save(true);
         });
 
         SyncEvents.listen(MineAreaChangeEvent.class, EventPriority.LOWEST, event -> {

@@ -34,8 +34,6 @@ public class MenuUpdater {
 
                 // If states were added
                 if (updatedButton.getSections().size() > currentButton.getSections().size()) {
-                    System.out.println("Path: " + updatedButton.getPath() + " is outdated. Sections size: " + updatedButton.getSections().size() + " vs " + currentButton.getSections().size());
-
                     // Add sections
                     for (ConfigSection value : updatedButton.getSections().values()) {
                         if (currentButton.isSectionPresent(value.getKey())) continue;

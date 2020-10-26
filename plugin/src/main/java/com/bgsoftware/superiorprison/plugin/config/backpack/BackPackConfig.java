@@ -29,12 +29,17 @@ public abstract class BackPackConfig<T extends BackPackConfig<T>> {
     @Getter
     private int level = 1;
 
+    @Getter
+    private boolean sellByDefault = false;
+
     protected BackPackConfig() {
     }
 
     public BackPackConfig(ConfigSection section) {
         this.id = section.getKey();
         applyUpgrades(section);
+
+        section.ifValuePresent("sellable", boolean.class, b -> this.sellByDefault = b);
 
         section.getSection("upgrades")
                 .ifPresent(upgradesSection -> {

@@ -55,8 +55,6 @@ public class CommandsRegister {
 
         controller.register(new CmdBombs());
 
-        controller.register(new CmdTestBackpacks());
-
         controller.register(new MainCmd());
         //new CommandsPrinter(controller, new File(SuperiorPrisonPlugin.getInstance().getDataFolder(), "commands.txt"));
 

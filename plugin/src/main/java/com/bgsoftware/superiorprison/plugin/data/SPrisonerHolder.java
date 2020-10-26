@@ -117,7 +117,9 @@ public class SPrisonerHolder extends UniversalDataHolder<UUID, SPrisoner> implem
 
     public SPrisoner getInsertIfAbsent(UUID uuid) {
         Optional<Prisoner> optionalPrisoner = getPrisoner(uuid);
-        return optionalPrisoner.map(prisoner -> (SPrisoner) prisoner).orElseGet(() -> newPrisoner(new SPrisoner(uuid)));
+        return optionalPrisoner
+                .map(prisoner -> (SPrisoner) prisoner)
+                .orElseGet(() -> newPrisoner(new SPrisoner(uuid)));
     }
 
     public void initializeCache() {

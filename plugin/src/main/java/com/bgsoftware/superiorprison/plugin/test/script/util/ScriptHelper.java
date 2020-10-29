@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorprison.plugin.test.script.util;
 
 import com.bgsoftware.superiorprison.plugin.test.script.ScriptEngine;
+import com.bgsoftware.superiorprison.plugin.test.script.function.Function;
 import com.bgsoftware.superiorprison.plugin.test.script.util.function.FunctionValidator;
 import com.bgsoftware.superiorprison.plugin.test.script.variable.GlobalVariableMap;
 
@@ -49,5 +50,32 @@ public class ScriptHelper {
         } catch (Throwable throwable) {
             throw new IllegalStateException("Failed to initialize function by: `" + in + "`", throwable);
         }
+    }
+
+    public static <T> Function<T> getFunctionFromObject(T object) {
+        return new Function<T>() {
+            @Override
+            public void initialize(String string, GlobalVariableMap variableMap) {}
+
+            @Override
+            public Class<T> getType() {
+                return (Class<T>) object.getClass();
+            }
+
+            @Override
+            public boolean isCacheable() {
+                return true;
+            }
+
+            @Override
+            public T execute(GlobalVariableMap globalVariables) {
+                return object;
+            }
+
+            @Override
+            public String getId() {
+                return "function from object";
+            }
+        };
     }
 }

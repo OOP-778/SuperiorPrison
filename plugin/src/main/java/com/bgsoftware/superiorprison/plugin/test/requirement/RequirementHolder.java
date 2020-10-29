@@ -1,9 +1,11 @@
 package com.bgsoftware.superiorprison.plugin.test.requirement;
 
 import com.bgsoftware.superiorprison.plugin.test.script.variable.GlobalVariableMap;
+import com.oop.orangeengine.main.util.data.pair.OPair;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -36,14 +38,25 @@ public class RequirementHolder implements Cloneable {
         private final Requirement requirement;
     }
 
-    public boolean meets(GlobalVariableMap variableMap) {
+    public OPair<Boolean, List<DeclinedRequirement>> meets(GlobalVariableMap variableMap) {
+        List<DeclinedRequirement> declinedRequirements = new ArrayList<>();
+
         boolean[] meets = new boolean[]{true};
         for (HoldingData holdingDatum : holdingData) {
-            if (!meets[0]) return false;
+            OPair<Boolean, DeclinedRequirement> test = holdingDatum.getRequirement().test(holdingDatum.getData(), variableMap);
 
-            meets[0] = holdingDatum.getRequirement().test(holdingDatum.getData(), variableMap);
+
+            // If the declined value is not null
+            if (test.getSecond() != null) {
+                test.getSecond().setDisplay(holdingDatum.data.getDisplayName() == null ? "Not Set" : holdingDatum.data.getDisplayName());
+                declinedRequirements.add(test.getSecond());
+            }
+
+            if (!test.getFirst())
+                meets[0] = false;
         }
-        return meets[0];
+
+        return new OPair<>(meets[0], declinedRequirements);
     }
 
     public RequirementHolder clone() {

@@ -10,22 +10,24 @@ mode:
 
     # Requirements template for each prestige
     requirements:
-      "block requirement":
-        type: blocks
-        value: "1000 * %rank_order%"
+      "eco":
+        # Display name of the requirement
+        display: "Money"
 
-      "eco requirement":
-        type: eco
-        value: "95% of {1500 * %rank_order%}"
+        # Required value
+        value: "%rank_order% * 2"
 
-      "papi requirement":
-        type: papi
-        placeholder: "prison.%prestige_order%.20"
+        # Current value
+        getter: "get balance of %prisoner%"
 
-    specific:
-      100:
-        commands:
-          - "message {player} You are half way to the max!"
+        # A function which returns either true or false
+        checker: "%getter% >= %value%"
+
+        # A function witch takes the value from prisoner
+        # taker: "take %value% from %prisoner% balance"
+
+        # Taker can also be command
+        taker: "take %value% from %prisoner% balance"
 
 # < For manual mode>
 "1":

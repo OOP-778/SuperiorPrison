@@ -3,7 +3,6 @@ package com.bgsoftware.superiorprison.plugin.test.generator.auto;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.test.Testing;
 import com.bgsoftware.superiorprison.plugin.test.generator.ObjectSupplier;
-import com.bgsoftware.superiorprison.plugin.test.generator.ObjectTemplate;
 import com.bgsoftware.superiorprison.plugin.test.generator.ParsedObject;
 import com.bgsoftware.superiorprison.plugin.test.script.variable.GlobalVariableMap;
 import com.bgsoftware.superiorprison.plugin.test.script.variable.VariableHelper;
@@ -13,21 +12,20 @@ import com.oop.orangeengine.message.impl.OChatMessage;
 import com.oop.orangeengine.yaml.ConfigSection;
 import com.oop.orangeengine.yaml.interfaces.Valuable;
 import lombok.Getter;
+import lombok.NonNull;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 public abstract class ObjectGenerator<G extends GeneratorOptions> implements ObjectSupplier {
-    private ObjectTemplate template;
+    private GeneratorTemplate template;
 
     @Getter
     private final GlobalVariableMap variableMap = new GlobalVariableMap();
 
     @Getter
+    @NonNull
     private final G options;
 
     private OCache<UUID, Map<Integer, ParsedObject>> parsedCache =
@@ -37,7 +35,7 @@ public abstract class ObjectGenerator<G extends GeneratorOptions> implements Obj
                     .expireAfter(3, TimeUnit.SECONDS)
                     .build();
 
-    private Map<Integer, ObjectTemplate> specificCache = new ConcurrentHashMap<>();
+    private Map<Integer, GeneratorTemplate> specificCache = new ConcurrentHashMap<>();
 
     public ObjectGenerator(Valuable valuable) {
         if (!valuable.isSectionPresent("template") || !valuable.isSectionPresent("options"))
@@ -46,7 +44,7 @@ public abstract class ObjectGenerator<G extends GeneratorOptions> implements Obj
         variableMap.newVariable("prisoner", VariableHelper.createNullVariable(SPrisoner.class));
         initializeMap();
 
-        template = new ObjectTemplate(valuable.getSection("template").get(), variableMap);
+        template = new GeneratorTemplate(valuable.getSection("template").get(), variableMap);
 
         // Load options
         ConfigSection options = valuable.getSection("options").get();
@@ -54,7 +52,7 @@ public abstract class ObjectGenerator<G extends GeneratorOptions> implements Obj
 
         options.ifSectionPresent("specific", specificsSection -> {
             for (ConfigSection specificSection : specificsSection.getSections().values()) {
-                ObjectTemplate clone = template.clone();
+                GeneratorTemplate clone = template.clone();
                 specificSection.ifValuePresent("commands", List.class, cmds -> clone.getCommands().addAll(cmds));
 
                 // Check for message
@@ -73,7 +71,7 @@ public abstract class ObjectGenerator<G extends GeneratorOptions> implements Obj
         });
 
         template.initialize(variableMap);
-        for (ObjectTemplate value : specificCache.values())
+        for (GeneratorTemplate value : specificCache.values())
             value.initialize(variableMap);
     }
 
@@ -85,7 +83,7 @@ public abstract class ObjectGenerator<G extends GeneratorOptions> implements Obj
         return options.hasNext(options.getIndex(object));
     }
 
-    public ParsedObject getParsed(SPrisoner prisoner, Object ob) {
+    public Optional<ParsedObject> getParsed(SPrisoner prisoner, Object ob) {
         int level = options.getIndex(ob);
 
         Map<Integer, ParsedObject> cache = parsedCache.get(prisoner.getUUID());
@@ -93,7 +91,7 @@ public abstract class ObjectGenerator<G extends GeneratorOptions> implements Obj
         if (cache != null) {
             object = cache.get(level);
             if (object != null)
-                return object;
+                return Optional.of(object);
         }
 
         if (cache == null) {
@@ -103,11 +101,11 @@ public abstract class ObjectGenerator<G extends GeneratorOptions> implements Obj
 
         ParsedObject parsed = parse(prisoner, level);
         cache.put(level, parsed);
-        return parsed;
+        return Optional.ofNullable(parsed);
     }
 
-    public ObjectTemplate getTemplate(int prestige) {
-        ObjectTemplate template = specificCache.get(prestige);
+    public GeneratorTemplate getTemplate(int prestige) {
+        GeneratorTemplate template = specificCache.get(prestige);
         if (template != null) return template;
 
         return this.template;

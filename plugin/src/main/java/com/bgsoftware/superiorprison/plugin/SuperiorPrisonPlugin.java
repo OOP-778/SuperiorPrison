@@ -18,6 +18,7 @@ import com.bgsoftware.superiorprison.plugin.requirement.RequirementRegisterer;
 import com.bgsoftware.superiorprison.plugin.tasks.PlayerInventoryUpdateTask;
 import com.bgsoftware.superiorprison.plugin.tasks.ResetQueueTask;
 import com.bgsoftware.superiorprison.plugin.tasks.TasksStarter;
+import com.bgsoftware.superiorprison.plugin.test.Testing;
 import com.bgsoftware.superiorprison.plugin.util.menu.MenuListener;
 import com.oop.orangeengine.main.Helper;
 import com.oop.orangeengine.main.plugin.EnginePlugin;
@@ -137,6 +138,8 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
             new Metrics(this);
             resetQueueTask.execute();
             inventoryUpdateTask.execute();
+
+            Testing.main(new String[]{"ff"});
         } catch (Throwable thrw) {
             Bukkit.getPluginManager().disablePlugin(this);
             throw new IllegalStateException("Failed to start SuperiorPrison", thrw);

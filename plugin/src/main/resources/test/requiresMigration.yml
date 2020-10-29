@@ -1,0 +1,7 @@
+"B":
+ order: 2
+ requirements:
+   - "{ECO} 2000"
+   - "{PAPI, placeholder=%prisoner_level%} 2000"
+   - "{XP_LEVEL, take=false} 20"
+   - "{XP, take=false} 20000"

@@ -22,13 +22,13 @@ public class PrestigeGenerator extends ObjectGenerator<PrestigeGeneratorOptions>
         return ParsedObject.of(
                 getTemplate(level),
                 clone,
-                () -> hasNext(level) ? getParsed(prisoner, level + 1) : null,
-                () -> isValid(level - 1) ? getParsed(prisoner, level - 1) : null
+                () -> getParsed(prisoner, level + 1).orElse(null),
+                () -> getParsed(prisoner, level - 1).orElse(null)
         );
     }
 
     @Override
     protected void initializeMap() {
-        getVariableMap().newVariable("level", VariableHelper.createVariable("1"));
+        getVariableMap().newVariable("level", VariableHelper.createVariable(1));
     }
 }

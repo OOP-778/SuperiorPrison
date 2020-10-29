@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorprison.plugin.test.generator.auto;
 
+import com.bgsoftware.superiorprison.plugin.test.generator.auto.options.PrestigeGeneratorOptions;
 import com.bgsoftware.superiorprison.plugin.test.generator.auto.options.RankGeneratorOptions;
 import com.bgsoftware.superiorprison.plugin.test.script.variable.GlobalVariableMap;
 import com.oop.orangeengine.yaml.ConfigSection;
@@ -16,7 +17,7 @@ public abstract class GeneratorOptions<K> {
     public static <G extends GeneratorOptions> G of(ConfigSection options, GlobalVariableMap variableMap) {
         if (options.isValuePresent("range"))
             return (G) new RankGeneratorOptions(options, variableMap);
-        return null;
+        return (G) new PrestigeGeneratorOptions(options, variableMap);
     }
 
     public abstract boolean hasNext(K key);

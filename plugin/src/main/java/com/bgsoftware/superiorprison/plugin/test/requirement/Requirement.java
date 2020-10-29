@@ -1,16 +1,22 @@
 package com.bgsoftware.superiorprison.plugin.test.requirement;
 
+import com.bgsoftware.superiorprison.plugin.test.script.util.Values;
 import com.bgsoftware.superiorprison.plugin.test.script.variable.GlobalVariableMap;
 import com.bgsoftware.superiorprison.plugin.test.script.variable.VariableHelper;
+import com.oop.orangeengine.main.util.data.pair.OPair;
 
 public class Requirement {
-    public boolean test(RequirementData data, GlobalVariableMap map) {
-        Object execute = data.getGetter().execute(map);
-        Object execute1 = data.getCheckValue().execute(map);
+    public OPair<Boolean, DeclinedRequirement> test(RequirementData data, GlobalVariableMap map) {
+        Object getter = data.getGetter().execute(map);
+        Object value = data.getCheckValue().execute(map);
 
-        map.newOrReplace("%getter%", VariableHelper.createVariable(execute));
-        map.newOrReplace("%value%", VariableHelper.createVariable(execute1));
-        return data.getCheck().execute(map);
+        map.newOrReplace("%getter%", VariableHelper.createVariable(getter));
+        map.newOrReplace("%value%", VariableHelper.createVariable(value));
+
+        System.out.println("comparing " + getter + " with " + value);
+
+        boolean succeed = data.getCheck().execute(map);
+        return new OPair<>(succeed, !succeed ? new DeclinedRequirement(null, getter, value) : null);
     }
 
     public boolean take(RequirementData data, GlobalVariableMap map) {
@@ -21,7 +27,18 @@ public class Requirement {
     }
 
     public int getPercentage(RequirementData data, GlobalVariableMap map) {
-        return 0;
+        Object getter = data.getGetter().execute(map);
+        Object value = data.getCheckValue().execute(map);
+
+        if (Values.isNumber(getter) && Values.isNumber(value)) {
+            Number[] numbers = Values.parseNumbers(getter.toString(), value.toString());
+            int _getter = numbers[0].intValue();
+            int _value = numbers[1].intValue();
+
+            return Math.min(100, (_getter / _value) * 100);
+        }
+
+        return 100;
     }
 
     public String getCurrent(RequirementData data, GlobalVariableMap map) {

@@ -5,13 +5,12 @@ import com.bgsoftware.superiorprison.plugin.test.script.function.Function;
 import com.bgsoftware.superiorprison.plugin.test.script.util.Data;
 import com.bgsoftware.superiorprison.plugin.test.script.util.Values;
 import com.bgsoftware.superiorprison.plugin.test.script.variable.GlobalVariableMap;
-import com.oop.orangeengine.message.impl.OChatMessage;
 import com.oop.orangeengine.yaml.ConfigSection;
+import com.oop.orangeengine.yaml.ConfigValue;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 
-import javax.swing.plaf.synth.SynthUI;
-
+import static com.bgsoftware.superiorprison.plugin.test.script.util.ScriptHelper.getFunctionFromObject;
 import static com.bgsoftware.superiorprison.plugin.test.script.util.ScriptHelper.tryInitFunction;
 
 @Getter
@@ -23,13 +22,22 @@ public class RequirementData {
     private String displayName;
 
     public RequirementData(ConfigSection section, GlobalVariableMap varMap) {
-        String _getter = section.getAs("getter");
-        this.getter = tryInitFunction(_getter, varMap)
-                .get();
+        section.ensureHasValues("getter", "value", "checker");
 
-        String _checkValue = section.getAs("value");
-        this.checkValue = tryInitFunction(_checkValue, varMap)
-                .get();
+        Object getter = section.get("getter").get().getObject();
+        if (getter instanceof Number || Values.isNumber(getter.toString()))
+            this.getter = getFunctionFromObject(Values.parseAsInt(getter.toString()));
+        else
+            this.getter = tryInitFunction(getter.toString(), varMap)
+                    .get();
+
+        Object value = section.get("value").get().getObject();
+        System.out.println(value.getClass());
+        if (value instanceof Number || Values.isNumber(value.toString()))
+            this.checkValue = getFunctionFromObject(Values.parseAsInt(value.toString()));
+        else
+            this.checkValue = tryInitFunction(value.toString(), varMap)
+                    .get();
 
         String _check = section.getAs("checker");
         this.check = tryInitFunction(_check, varMap)
@@ -50,14 +58,10 @@ public class RequirementData {
 
                 command = varMap.initializeVariables(command, data);
 
-                OChatMessage message = new OChatMessage("&cYou've lost (%prisoner#player#name%)", "&c&l* &7Money: %value%")
-                        .replace(in -> varMap.initializeVariables(in, data));
-
                 String finalCommand = command;
                 taker = new Function<Boolean>() {
                     @Override
                     public void initialize(String string, GlobalVariableMap variableMap) {
-
                     }
 
                     @Override
@@ -74,12 +78,6 @@ public class RequirementData {
                     public Boolean execute(GlobalVariableMap globalVariables) {
                         String s = globalVariables.extractVariables(finalCommand);
                         Bukkit.dispatchCommand(Bukkit.getConsoleSender(), s);
-
-                        SPrisoner prisoner = globalVariables.getRequiredVariableByInput("prisoner", SPrisoner.class).get(globalVariables);
-                        message
-                                .clone()
-                                .replace(globalVariables::extractVariables)
-                                .send(prisoner.getPlayer());
                         return true;
                     }
 

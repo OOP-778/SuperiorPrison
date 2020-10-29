@@ -19,7 +19,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class GlobalVariableMap {
-    public static final Pattern VAR_PATTERN = Pattern.compile("%([^%]+)%");
+    public static final Pattern VAR_PATTERN = Pattern.compile("%([^ ]+)%");
     public static final Pattern METHOD_PATTERN = Pattern.compile("%([^ ]+#[^ ]+)%");
     public static final Pattern PARSED_VAR_PATTERN = Pattern.compile("([0-9]+)V");
 
@@ -68,7 +68,6 @@ public class GlobalVariableMap {
                     Object lastObject = globalVariableMap.getRequiredVariableByInput(pars[0].getKey(), firstClassType).get(globalVariableMap);
 
                     for (Method method : methods) {
-                        System.out.println("LAST OBJECT: " + lastObject);
                         try {
                             lastObject = method.invoke(lastObject);
                         } catch (IllegalAccessException | InvocationTargetException e) {
@@ -202,9 +201,8 @@ public class GlobalVariableMap {
     public String extractVariables(String input) {
         Matcher matcher = PARSED_VAR_PATTERN.matcher(input);
         while (matcher.find()) {
-            System.out.println("found var: " + matcher.group(1) + " in " + matcher.group());
             Variable<Object> requiredVariableById = getRequiredVariableById(Integer.parseInt(matcher.group(1)), Object.class);
-            input = input.replace(matcher.group(), requiredVariableById.get(this).toString());
+            input = input.replace(matcher.group(), Objects.requireNonNull(requiredVariableById.get(this), "Variable by id " + Integer.parseInt(matcher.group(1)) + ", type: " + requiredVariableById.getType()).toString());
         }
         return input;
     }

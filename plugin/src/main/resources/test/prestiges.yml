@@ -1,37 +1,44 @@
-mode:
-  # If mode is manual, you'll have to automatically put all the prestiges
-  # If the mode is automatic, prestiges will be generated for you
-  type: automatic
+# There's two modes:
+# auto - will generate prestiges for you
+# manual - you'll have to input everything
+mode: auto
 
-  automatic:
-    limit: 200
-    prefix: "&8[&dP%prestige_level%"
+options:
+  # The first prestige order
+  min: 1
 
-    # Requirements template for each prestige
-    requirements:
-      "rank requirement":
-        type: rank
-        value: "Z"
+  # The last prestige order
+  max: 100000
 
-      "block requirement":
-        type: blocks
-        value: "1000 * %prestige_level%"
+template:
+  # Prefix of the prestige
+  prefix: "&c[P%level%]"
 
-      "eco requirement":
-        type: eco
-        value: "95% of {1500 * %prestige_level%}"
+  # Requirements of the prestige
+  requirements:
+    "eco req":
+      # Display name of the requirement
+      display: "Money"
 
-      "papi requirement":
-        type: papi
-        placeholder: ""
+      # Required value
+      value: "50% of {%level% * 200}"
 
-    permissions:
-      - "playervaults.level.%prestige_level%"
+      # Current value
+      getter: "get balance of %prisoner%"
 
-    specific:
-      100:
-        commands:
-          - "message {player} You are half way to the max!"
+      # A function which returns either true or false
+      checker: "%getter% >= %value%"
+
+      # A function witch takes the value from prisoner
+      taker: "take %value% from %prisoner% balance"
+
+      # Taker can also be command
+      # taker:
+      #  type: "command"
+      #  command: "eco take %prisoner#player#name% %value%"
+
+  # Prestige up message
+  message: "You've prestiged up!"
 
 # < For manual mode>
 "1":

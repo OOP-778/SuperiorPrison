@@ -8,7 +8,6 @@ import com.bgsoftware.superiorprison.api.requirement.RequirementHandler;
 import com.bgsoftware.superiorprison.plugin.util.XPUtil;
 
 public class XpRequirement implements Requirement {
-
     private final RequirementHandler<RequirementData> handlder = new RequirementHandler<RequirementData>() {
         @Override
         public boolean testIO(Prisoner prisoner, RequirementData requirementData) throws RequirementException {

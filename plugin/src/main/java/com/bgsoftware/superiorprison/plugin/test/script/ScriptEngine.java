@@ -4,7 +4,7 @@ import com.bgsoftware.superiorprison.plugin.test.script.function.*;
 import com.bgsoftware.superiorprison.plugin.test.script.util.RegexHelper;
 import com.bgsoftware.superiorprison.plugin.test.script.variable.GlobalVariableMap;
 import com.bgsoftware.superiorprison.plugin.test.script.variable.Variable;
-import jdk.nashorn.internal.runtime.regexp.joni.Regex;
+import com.google.common.base.Preconditions;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
@@ -32,6 +32,8 @@ public class ScriptEngine {
         registerFunction(new EconFunctions.TakeBalance(), input -> RegexHelper.matches(input, EconFunctions.TAKE_BALANCE_PATTERN));
         registerFunction(new ConditionFunction(), ConditionFunction::matches);
         registerFunction(new PlaceholderFunction(), input -> PlaceholderFunction.PATTERN.matcher(input).find());
+        registerFunction(new XpFunctions.SET_XP(), input -> RegexHelper.matches(input, XpFunctions.SET_XP_LEVEL_PATTERN));
+        registerFunction(new XpFunctions.GET_XP_FUNCTION(), input -> RegexHelper.matches(input, XpFunctions.GET_XP_PATTERN));
     }
 
     public static ScriptEngine getInstance() {
@@ -83,6 +85,7 @@ public class ScriptEngine {
                     indexes.add(i + 1);
 
                 if (c == '}') {
+                    Preconditions.checkArgument(!indexes.isEmpty(), "Failed to end a group, because it doesn't contain a start at " + input + " index: " + i);
                     int last = indexes.removeLast();
                     groups.add(new Group(last, i, input.substring(last, i)));
                 }

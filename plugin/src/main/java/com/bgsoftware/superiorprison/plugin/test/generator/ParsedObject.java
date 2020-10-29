@@ -1,7 +1,8 @@
 package com.bgsoftware.superiorprison.plugin.test.generator;
 
-import com.bgsoftware.superiorprison.plugin.test.generator.auto.ObjectGenerator;
+import com.bgsoftware.superiorprison.plugin.test.generator.auto.GeneratorTemplate;
 import com.bgsoftware.superiorprison.plugin.test.script.variable.GlobalVariableMap;
+import com.bgsoftware.superiorprison.plugin.test.script.variable.VariableHelper;
 import com.oop.orangeengine.message.OMessage;
 import lombok.Getter;
 
@@ -19,19 +20,19 @@ public class ParsedObject {
     private GlobalVariableMap variableMap;
 
     private Supplier<Boolean> meets;
-    private ObjectTemplate template;
+    private GeneratorTemplate template;
 
     private Supplier<ParsedObject> next;
     private Supplier<ParsedObject> previous;
 
     private ParsedObject() {}
 
-    public static ParsedObject of(ObjectTemplate template, GlobalVariableMap map, Supplier<ParsedObject> next, Supplier<ParsedObject> previous) {
+    public static ParsedObject of(GeneratorTemplate template, GlobalVariableMap map, Supplier<ParsedObject> next, Supplier<ParsedObject> previous) {
         ParsedObject parsedObject = new ParsedObject();
         parsedObject.variableMap = map;
         parsedObject.prefix = map.extractVariables(template.getPrefix());
         parsedObject.template = template;
-        parsedObject.level = map.getRequiredVariableByInput("level", Number.class).get(map).intValue();
+        parsedObject.level = ((Number)VariableHelper.getVariableAsNumber("index", map).getVariable().get(map)).intValue();
         parsedObject.commands = template.getCommands()
                 .stream()
                 .map(map::extractVariables)
@@ -40,9 +41,21 @@ public class ParsedObject {
                 (OMessage<?>) template.getMessage().clone()
                         .replace(in -> map.extractVariables(in.toString()));
 
-        parsedObject.meets = () -> template.getRequirements().meets(map);
+        parsedObject.meets = () -> template.getRequirements().meets(map).getFirst();
         parsedObject.next = next;
         parsedObject.previous = previous;
         return parsedObject;
+    }
+
+    @Override
+    public String toString() {
+        return "ParsedObject{" +
+                "level=" + level +
+                ", prefix='" + prefix + '\'' +
+                ", commands=" + commands +
+                ", message=" + message +
+                ", variableMap=" + variableMap +
+                ", template=" + template +
+                '}';
     }
 }

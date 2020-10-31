@@ -18,7 +18,7 @@ public interface Area {
     Location getHighPoint();
 
     // Check if an location is inside the area
-    boolean isInside(Location location);
+    boolean isInsideWithoutY(Location location);
 
     // Check flag state
     boolean getFlagState(Flag flag);

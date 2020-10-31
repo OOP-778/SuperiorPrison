@@ -202,7 +202,7 @@ public enum LocaleEnum {
     SUCCESSFULLY_REMOVED_PRESTIGE("Successfully removed &d{prestige_name}&7 for &d{prisoner_name}"),
 
     SUCCESSFULLY_RESET_PRISONER("{prisoner_name} was successfully reset!"),
-    PRISONER_RANKS_VIEW("&d{prisoner_name}&7 ranks information:", "&d&l* &7Ladder rank: &d{prisoner_ladderrank}", "&d&l* &7Special Ranks: &d{prisoner_specialranks}"),
+    PRISONER_RANKS_VIEW("&d{prisoner_name}&7 ranks information:", "&d&l* &7Ladder rank: &d{prisoner_ladderrank}"),
     PRISONER_PRESTIGE_VIEW("&d{prisoner_name}&7 Current Prestige: &d{prisoner_prestige}"),
     PRISONER_PRESTIGE_SET("&d{prisoner_name} &7prestige was set to &d{prestige_name}"),
     PRISONER_RANK_SET("&d{prisoner_name} &7ladder rank was set to &d{rank_name}"),

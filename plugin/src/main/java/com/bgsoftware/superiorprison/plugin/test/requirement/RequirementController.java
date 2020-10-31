@@ -5,7 +5,7 @@ import com.oop.orangeengine.yaml.ConfigSection;
 
 public class RequirementController {
     public RequirementHolder initializeRequirementsSection(ConfigSection requirementsSection, GlobalVariableMap map) {
-        RequirementHolder holder = new RequirementHolder(map);
+        RequirementHolder holder = new RequirementHolder();
         if (requirementsSection == null) return holder;
 
         for (ConfigSection reqSection : requirementsSection.getSections().values()) {

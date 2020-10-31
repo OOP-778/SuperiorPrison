@@ -11,6 +11,7 @@ import com.bgsoftware.superiorprison.plugin.object.mine.messages.SMineMessage;
 import com.bgsoftware.superiorprison.plugin.object.mine.settings.SMineSettings;
 import com.bgsoftware.superiorprison.plugin.object.mine.shop.SShopItem;
 import com.oop.orangeengine.command.OCommand;
+import org.apache.commons.lang.NotImplementedException;
 
 import java.util.stream.Collectors;
 
@@ -45,9 +46,7 @@ public class CmdCopy extends OCommand {
                     break;
 
                 case ACCESS:
-                    to.addRank(from.getRanks().toArray(new String[0]));
-                    to.addPrestige(from.getPrestiges().toArray(new String[0]));
-                    break;
+                    throw new NotImplementedException("Access copying is not implemented yet");
 
                 case GENERATOR:
                     to.getGenerator().getGeneratorMaterials().clear();

@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorprison.plugin.test.script.variable;
 
 import com.bgsoftware.superiorprison.api.data.player.Prisoner;
+import com.bgsoftware.superiorprison.plugin.test.script.util.RegexHelper;
 import com.bgsoftware.superiorprison.plugin.test.script.util.Values;
 import com.google.common.base.Preconditions;
 import org.bukkit.OfflinePlayer;
@@ -103,5 +104,27 @@ public class VariableHelper {
                         vd -> Prisoner.class.isAssignableFrom(vd.getVariable().getType()) || OfflinePlayer.class.isAssignableFrom(vd.getVariable().getType()),
                         vd -> "Variable '" + vd + "' does not return a player!"
                 );
+    }
+
+    public static GlobalVariableMap.VariableData getElseCreateAsNum(String input, GlobalVariableMap variableMap) {
+        try {
+            if (!Values.isNumber(input))
+                return getVariableAsNumber(RegexHelper.removeNonNumberAndParse(input), variableMap);
+            else
+                return variableMap.newOrPut(input, () -> createVariable(Values.parseAsInt(input)));
+        } catch (Throwable throwable) {
+            throw new IllegalStateException("Failed to find or parse variable as number from '" + input + "'");
+        }
+    }
+
+    public static GlobalVariableMap.VariableData getElseCreate(String input, GlobalVariableMap variableMap) {
+        try {
+            if (!Values.isNumber(input))
+                return getVariable(RegexHelper.removeNonNumberAndParse(input), variableMap);
+            else
+                return variableMap.newOrPut(input, () -> createVariable(Values.parseAsInt(input)));
+        } catch (Throwable throwable) {
+            return variableMap.newOrPut(input, () -> createVariable(input));
+        }
     }
 }

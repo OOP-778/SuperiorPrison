@@ -2,8 +2,10 @@ package com.bgsoftware.superiorprison.plugin.util;
 
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Maps;
+import com.oop.orangeengine.main.util.data.pair.OPair;
 
 import java.util.Map;
+import java.util.Set;
 
 public class DualKeyMap<K, C, V> {
     private Map<K, V> map1;
@@ -44,6 +46,10 @@ public class DualKeyMap<K, C, V> {
 
     public V get2(C key) {
         return map2.get(key);
+    }
+
+    public OPair<Set<K>, Set<C>> keys() {
+        return new OPair<>(map1.keySet(), map2.keySet());
     }
 
     /**

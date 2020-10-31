@@ -61,8 +61,8 @@ public abstract class ManualObjectGenerator implements ObjectSupplier {
                     return ParsedObject.of(
                             generatorTemplate,
                             prisonerMap,
-                            () -> _getHandlerFor(index + 1).map(f -> f.apply(prisoner)).orElse(null),
-                            () -> _getHandlerFor(index - 1).map(f -> f.apply(prisoner)).orElse(null)
+                            () -> this.getParser(index + 1).map(f -> f.apply(prisoner)).orElse(null),
+                            () -> this.getParser(index - 1).map(f -> f.apply(prisoner)).orElse(null)
                     );
                 };
 
@@ -104,8 +104,6 @@ public abstract class ManualObjectGenerator implements ObjectSupplier {
     // Handle global var clone
     protected abstract void handleVariableMapClone(GlobalVariableMap map, ConfigSection section);
 
-    // Get handler by a key
-    protected abstract Optional<Function<SPrisoner, ParsedObject>> _getHandlerFor(Object key);
 
     public String defaultPrefixReplacer(String in) {
         return in;

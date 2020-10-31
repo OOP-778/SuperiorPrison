@@ -18,7 +18,7 @@ import static com.bgsoftware.superiorprison.plugin.test.script.variable.Variable
 
 public class EconFunctions {
     public static final Pattern GET_BALANCE_PATTERN = Pattern.compile("get balance of (%([^ ]+)%|([0-9]+)V)");
-    public static final Pattern TAKE_BALANCE_PATTERN = Pattern.compile("take ([0-9]+V|[0-9]+) from ([0-9]+)V balance");
+    public static final Pattern TAKE_BALANCE_PATTERN = Pattern.compile("take ([0-9]+V|[0-9]+|-[0-9]+) from ([0-9]+)V balance");
 
     public static class GetBalance implements Function<Number> {
         private int varId;

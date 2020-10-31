@@ -2,6 +2,7 @@ package com.bgsoftware.superiorprison.plugin;
 
 import com.bgsoftware.superiorprison.api.SuperiorPrison;
 import com.bgsoftware.superiorprison.api.SuperiorPrisonAPI;
+import com.bgsoftware.superiorprison.api.controller.RankController;
 import com.bgsoftware.superiorprison.plugin.commands.CommandsRegister;
 import com.bgsoftware.superiorprison.plugin.config.main.MainConfig;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
@@ -14,15 +15,17 @@ import com.bgsoftware.superiorprison.plugin.listeners.*;
 import com.bgsoftware.superiorprison.plugin.metrics.Metrics;
 import com.bgsoftware.superiorprison.plugin.nms.SuperiorNms;
 import com.bgsoftware.superiorprison.plugin.object.inventory.PatchedInventory;
-import com.bgsoftware.superiorprison.plugin.requirement.RequirementRegisterer;
+import com.bgsoftware.superiorprison.plugin.tasks.MineVisualization;
 import com.bgsoftware.superiorprison.plugin.tasks.PlayerInventoryUpdateTask;
 import com.bgsoftware.superiorprison.plugin.tasks.ResetQueueTask;
 import com.bgsoftware.superiorprison.plugin.tasks.TasksStarter;
 import com.bgsoftware.superiorprison.plugin.test.Testing;
 import com.bgsoftware.superiorprison.plugin.util.menu.MenuListener;
+import com.oop.datamodule.StorageInitializer;
 import com.oop.orangeengine.main.Helper;
 import com.oop.orangeengine.main.plugin.EnginePlugin;
 import com.oop.orangeengine.main.task.ClassicTaskController;
+import com.oop.orangeengine.main.task.StaticTask;
 import com.oop.orangeengine.main.task.TaskController;
 import lombok.Getter;
 import lombok.Setter;
@@ -38,9 +41,6 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
 
     @Setter
     private MainConfig mainConfig;
-    private RequirementController requirementController;
-    private PrestigeController prestigeController;
-    private RankController rankController;
     private HookController hookController;
     private SBackPackController backPackController;
     private DatabaseController databaseController;
@@ -59,6 +59,12 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
     @Override
     public void enable() {
         instance = this;
+
+        StorageInitializer.initialize(
+                StaticTask.getInstance()::async,
+                StaticTask.getInstance()::sync,
+                null
+        );
 
         getOLogger()
                 .setMainColor("&d");
@@ -85,8 +91,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
             if (!getDataFolder().exists())
                 getDataFolder().mkdirs();
 
-            this.requirementController = new RequirementController();
-            new RequirementRegisterer();
+            Testing.main(new String[]{"ff"});
 
             resetQueueTask = new ResetQueueTask();
             inventoryUpdateTask = new PlayerInventoryUpdateTask();
@@ -94,15 +99,11 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
             this.configController = new ConfigController();
             this.chatController = new ChatController();
             this.backPackController = new SBackPackController();
-            this.prestigeController = new PrestigeController();
-            this.rankController = new RankController();
             this.bombController = new BombController();
             this.blockController = new SBlockController();
 
             getPluginComponentController()
                     .add(configController, true)
-                    .add(rankController, true)
-                    .add(prestigeController, true)
                     .add(chatController, true)
                     .add(backPackController, true)
                     .add(bombController, true)
@@ -121,6 +122,8 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
             new BombListener();
             new RewardsListener();
 
+            new MineVisualization();
+
             // Initialize tasks
             new TasksStarter();
 
@@ -138,8 +141,6 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
             new Metrics(this);
             resetQueueTask.execute();
             inventoryUpdateTask.execute();
-
-            Testing.main(new String[]{"ff"});
         } catch (Throwable thrw) {
             Bukkit.getPluginManager().disablePlugin(this);
             throw new IllegalStateException("Failed to start SuperiorPrison", thrw);
@@ -185,6 +186,11 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
     @Override
     public SPrisonerHolder getPrisonerController() {
         return databaseController.getPrisonerHolder();
+    }
+
+    @Override
+    public RankController getRankController() {
+        return null;
     }
 
     @Override

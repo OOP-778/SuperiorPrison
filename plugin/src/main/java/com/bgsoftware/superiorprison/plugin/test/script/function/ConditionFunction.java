@@ -11,11 +11,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ConditionFunction implements Function<Boolean> {
-    private static final Pattern LESS_THAN = Pattern.compile("([0-9]+V|[0-9]+) (?:is less than|<) ([0-9]+V|[0-9]+)");
-    private static final Pattern MORE_THAN = Pattern.compile("([0-9]+V|[0-9]+) (?:is more than|>) ([0-9]+V|[0-9]+)");
-    private static final Pattern EQUALS_OR_MORE = Pattern.compile("([0-9]+V|[0-9]+) (?:is equal? or more to|=>|>=|is more or equal to) ([0-9]+V|[0-9]+)");
-    private static final Pattern LESS_THAN_OR_EQUALS = Pattern.compile("([0-9]+V|[0-9]+) (?:is equal? or less to|<=|=<|is less or equal to) ([0-9]+V|[0-9]+)");
-    private static final List<Pattern> patternList = Arrays.asList(LESS_THAN, MORE_THAN, EQUALS_OR_MORE, LESS_THAN_OR_EQUALS);
+    private static final Pattern LESS_THAN = Pattern.compile("([0-9]+V|[0-9]+|-[0-9]+) (?:is less than|<) ([0-9]+V|[0-9]+|-[0-9]+)");
+    private static final Pattern MORE_THAN = Pattern.compile("([0-9]+V|[0-9]+|-[0-9]+) (?:is more than|>) ([0-9]+V|[0-9]+|-[0-9]+)");
+    private static final Pattern EQUALS_OR_MORE = Pattern.compile("([0-9]+V|[0-9]+|-[0-9]+) (?:is equal? or more to|=>|>=|is more or equal to) ([0-9]+V|[0-9]+|-[0-9]+)");
+    private static final Pattern LESS_THAN_OR_EQUALS = Pattern.compile("([0-9]+V|[0-9]+|-[0-9]+) (?:is equal? or less to|<=|=<|is less or equal to) ([0-9]+V|[0-9]+|-[0-9]+)");
+    private static final Pattern IS_EQUAL = Pattern.compile("([0-9]+V|[0-9]+|-[0-9]+) (?:is equal to|==) ([0-9]+V|[0-9]+|-[0-9]+)");
+    private static final List<Pattern> patternList = Arrays.asList(LESS_THAN, MORE_THAN, EQUALS_OR_MORE, LESS_THAN_OR_EQUALS, IS_EQUAL);
 
     private int whatId;
     private int toId;
@@ -34,8 +35,8 @@ public class ConditionFunction implements Function<Boolean> {
             String _what = matcher.group(1);
             String _to = matcher.group(2);
 
-            whatId = VariableHelper.getVariable(_what, variableMap).getId();
-            toId = VariableHelper.getVariable(_to, variableMap).getId();
+            whatId = VariableHelper.getElseCreate(_what, variableMap).getId();
+            toId = VariableHelper.getElseCreate(_to, variableMap).getId();
         }
     }
 
@@ -67,6 +68,8 @@ public class ConditionFunction implements Function<Boolean> {
                 return ((Number) whatObject).doubleValue() >= ((Number) toObject).doubleValue();
             else if (matchId == 3)
                 return ((Number) whatObject).doubleValue() <= ((Number) toObject).doubleValue();
+            else if (matchId == 4)
+                return ((Number) whatObject).doubleValue() == ((Number) toObject).doubleValue();
         }
 
         if (whatObject instanceof String || toObject instanceof String) {

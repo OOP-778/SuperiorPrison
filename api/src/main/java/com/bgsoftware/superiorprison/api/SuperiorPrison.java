@@ -9,8 +9,6 @@ public interface SuperiorPrison {
 
     RankController getRankController();
 
-    RequirementController getRequirementController();
-
     StatisticsController getStatisticsController();
 
     BackPackController getBackPackController();

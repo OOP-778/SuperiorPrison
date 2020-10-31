@@ -10,6 +10,8 @@ import com.bgsoftware.superiorprison.plugin.util.DualKeyMap;
 import com.oop.orangeengine.yaml.Config;
 import com.oop.orangeengine.yaml.ConfigSection;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -22,6 +24,24 @@ public class ManualRankGenerator extends ManualObjectGenerator {
 
     @Override
     public boolean hasNext(Object key) {
+        int index = getIndex(key);
+        if (index == -1) return false;
+
+        return ranksMap.get2(index + 1) != null;
+    }
+
+    @Override
+    public boolean isValid(Object key) {
+        return this.getParser(key).isPresent();
+    }
+
+    @Override
+    public Optional<ParsedObject> getParsed(SPrisoner prisoner, Object key) {
+        return this.getParser(key).map(f -> f.apply(prisoner));
+    }
+
+    @Override
+    public int getIndex(Object key) {
         Integer currentKey;
         if (key instanceof Number)
             currentKey = ((Number) key).intValue();
@@ -32,17 +52,12 @@ public class ManualRankGenerator extends ManualObjectGenerator {
             currentKey = ranksMap.getKey2By1(key.toString());
         }
 
-        return currentKey != null && ranksMap.has2(currentKey + 1);
+        return currentKey == null ? -1 : currentKey;
     }
 
     @Override
-    public boolean isValid(Object key) {
-        return _getHandlerFor(key).isPresent();
-    }
-
-    @Override
-    public Optional<ParsedObject> getParsed(SPrisoner prisoner, Object key) {
-        return _getHandlerFor(key).map(f -> f.apply(prisoner));
+    public List<String> getAvailable() {
+        return new ArrayList<>(ranksMap.keys().getKey());
     }
 
     @Override
@@ -66,7 +81,7 @@ public class ManualRankGenerator extends ManualObjectGenerator {
     }
 
     @Override
-    protected Optional<Function<SPrisoner, ParsedObject>> _getHandlerFor(Object key) {
+    public Optional<Function<SPrisoner, ParsedObject>> getParser(Object key) {
         if (key instanceof Number)
             return Optional.ofNullable(ranksMap.get2(((Number) key).intValue()));
         else if (Values.isNumber(key.toString()))

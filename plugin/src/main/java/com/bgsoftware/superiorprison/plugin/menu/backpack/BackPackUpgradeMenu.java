@@ -1,21 +1,19 @@
 package com.bgsoftware.superiorprison.plugin.menu.backpack;
 
-import com.bgsoftware.superiorprison.api.requirement.Requirement;
-import com.bgsoftware.superiorprison.api.requirement.RequirementData;
-import com.bgsoftware.superiorprison.api.requirement.RequirementException;
-import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.config.backpack.BackPackUpgrade;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.object.backpack.SBackPack;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
-import com.bgsoftware.superiorprison.plugin.util.TextUtil;
+import com.bgsoftware.superiorprison.plugin.test.requirement.DeclinedRequirement;
+import com.bgsoftware.superiorprison.plugin.test.script.variable.GlobalVariableMap;
+import com.bgsoftware.superiorprison.plugin.test.script.variable.VariableHelper;
 import com.bgsoftware.superiorprison.plugin.util.menu.MenuAction;
 import com.bgsoftware.superiorprison.plugin.util.menu.OMenu;
 import com.bgsoftware.superiorprison.plugin.util.menu.OMenuButton;
+import com.oop.orangeengine.main.util.data.pair.OPair;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class BackPackUpgradeMenu extends OMenu implements BackpackLockable {
 
@@ -30,30 +28,17 @@ public class BackPackUpgradeMenu extends OMenu implements BackpackLockable {
                     if (!backPack.getConfig().hasUpgrade()) return;
 
                     BackPackUpgrade<?> nextUpgrade = backPack.getConfig().getUpgrade(backPack.getCurrentLevel() + 1);
-                    List<RequirementException> failed = new ArrayList<>();
-                    nextUpgrade.getRequirements().forEach(data -> {
-                        Optional<Requirement> requirement = SuperiorPrisonPlugin.getInstance().getRequirementController().findRequirement(data.getType());
-                        if (!requirement.isPresent()) return;
+                    GlobalVariableMap variableMap = nextUpgrade.getVariableMap().clone();
 
-                        try {
-                            requirement.get().getHandler().testIO(getViewer(), data);
-                        } catch (RequirementException ex) {
-                            failed.add(ex);
-                        }
-                    });
+                    variableMap.newOrReplace("prisoner", VariableHelper.createVariable(viewer));
+                    OPair<Boolean, List<DeclinedRequirement>> meets = nextUpgrade.getRequirementHolder().meets(variableMap);
 
-                    if (!failed.isEmpty()) {
+                    if (!meets.getSecond().isEmpty()) {
                         LocaleEnum.BACKPACK_UPGRADE_DONT_MEET_REQUIREMENTS.getWithErrorPrefix().send(getViewer().getPlayer());
                         return;
                     }
 
-                    nextUpgrade.getRequirements().forEach(data -> {
-                        Optional<Requirement> requirement = SuperiorPrisonPlugin.getInstance().getRequirementController().findRequirement(data.getType());
-                        if (!requirement.isPresent()) return;
-                        if (!data.isTake()) return;
-
-                        requirement.get().getHandler().take(getViewer(), data);
-                    });
+                    nextUpgrade.getRequirementHolder().take(variableMap);
 
                     backPack.upgrade(backPack.getCurrentLevel() + 1);
                     executeAction(MenuAction.RETURN);
@@ -83,16 +68,16 @@ public class BackPackUpgradeMenu extends OMenu implements BackpackLockable {
 
             } else if (s.contains("{REQUIREMENT}")) {
                 String template = s.replace("{REQUIREMENT}", "");
-                for (RequirementData requirementData : nextUpgrade.getRequirements()) {
-                    Optional<Requirement> optionalRequirement = SuperiorPrisonPlugin.getInstance().getRequirementController().findRequirement(requirementData.getType());
-                    if (!optionalRequirement.isPresent()) continue;
-
-                    Requirement requirement = optionalRequirement.get();
-                    String current = TextUtil.beautifyNumber(requirement.getHandler().getCurrent(getViewer(), requirementData));
-                    String required = TextUtil.beautifyNumber(requirementData.getValue());
-                    String percentage = requirement.getHandler().getPercentage(getViewer(), requirementData) + "";
-                    newLore.add(template.replace("{current}", current).replace("{needed}", required).replace("{percentage}", percentage).replace("{type}", requirement.getId().toLowerCase()));
-                }
+//                for (RequirementData requirementData : nextUpgrade.getRequirements()) {
+//                    Optional<Requirement> optionalRequirement = SuperiorPrisonPlugin.getInstance().getRequirementController().findRequirement(requirementData.getType());
+//                    if (!optionalRequirement.isPresent()) continue;
+//
+//                    Requirement requirement = optionalRequirement.get();
+//                    String current = TextUtil.beautifyNumber(requirement.getHandler().getCurrent(getViewer(), requirementData));
+//                    String required = TextUtil.beautifyNumber(requirementData.getValue());
+//                    String percentage = requirement.getHandler().getPercentage(getViewer(), requirementData) + "";
+//                    newLore.add(template.replace("{current}", current).replace("{needed}", required).replace("{percentage}", percentage).replace("{type}", requirement.getId().toLowerCase()));
+//                }
             } else
                 newLore.add(s.replace("{backpack_nextlevel}", nextUpgrade.getConfig().getLevel() + ""));
         }

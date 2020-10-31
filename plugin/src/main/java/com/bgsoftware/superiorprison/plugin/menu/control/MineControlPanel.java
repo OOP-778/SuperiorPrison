@@ -4,7 +4,6 @@ import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.menu.GeneratorEditMenu;
 import com.bgsoftware.superiorprison.plugin.menu.MineEffectsMenu;
 import com.bgsoftware.superiorprison.plugin.menu.ShopEditMenu;
-import com.bgsoftware.superiorprison.plugin.menu.access.AccessEditMenu;
 import com.bgsoftware.superiorprison.plugin.menu.flags.AreaChooseMenu;
 import com.bgsoftware.superiorprison.plugin.menu.messages.MessagesListMenu;
 import com.bgsoftware.superiorprison.plugin.menu.reward.MineRewardsMenu;
@@ -50,10 +49,6 @@ public class MineControlPanel extends OPagedMenu<OptionEnum> implements OMenu.Te
                 .handle(event -> {
                     OptionEnum optionEnum = requestObject(event.getSlot());
                     switch (optionEnum) {
-                        case ACCESS:
-                            move(new AccessEditMenu(getViewer(), mine));
-                            break;
-
                         case ICON:
                             handleIconClick(event);
                             break;

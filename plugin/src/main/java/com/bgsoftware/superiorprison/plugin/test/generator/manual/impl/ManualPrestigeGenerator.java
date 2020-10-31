@@ -8,10 +8,9 @@ import com.bgsoftware.superiorprison.plugin.test.script.variable.GlobalVariableM
 import com.oop.orangeengine.yaml.Config;
 import com.oop.orangeengine.yaml.ConfigSection;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class ManualPrestigeGenerator extends ManualObjectGenerator {
     private Map<Integer, Function<SPrisoner, ParsedObject>> registeredPrestiges;
@@ -21,18 +20,29 @@ public class ManualPrestigeGenerator extends ManualObjectGenerator {
 
     @Override
     public boolean hasNext(Object key) {
-        return _getHandlerFor(getKey(key, false) + 1).isPresent();
+        return this.getParser(getIndex(key, false) + 1).isPresent();
     }
 
     @Override
     public boolean isValid(Object key) {
-        return _getHandlerFor(getKey(key, false)).isPresent();
+        return this.getParser(getIndex(key, false)).isPresent();
     }
 
     @Override
     public Optional<ParsedObject> getParsed(SPrisoner prisoner, Object key) {
-        return _getHandlerFor(getKey(key, false))
+        return this.getParser(getIndex(key, false))
                 .map(f -> f.apply(prisoner));
+    }
+
+    @Override
+    public int getIndex(Object object) {
+        Integer index = getIndex(object, false);
+        return index == null ? -1 : index;
+    }
+
+    @Override
+    public List<String> getAvailable() {
+        return registeredPrestiges.keySet().stream().map(String::valueOf).collect(Collectors.toList());
     }
 
     @Override
@@ -51,11 +61,11 @@ public class ManualPrestigeGenerator extends ManualObjectGenerator {
     }
 
     @Override
-    protected Optional<Function<SPrisoner, ParsedObject>> _getHandlerFor(Object key) {
-        return Optional.ofNullable(registeredPrestiges.get(getKey(key, false)));
+    public Optional<Function<SPrisoner, ParsedObject>> getParser(Object key) {
+        return Optional.ofNullable(registeredPrestiges.get(getIndex(key, false)));
     }
 
-    private Integer getKey(Object key, boolean throwIfNotFound) {
+    private Integer getIndex(Object key, boolean throwIfNotFound) {
         if (key instanceof Number)
             return ((Number) key).intValue();
         else if (Values.isNumber(key.toString()))

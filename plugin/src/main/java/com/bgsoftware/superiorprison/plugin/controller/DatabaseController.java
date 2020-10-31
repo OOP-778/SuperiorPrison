@@ -40,12 +40,6 @@ public class DatabaseController extends StorageHolder {
     public DatabaseController(MainConfig config) {
         database = config.getDatabase().getDatabase();
 
-        StorageInitializer.initialize(
-                StaticTask.getInstance()::async,
-                StaticTask.getInstance()::sync,
-                null
-        );
-
         StorageInitializer.getInstance().registerAdapter(ItemStack.class, true, new TypeAdapter<ItemStack>() {
             @Override
             public void write(JsonWriter writer, ItemStack itemStack) throws IOException {

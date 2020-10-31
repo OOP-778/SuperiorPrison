@@ -5,8 +5,6 @@ import com.bgsoftware.superiorprison.plugin.commands.bombs.CmdBombs;
 import com.bgsoftware.superiorprison.plugin.commands.mines.CmdMines;
 import com.bgsoftware.superiorprison.plugin.commands.pcp.CmdPrisonerCP;
 import com.bgsoftware.superiorprison.plugin.commands.prisoner.CmdPrisoner;
-import com.bgsoftware.superiorprison.plugin.commands.rankup.CmdMaxRankup;
-import com.bgsoftware.superiorprison.plugin.commands.rankup.CmdRankup;
 import com.bgsoftware.superiorprison.plugin.commands.sell.SellCommand;
 import com.bgsoftware.superiorprison.plugin.commands.top.CmdTop;
 import com.oop.orangeengine.command.CommandController;
@@ -37,12 +35,6 @@ public class CommandsRegister {
 
         // Prisoner CP
         controller.register(new CmdPrisonerCP());
-
-        // Rankup
-        controller.register(new CmdRankup());
-
-        // Max rankup cmd
-        controller.register(new CmdMaxRankup());
 
         // Backpacks
         controller.register(new CmdBackpacks());

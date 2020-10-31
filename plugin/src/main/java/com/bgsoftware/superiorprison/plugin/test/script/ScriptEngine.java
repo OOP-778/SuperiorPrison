@@ -25,6 +25,7 @@ public class ScriptEngine {
 
     public ScriptEngine() {
         engine = this;
+        registerFunction(new IfElseFunction(), input -> RegexHelper.matches(input, IfElseFunction.IF_ELSE_PATTERN));
         registerFunction(new RandomNumberFunction(), input -> RegexHelper.matches(input, RandomNumberFunction.RANDOM_NUMBER_PATTERN));
         registerFunction(new MathFunction(), MathFunction.TESTER);
         registerFunction(new PercentageFunction(), input -> RegexHelper.matches(input, PercentageFunction.PATTERN));

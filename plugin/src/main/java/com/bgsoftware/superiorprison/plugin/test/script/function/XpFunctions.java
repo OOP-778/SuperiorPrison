@@ -13,7 +13,7 @@ import static com.bgsoftware.superiorprison.plugin.test.script.variable.Variable
 
 public class XpFunctions {
     public static final Pattern GET_XP_PATTERN = Pattern.compile("get (xp|xp level) of (%([^ ]+)%|([0-9]+)V)");
-    public static final Pattern SET_XP_LEVEL_PATTERN = Pattern.compile("set (xp|xp level) of (%([^ ]+)%|([0-9]+)V) to ([0-9]+V|[0-9]+)");
+    public static final Pattern SET_XP_LEVEL_PATTERN = Pattern.compile("set (xp|xp level) of (%([^ ]+)%|([0-9]+)V) to ([0-9]+V|[0-9]+|-[0-9]+)");
 
     public static class SET_XP implements Function<Boolean> {
 

@@ -62,9 +62,6 @@ public class Values {
 
                 parsed[i] = apply;
             }
-
-            if (parsed[i] == null)
-                getEngine().getLogger().printError("Failed to parse {} as a number!", numbers[i]);
         }
 
         return parsed;
@@ -148,4 +145,5 @@ public class Values {
 
         return false;
     }
+
 }

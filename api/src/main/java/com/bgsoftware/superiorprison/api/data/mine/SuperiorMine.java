@@ -1,17 +1,15 @@
 package com.bgsoftware.superiorprison.api.data.mine;
 
+import com.bgsoftware.superiorprison.api.data.mine.access.MineAccess;
 import com.bgsoftware.superiorprison.api.data.mine.area.Area;
 import com.bgsoftware.superiorprison.api.data.mine.area.AreaEnum;
 import com.bgsoftware.superiorprison.api.data.mine.effects.MineEffects;
 import com.bgsoftware.superiorprison.api.data.mine.locks.Lock;
 import com.bgsoftware.superiorprison.api.data.mine.messages.MineMesssages;
-import com.bgsoftware.superiorprison.api.data.mine.reward.MineReward;
 import com.bgsoftware.superiorprison.api.data.mine.reward.MineRewards;
 import com.bgsoftware.superiorprison.api.data.mine.settings.MineSettings;
 import com.bgsoftware.superiorprison.api.data.mine.shop.MineShop;
-import com.bgsoftware.superiorprison.api.data.player.Prestige;
 import com.bgsoftware.superiorprison.api.data.player.Prisoner;
-import com.bgsoftware.superiorprison.api.data.player.rank.Rank;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
@@ -20,7 +18,6 @@ import javax.annotation.Nullable;
 import java.util.Set;
 
 public interface SuperiorMine {
-
     /*
     Get Mine Type
     */
@@ -73,26 +70,6 @@ public interface SuperiorMine {
     MineShop getShop();
 
     /*
-    Get rank names that can access the mine!
-    */
-    Set<String> getRanks();
-
-    /*
-    Get all the ranks that can access the mine mapped
-    */
-    Set<Rank> getRanksMapped();
-
-    /*
-    Get all the prestiges that can access the mine!
-    */
-    Set<String> getPrestiges();
-
-    /*
-    Get all the prestiges that can access the mine mapped
-    */
-    Set<Prestige> getPrestigesMapped();
-
-    /*
     Get icon of the mine
     */
     ItemStack getIcon();
@@ -129,41 +106,13 @@ public interface SuperiorMine {
     /*
     Check if prisoner can enter the mine
     Checks for ranks & prestiges & admin permissions
+    use: MineAccess#canEnter
     */
+    @Deprecated
     boolean canEnter(Prisoner prisoner);
 
     // Save the mine
     void save(boolean async);
-
-    // Remove an rank from the mine
-    void removeRank(String... rank);
-
-    // Remove an rank from the mine
-    void removeRank(Rank... rank);
-
-    // Remove an prestige from the mine
-    void removePrestige(String... prestige);
-
-    // Remove an prestige from the mine
-    void removePrestige(Prestige... prestige);
-
-    // Add an rank to the mine
-    void addRank(String... rank);
-
-    // Add an rank to the mine
-    void addRank(Rank... rank);
-
-    // Add an prestige to the mine
-    void addPrestige(String... prestige);
-
-    // Add an prestige to the mine
-    void addPrestige(Prestige... prestige);
-
-    // Check if mine has rank by name
-    boolean hasRank(String name);
-
-    // Check if mine has prestige by name
-    boolean hasPrestige(String name);
 
     // Check if mine is ready to use
     boolean isReady();
@@ -176,4 +125,7 @@ public interface SuperiorMine {
 
     // Get mine rewards
     MineRewards getRewards();
+
+    // Get mine access
+    MineAccess getAccess();
 }

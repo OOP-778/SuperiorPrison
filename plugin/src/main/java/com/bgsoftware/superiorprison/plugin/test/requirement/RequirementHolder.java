@@ -12,13 +12,8 @@ import java.util.List;
 @Getter
 public class RequirementHolder implements Cloneable {
     private List<HoldingData> holdingData = new LinkedList<>();
-    private GlobalVariableMap variableMap;
 
     public RequirementHolder() {}
-
-    public RequirementHolder(GlobalVariableMap scriptVars) {
-        this.variableMap = scriptVars;
-    }
 
     protected void add(RequirementData data, Requirement req) {
         holdingData.add(new HoldingData(data, req));
@@ -29,6 +24,14 @@ public class RequirementHolder implements Cloneable {
             if (holdingDatum.getData().getTaker() != null)
                 holdingDatum.getData().getTaker().execute(clone);
         }
+    }
+
+    public int getPercentageCompleted(GlobalVariableMap variableMap) {
+        double totalCompleted = 0;
+        for (HoldingData holdingDatum : holdingData)
+            totalCompleted += holdingDatum.getRequirement().getPercentage(holdingDatum.getData(), variableMap);
+
+        return Math.min((int) totalCompleted / holdingData.size(), 100);
     }
 
     @Getter
@@ -44,7 +47,6 @@ public class RequirementHolder implements Cloneable {
         boolean[] meets = new boolean[]{true};
         for (HoldingData holdingDatum : holdingData) {
             OPair<Boolean, DeclinedRequirement> test = holdingDatum.getRequirement().test(holdingDatum.getData(), variableMap);
-
 
             // If the declined value is not null
             if (test.getSecond() != null) {

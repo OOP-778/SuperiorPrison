@@ -4,6 +4,7 @@ import com.bgsoftware.superiorprison.plugin.test.script.ScriptEngine;
 import com.bgsoftware.superiorprison.plugin.test.script.function.Function;
 import com.bgsoftware.superiorprison.plugin.test.script.util.function.FunctionValidator;
 import com.bgsoftware.superiorprison.plugin.test.script.variable.GlobalVariableMap;
+import com.oop.orangeengine.main.task.StaticTask;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -48,6 +49,7 @@ public class ScriptHelper {
             String cloneIn = variableMap.initializeVariables(in, null);
             return new FunctionValidator(ScriptEngine.getInstance().initializeFunction(cloneIn, variableMap), in);
         } catch (Throwable throwable) {
+            System.out.println("Variable Map bin from last error: " + PasteHelper.paste(variableMap));
             throw new IllegalStateException("Failed to initialize function by: `" + in + "`", throwable);
         }
     }

@@ -1,6 +1,8 @@
 package com.bgsoftware.superiorprison.plugin.test.script.variable;
 
-public class WrappedVariable<T> implements Variable<T>{
+import java.io.Serializable;
+
+public class WrappedVariable<T> implements Variable<T>, Serializable {
 
     private Variable<T> replaceableVariable;
     public WrappedVariable(Variable<T> variable) {

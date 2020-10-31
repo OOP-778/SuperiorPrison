@@ -4,10 +4,12 @@ import com.bgsoftware.superiorprison.plugin.test.script.util.Data;
 import com.bgsoftware.superiorprison.plugin.test.script.util.ReflectionUtil;
 import com.bgsoftware.superiorprison.plugin.test.script.util.Values;
 import com.google.common.base.Preconditions;
+import com.google.common.primitives.Primitives;
 import com.oop.orangeengine.main.util.OSimpleReflection;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.SneakyThrows;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -22,6 +24,7 @@ public class GlobalVariableMap {
     public static final Pattern VAR_PATTERN = Pattern.compile("%([^ ]+)%");
     public static final Pattern METHOD_PATTERN = Pattern.compile("%([^ ]+#[^ ]+)%");
     public static final Pattern PARSED_VAR_PATTERN = Pattern.compile("([0-9]+)V");
+    private static final Pattern BOOL_PATTERN = Pattern.compile("(true|false)");
 
     private Map<Integer, VariableData> variables = new HashMap<>();
     private AtomicInteger varId = new AtomicInteger(0);
@@ -30,8 +33,27 @@ public class GlobalVariableMap {
     Initializes event variables
     */
     public String initializeVariables(String input, Data eventData) {
+        Matcher matcher;
+
+        // Initialize booleans
+        matcher = BOOL_PATTERN.matcher(input);
+        while (matcher.find()) {
+            String group = matcher.group(1);
+
+            Optional<VariableData> variableByInput = getVariableByInput(group);
+            if (variableByInput.isPresent()) {
+                int id = variableByInput.get().getId();
+                input = input.replace(matcher.group(), id + "V");
+                continue;
+            }
+
+            VariableData var = newVariable(group, VariableHelper.createVariable(group.equalsIgnoreCase("true")));
+            int id = var.id;
+            input = input.replace(matcher.group(), id + "V");
+        }
+
         // Try to initialize method variables
-        Matcher matcher = METHOD_PATTERN.matcher(input);
+        matcher = METHOD_PATTERN.matcher(input);
         while (matcher.find()) {
             Optional<VariableData> variableByInput = getVariableByInput(matcher.group(1));
             if (variableByInput.isPresent()) {
@@ -44,7 +66,15 @@ public class GlobalVariableMap {
 
             // Check if variable is inside the eventData
             System.out.println(pars[0].getKey());
-            Class<?> lastMethodType = (Class<?>) eventData.get(pars[0].getKey()).orElse(null);
+            Class<?> lastMethodType = eventData == null ? null : (Class<?>) eventData.get(pars[0].getKey()).orElse(null);
+
+            if (lastMethodType == null) {
+                Matcher finalMatcher = matcher;
+                lastMethodType = findVariableDataBy(vd -> vd.input.equalsIgnoreCase(pars[0].getKey()))
+                        .map(vd -> vd.getVariable().getType())
+                        .orElseThrow(() -> new IllegalStateException("Failed to initialize reflection call at " + finalMatcher.group(1) + " cause unknown data type by '" + pars[0].getKey() + "'"));
+            }
+
             Class<?> firstClassType = lastMethodType;
             Preconditions.checkArgument(lastMethodType != null, "Failed to initialize variable by " + matcher.group() + " cause it's not a valid one!");
 
@@ -110,10 +140,17 @@ public class GlobalVariableMap {
                 .orElseThrow(() -> new IllegalStateException("Failed to find variable by " + input + " that returns " + type.getSimpleName()));
     }
 
+    @SneakyThrows
     public <T> Variable<T> getRequiredVariableById(int id, Class<T> type) {
         return (Variable<T>) Optional.ofNullable(variables.get(id))
                 .map(VariableData::getVariable)
-                .filter(v -> type.isAssignableFrom(v.getType()))
+                .filter(v -> {
+                    Class vType = v.getType();
+                    boolean result = type.isAssignableFrom(Primitives.wrap(vType));
+                    if (!result)
+                        return false;
+                    return true;
+                })
                 .orElseThrow(() -> new IllegalStateException("Failed to find variable by id " + id + " that returns " + type.getSimpleName()));
     }
 

@@ -19,7 +19,6 @@ import com.bgsoftware.superiorprison.plugin.object.mine.linkable.LinkableObject;
 import com.bgsoftware.superiorprison.plugin.object.mine.linkable.ObjectLinker;
 import com.bgsoftware.superiorprison.plugin.object.mine.locks.SMineLock;
 import com.bgsoftware.superiorprison.plugin.object.mine.messages.SMineMessages;
-import com.bgsoftware.superiorprison.plugin.object.mine.reward.SMineReward;
 import com.bgsoftware.superiorprison.plugin.object.mine.reward.SMineRewards;
 import com.bgsoftware.superiorprison.plugin.object.mine.settings.SMineSettings;
 import com.bgsoftware.superiorprison.plugin.object.mine.shop.SShop;
@@ -32,7 +31,6 @@ import com.bgsoftware.superiorprison.plugin.util.Removeable;
 import com.bgsoftware.superiorprison.plugin.util.SPLocation;
 import com.bgsoftware.superiorprison.plugin.util.frameworks.Framework;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.oop.datamodule.SerializedData;
 import com.oop.datamodule.body.MultiTypeBody;
 import com.oop.datamodule.gson.JsonArray;
@@ -184,10 +182,10 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
         Area mine = getArea(AreaEnum.MINE);
         Area region = getArea(AreaEnum.REGION);
 
-        if (mine.isInside(location))
+        if (mine.isInsideWithoutY(location))
             return mine;
 
-        if (region.isInside(location))
+        if (region.isInsideWithoutY(location))
             return region;
 
         return null;
@@ -215,16 +213,16 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
 
     @Override
     public boolean isInside(Location location) {
-        return areas.get(AreaEnum.REGION).isInside(location);
+        return areas.get(AreaEnum.REGION).isInsideWithoutY(location);
     }
 
     @Nullable
     @Override
     public AreaEnum getAreaTypeAt(Location location) {
-        if (areas.get(AreaEnum.MINE).isInside(location))
+        if (areas.get(AreaEnum.MINE).isInsideWithoutY(location))
             return AreaEnum.MINE;
 
-        if (areas.get(AreaEnum.REGION).isInside(location))
+        if (areas.get(AreaEnum.REGION).isInsideWithoutY(location))
             return AreaEnum.REGION;
 
         return null;
@@ -232,7 +230,7 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
 
     @Override
     public boolean isInsideArea(AreaEnum areaEnum, Location location) {
-        return getArea(areaEnum).isInside(location);
+        return getArea(areaEnum).isInsideWithoutY(location);
     }
 
     @Override
@@ -533,7 +531,7 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
         Helper.getOnlinePlayers()
                 .stream()
                 .filter(player -> player.getLocation().getWorld().getName().equalsIgnoreCase(getWorld().getName()))
-                .filter(player -> getArea(AreaEnum.REGION).isInside(player.getLocation()))
+                .filter(player -> getArea(AreaEnum.REGION).isInsideWithoutY(player.getLocation()))
                 .forEach(player -> prisoners.add(SuperiorPrisonPlugin.getInstance().getPrisonerController().getInsertIfAbsent(player)));
     }
 

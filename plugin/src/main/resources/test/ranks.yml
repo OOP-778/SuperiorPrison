@@ -8,6 +8,10 @@ mode:
     end: "Z"
     prefix: "&8[&dP%rank_name%&8]"
 
+    # How many times it should repeat for each rank?
+    # A2, A3, A4...
+    repeat: 0
+
     # Requirements template for each prestige
     requirements:
       "block requirement":

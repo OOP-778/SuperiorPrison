@@ -66,28 +66,28 @@ public class SArea implements Area, Attachable<SNormalMine>, SerializableObject 
         return minPoint.getWorld();
     }
 
-    public boolean isInside(SPLocation location) {
+    public boolean isInsideWithoutY(SPLocation location) {
         if (!getWorld().getName().contentEquals(location.getWorld().getName())) return false;
 
-        int x1 = Math.min(getMinPoint().getBlockX(), getHighPoint().getBlockX());
-        int z1 = Math.min(getMinPoint().getBlockZ(), getHighPoint().getBlockZ());
-        int x2 = Math.max(getMinPoint().getBlockX(), getHighPoint().getBlockX());
-        int z2 = Math.max(getMinPoint().getBlockZ(), getHighPoint().getBlockZ());
-        return location.x() >= x1 && location.x() <= x2 && location.z() >= z1 && location.z() <= z2;
+        double x1 = Math.min(getMinPoint().getX(), getHighPoint().getX());
+        double z1 = Math.min(getMinPoint().getZ(), getHighPoint().getZ());
+        double x2 = Math.max(getMinPoint().getX(), getHighPoint().getX());
+        double z2 = Math.max(getMinPoint().getZ(), getHighPoint().getZ());
+        return location.xBlock() >= x1 && location.xBlock() <= x2 && location.zBlock() >= z1 && location.zBlock() <= z2;
     }
 
     public boolean isInsideWithY(SPLocation location, boolean yDownwards) {
-        int x1 = Math.min(getMinPoint().getBlockX(), getHighPoint().getBlockX());
-        int z1 = Math.min(getMinPoint().getBlockZ(), getHighPoint().getBlockZ());
-        int x2 = Math.max(getMinPoint().getBlockX(), getHighPoint().getBlockX());
-        int z2 = Math.max(getMinPoint().getBlockZ(), getHighPoint().getBlockZ());
-        int y1 = Math.min(getMinPoint().getBlockY(), getHighPoint().getBlockY());
-        int y2 = Math.max(getMinPoint().getBlockY(), getHighPoint().getBlockY());
-        return location.x() >= x1 && location.x() <= x2 && location.z() >= z1 && location.z() <= z2 && (!yDownwards ? location.y() >= y1 && location.y() <= y2 : location.y() >= y1);
+        double x1 = Math.min(getMinPoint().getX(), getHighPoint().getX());
+        double z1 = Math.min(getMinPoint().getZ(), getHighPoint().getZ());
+        double x2 = Math.max(getMinPoint().getX(), getHighPoint().getX());
+        double z2 = Math.max(getMinPoint().getZ(), getHighPoint().getZ());
+        double y1 = Math.min(getMinPoint().getY(), getHighPoint().getY());
+        double y2 = Math.max(getMinPoint().getY(), getHighPoint().getY());
+        return location.xBlock() >= x1 && location.xBlock() <= x2 && location.zBlock() >= z1 && location.zBlock() <= z2 && (!yDownwards ? location.y() >= y1 && location.y() <= y2 : location.y() >= y1);
     }
 
-    public boolean isInside(Location location) {
-        return isInside(new SPLocation(location));
+    public boolean isInsideWithoutY(Location location) {
+        return isInsideWithoutY(new SPLocation(location));
     }
 
     @Override

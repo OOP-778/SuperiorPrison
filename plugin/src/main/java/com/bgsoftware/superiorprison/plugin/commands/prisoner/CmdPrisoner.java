@@ -2,7 +2,7 @@ package com.bgsoftware.superiorprison.plugin.commands.prisoner;
 
 import com.bgsoftware.superiorprison.plugin.commands.prisoner.boosters.CmdBoosters;
 import com.bgsoftware.superiorprison.plugin.commands.prisoner.prestige.CmdPrestiges;
-import com.bgsoftware.superiorprison.plugin.commands.prisoner.ranks.CmdRanks;
+import com.bgsoftware.superiorprison.plugin.commands.prisoner.rank.CmdRank;
 import com.oop.orangeengine.command.OCommand;
 
 public class CmdPrisoner extends OCommand {
@@ -12,7 +12,7 @@ public class CmdPrisoner extends OCommand {
         subCommand(new CmdTeleport());
 
         subCommand(new CmdBoosters());
-        subCommand(new CmdRanks());
+        subCommand(new CmdRank());
         subCommand(new CmdPrestiges());
     }
 }

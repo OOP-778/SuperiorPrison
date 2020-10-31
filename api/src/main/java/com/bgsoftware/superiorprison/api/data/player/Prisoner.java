@@ -3,15 +3,12 @@ package com.bgsoftware.superiorprison.api.data.player;
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
 import com.bgsoftware.superiorprison.api.data.mine.area.AreaEnum;
 import com.bgsoftware.superiorprison.api.data.player.booster.Boosters;
-import com.bgsoftware.superiorprison.api.data.player.rank.LadderRank;
-import com.bgsoftware.superiorprison.api.data.player.rank.Rank;
 import com.bgsoftware.superiorprison.api.util.Pair;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -41,10 +38,6 @@ public interface Prisoner {
 
     boolean isFortuneBlocks();
 
-    List<Rank> getSpecialRanks();
-
-    LadderRank getCurrentLadderRank();
-
     void remove();
 
     void save(boolean async);
@@ -53,23 +46,19 @@ public interface Prisoner {
 
     Set<SuperiorMine> getMines();
 
-    void addRank(Rank ...rank);
+    void setLadderRank(String name, boolean applyOnAdd);
 
-    void addRank(String ...rank);
+    void setLadderRank(int index, boolean applyOnAdd);
 
-    void removeRank(Rank ...rank);
+    void setPrestige(int index, boolean applyOnAdd);
 
-    void removeRank(String ...rank);
+    int getLadderRank();
 
-    boolean hasRank(String name);
+    int getPrestige();
 
-    boolean hasPrestige(Prestige prestige);
+    LadderObject getParsedLadderRank();
 
-    void setPrestige(Prestige prestige, boolean applyOnAdd);
-
-    void setLadderRank(LadderRank rank, boolean applyOnAdd);
-
-    Optional<Prestige> getCurrentPrestige();
+    Optional<LadderObject> getParsedPrestige();
 
     SuperiorMine getHighestMine();
 }

@@ -1,9 +1,7 @@
 package com.bgsoftware.superiorprison.plugin.data;
 
 import com.bgsoftware.superiorprison.api.controller.PrisonerHolder;
-import com.bgsoftware.superiorprison.api.data.player.Prestige;
 import com.bgsoftware.superiorprison.api.data.player.Prisoner;
-import com.bgsoftware.superiorprison.api.data.player.rank.LadderRank;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.controller.DatabaseController;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
@@ -48,29 +46,9 @@ public class SPrisonerHolder extends UniversalDataHolder<UUID, SPrisoner> implem
             new TableEditor("prisoners")
                     .renameColumn("prestiges", "currentPrestige")
                     .addColumn("currentLadderRank", "TEXT")
+                    .addDropColumn("ranks")
                     .edit(controller.getDatabase());
-
         }
-
-        SuperiorPrisonPlugin.getInstance().getRankController().addLoadHook(c -> {
-            for (SPrisoner prisoner : getDataMap().values()) {
-                // Update the ladder rank
-                LadderRank currentLadderRank = prisoner.getCurrentLadderRank();
-                Optional<LadderRank> ladderRank = c.getLadderRank(currentLadderRank.getName());
-                ladderRank.ifPresent(rank -> prisoner.setLadderRank(rank, false));
-            }
-        });
-
-        SuperiorPrisonPlugin.getInstance().getPrestigeController().addLoadHook(c -> {
-            for (SPrisoner prisoner : getDataMap().values()) {
-                // Update the prestige
-                Optional<Prestige> currentPrestige = prisoner.getCurrentPrestige();
-                if (currentPrestige.isPresent()) {
-                    Optional<Prestige> prestige = c.getPrestige(currentPrestige.get().getOrder());
-                    prestige.ifPresent(p -> prisoner.setPrestige(p, false));
-                }
-            }
-        });
     }
 
     public Stream<SPrisoner> streamOnline() {

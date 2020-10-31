@@ -4,35 +4,27 @@ import com.bgsoftware.superiorprison.api.data.mine.MineEnum;
 import com.bgsoftware.superiorprison.api.data.mine.area.Area;
 import com.bgsoftware.superiorprison.api.data.mine.area.AreaEnum;
 import com.bgsoftware.superiorprison.api.data.mine.locks.Lock;
-import com.bgsoftware.superiorprison.api.data.player.Prestige;
 import com.bgsoftware.superiorprison.api.data.player.Prisoner;
-import com.bgsoftware.superiorprison.api.data.player.rank.LadderRank;
-import com.bgsoftware.superiorprison.api.data.player.rank.Rank;
-import com.bgsoftware.superiorprison.api.data.player.rank.SpecialRank;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.config.main.MineDefaultsSection;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.data.SMineHolder;
+import com.bgsoftware.superiorprison.plugin.object.mine.access.SMineAccess;
 import com.bgsoftware.superiorprison.plugin.object.mine.area.SArea;
 import com.bgsoftware.superiorprison.plugin.object.mine.effects.SMineEffects;
 import com.bgsoftware.superiorprison.plugin.object.mine.linkable.LinkableObject;
 import com.bgsoftware.superiorprison.plugin.object.mine.linkable.ObjectLinker;
 import com.bgsoftware.superiorprison.plugin.object.mine.locks.SMineLock;
 import com.bgsoftware.superiorprison.plugin.object.mine.messages.SMineMessages;
-import com.bgsoftware.superiorprison.plugin.object.mine.reward.SMineReward;
 import com.bgsoftware.superiorprison.plugin.object.mine.reward.SMineRewards;
 import com.bgsoftware.superiorprison.plugin.object.mine.settings.SMineSettings;
 import com.bgsoftware.superiorprison.plugin.object.mine.shop.SShop;
-import com.bgsoftware.superiorprison.plugin.object.player.SPrestige;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
-import com.bgsoftware.superiorprison.plugin.object.player.rank.SLadderRank;
-import com.bgsoftware.superiorprison.plugin.object.player.rank.SSpecialRank;
-import com.bgsoftware.superiorprison.plugin.util.AccessUtil;
+import com.bgsoftware.superiorprison.plugin.test.Testing;
 import com.bgsoftware.superiorprison.plugin.util.Removeable;
 import com.bgsoftware.superiorprison.plugin.util.SPLocation;
 import com.bgsoftware.superiorprison.plugin.util.frameworks.Framework;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.oop.datamodule.SerializedData;
 import com.oop.datamodule.body.MultiTypeBody;
 import com.oop.datamodule.gson.JsonArray;
@@ -43,7 +35,6 @@ import com.oop.orangeengine.item.ItemBuilder;
 import com.oop.orangeengine.main.Helper;
 import com.oop.orangeengine.main.task.StaticTask;
 import com.oop.orangeengine.main.util.data.cache.OCache;
-import com.oop.orangeengine.main.util.data.set.OConcurrentSet;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -57,13 +48,10 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.type.NormalMine, Serializable, MultiTypeBody, Removeable {
-
     private final Set<Prisoner> prisoners = ConcurrentHashMap.newKeySet();
-    private final Set<String> ranks = new OConcurrentSet<>();
-    private final Set<String> prestiges = new OConcurrentSet<>();
+
     @Setter
     private String name;
     private MineEnum type = MineEnum.NORMAL_MINE;
@@ -88,17 +76,14 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
     @Getter
     private SMineMessages messages;
 
-    private SPrestige highestPrestige;
-
-    private SLadderRank highestRank;
-
     @Getter
     private SMineRewards rewards;
 
-    private final Set<SpecialRank> specialRanks = new HashSet<>();
-
     @Getter
     private ObjectLinker linker = new ObjectLinker();
+
+    @Getter
+    private SMineAccess access;
 
     private final Map<String, LinkableObject> linkableObjectMap = new HashMap<>();
 
@@ -158,7 +143,9 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
         linker.attach(this);
 
         generator.reset();
-        updateHighests();
+
+        access = new SMineAccess();
+        access.attach(this);
 
         this.rewards = new SMineRewards();
         initializeLinkableObjects();
@@ -184,10 +171,10 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
         Area mine = getArea(AreaEnum.MINE);
         Area region = getArea(AreaEnum.REGION);
 
-        if (mine.isInside(location))
+        if (mine.isInsideWithoutY(location))
             return mine;
 
-        if (region.isInside(location))
+        if (region.isInsideWithoutY(location))
             return region;
 
         return null;
@@ -215,16 +202,16 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
 
     @Override
     public boolean isInside(Location location) {
-        return areas.get(AreaEnum.REGION).isInside(location);
+        return areas.get(AreaEnum.REGION).isInsideWithoutY(location);
     }
 
     @Nullable
     @Override
     public AreaEnum getAreaTypeAt(Location location) {
-        if (areas.get(AreaEnum.MINE).isInside(location))
+        if (areas.get(AreaEnum.MINE).isInsideWithoutY(location))
             return AreaEnum.MINE;
 
-        if (areas.get(AreaEnum.REGION).isInside(location))
+        if (areas.get(AreaEnum.REGION).isInsideWithoutY(location))
             return AreaEnum.REGION;
 
         return null;
@@ -232,7 +219,7 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
 
     @Override
     public boolean isInsideArea(AreaEnum areaEnum, Location location) {
-        return getArea(areaEnum).isInside(location);
+        return getArea(areaEnum).isInsideWithoutY(location);
     }
 
     @Override
@@ -246,110 +233,34 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
     }
 
     @Override
-    public Set<String> getRanks() {
-        return new HashSet<>(ranks);
-    }
-
-    @Override
-    public Set<Rank> getRanksMapped() {
-        return ranks
-                .stream()
-                .map(name -> SuperiorPrisonPlugin.getInstance().getRankController().getRank(name).orElse(null))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
-    }
-
-    @Override
-    public Set<String> getPrestiges() {
-        return new HashSet<>(prestiges);
-    }
-
-    @Override
-    public Set<Prestige> getPrestigesMapped() {
-        return prestiges
-                .stream()
-                .map(name -> SuperiorPrisonPlugin.getInstance().getPrestigeController().getPrestige(name).orElse(null))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
-    }
-
-    @Override
     public ItemStack getIcon() {
         return icon;
     }
 
     @Override
+    @Deprecated
     public boolean canEnter(Prisoner prisoner) {
-        Boolean canEnter = canEnterCache.get(prisoner.getUUID());
-        if (canEnter != null) return canEnter;
+        if (prisoner.getPlayer().isOp()) return true;
+//        Boolean canEnter = canEnterCache.get(prisoner.getUUID());
+//        if (canEnter != null) return canEnter;
+//
+//        boolean hasRanks = true;
+//        if (highestRank != null)
+//            hasRanks = prisoner.getCurrentLadderRank().getOrder() >= highestRank.getOrder();
+//
+//        boolean hasPrestiges = true;
+//        if (highestPrestige != null)
+//            hasPrestiges = prisoner.getCurrentPrestige().isPresent() && prisoner.getCurrentPrestige().get().getOrder() >= highestPrestige.getOrder();
+//
+//        canEnter = prisoner.getPlayer().hasPermission("superiorprison.bypass") || (hasPrestiges && hasRanks);
+//        canEnterCache.put(prisoner.getUUID(), canEnter);
 
-        boolean hasRanks = true;
-        if (highestRank != null)
-            hasRanks = prisoner.getCurrentLadderRank().getOrder() >= highestRank.getOrder();
-
-        boolean hasPrestiges = true;
-        if (highestPrestige != null)
-            hasPrestiges = prisoner.getCurrentPrestige().isPresent() && prisoner.getCurrentPrestige().get().getOrder() >= highestPrestige.getOrder();
-
-        canEnter = prisoner.getPlayer().hasPermission("superiorprison.bypass") || (hasPrestiges && hasRanks);
-        canEnterCache.put(prisoner.getUUID(), canEnter);
-
-        return canEnter;
+        return access.canEnter(prisoner);
     }
 
     @Override
     public void save(boolean async) {
         save(async, null);
-    }
-
-    @Override
-    public void removeRank(String... rank) {
-        Arrays.stream(rank).forEach(ranks::remove);
-    }
-
-    @Override
-    public void removeRank(Rank... rank) {
-        Arrays.stream(rank).map(Rank::getName).forEach(ranks::remove);
-    }
-
-    @Override
-    public void removePrestige(String... prestige) {
-        Arrays.stream(prestige).forEach(prestiges::remove);
-    }
-
-    @Override
-    public void removePrestige(Prestige... prestige) {
-        Arrays.stream(prestige).map(Prestige::getName).forEach(prestiges::remove);
-    }
-
-    @Override
-    public void addRank(String... rank) {
-        Arrays.stream(rank)
-                .map(AccessUtil::findRank)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .map(Rank::getName)
-                .forEach(ranks::add);
-    }
-
-    @Override
-    public void addRank(Rank... rank) {
-        Arrays.stream(rank).map(Rank::getName).forEach(ranks::add);
-    }
-
-    @Override
-    public void addPrestige(String... prestige) {
-        Arrays.stream(prestige)
-                .map(AccessUtil::findPrestige)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .map(Prestige::getName)
-                .forEach(prestiges::add);
-    }
-
-    @Override
-    public void addPrestige(Prestige... prestige) {
-        Arrays.stream(prestige).map(Prestige::getName).forEach(prestiges::add);
     }
 
     public void onReset() {
@@ -416,7 +327,8 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
                 "effects",
                 "messages",
                 "linker",
-                "rewards"
+                "rewards",
+                "access"
         };
     }
 
@@ -427,14 +339,18 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
         serializedData.write("spawnpoint", spawnPoint);
         serializedData.write("generator", generator);
         serializedData.write("shop", shop);
-        serializedData.write("ranks", ranks);
-        serializedData.write("prestiges", prestiges);
         serializedData.write("settings", settings);
         serializedData.write("icon", icon);
         serializedData.write("effects", effects);
         serializedData.write("messages", messages);
         serializedData.write("linker", linker);
         serializedData.write("rewards", rewards);
+
+        // Removed in 3 versions
+        serializedData.write("ranks", null);
+        serializedData.write("prestiges", null);
+
+        serializedData.write("access", access);
 
         JsonArray areasArray = new JsonArray();
         areas.forEach((key, value) -> {
@@ -457,16 +373,6 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
         this.spawnPoint = data.applyAs("spawnpoint", SPLocation.class);
         this.generator = data.applyAs("generator", SMineGenerator.class);
         this.shop = data.applyAs("shop", SShop.class);
-        this.ranks.addAll(
-                data.applyAsCollection("ranks")
-                        .map(sd -> sd.applyAs(String.class))
-                        .collect(Collectors.toSet())
-        );
-        this.prestiges.addAll(
-                data.applyAsCollection("prestiges")
-                        .map(sd -> sd.applyAs(String.class))
-                        .collect(Collectors.toSet())
-        );
         this.settings = data.applyAs("settings", SMineSettings.class);
         this.effects = data.has("effects") ? data.applyAs("effects", SMineEffects.class) : new SMineEffects();
         this.messages = data.has("messages") ? data.applyAs("messages", SMineMessages.class) : new SMineMessages();
@@ -478,6 +384,7 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
 
             areas.put(AreaEnum.valueOf(key.getAsString()), DataUtil.fromElement(value, SArea.class));
         }
+
         this.icon = data.applyAs("icon", ItemStack.class);
         this.rewards = data.has("rewards") ? data.applyAs("rewards", SMineRewards.class) : new SMineRewards();
 
@@ -504,9 +411,36 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
             linker = data.applyAs("linker", ObjectLinker.class);
 
         linker.attach(this);
-        updateHighests();
+        this.access = data.getChildren("access").map(sd -> sd.applyAs(SMineAccess.class)).orElse(new SMineAccess());
+        access.attach(this);
 
+        // Migrate old data (FUCKING HARD)
+        data
+                .getChildren("prestiges")
+                .ifPresent(sd -> migrateLadder(sd, false));
+
+        data
+                .getChildren("ranks")
+                .ifPresent(sd -> migrateLadder(sd, true));
         initializeLinkableObjects();
+    }
+
+    private void migrateLadder(SerializedData data, boolean isRank) {
+        String getter = isRank ? "%prisoner#ladderrank%" : "%prisoner#prestige%";
+        String name = isRank ? "Rank Check" : "Prestige Check";
+
+        data.applyAsCollection()
+                .map(sd -> sd.applyAs(String.class))
+                .mapToInt(sd -> Testing.prestigeGenerator.getIndex(sd))
+                .filter(index -> index != -1)
+                .max()
+                .ifPresent(index -> {
+                    access
+                            .addScript(
+                                    name,
+                                    "if {" + getter + " == -1}: false else: { " + getter +  " >= " + index + "}"
+                            );
+                });
     }
 
     private void initializeLinkableObjects() {
@@ -516,6 +450,7 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
         getLinkableObjects().put("generator", generator);
         getLinkableObjects().put("messages", messages);
         getLinkableObjects().put("rewards", rewards);
+        getLinkableObjects().put("access", access);
     }
 
     @Override
@@ -533,7 +468,7 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
         Helper.getOnlinePlayers()
                 .stream()
                 .filter(player -> player.getLocation().getWorld().getName().equalsIgnoreCase(getWorld().getName()))
-                .filter(player -> getArea(AreaEnum.REGION).isInside(player.getLocation()))
+                .filter(player -> getArea(AreaEnum.REGION).isInsideWithoutY(player.getLocation()))
                 .forEach(player -> prisoners.add(SuperiorPrisonPlugin.getInstance().getPrisonerController().getInsertIfAbsent(player)));
     }
 
@@ -541,42 +476,32 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
         StaticTask.getInstance().ensureAsync(() -> {
             canEnterCache.clear();
 
-            // Find highest prestige
-            highestPrestige = (SPrestige) prestiges
-                    .stream()
-                    .map(prestigeName -> SuperiorPrisonPlugin.getInstance().getPrestigeController().getPrestige(prestigeName).orElse(null))
-                    .filter(Objects::nonNull)
-                    .max(Comparator.comparingInt(Prestige::getOrder))
-                    .orElse(null);
-
-            // Initialize ranks
-            specialRanks.clear();
-            List<LadderRank> ladderRanks = new ArrayList<>();
-            for (String rankName : ranks) {
-                Rank rank = SuperiorPrisonPlugin.getInstance().getRankController().getRank(rankName).orElse(null);
-                if (rank == null) continue;
-
-                if (rank instanceof LadderRank)
-                    ladderRanks.add((LadderRank) rank);
-                else
-                    specialRanks.add((SSpecialRank) rank);
-            }
-
-            highestRank = (SLadderRank) ladderRanks
-                    .stream()
-                    .max(Comparator.comparingInt(LadderRank::getOrder))
-                    .orElse(null);
+//            // Find highest prestige
+//            highestPrestige = (SPrestige) prestiges
+//                    .stream()
+//                    .map(prestigeName -> SuperiorPrisonPlugin.getInstance().getPrestigeController().getPrestige(prestigeName).orElse(null))
+//                    .filter(Objects::nonNull)
+//                    .max(Comparator.comparingInt(Prestige::getOrder))
+//                    .orElse(null);
+//
+//            // Initialize ranks
+//            specialRanks.clear();
+//            List<LadderRank> ladderRanks = new ArrayList<>();
+//            for (String rankName : ranks) {
+//                Rank rank = SuperiorPrisonPlugin.getInstance().getRankController().getRank(rankName).orElse(null);
+//                if (rank == null) continue;
+//
+//                if (rank instanceof LadderRank)
+//                    ladderRanks.add((LadderRank) rank);
+//                else
+//                    specialRanks.add((SSpecialRank) rank);
+//            }
+//
+//            highestRank = (SLadderRank) ladderRanks
+//                    .stream()
+//                    .max(Comparator.comparingInt(LadderRank::getOrder))
+//                    .orElse(null);
         });
-    }
-
-    @Override
-    public boolean hasRank(String name) {
-        return ranks.contains(name);
-    }
-
-    @Override
-    public boolean hasPrestige(String name) {
-        return prestiges.contains(name);
     }
 
     public Map<String, LinkableObject> getLinkableObjects() {

@@ -8,6 +8,9 @@ import com.bgsoftware.superiorprison.plugin.test.script.variable.GlobalVariableM
 import com.bgsoftware.superiorprison.plugin.test.script.variable.VariableHelper;
 import com.oop.orangeengine.yaml.interfaces.Valuable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class PrestigeGenerator extends ObjectGenerator<PrestigeGeneratorOptions> {
     public PrestigeGenerator(Valuable valuable) {
         super(valuable);
@@ -17,7 +20,7 @@ public class PrestigeGenerator extends ObjectGenerator<PrestigeGeneratorOptions>
     protected ParsedObject parse(SPrisoner prisoner, int level) {
         GlobalVariableMap clone = getVariableMap().clone();
         clone.newOrReplace("prisoner", VariableHelper.createVariable(prisoner));
-        clone.newOrReplace("level", VariableHelper.createVariable(level));
+        clone.newOrReplace("index", VariableHelper.createVariable(level));
 
         return ParsedObject.of(
                 getTemplate(level),
@@ -29,6 +32,16 @@ public class PrestigeGenerator extends ObjectGenerator<PrestigeGeneratorOptions>
 
     @Override
     protected void initializeMap() {
-        getVariableMap().newVariable("level", VariableHelper.createVariable(1));
+        getVariableMap().newVariable("index", VariableHelper.createVariable(1));
+    }
+
+    @Override
+    public int getIndex(Object object) {
+        return getOptions().getIndex(object);
+    }
+
+    @Override
+    public List<String> getAvailable() {
+        return getOptions().getAvailable();
     }
 }

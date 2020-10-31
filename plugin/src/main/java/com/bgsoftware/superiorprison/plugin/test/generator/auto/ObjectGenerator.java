@@ -17,6 +17,7 @@ import lombok.NonNull;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 public abstract class ObjectGenerator<G extends GeneratorOptions> implements ObjectSupplier {
     private GeneratorTemplate template;
@@ -109,6 +110,15 @@ public abstract class ObjectGenerator<G extends GeneratorOptions> implements Obj
         if (template != null) return template;
 
         return this.template;
+    }
+
+    @Override
+    public Optional<Function<SPrisoner, ParsedObject>> getParser(Object key) {
+        int index = getIndex(key);
+        GeneratorTemplate template = getTemplate(index);
+        if (template == null) return Optional.empty();
+
+        return Optional.of(prisoner -> getParsed(prisoner, index).get());
     }
 
     protected abstract ParsedObject parse(SPrisoner prisoner, int level);

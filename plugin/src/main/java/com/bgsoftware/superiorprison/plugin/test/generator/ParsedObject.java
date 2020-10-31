@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorprison.plugin.test.generator;
 
+import com.bgsoftware.superiorprison.api.data.player.LadderObject;
 import com.bgsoftware.superiorprison.plugin.test.generator.auto.GeneratorTemplate;
 import com.bgsoftware.superiorprison.plugin.test.script.variable.GlobalVariableMap;
 import com.bgsoftware.superiorprison.plugin.test.script.variable.VariableHelper;
@@ -8,18 +9,30 @@ import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-@Getter
-public class ParsedObject {
-    private int level;
+public class ParsedObject implements LadderObject {
+    @Getter
+    private int index;
+
+    @Getter
     private String prefix;
+
+    @Getter
     private List<String> commands = new ArrayList<>();
+
+    @Getter
     private OMessage<?> message;
+
+    @Getter
     private GlobalVariableMap variableMap;
 
+    @Getter
     private Supplier<Boolean> meets;
+
+    @Getter
     private GeneratorTemplate template;
 
     private Supplier<ParsedObject> next;
@@ -32,11 +45,12 @@ public class ParsedObject {
         parsedObject.variableMap = map;
         parsedObject.prefix = map.extractVariables(template.getPrefix());
         parsedObject.template = template;
-        parsedObject.level = ((Number)VariableHelper.getVariableAsNumber("index", map).getVariable().get(map)).intValue();
+        parsedObject.index = ((Number)VariableHelper.getVariableAsNumber("index", map).getVariable().get(map)).intValue();
         parsedObject.commands = template.getCommands()
                 .stream()
                 .map(map::extractVariables)
                 .collect(Collectors.toList());
+
         parsedObject.message = template.getMessage() == null ? null :
                 (OMessage<?>) template.getMessage().clone()
                         .replace(in -> map.extractVariables(in.toString()));
@@ -50,12 +64,32 @@ public class ParsedObject {
     @Override
     public String toString() {
         return "ParsedObject{" +
-                "level=" + level +
+                "level=" + index +
                 ", prefix='" + prefix + '\'' +
                 ", commands=" + commands +
                 ", message=" + message +
                 ", variableMap=" + variableMap +
                 ", template=" + template +
                 '}';
+    }
+
+    @Override
+    public String getName() {
+        return getPrefix();
+    }
+
+    @Override
+    public List<String> getPermissions() {
+        return null;
+    }
+
+    @Override
+    public Optional<LadderObject> getNext() {
+        return Optional.ofNullable(next.get());
+    }
+
+    @Override
+    public Optional<LadderObject> getPrevious() {
+        return Optional.ofNullable(previous.get());
     }
 }

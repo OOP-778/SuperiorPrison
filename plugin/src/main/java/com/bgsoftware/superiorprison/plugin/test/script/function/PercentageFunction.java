@@ -13,7 +13,7 @@ import static com.bgsoftware.superiorprison.plugin.test.script.variable.Variable
 import static com.bgsoftware.superiorprison.plugin.test.script.variable.VariableHelper.getVariableAsNumber;
 
 public class PercentageFunction implements Function<Number> {
-    public static final Pattern PATTERN = Pattern.compile("([0-9]+V|[0-9]+)(?: ?(?:%|percent)) of ([0-9]+V|[0-9]+)");
+    public static final Pattern PATTERN = Pattern.compile("([0-9]+V|[0-9]+|-[0-9]+)(?: ?(?:%|percent)) of ([0-9]+V|[0-9]+|-[0-9]+)");
 
     private int percentId;
     private int numberId;

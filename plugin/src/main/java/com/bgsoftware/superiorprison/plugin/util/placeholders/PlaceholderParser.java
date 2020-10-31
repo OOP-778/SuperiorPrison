@@ -1,20 +1,18 @@
 package com.bgsoftware.superiorprison.plugin.util.placeholders;
 
-import com.bgsoftware.superiorprison.api.SuperiorPrison;
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
 import com.bgsoftware.superiorprison.api.data.mine.settings.ResetSettings;
-import com.bgsoftware.superiorprison.api.data.player.Prestige;
-import com.bgsoftware.superiorprison.api.data.player.rank.LadderRank;
-import com.bgsoftware.superiorprison.api.data.player.rank.Rank;
+import com.bgsoftware.superiorprison.api.data.player.LadderObject;
 import com.bgsoftware.superiorprison.api.data.statistic.StatisticsContainer;
 import com.bgsoftware.superiorprison.api.util.Pair;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.mine.settings.SMineSettings;
-import com.bgsoftware.superiorprison.plugin.object.player.SPrestige;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
-import com.bgsoftware.superiorprison.plugin.object.player.rank.SLadderRank;
 import com.bgsoftware.superiorprison.plugin.object.statistic.SBlocksStatistic;
+import com.bgsoftware.superiorprison.plugin.object.statistic.SStatisticsContainer;
+import com.bgsoftware.superiorprison.plugin.test.Testing;
+import com.bgsoftware.superiorprison.plugin.test.generator.ParsedObject;
 import com.bgsoftware.superiorprison.plugin.util.RequirementUtil;
 import com.bgsoftware.superiorprison.plugin.util.TimeUtil;
 import com.bgsoftware.superiorprison.plugin.util.placeholders.parser.ArgsCrawler;
@@ -25,7 +23,6 @@ import com.oop.orangeengine.material.OMaterial;
 import org.bukkit.Location;
 
 import java.time.ZonedDateTime;
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -50,70 +47,74 @@ public class PlaceholderParser {
             .parse("fortuneblocks", prisoner -> booleanToState(prisoner.isFortuneBlocks()))
             .parse("canenter", (prisoner, obj, crawler) -> canEnter(prisoner, crawler))
             .parse("rankupscale", (prisoner, obj, crawler) -> {
-                Optional<LadderRank> nextLadderRank = prisoner.getCurrentLadderRank().getNext();
+                Optional<LadderObject> nextLadderRank = prisoner.getParsedLadderRank().getNext();
                 if (!nextLadderRank.isPresent()) {
-                    SPrestige nextPrestige;
-                    if (prisoner.getCurrentPrestige().isPresent())
-                        nextPrestige = (SPrestige) prisoner.getCurrentPrestige().get().getNext().orElse(null);
+                    Optional<LadderObject> currentPrestige = prisoner.getParsedPrestige();
+                    LadderObject nextPrestige;
+                    if (currentPrestige.isPresent())
+                        nextPrestige = currentPrestige.get().getNext().orElse(null);
                     else
-                        nextPrestige = (SPrestige) SuperiorPrisonPlugin.getInstance().getPrestigeController().getPrestige(1).orElse(null);
-                    if (nextPrestige == null) return SuperiorPrisonPlugin.getInstance().getMainConfig().getPlaceholdersSection().getPrestigeNotFound();
+                        nextPrestige = Testing.prestigeGenerator.getParsed(prisoner, 1).get();
+                    if (nextPrestige == null)
+                        return SuperiorPrisonPlugin.getInstance().getMainConfig().getPlaceholdersSection().getPrestigeNotFound();
 
-                    return RequirementUtil.getProgressScale(prisoner, nextPrestige.getRequirements());
+                    return RequirementUtil.getProgressScale((ParsedObject) nextPrestige);
                 }
 
-                SLadderRank next = (SLadderRank) nextLadderRank.get();
-                return RequirementUtil.getProgressScale(prisoner, next.getRequirements());
+                return nextLadderRank
+                        .map(lo -> RequirementUtil.getProgressScale((ParsedObject) lo));
             })
             .parse("rankuppercentage", (prisoner, obj, crawler) -> {
-                Optional<LadderRank> nextLadderRank = prisoner.getCurrentLadderRank().getNext();
+                Optional<LadderObject> nextLadderRank = prisoner.getParsedLadderRank().getNext();
                 if (!nextLadderRank.isPresent()) {
-                    SPrestige nextPrestige;
-                    if (prisoner.getCurrentPrestige().isPresent())
-                        nextPrestige = (SPrestige) prisoner.getCurrentPrestige().get().getNext().orElse(null);
+                    Optional<LadderObject> currentPrestige = prisoner.getParsedPrestige();
+                    LadderObject nextPrestige;
+                    if (currentPrestige.isPresent())
+                        nextPrestige = currentPrestige.get().getNext().orElse(null);
                     else
-                        nextPrestige = (SPrestige) SuperiorPrisonPlugin.getInstance().getPrestigeController().getPrestige(1).orElse(null);
-                    if (nextPrestige == null) return SuperiorPrisonPlugin.getInstance().getMainConfig().getPlaceholdersSection().getPrestigeNotFound();
+                        nextPrestige = Testing.prestigeGenerator.getParsed(prisoner, 1).get();
+                    if (nextPrestige == null)
+                        return SuperiorPrisonPlugin.getInstance().getMainConfig().getPlaceholdersSection().getPrestigeNotFound();
 
-                    return RequirementUtil.getPercentageCompleted(nextPrestige.getRequirements(), prisoner);
+                    return RequirementUtil.getPercentageCompleted((ParsedObject) nextPrestige);
                 }
 
-                SLadderRank next = (SLadderRank) nextLadderRank.get();
-                return RequirementUtil.getPercentageCompleted(next.getRequirements(), prisoner);
+                return nextLadderRank
+                        .map(lo -> RequirementUtil.getPercentageCompleted((ParsedObject) lo));
             })
 
-            .add("prestige", SPrestige.class)
-            .mapper((none, prisoner, crawler) -> (SPrestige) prisoner.getCurrentPrestige().orElse(null))
+            .add("prestige", LadderObject.class)
+            .mapper((none, prisoner, crawler) -> prisoner.getParsedPrestige().orElse(null))
             .parse("prefix/order/name", (prestige, prisoner, crawler) -> getFromAccess(prestige, crawler.current(), false))
 
-            .add("next", SPrestige.class)
-            .mapper((none, prestige, crawler) -> (SPrestige) prestige.getNext().orElse(null))
-            .parse("prefix/order/name", (prestige, none, crawler) -> getFromAccess(prestige, crawler.current(), false))
-            .parent(SPrestige.class, SPrisoner.class)
+            .add("next", LadderObject.class)
+            .mapper((none, prestige, crawler) -> prestige.getNext().orElse(null))
+            .parse("prefix/order/name/index", (prestige, none, crawler) -> getFromAccess(prestige, crawler.current(), false))
+            .parent(LadderObject.class, SPrisoner.class)
 
-            .add("previous", SPrestige.class)
-            .mapper((none, prestige, crawler) -> (SPrestige) prestige.getPrevious().orElse(null))
-            .parse("prefix/order/name", (prestige, none, crawler) -> getFromAccess(prestige, crawler.current(), false))
-            .parent(SPrestige.class, SPrisoner.class)
-
-            .parent(SPrisoner.class, Object.class)
-            .add("ladderrank", SLadderRank.class)
-            .mapper((none, prisoner, crawler) -> (SLadderRank) prisoner.getCurrentLadderRank())
-            .parse("prefix/order/name", (rank, none, crawler) -> getFromAccess(rank, crawler.current(), true))
-
-            .add("next", SLadderRank.class)
-            .mapper((none, rank, crawler) -> (SLadderRank) rank.getNext().orElse(null))
-            .parse("prefix/order/name", (rank, none, crawler) -> getFromAccess(rank, crawler.current(), true))
-            .parent(SLadderRank.class, SPrisoner.class)
-
-            .add("previous", SLadderRank.class)
-            .mapper((none, rank, crawler) -> (SLadderRank) rank.getPrevious().orElse(null))
-            .parse("prefix/order/name", (rank, none, crawler) -> getFromAccess(rank, crawler.current(), true))
-            .parent(SLadderRank.class, SPrisoner.class)
+            .add("previous", LadderObject.class)
+            .mapper((none, prestige, crawler) -> (LadderObject) prestige.getPrevious().orElse(null))
+            .parse("prefix/order/name/index", (prestige, none, crawler) -> getFromAccess(prestige, crawler.current(), false))
+            .parent(LadderObject.class, SPrisoner.class)
 
             .parent(SPrisoner.class, Object.class)
+            .add("ladderrank", LadderObject.class)
+            .mapper((none, prisoner, crawler) -> prisoner.getParsedLadderRank())
+            .parse("prefix/order/name/index", (rank, none, crawler) -> getFromAccess(rank, crawler.current(), true))
 
-            .add("statistics", com.bgsoftware.superiorprison.plugin.object.statistic.SStatisticsContainer.class)
+            .add("next", LadderObject.class)
+            .mapper((none, rank, crawler) -> rank.getNext().orElse(null))
+            .parse("prefix/order/name/index", (rank, none, crawler) -> getFromAccess(rank, crawler.current(), true))
+            .parent(LadderObject.class, SPrisoner.class)
+
+            .add("previous", LadderObject.class)
+            .mapper((none, rank, crawler) -> rank.getPrevious().orElse(null))
+            .parse("prefix/order/name/index", (rank, none, crawler) -> getFromAccess(rank, crawler.current(), true))
+            .parent(LadderObject.class, SPrisoner.class)
+
+            .parent(SPrisoner.class, Object.class)
+
+            .add("statistics", SStatisticsContainer.class)
             .mapper((none, prisoner, crawler) -> SuperiorPrisonPlugin.getInstance().getStatisticsController().getContainer(prisoner.getUUID()))
             .add("blocks", SBlocksStatistic.class)
             .mapper((none, statistics, crawler) -> statistics.getBlocksStatistic())
@@ -149,7 +150,6 @@ public class PlaceholderParser {
             .add("mine", SNormalMine.class)
             .mapper((none, none0, crawler) -> crawler.hasNext() ? (SNormalMine) SuperiorPrisonPlugin.getInstance().getMineController().getMine(crawler.next()).orElse(null) : null)
             .parse("type", mine -> Helper.beautify(mine.getType().name()))
-            .parse("accessranks", mine -> Arrays.toString(mine.getRanks().toArray()))
             .parse("prisonercount", mine -> mine.getPrisoners().size())
 
             .add("spawnpoint", Location.class)
@@ -204,19 +204,20 @@ public class PlaceholderParser {
         return "Invalid identifier";
     }
 
-    private static String getFromAccess(Object object, String identifier, boolean rank) {
-        if (object == null) return !rank ? SuperiorPrisonPlugin.getInstance().getMainConfig().getPlaceholdersSection().getPrestigeNotFound() : SuperiorPrisonPlugin.getInstance().getMainConfig().getPlaceholdersSection().getRankNotFound();
+    private static String getFromAccess(LadderObject ob, String identifier, boolean rank) {
+        if (ob == null)
+            return !rank ? SuperiorPrisonPlugin.getInstance().getMainConfig().getPlaceholdersSection().getPrestigeNotFound() : SuperiorPrisonPlugin.getInstance().getMainConfig().getPlaceholdersSection().getRankNotFound();
         if (identifier == null)
-            return object instanceof Rank ? ((Rank) object).getName() : ((Prestige) object).getName();
+            return ob.getName();
 
         if (identifier.equalsIgnoreCase("prefix"))
-            return object instanceof Rank ? ((Rank) object).getPrefix() : ((Prestige) object).getPrefix();
+            return ob.getPrefix();
 
-        if (identifier.equalsIgnoreCase("order"))
-            return object instanceof LadderRank ? ((LadderRank) object).getOrder() + "" : ((Prestige) object).getOrder() + "";
+        if (identifier.equalsIgnoreCase("order") || identifier.equalsIgnoreCase("index"))
+            return ob.getIndex() + "";
 
         if (identifier.equalsIgnoreCase("name"))
-            return object instanceof LadderRank ? ((LadderRank) object).getName() : ((Prestige) object).getName();
+            return ob.getName();
 
         return "invalid identifier";
     }

@@ -12,7 +12,7 @@ options:
 
 template:
   # Prefix of the prestige
-  prefix: "&c[P%level%]"
+  prefix: "&c[P%index%]"
 
   # Requirements of the prestige
   requirements:

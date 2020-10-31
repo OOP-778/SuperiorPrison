@@ -8,6 +8,7 @@ import com.google.common.collect.HashBiMap;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 import com.oop.orangeengine.yaml.ConfigSection;
+import lombok.Getter;
 
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
@@ -26,6 +27,7 @@ public class RankGeneratorOptions extends GeneratorOptions<String> {
     private HashBiMap<Integer, Integer> hashConverter = HashBiMap.create();
 
     // Rank name to index and other way around
+    @Getter
     private HashBiMap<String, Integer> rankToIndex = HashBiMap.create();
 
     // Indexes of chars

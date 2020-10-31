@@ -8,6 +8,9 @@ import com.bgsoftware.superiorprison.plugin.test.script.variable.GlobalVariableM
 import com.bgsoftware.superiorprison.plugin.test.script.variable.VariableHelper;
 import com.oop.orangeengine.yaml.interfaces.Valuable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class RankGenerator extends ObjectGenerator<RankGeneratorOptions> {
     public RankGenerator(Valuable valuable) {
         super(valuable);
@@ -17,7 +20,7 @@ public class RankGenerator extends ObjectGenerator<RankGeneratorOptions> {
     protected ParsedObject parse(SPrisoner prisoner, int level) {
         GlobalVariableMap clone = getVariableMap().clone();
         clone.newOrReplace("prisoner", VariableHelper.createVariable(prisoner));
-        clone.newOrReplace("level", VariableHelper.createVariable(level));
+        clone.newOrReplace("index", VariableHelper.createVariable(level));
         clone.newOrReplace("rank_name", VariableHelper.createVariable(getOptions().getRankByIndex(level)));
 
         return ParsedObject.of(
@@ -30,7 +33,17 @@ public class RankGenerator extends ObjectGenerator<RankGeneratorOptions> {
 
     @Override
     protected void initializeMap() {
-        getVariableMap().newVariable("level", VariableHelper.createVariable(1));
+        getVariableMap().newVariable("index", VariableHelper.createVariable(1));
         getVariableMap().newVariable("rank_name", VariableHelper.createVariable("A"));
+    }
+
+    @Override
+    public int getIndex(Object object) {
+        return getOptions().getIndex(object);
+    }
+
+    @Override
+    public List<String> getAvailable() {
+        return new ArrayList<>(getOptions().getRankToIndex().keySet());
     }
 }

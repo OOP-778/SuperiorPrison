@@ -1,6 +1,6 @@
 package com.bgsoftware.superiorprison.api.event.rankup;
 
-import com.bgsoftware.superiorprison.api.data.player.Prestige;
+import com.bgsoftware.superiorprison.api.data.player.LadderObject;
 import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 import com.bgsoftware.superiorprison.api.event.PrisonerEvent;
 import lombok.Getter;
@@ -8,10 +8,10 @@ import lombok.Getter;
 @Getter
 public class PrisonerPrestigeUpEvent extends PrisonerEvent {
 
-    private Prestige previousPrestige;
-    private Prestige newPrestige;
+    private LadderObject previousPrestige;
+    private LadderObject newPrestige;
 
-    public PrisonerPrestigeUpEvent(Prisoner prisoner, Prestige previousPrestige, Prestige newPrestige) {
+    public PrisonerPrestigeUpEvent(Prisoner prisoner, LadderObject previousPrestige, LadderObject newPrestige) {
         super(prisoner);
         this.previousPrestige = previousPrestige;
         this.newPrestige = newPrestige;

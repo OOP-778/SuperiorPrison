@@ -4,10 +4,17 @@ import com.bgsoftware.superiorprison.plugin.test.generator.auto.GeneratorOptions
 import com.bgsoftware.superiorprison.plugin.test.script.util.Values;
 import com.bgsoftware.superiorprison.plugin.test.script.variable.GlobalVariableMap;
 import com.oop.orangeengine.yaml.ConfigSection;
+import lombok.Getter;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.IntStream;
+
+@Getter
 public class PrestigeGeneratorOptions extends GeneratorOptions<Integer> {
     private int max;
     private int min;
+    private List<String> available = new ArrayList<>();
 
     public PrestigeGeneratorOptions(ConfigSection section, GlobalVariableMap map) {
         super(map);
@@ -15,6 +22,9 @@ public class PrestigeGeneratorOptions extends GeneratorOptions<Integer> {
         section.ensureHasValues("min", "max");
         this.min = section.getAs("min");
         this.max = section.getAs("max");
+        IntStream
+                .range(min, max)
+                .forEach(i -> available.add(i + ""));
     }
 
     @Override

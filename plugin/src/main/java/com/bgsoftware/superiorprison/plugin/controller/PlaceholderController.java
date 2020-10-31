@@ -1,15 +1,11 @@
 package com.bgsoftware.superiorprison.plugin.controller;
 
 import com.bgsoftware.superiorprison.api.data.mine.flags.Flag;
-import com.bgsoftware.superiorprison.api.data.player.Prestige;
+import com.bgsoftware.superiorprison.api.data.player.LadderObject;
 import com.bgsoftware.superiorprison.api.data.player.booster.Booster;
-import com.bgsoftware.superiorprison.api.data.player.booster.MoneyBooster;
-import com.bgsoftware.superiorprison.api.data.player.rank.LadderRank;
-import com.bgsoftware.superiorprison.api.data.player.rank.Rank;
-import com.bgsoftware.superiorprison.api.requirement.RequirementException;
+import com.bgsoftware.superiorprison.api.requirement.DeclinedRequirement;
+import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.commands.args.TopTypeArg;
-import com.bgsoftware.superiorprison.plugin.menu.access.AccessObject;
-import com.bgsoftware.superiorprison.plugin.menu.access.SortMethod;
 import com.bgsoftware.superiorprison.plugin.menu.settings.SettingsObject;
 import com.bgsoftware.superiorprison.plugin.object.backpack.SBackPack;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
@@ -50,23 +46,13 @@ public class PlaceholderController {
 
         add(SArea.class, "{area_name}", area -> Helper.beautify(area.getType().name()));
 
-        add(Rank.class, "{rank_prefix}", Rank::getPrefix);
-        add(Rank.class, "{rank_name}", Rank::getName);
-        add(LadderRank.class, "{rank_order}", LadderRank::getOrder);
-
-        add(AccessObject.class, "{access_name}", AccessObject::getName);
-        add(AccessObject.class, "{access_prefix}", AccessObject::getPrefix);
-        add(AccessObject.class, "{access_type}", AccessObject::getType);
-        add(AccessObject.class, "{access_order}", access -> access.isInstanceOf(LadderRank.class) ? access.getAs(LadderRank.class).getOrder() : access.getAs());
-
-        add(Prestige.class, "{prestige_prefix}", Prestige::getPrefix);
-        add(Prestige.class, "{prestige_name}", Prestige::getName);
-        add(Prestige.class, "{prestige_order}", Prestige::getOrder);
+        add(LadderObject.class, "{access_name}|{rank_name}|{prestige_name}", LadderObject::getName);
+        add(LadderObject.class, "{access_prefix}|{rank_prefix}|{prestige_prefix}", LadderObject::getPrefix);
+        add(LadderObject.class, "{access_order}|{access_index}|{rank_order}|{rank_index}|{prestige_order}|{prestige_index}", LadderObject::getIndex);
 
         add(SPrisoner.class, "{prisoner_name}", prisoner -> prisoner.getOfflinePlayer().getName());
-        add(SPrisoner.class, "{prisoner_ladderrank}", prisoner -> prisoner.getCurrentLadderRank().getName());
-        add(SPrisoner.class, "{prisoner_specialranks}", prisoner -> listToString(prisoner.getSpecialRanks().stream().map(Rank::getName).collect(Collectors.toList())));
-        add(SPrisoner.class, "{prisoner_prestige}", prisoner -> prisoner.getCurrentPrestige().map(Prestige::getName).orElse("N/A"));
+        add(SPrisoner.class, "{prisoner_ladderrank}", prisoner -> prisoner.getParsedLadderRank().getName());
+        add(SPrisoner.class, "{prisoner_prestige}", prisoner -> prisoner.getParsedPrestige().map(LadderObject::getName).orElse(SuperiorPrisonPlugin.getInstance().getMainConfig().getPlaceholdersSection().getPrestigeNotFound()));
 
         add(SNormalMine.class, "{mine_spawnpoint_x}", mine -> mine.getSpawnPoint().getBlockX());
         add(SNormalMine.class, "{mine_spawnpoint_y}", mine -> mine.getSpawnPoint().getBlockY());
@@ -75,7 +61,6 @@ public class PlaceholderController {
         // Placeholders for shop
         add(SShopItem.class, "{item_price}", item -> item.getPrice().toString());
         add(SShopItem.class, "{item_name}", item -> TextUtil.beautifyName(item.getItem()));
-        add(SortMethod.class, "{sort_method}", method -> TextUtil.beautify(method.name()));
 
         // Placeholders for boosters
         add(SBooster.class, "{booster_id}", SBooster::getId);
@@ -86,9 +71,9 @@ public class PlaceholderController {
         add(Flag.class, "{flag_name}", flag -> Helper.beautify(flag.name()));
         add(Flag.class, "{flag_description}", Flag::getDescription);
 
-        add(RequirementException.class, "{requirement_type}", ex -> TextUtil.beautify(ex.getData().getType()));
-        add(RequirementException.class, "{requirement_current}", ex -> TextUtil.beautify(ex.getCurrentValue()));
-        add(RequirementException.class, "{requirement_expected}", ex -> TextUtil.beautify(ex.getRequired()));
+        add(DeclinedRequirement.class, "{requirement_type}", ex -> TextUtil.beautify(ex.getDisplayName()));
+        add(DeclinedRequirement.class, "{requirement_current}", ex -> TextUtil.beautify(ex.getCurrent()));
+        add(DeclinedRequirement.class, "{requirement_expected}", ex -> TextUtil.beautify(ex.getRequired()));
 
         add(SMineMessage.class, "{message_type}", message -> Helper.beautify(message.getType()));
         add(SMineMessage.class, "{message_id}", SMineMessage::getId);
@@ -114,16 +99,22 @@ public class PlaceholderController {
         add(TopTypeArg.TopType.class, "{top_type}", e -> StringUtils.capitalize(e.name().toLowerCase()));
         add(STopEntry.class, "{entry_position}", STopEntry::getPosition);
         add(BlockTopEntry.class, "{entry_blocks}", entry -> TextUtil.beautifyNumber(entry.getObject().getTotal()));
-        add(SPrestigeTopEntry.class, "{entry_prestige}", entry -> entry.getObject().getCurrentPrestige().get().getName());
+        add(SPrestigeTopEntry.class, "{entry_prestige}", entry -> entry.getObject().getParsedPrestige().get().getName());
 
         add(SMineReward.class, "{reward_chance}", SMineReward::getChance);
         add(SMineReward.class, "{reward_commands}", r -> String.join(", ", r.getCommands()));
     }
 
     private <T> void add(Class<T> type, String placeholder, Function<T, Object> handler) {
-        Set<OPair<String, Function<Object, String>>> oPairs = placeholders.computeIfAbsent(type, (clazz) -> Sets.newHashSet());
-        OPair<String, Function<Object, String>> pair = new OPair<>(placeholder, object -> handler.apply((T) object).toString());
-        oPairs.add(pair);
+        if (placeholder.contains("|")) {
+            for (String s : placeholder.split("\\|")) {
+                add(type, s, handler);
+            }
+        } else {
+            Set<OPair<String, Function<Object, String>>> oPairs = placeholders.computeIfAbsent(type, (clazz) -> Sets.newHashSet());
+            OPair<String, Function<Object, String>> pair = new OPair<>(placeholder, object -> handler.apply((T) object).toString());
+            oPairs.add(pair);
+        }
     }
 
     public String parse(String text, Object object) {

@@ -3,6 +3,9 @@ mode:
   # If the mode is automatic, prestiges will be generated for you
   type: automatic
 
+  # How many times it will repeat
+  repeat: 0
+
   automatic:
     start: "A"
     end: "Z"

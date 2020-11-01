@@ -27,7 +27,7 @@ public class CmdSet extends OCommand {
 
             messageBuilder(LocaleEnum.PRISONER_RANK_SET.getWithPrefix())
                     .replace(prisoner)
-                    .replace(ladderRank)
+                    .replace(ladderRank.apply(prisoner))
                     .send(command);
         });
     }

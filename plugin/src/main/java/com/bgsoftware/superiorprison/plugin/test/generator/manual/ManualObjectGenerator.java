@@ -9,14 +9,18 @@ import com.bgsoftware.superiorprison.plugin.test.script.variable.GlobalVariableM
 import com.bgsoftware.superiorprison.plugin.test.script.variable.VariableHelper;
 import com.oop.orangeengine.yaml.Config;
 import com.oop.orangeengine.yaml.ConfigSection;
+import lombok.Getter;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public abstract class ManualObjectGenerator implements ObjectSupplier {
+
+    @Getter
+    private int maxIndex;
+
     public ManualObjectGenerator(Config config) {
         GlobalVariableMap variableMap = new GlobalVariableMap();
         variableMap.newOrReplace("prisoner", VariableHelper.createNullVariable(SPrisoner.class));
@@ -43,6 +47,7 @@ public abstract class ManualObjectGenerator implements ObjectSupplier {
 
                 // Make sure prestige key is an number
                 int index = prestigeSection.getAs("index", int.class);
+                maxIndex = index;
 
                 // Replace the old index of the prestige to current
                 prestigeMap.newOrReplace("index", VariableHelper.createVariable(index));
@@ -73,7 +78,7 @@ public abstract class ManualObjectGenerator implements ObjectSupplier {
         }
 
         // Save the config
-        //config.save();
+        config.save();
     }
 
     private void migratePlaceholders(ConfigSection prestigeSection) {

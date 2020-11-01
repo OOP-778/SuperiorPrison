@@ -18,4 +18,6 @@ public interface ObjectSupplier {
     List<String> getAvailable();
 
     Optional<Function<SPrisoner, ParsedObject>> getParser(Object key);
+
+    int getMaxIndex();
 }

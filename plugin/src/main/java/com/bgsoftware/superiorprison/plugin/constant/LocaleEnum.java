@@ -173,6 +173,7 @@ public enum LocaleEnum {
     ),
     MAX_RANKUP_PRESTIGE_CHANGES("You've ranked up from &d{starting_prestige} &7to &d{current_prestige}&7 prestige"),
     MAX_RANKUP_RANK_CHANGES("You've ranked up from &d{starting_rank} &7to &d{current_rank}&7 rank"),
+    MAX_RANKUP_SUCCESS_NEW("You've ranked up &d{times}&7 times from &d{starting_rank}&7 to &d{current_rank}"),
 
     PRESTIGE_FAILED_DOES_NOT_MEET_REQUIREMENTS(
             new OChatMessage(

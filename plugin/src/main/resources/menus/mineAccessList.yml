@@ -1,0 +1,76 @@
+title: "&d&l{mine_name} &8&l> &5Access Menu"
+
+templates:
+  - "next page:N"
+  - "previous page:P"
+  - "condition:C"
+
+actions:
+  - "create:R"
+  - "condition:C"
+  - "next page:N"
+  - "previous page:P"
+
+layout:
+  - "@ @ @ @ I @ @ @ @"
+  - "# $ $ $ $ $ $ $ #"
+  - "# $ $ $ $ $ $ $ #"
+  - "R @ P @ @ @ N @ @"
+
+buttons:
+  "@":
+    material: gray_stained_glass_pane
+    display name: "&r"
+
+  "#":
+    material: pink_stained_glass_pane
+    display name: "&r"
+
+  "P":
+    shown:
+      material: arrow
+      display name: "&d<<"
+      lore:
+        - "&7Click to go to"
+        - "&7The previous page!"
+
+    hidden:
+      material: gray_stained_glass_pane
+      display name: "&r"
+
+  "I":
+    material: written book
+    display name: "&d&lInfo"
+    lore:
+      - "&7Here you can create conditions"
+      - "&7aka little scripts to determine"
+      - "&7If a prisoner can enter the mine"
+      - "&7Explanation of the system is available at"
+      - "&7Our wiki."
+
+  "N":
+    shown:
+      material: arrow
+      display name: "&d>>"
+      lore:
+        - "&7Click to go to"
+        - "&7The next page!"
+
+    hidden:
+      material: gray_stained_glass_pane
+      display name: "&r"
+
+  "C":
+    display name: "&d&lCondition"
+    material: paper
+    lore:
+      - "&d&l* &7Name: &d{condition_name}"
+      - "&d&l* &7Expression: &d{condition_expression}"
+      - " "
+      - "&cClick to remove"
+
+  "R":
+    display name: "&d&lCreate New"
+    material: sign
+    lore:
+      - "&7Click to create new condition!"

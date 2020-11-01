@@ -107,6 +107,7 @@ public class VariableHelper {
     }
 
     public static GlobalVariableMap.VariableData getElseCreateAsNum(String input, GlobalVariableMap variableMap) {
+        Preconditions.checkArgument(input != null, "Input cannot be null!");
         try {
             if (!Values.isNumber(input))
                 return getVariableAsNumber(RegexHelper.removeNonNumberAndParse(input), variableMap);
@@ -118,6 +119,7 @@ public class VariableHelper {
     }
 
     public static GlobalVariableMap.VariableData getElseCreate(String input, GlobalVariableMap variableMap) {
+        Preconditions.checkArgument(input != null, "Input cannot be null!");
         try {
             if (!Values.isNumber(input))
                 return getVariable(RegexHelper.removeNonNumberAndParse(input), variableMap);

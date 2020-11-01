@@ -181,11 +181,19 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
                 .ifPresent(po -> this.ladderRank = po.getIndex());
     }
 
+    public void _setLadderRank(int index) {
+        this.ladderRank = index;
+    }
+
     @Override
     public void setPrestige(int index, boolean applyOnAdd) {
         Testing.prestigeGenerator
                 .getParsed(this, index)
                 .ifPresent(po -> this.prestige = po.getIndex());
+    }
+
+    public void _setPrestige(int index) {
+        this.prestige = index;
     }
 
     @Override

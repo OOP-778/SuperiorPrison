@@ -97,12 +97,16 @@ public class MathTester {
                 currentGroup.setStart(-1);
                 depth = 0;
                 isInsideGroup = false;
+            } else {
+                return new ArrayList<>();
             }
         }
 
         if (currentGroup.isReady()) {
             currentGroup.setEnd(input.length());
             matches.add(currentGroup);
+        } else {
+            return new ArrayList<>();
         }
 
         return matches;

@@ -92,4 +92,9 @@ public class ParsedObject implements LadderObject {
     public Optional<LadderObject> getPrevious() {
         return Optional.ofNullable(previous.get());
     }
+
+    @Override
+    public void take() {
+        template.getRequirements().take(getVariableMap());
+    }
 }

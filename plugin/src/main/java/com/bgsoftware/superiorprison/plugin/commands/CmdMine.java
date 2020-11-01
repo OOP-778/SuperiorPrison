@@ -6,6 +6,7 @@ import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.util.frameworks.Framework;
 import com.oop.orangeengine.command.OCommand;
+import com.oop.orangeengine.material.OMaterial;
 import org.bukkit.entity.Player;
 
 import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;

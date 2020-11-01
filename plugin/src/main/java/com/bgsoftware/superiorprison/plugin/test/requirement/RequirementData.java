@@ -5,6 +5,7 @@ import com.bgsoftware.superiorprison.plugin.test.script.function.Function;
 import com.bgsoftware.superiorprison.plugin.test.script.util.Data;
 import com.bgsoftware.superiorprison.plugin.test.script.util.Values;
 import com.bgsoftware.superiorprison.plugin.test.script.variable.GlobalVariableMap;
+import com.bgsoftware.superiorprison.plugin.test.script.variable.VariableHelper;
 import com.oop.orangeengine.yaml.ConfigSection;
 import com.oop.orangeengine.yaml.ConfigValue;
 import lombok.Getter;
@@ -24,6 +25,9 @@ public class RequirementData {
     public RequirementData(ConfigSection section, GlobalVariableMap varMap) {
         section.ensureHasValues("getter", "value", "checker");
 
+        varMap.newOrReplace("%getter%", VariableHelper.createNullVariable(Object.class));
+        varMap.newOrReplace("%value%", VariableHelper.createNullVariable(Object.class));
+
         Object getter = section.get("getter").get().getObject();
         if (getter instanceof Number || Values.isNumber(getter.toString()))
             this.getter = getFunctionFromObject(Values.parseAsInt(getter.toString()));
@@ -32,7 +36,6 @@ public class RequirementData {
                     .get();
 
         Object value = section.get("value").get().getObject();
-        System.out.println(value.getClass());
         if (value instanceof Number || Values.isNumber(value.toString()))
             this.checkValue = getFunctionFromObject(Values.parseAsInt(value.toString()));
         else

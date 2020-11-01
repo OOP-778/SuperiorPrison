@@ -26,7 +26,7 @@ public class CmdSet extends OCommand {
 
             messageBuilder(LocaleEnum.PRISONER_PRESTIGE_SET.getWithPrefix())
                     .replace(prisoner)
-                    .replace(prestige)
+                    .replace(prestige.apply(prisoner))
                     .send(command);
         });
     }

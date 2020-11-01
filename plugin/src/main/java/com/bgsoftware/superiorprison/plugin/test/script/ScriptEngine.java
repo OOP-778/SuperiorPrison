@@ -77,47 +77,42 @@ public class ScriptEngine {
     ) throws IllegalStateException {
         // Check if it contains inside functions
         if (input.contains("}") && input.contains("{")) {
-            final List<Group> groups = new ArrayList<>();
-            final Deque<Integer> indexes = new LinkedList<>();
-            for (int i = 0; i < input.toCharArray().length; i++) {
-                char c = input.toCharArray()[i];
+            while (input.contains("}") || input.contains("{")) {
+                final List<Group> groups = getGroups(input);
 
-                if (c == '{')
-                    indexes.add(i + 1);
+                Map<String, Integer> matchedGroups = new HashMap<>();
+                for (Group group : groups) {
+                    String[] groupMatch = new String[]{group.function};
+                    matchedGroups.forEach((match, i) -> groupMatch[0] = groupMatch[0].replace(match, i + "V"));
 
-                if (c == '}') {
-                    Preconditions.checkArgument(!indexes.isEmpty(), "Failed to end a group, because it doesn't contain a start at " + input + " index: " + i);
-                    int last = indexes.removeLast();
-                    groups.add(new Group(last, i, input.substring(last, i)));
+                    Optional<GlobalVariableMap.VariableData> variableDataBy = varMap.findVariableDataBy(vd -> vd.getInput().equalsIgnoreCase("{" + groupMatch[0] + "}"));
+                    if (variableDataBy.isPresent()) {
+                        matchedGroups.put(variableDataBy.get().getInput(), variableDataBy.get().getId());
+                        continue;
+                    }
+
+                    Function<?> function = initializeFunction(groupMatch[0], varMap);
+                    Variable<?> variable = new Variable() {
+                        @Override
+                        public Class getType() {
+                            return function.getType();
+                        }
+
+                        @Override
+                        public Object get(GlobalVariableMap globalVariableMap) {
+                            return function.execute(globalVariableMap);
+                        }
+                    };
+
+                    GlobalVariableMap.VariableData variableData = varMap.newVariable("{" + groupMatch[0] + "}", variable);
+                    matchedGroups.put(variableData.getInput(), variableData.getId());
                 }
-            }
 
-            Map<String, Integer> matchedGroups = new HashMap<>();
-            for (Group group : groups) {
-                String[] groupMatch = new String[]{group.function};
-                matchedGroups.forEach((match, i) -> groupMatch[0] = groupMatch[0].replace(match, i + "V"));
-
-                Function<?> function = initializeFunction(groupMatch[0], varMap);
-                Variable<?> variable = new Variable() {
-                    @Override
-                    public Class getType() {
-                        return function.getType();
-                    }
-
-                    @Override
-                    public Object get(GlobalVariableMap globalVariableMap) {
-                        return function.execute(globalVariableMap);
-                    }
-                };
-
-                GlobalVariableMap.VariableData variableData = varMap.newVariable("{" + groupMatch[0] + "}", variable);
-                matchedGroups.put(variableData.getInput(), variableData.getId());
-            }
-
-            for (Map.Entry<String, Integer> entry : matchedGroups.entrySet()) {
-                String match = entry.getKey();
-                Integer i = entry.getValue();
-                input = input.replace(match, i + "V");
+                for (Map.Entry<String, Integer> entry : matchedGroups.entrySet()) {
+                    String match = entry.getKey();
+                    Integer i = entry.getValue();
+                    input = input.replace(match, i + "V");
+                }
             }
         }
 
@@ -133,6 +128,25 @@ public class ScriptEngine {
         function.initialize(input, varMap);
 
         return function;
+    }
+
+    private List<Group> getGroups(String input) {
+        final List<Group> groups = new LinkedList<>();
+        final Deque<Integer> indexes = new LinkedList<>();
+        for (int i = 0; i < input.toCharArray().length; i++) {
+            char c = input.toCharArray()[i];
+
+            if (c == '{')
+                indexes.add(i + 1);
+
+            if (c == '}') {
+                Preconditions.checkArgument(!indexes.isEmpty(), "Failed to end a group, because it doesn't contain a start at " + input + " index: " + i);
+                int last = indexes.removeLast();
+                groups.add(new Group(last, i, input.substring(last, i)));
+            }
+        }
+
+        return groups;
     }
 
     @SneakyThrows

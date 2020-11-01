@@ -130,6 +130,7 @@ public class GlobalVariableMap {
     }
 
     public Optional<VariableData> getVariableByInput(String input) {
+        Preconditions.checkArgument(input != null, "Input cannot be null!");
         return Optional.ofNullable(variables.get(variables.values().stream().filter(data -> data.input.equalsIgnoreCase(input)).findFirst().map(VariableData::getId).orElse(-1)));
     }
 

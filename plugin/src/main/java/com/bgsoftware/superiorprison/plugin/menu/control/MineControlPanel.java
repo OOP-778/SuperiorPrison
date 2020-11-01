@@ -1,6 +1,8 @@
 package com.bgsoftware.superiorprison.plugin.menu.control;
 
+import com.bgsoftware.superiorprison.api.data.mine.access.MineAccess;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
+import com.bgsoftware.superiorprison.plugin.menu.AccessMenu;
 import com.bgsoftware.superiorprison.plugin.menu.GeneratorEditMenu;
 import com.bgsoftware.superiorprison.plugin.menu.MineEffectsMenu;
 import com.bgsoftware.superiorprison.plugin.menu.ShopEditMenu;
@@ -79,6 +81,9 @@ public class MineControlPanel extends OPagedMenu<OptionEnum> implements OMenu.Te
 
                         case REWARDS:
                             move(new MineRewardsMenu(getViewer(), getMine()));
+                            break;
+                        case ACCESS:
+                            move(new AccessMenu(getViewer(), getMine()));
                             break;
                     }
                 });

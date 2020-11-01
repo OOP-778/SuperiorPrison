@@ -121,5 +121,18 @@ shadowJar {
     }
 }
 
+task copyJarToServer {
+    doLast {
+        copy {
+            from 'D:\\Work\\Allatori\\SuperiorPrison\\SuperiorPrison.jar'
+            into "G:\\Serrvers\\OOP\\1.8.8\\plugins"
+        }
+
+    }
+}
+
 task buildJar(dependsOn: [build, shadowJar])
+
+copyJarToServer.dependsOn(build)
+
 shadowJar.dependsOn(subprojects.shadowJar)

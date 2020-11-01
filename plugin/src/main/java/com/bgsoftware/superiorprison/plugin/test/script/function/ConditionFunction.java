@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorprison.plugin.test.script.function;
 
+import com.bgsoftware.superiorprison.plugin.test.script.RegexCreator;
 import com.bgsoftware.superiorprison.plugin.test.script.util.RegexHelper;
 import com.bgsoftware.superiorprison.plugin.test.script.util.Values;
 import com.bgsoftware.superiorprison.plugin.test.script.variable.GlobalVariableMap;
@@ -10,12 +11,78 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.bgsoftware.superiorprison.plugin.test.script.RegexCreator.*;
+
 public class ConditionFunction implements Function<Boolean> {
-    private static final Pattern LESS_THAN = Pattern.compile("([0-9]+V|[0-9]+|-[0-9]+) (?:is less than|<) ([0-9]+V|[0-9]+|-[0-9]+)");
-    private static final Pattern MORE_THAN = Pattern.compile("([0-9]+V|[0-9]+|-[0-9]+) (?:is more than|>) ([0-9]+V|[0-9]+|-[0-9]+)");
-    private static final Pattern EQUALS_OR_MORE = Pattern.compile("([0-9]+V|[0-9]+|-[0-9]+) (?:is equal? or more to|=>|>=|is more or equal to) ([0-9]+V|[0-9]+|-[0-9]+)");
-    private static final Pattern LESS_THAN_OR_EQUALS = Pattern.compile("([0-9]+V|[0-9]+|-[0-9]+) (?:is equal? or less to|<=|=<|is less or equal to) ([0-9]+V|[0-9]+|-[0-9]+)");
-    private static final Pattern IS_EQUAL = Pattern.compile("([0-9]+V|[0-9]+|-[0-9]+) (?:is equal to|==) ([0-9]+V|[0-9]+|-[0-9]+)");
+    private static final Pattern LESS_THAN = new RegexCreator()
+            .addGroup(group -> {
+                group.addVariant(NUMBER_VARIANT);
+                group.addVariant(VARIABLE_VARIANT);
+            })
+            .addGroup(group -> {
+                group.setMatching(false);
+                group.addVariant("<");
+                group.addVariant("<");
+            })
+            .addFromClone(0)
+            .compile();
+
+    private static final Pattern MORE_THAN = new RegexCreator()
+            .addGroup(group -> {
+                group.addVariant(NUMBER_VARIANT);
+                group.addVariant(VARIABLE_VARIANT);
+            })
+            .addGroup(group -> {
+                group.setMatching(false);
+                group.addVariant(">");
+                group.addVariant(">");
+            })
+            .addFromClone(0)
+            .compile();
+
+    private static final Pattern EQUALS_OR_MORE = new RegexCreator()
+            .addGroup(group -> {
+                group.addVariant(NUMBER_VARIANT);
+                group.addVariant(VARIABLE_VARIANT);
+            })
+            .addGroup(group -> {
+                group.setMatching(false);
+                group.addVariant("is equal to or more than");
+                group.addVariant(">=");
+                group.addVariant("=>");
+                group.addVariant("is more(?: than)* or equal to");
+            })
+            .addFromClone(0)
+            .compile();
+
+    private static final Pattern LESS_THAN_OR_EQUALS = new RegexCreator()
+            .addGroup(group -> {
+                group.addVariant(NUMBER_VARIANT);
+                group.addVariant(VARIABLE_VARIANT);
+            })
+            .addGroup(group -> {
+                group.setMatching(false);
+                group.addVariant("is equal or less to");
+                group.addVariant("<=");
+                group.addVariant("=<");
+                group.addVariant("is less(?: than)* or equal to");
+            })
+            .addFromClone(0)
+            .compile();
+
+    private static final Pattern IS_EQUAL = new RegexCreator()
+            .addGroup(group -> {
+                group.addVariant(NUMBER_VARIANT);
+                group.addVariant(VARIABLE_VARIANT);
+            })
+            .addGroup(group -> {
+                group.setMatching(false);
+                group.addVariant("is equal to");
+                group.addVariant("==");
+            })
+            .addFromClone(0)
+            .compile();
+
     private static final List<Pattern> patternList = Arrays.asList(LESS_THAN, MORE_THAN, EQUALS_OR_MORE, LESS_THAN_OR_EQUALS, IS_EQUAL);
 
     private int whatId;

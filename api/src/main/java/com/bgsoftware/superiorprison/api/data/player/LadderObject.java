@@ -15,4 +15,6 @@ public interface LadderObject {
     Optional<LadderObject> getNext();
 
     Optional<LadderObject> getPrevious();
+
+    void take();
 }

@@ -89,6 +89,7 @@ public class OMenuButton implements Cloneable {
 
         public ButtonItemBuilder(@NonNull ItemBuilder itemBuilder) {
             this.itemBuilder = itemBuilder;
+            itemBuilder.clearFlags();
         }
 
         protected ButtonItemBuilder() {

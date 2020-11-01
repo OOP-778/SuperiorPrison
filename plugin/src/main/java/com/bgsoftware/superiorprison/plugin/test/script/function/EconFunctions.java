@@ -79,7 +79,7 @@ public class EconFunctions {
             String _fromWho = matcher.group(2);
 
             // Initialize amount
-            amountId = getVariable(_amount, variableMap).getId();
+            amountId = getElseCreate(_amount, variableMap).getId();
             fromWhoId = getVariable(_fromWho, variableMap).getId();
         }
 

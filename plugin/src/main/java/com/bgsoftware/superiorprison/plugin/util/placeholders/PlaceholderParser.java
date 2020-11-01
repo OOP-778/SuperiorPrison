@@ -46,7 +46,7 @@ public class PlaceholderParser {
             .parse("currentmine", prisoner -> prisoner.getCurrentMine().map(Pair::getKey).map(SuperiorMine::getName).orElse("none"))
             .parse("fortuneblocks", prisoner -> booleanToState(prisoner.isFortuneBlocks()))
             .parse("canenter", (prisoner, obj, crawler) -> canEnter(prisoner, crawler))
-            .parse("rankupscale", (prisoner, obj, crawler) -> {
+            .parse("rankupscale/ladderscale", (prisoner, obj, crawler) -> {
                 Optional<LadderObject> nextLadderRank = prisoner.getParsedLadderRank().getNext();
                 if (!nextLadderRank.isPresent()) {
                     Optional<LadderObject> currentPrestige = prisoner.getParsedPrestige();
@@ -64,7 +64,7 @@ public class PlaceholderParser {
                 return nextLadderRank
                         .map(lo -> RequirementUtil.getProgressScale((ParsedObject) lo));
             })
-            .parse("rankuppercentage", (prisoner, obj, crawler) -> {
+            .parse("rankuppercentage/ladderpercentage", (prisoner, obj, crawler) -> {
                 Optional<LadderObject> nextLadderRank = prisoner.getParsedLadderRank().getNext();
                 if (!nextLadderRank.isPresent()) {
                     Optional<LadderObject> currentPrestige = prisoner.getParsedPrestige();

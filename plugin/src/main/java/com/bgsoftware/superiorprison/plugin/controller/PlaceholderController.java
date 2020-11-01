@@ -9,6 +9,7 @@ import com.bgsoftware.superiorprison.plugin.commands.args.TopTypeArg;
 import com.bgsoftware.superiorprison.plugin.menu.settings.SettingsObject;
 import com.bgsoftware.superiorprison.plugin.object.backpack.SBackPack;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
+import com.bgsoftware.superiorprison.plugin.object.mine.access.MineCondition;
 import com.bgsoftware.superiorprison.plugin.object.mine.area.SArea;
 import com.bgsoftware.superiorprison.plugin.object.mine.messages.SMineActionBarMessage;
 import com.bgsoftware.superiorprison.plugin.object.mine.messages.SMineChatMessage;
@@ -103,6 +104,9 @@ public class PlaceholderController {
 
         add(SMineReward.class, "{reward_chance}", SMineReward::getChance);
         add(SMineReward.class, "{reward_commands}", r -> String.join(", ", r.getCommands()));
+
+        add(MineCondition.class, "{condition_name}", MineCondition::getName);
+        add(MineCondition.class, "{condition_expression}", MineCondition::getPlainString);
     }
 
     private <T> void add(Class<T> type, String placeholder, Function<T, Object> handler) {

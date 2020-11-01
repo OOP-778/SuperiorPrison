@@ -46,4 +46,9 @@ public class RankGenerator extends ObjectGenerator<RankGeneratorOptions> {
     public List<String> getAvailable() {
         return new ArrayList<>(getOptions().getRankToIndex().keySet());
     }
+
+    @Override
+    public int getMaxIndex() {
+        return getOptions().getMax();
+    }
 }

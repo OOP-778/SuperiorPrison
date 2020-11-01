@@ -241,20 +241,6 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
     @Deprecated
     public boolean canEnter(Prisoner prisoner) {
         if (prisoner.getPlayer().isOp()) return true;
-//        Boolean canEnter = canEnterCache.get(prisoner.getUUID());
-//        if (canEnter != null) return canEnter;
-//
-//        boolean hasRanks = true;
-//        if (highestRank != null)
-//            hasRanks = prisoner.getCurrentLadderRank().getOrder() >= highestRank.getOrder();
-//
-//        boolean hasPrestiges = true;
-//        if (highestPrestige != null)
-//            hasPrestiges = prisoner.getCurrentPrestige().isPresent() && prisoner.getCurrentPrestige().get().getOrder() >= highestPrestige.getOrder();
-//
-//        canEnter = prisoner.getPlayer().hasPermission("superiorprison.bypass") || (hasPrestiges && hasRanks);
-//        canEnterCache.put(prisoner.getUUID(), canEnter);
-
         return access.canEnter(prisoner);
     }
 
@@ -438,7 +424,7 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
                     access
                             .addScript(
                                     name,
-                                    "if {" + getter + " == -1}: false else: { " + getter +  " >= " + index + "}"
+                                    "if {" + getter + " == 0}: false else: { " + getter +  " >= " + index + "}"
                             );
                 });
     }

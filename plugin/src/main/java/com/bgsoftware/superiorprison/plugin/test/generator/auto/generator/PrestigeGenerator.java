@@ -44,4 +44,9 @@ public class PrestigeGenerator extends ObjectGenerator<PrestigeGeneratorOptions>
     public List<String> getAvailable() {
         return getOptions().getAvailable();
     }
+
+    @Override
+    public int getMaxIndex() {
+        return getOptions().getMax();
+    }
 }

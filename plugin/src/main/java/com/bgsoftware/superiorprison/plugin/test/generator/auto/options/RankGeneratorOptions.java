@@ -34,6 +34,7 @@ public class RankGeneratorOptions extends GeneratorOptions<String> {
     private List<Character> chars = new LinkedList<>();
 
     // Max level of ranks
+    @Getter
     private int max = 1;
 
     public RankGeneratorOptions(ConfigSection section, GlobalVariableMap variableMap) {

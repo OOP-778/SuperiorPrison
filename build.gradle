@@ -37,7 +37,7 @@ allprojects {
 
     dependencies {
         if (!project.name.startsWith("nms"))
-            compileOnly "org.spigotmc:spigot:1.12.2-R0.1-SNAPSHOT"
+            compile "org.spigotmc:spigot:1.12.2-R0.1-SNAPSHOT"
         compileOnly 'org.projectlombok:lombok:1.18.8'
         annotationProcessor 'org.projectlombok:lombok:1.18.8'
 
@@ -57,7 +57,7 @@ allprojects {
             compileOnly("com.github.MilkBowl:VaultAPI:1.7")
             compileOnly 'me.clip:placeholderapi:2.10.4'
 
-            compile "com.oop:data:1.4"
+            compile "com.oop:data:1.5"
             compileOnly 'com.github.brcdev-minecraft:shopgui-api:1.5.0'
             compileOnly 'be.maximvdw:MVdWPlaceholderAPI:3.1.1-SNAPSHOT'
             compileOnly fileTree("../lib")
@@ -96,6 +96,10 @@ allprojects {
     }
 
     processResources {
+
+        setOnlyIf {true}
+        outputs.upToDateWhen {false}
+
         eachFile { details ->
             if (details.name.contentEquals('plugin.yml')) {
                 filter { String line ->
@@ -107,6 +111,12 @@ allprojects {
 
     tasks.build.dependsOn tasks.processResources
     tasks.build.dependsOn tasks.shadowJar
+
+    if (project.name.equalsIgnoreCase("api")) {
+        task javaDocs(type: Javadoc) {
+            source = sourceSets.main.allJava
+        }
+    }
 }
 
 subprojects.each { subproject -> evaluationDependsOn(subproject.path) }

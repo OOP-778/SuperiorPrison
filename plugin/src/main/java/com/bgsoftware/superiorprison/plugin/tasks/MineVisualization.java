@@ -28,10 +28,10 @@ public class MineVisualization extends OTask {
                     Location fourthCorner = new Location(mine.getWorld(), highPoint.getX(), 95, minPoint.getZ());
 
                     // Line 1
-                    drawLine(highPoint, fourthCorner, 95, 0.5, particle);
-                    drawLine(thirdCorner, minPoint, 95, 0.5, particle);
-                    drawLine(thirdCorner, highPoint, 95, 0.5, particle);
-                    drawLine(fourthCorner, minPoint, 95, 0.5, particle);
+                    drawLine(highPoint, fourthCorner, 95, 1.5, particle);
+                    drawLine(thirdCorner, minPoint, 95, 1.5, particle);
+                    drawLine(thirdCorner, highPoint, 95, 1.5, particle);
+                    drawLine(fourthCorner, minPoint, 95, 1.5, particle);
                 }
             }
         });

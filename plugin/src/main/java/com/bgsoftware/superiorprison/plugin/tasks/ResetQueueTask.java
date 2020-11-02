@@ -64,13 +64,13 @@ public class ResetQueueTask extends OTask {
                 cancel = false;
 
                 StaticTask.getInstance().sync(() -> {
-                    int proccedChunks = 0;
+                    int proceedChunks = 0;
                     try {
                         while (currentChunk != null && !currentChunk.getData().isEmpty()) {
                             if (cancel || currentChunk == null || currentChunk.getData().isEmpty())
                                 break;
 
-                            if (bukkitChunk == null) {
+                            if (bukkitChunk == null || !bukkitChunk.isLoaded()) {
                                 gettingChunk = true;
                                 Framework.FRAMEWORK.loadChunk(currentChunk.getWorld(), currentChunk.getX(), currentChunk.getZ(), chunk -> {
                                     this.bukkitChunk = chunk;
@@ -84,8 +84,8 @@ public class ResetQueueTask extends OTask {
                             poll.complete();
 
                             if (currentChunk != null && currentChunk.getData().isEmpty()) {
-                                proccedChunks++;
-                                if (proccedChunks == chunksPerTick)
+                                proceedChunks++;
+                                if (proceedChunks == chunksPerTick)
                                     break;
 
                                 currentChunk = SuperiorPrisonPlugin.getInstance().getMineController().getQueue().next();

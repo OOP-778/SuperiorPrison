@@ -23,6 +23,7 @@ public class PrestigeGenerator extends ObjectGenerator<PrestigeGeneratorOptions>
         clone.newOrReplace("index", VariableHelper.createVariable(level));
 
         return ParsedObject.of(
+                level + "",
                 getTemplate(level),
                 clone,
                 () -> getParsed(prisoner, level + 1).orElse(null),

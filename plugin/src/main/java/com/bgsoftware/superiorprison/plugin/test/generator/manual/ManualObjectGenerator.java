@@ -34,27 +34,27 @@ public abstract class ManualObjectGenerator implements ObjectSupplier {
         });
 
         // Load the prestiges
-        for (ConfigSection prestigeSection : config.getSections().values()) {
+        for (ConfigSection ladderObjectSection : config.getSections().values()) {
             try {
                 // Try to migrate requirements
-                RequirementMigrator.migrate(prestigeSection);
+                RequirementMigrator.migrate(ladderObjectSection);
 
                 // Migrate old placeholders
-                migratePlaceholders(prestigeSection);
+                migratePlaceholders(ladderObjectSection);
 
                 // Initialize prestige
                 GlobalVariableMap prestigeMap = variableMap.clone();
 
                 // Make sure prestige key is an number
-                int index = prestigeSection.getAs("index", int.class);
+                int index = ladderObjectSection.getAs("index", int.class);
                 maxIndex = index;
 
                 // Replace the old index of the prestige to current
                 prestigeMap.newOrReplace("index", VariableHelper.createVariable(index));
-                handleVariableMapClone(prestigeMap, prestigeSection);
+                handleVariableMapClone(prestigeMap, ladderObjectSection);
 
                 // Get the template
-                GeneratorTemplate generatorTemplate = new GeneratorTemplate(prestigeSection, prestigeMap);
+                GeneratorTemplate generatorTemplate = new GeneratorTemplate(ladderObjectSection, prestigeMap);
                 if (generatorTemplate.getPrefix() == null && defaultPrefix.get() != null)
                     generatorTemplate.setPrefix(defaultPrefix.get());
 
@@ -64,6 +64,7 @@ public abstract class ManualObjectGenerator implements ObjectSupplier {
                     GlobalVariableMap prisonerMap = prestigeMap.clone();
                     prisonerMap.newOrReplace("prisoner", VariableHelper.createVariable(prisoner));
                     return ParsedObject.of(
+                            ladderObjectSection.getKey(),
                             generatorTemplate,
                             prisonerMap,
                             () -> this.getParser(index + 1).map(f -> f.apply(prisoner)).orElse(null),
@@ -71,9 +72,9 @@ public abstract class ManualObjectGenerator implements ObjectSupplier {
                     );
                 };
 
-                registerObject(prestigeSection, index, parser);
+                registerObject(ladderObjectSection, index, parser);
             } catch (Throwable throwable) {
-                throw new IllegalStateException("Failed to load prestige at " + prestigeSection.getPath(), throwable);
+                throw new IllegalStateException("Failed to load ladder at " + ladderObjectSection.getPath(), throwable);
             }
         }
 

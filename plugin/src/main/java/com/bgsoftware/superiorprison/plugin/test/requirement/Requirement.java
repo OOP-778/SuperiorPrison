@@ -13,8 +13,6 @@ public class Requirement {
         map.newOrReplace("%getter%", VariableHelper.createVariable(getter));
         map.newOrReplace("%value%", VariableHelper.createVariable(value));
 
-        System.out.println("comparing " + getter + " with " + value);
-
         boolean succeed = data.getCheck().execute(map);
         return new OPair<>(succeed, !succeed ? new DeclinedRequirement(null, getter, value) : null);
     }

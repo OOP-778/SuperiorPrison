@@ -1,33 +1,30 @@
 package com.bgsoftware.superiorprison.plugin.commands.prisoner.rank;
 
 import com.bgsoftware.superiorprison.plugin.commands.args.PrisonerArg;
-import com.bgsoftware.superiorprison.plugin.commands.args.RanksArg;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
+import com.bgsoftware.superiorprison.plugin.test.Testing;
 import com.bgsoftware.superiorprison.plugin.test.generator.ParsedObject;
 import com.oop.orangeengine.command.OCommand;
 
-import java.util.function.Function;
-
 import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
 
-public class CmdSet extends OCommand {
-    public CmdSet() {
-        label("set");
-        description("Set ladder rank of the prisoner");
+public class CmdReset extends OCommand {
+    public CmdReset() {
+        label("reset");
+        description("Reset ladder rank of the prisoner");
         argument(new PrisonerArg(true).setRequired(true));
-        argument(new RanksArg().setRequired(true));
 
         onCommand(command -> {
             SPrisoner prisoner = command.getArgAsReq("prisoner");
-            Function<SPrisoner, ParsedObject> ladderRank = command.getArgAsReq("rank");
 
-            prisoner.setLadderRank(ladderRank.apply(prisoner).getIndex(), true);
+            ParsedObject parsed = Testing.ranksGenerator.getParsed(prisoner, 1).get();
+            prisoner.setLadderRank(parsed.getIndex(), false);
             prisoner.save(true);
 
-            messageBuilder(LocaleEnum.PRISONER_RANK_SET.getWithPrefix())
+            messageBuilder(LocaleEnum.PRISONER_RANK_RESET.getWithPrefix())
                     .replace(prisoner)
-                    .replace(ladderRank.apply(prisoner))
+                    .replace(parsed)
                     .send(command);
         });
     }

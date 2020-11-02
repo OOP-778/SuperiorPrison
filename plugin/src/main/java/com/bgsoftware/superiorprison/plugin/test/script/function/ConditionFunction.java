@@ -16,8 +16,8 @@ import static com.bgsoftware.superiorprison.plugin.test.script.RegexCreator.*;
 public class ConditionFunction implements Function<Boolean> {
     private static final Pattern LESS_THAN = new RegexCreator()
             .addGroup(group -> {
-                group.addVariant(NUMBER_VARIANT);
                 group.addVariant(VARIABLE_VARIANT);
+                group.addVariant(NUMBER_VARIANT);
             })
             .addGroup(group -> {
                 group.setMatching(false);
@@ -29,8 +29,8 @@ public class ConditionFunction implements Function<Boolean> {
 
     private static final Pattern MORE_THAN = new RegexCreator()
             .addGroup(group -> {
-                group.addVariant(NUMBER_VARIANT);
                 group.addVariant(VARIABLE_VARIANT);
+                group.addVariant(NUMBER_VARIANT);
             })
             .addGroup(group -> {
                 group.setMatching(false);
@@ -42,8 +42,8 @@ public class ConditionFunction implements Function<Boolean> {
 
     private static final Pattern EQUALS_OR_MORE = new RegexCreator()
             .addGroup(group -> {
-                group.addVariant(NUMBER_VARIANT);
                 group.addVariant(VARIABLE_VARIANT);
+                group.addVariant(NUMBER_VARIANT);
             })
             .addGroup(group -> {
                 group.setMatching(false);
@@ -57,8 +57,8 @@ public class ConditionFunction implements Function<Boolean> {
 
     private static final Pattern LESS_THAN_OR_EQUALS = new RegexCreator()
             .addGroup(group -> {
-                group.addVariant(NUMBER_VARIANT);
                 group.addVariant(VARIABLE_VARIANT);
+                group.addVariant(NUMBER_VARIANT);
             })
             .addGroup(group -> {
                 group.setMatching(false);
@@ -72,8 +72,8 @@ public class ConditionFunction implements Function<Boolean> {
 
     private static final Pattern IS_EQUAL = new RegexCreator()
             .addGroup(group -> {
-                group.addVariant(NUMBER_VARIANT);
                 group.addVariant(VARIABLE_VARIANT);
+                group.addVariant(NUMBER_VARIANT);
             })
             .addGroup(group -> {
                 group.setMatching(false);

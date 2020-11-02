@@ -135,6 +135,7 @@ public enum LocaleEnum {
                     .append("")
                     .append("&7&l-----------------")
     ),
+
     EDIT_ICON_DISPLAY_NAME_SET("Set the display name of the mine icon to &d{display_name}"),
     EDIT_ICON_SAVE("Successfully saved the icon!"),
     EDIT_ICON_SET_LORE_LINE("Set lore line &d{line}&7 of mine icon to &d{text}"),
@@ -144,11 +145,22 @@ public enum LocaleEnum {
     EDIT_ICON_SET_MATERIAL("The material of mine icon was set to &d{material}"),
     EDIT_ICON_SET_TEXTURE("The texture of head was set."),
 
-    RANKUP_FAILED_DOES_NOT_MEET_REQUIREMENTS(
+    RANKUP_NEED_TILL_RANKUP_REQUIREMENTS(
             new OChatMessage(
-                    new ChatLine("Failed to rank up to (&d{rank_name}&7) cause requirements aren't met: ")
+                    new ChatLine("You're missing to those requirements to rankup to &d{rank_name}: ")
                             .append(
-                                    new LineContent("{TEMPLATE}&d{requirement_type}")
+                                    new LineContent("{TEMPLATE}&d{requirement_type} &d&l(HOVER FOR INFO)")
+                                            .hover()
+                                            .add("&d&l* &7Expected Value: &d{requirement_expected}", "&d&l* &7Current value: &d{requirement_current}")
+                                            .parent()
+                            )
+            )
+    ),
+    PRESTIGE_NEED_TILL_RANKUP_REQUIREMENTS(
+            new OChatMessage(
+                    new ChatLine("You're missing to those requirements to prestige up to &d{prestige_name}: ")
+                            .append(
+                                    new LineContent("{TEMPLATE}&d{requirement_type} &d&l(HOVER FOR INFO)")
                                             .hover()
                                             .add("&d&l* &7Expected Value: &d{requirement_expected}", "&d&l* &7Current value: &d{requirement_current}")
                                             .parent()
@@ -174,6 +186,7 @@ public enum LocaleEnum {
     MAX_RANKUP_PRESTIGE_CHANGES("You've ranked up from &d{starting_prestige} &7to &d{current_prestige}&7 prestige"),
     MAX_RANKUP_RANK_CHANGES("You've ranked up from &d{starting_rank} &7to &d{current_rank}&7 rank"),
     MAX_RANKUP_SUCCESS_NEW("You've ranked up &d{times}&7 times from &d{starting_rank}&7 to &d{current_rank}"),
+    MAX_PRESTIGE_SUCCESS_NEW("You've prestiged up &d{times}&7 times from &d{starting_prestige}&7 to &d{current_prestige}"),
 
     PRESTIGE_FAILED_DOES_NOT_MEET_REQUIREMENTS(
             new OChatMessage(
@@ -206,8 +219,9 @@ public enum LocaleEnum {
     PRISONER_RANKS_VIEW("&d{prisoner_name}&7 ranks information:", "&d&l* &7Ladder rank: &d{prisoner_ladderrank}"),
     PRISONER_PRESTIGE_VIEW("&d{prisoner_name}&7 Current Prestige: &d{prisoner_prestige}"),
     PRISONER_PRESTIGE_SET("&d{prisoner_name} &7prestige was set to &d{prestige_name}"),
+    PRISONER_PRESTIGE_RESET("&d{prisoner_name}'s &7prestige was reset!"),
     PRISONER_RANK_SET("&d{prisoner_name} &7ladder rank was set to &d{rank_name}"),
-    PRISONER_RANKS_ADD_CANNOT_LADDER("Cannot add ladder rank. Use set command to set a ladder rank!"),
+    PRISONER_RANK_RESET("&d{prisoner_name}'s &7rank was reset!"),
 
     PRISONER_BOOSTER_ADD("Added booster (&d{booster_type}, {booster_rate}, {booster_time}&7) to {prisoner_name}"),
     PRISONER_BOOSTER_CLEAR("Cleared boosters for {prisoner_name}"),

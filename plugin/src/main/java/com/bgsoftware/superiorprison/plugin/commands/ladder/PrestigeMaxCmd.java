@@ -6,13 +6,16 @@ import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.test.Testing;
 import com.bgsoftware.superiorprison.plugin.test.generator.ParsedObject;
+import com.bgsoftware.superiorprison.plugin.test.requirement.DeclinedRequirement;
 import com.oop.orangeengine.command.OCommand;
 import com.oop.orangeengine.main.Helper;
 import com.oop.orangeengine.main.task.StaticTask;
+import com.oop.orangeengine.main.util.data.pair.OPair;
 import org.bukkit.block.data.type.Ladder;
 import org.bukkit.entity.Player;
 import org.junit.Test;
 
+import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.listedBuilder;
 import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
 
 public class PrestigeMaxCmd extends OCommand {
@@ -54,10 +57,27 @@ public class PrestigeMaxCmd extends OCommand {
                     if (current == null) break;
 
                     if (prisoner.getLadderRank() != Testing.ranksGenerator.getMaxIndex())
-                        LadderHelper.doMaxRank(prisoner, prisoner.getLadderRank(), Testing.ranksGenerator.getMaxIndex(), (ParsedObject) prisoner.getParsedLadderRank().getNext().get());
+                         LadderHelper.doMaxRank(prisoner, prisoner.getLadderRank(), Testing.ranksGenerator.getMaxIndex(), (ParsedObject) prisoner.getParsedLadderRank().getNext().get());
 
-                    if (prisoner.getLadderRank() != Testing.ranksGenerator.getMaxIndex())
-                        break;
+                    if (prisoner.getLadderRank() != Testing.ranksGenerator.getMaxIndex()) {
+                        if (last != null && (last.getIndex() - startingParsed.getIndex()) != 0) {
+                            int difference = last.getIndex() - wasPrestige;
+                            messageBuilder(LocaleEnum.MAX_PRESTIGE_SUCCESS_NEW.getWithPrefix())
+                                    .replace("{times}", difference)
+                                    .replace("{starting_prestige}", startingParsed.getName())
+                                    .replace("{current_prestige}", last.getName())
+                                    .send(command.getSender());
+                        }
+
+                        ParsedObject nextRank = (ParsedObject) prisoner.getParsedLadderRank().getNext().get();
+                        listedBuilder(DeclinedRequirement.class)
+                                .message(LocaleEnum.PRESTIGE_NEED_TILL_RANKUP_REQUIREMENTS.getMessage().clone())
+                                .addObject(nextRank.getTemplate().getRequirements().meets(nextRank.getVariableMap()).getSecond().toArray(new DeclinedRequirement[0]))
+                                .addPlaceholderObject(current)
+                                .identifier("{TEMPLATE}")
+                                .send(command);
+                        return;
+                    }
 
                     // Check if prestige meets up to the requirements
                     if (!current.getMeets().get()) break;
@@ -73,14 +93,34 @@ public class PrestigeMaxCmd extends OCommand {
 
                     last = current;
                 }
-                if (last == null) return;
+
+                if (last == null) {
+                    ParsedObject parsedObject = Testing.prestigeGenerator.getParsed(prisoner, prisoner.getPrestige() + 1).get();
+                    listedBuilder(DeclinedRequirement.class)
+                            .message(LocaleEnum.PRESTIGE_NEED_TILL_RANKUP_REQUIREMENTS.getMessage().clone())
+                            .addObject(parsedObject.getTemplate().getRequirements().meets(parsedObject.getVariableMap()).getSecond().toArray(new DeclinedRequirement[0]))
+                            .addPlaceholderObject(parsedObject)
+                            .identifier("{TEMPLATE}")
+                            .send(command);
+                    return;
+                }
 
                 int difference = last.getIndex() - wasPrestige;
-                messageBuilder(LocaleEnum.MAX_RANKUP_SUCCESS_NEW.getWithPrefix())
+                messageBuilder(LocaleEnum.MAX_PRESTIGE_SUCCESS_NEW.getWithPrefix())
                         .replace("{times}", difference)
                         .replace("{starting_prestige}", startingParsed == null ? "None" : startingParsed.getName())
                         .replace("{current_prestige}", last.getName())
                         .send(command.getSender());
+
+                last.getNext().ifPresent(prestige -> {
+                    listedBuilder(DeclinedRequirement.class)
+                            .addObject(((ParsedObject) prestige).getTemplate().getRequirements().meets(((ParsedObject) prestige).getVariableMap()).getSecond().toArray(new DeclinedRequirement[0]))
+                            .addPlaceholderObject(prestige)
+                            .identifier("{TEMPLATE}")
+                            .message(LocaleEnum.PRESTIGE_NEED_TILL_RANKUP_REQUIREMENTS.getMessage())
+                            .send(command);
+                });
+
                 prisoner.save(true);
             });
         });

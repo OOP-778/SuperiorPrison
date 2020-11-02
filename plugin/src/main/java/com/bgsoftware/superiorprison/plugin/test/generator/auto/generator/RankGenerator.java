@@ -24,6 +24,7 @@ public class RankGenerator extends ObjectGenerator<RankGeneratorOptions> {
         clone.newOrReplace("rank_name", VariableHelper.createVariable(getOptions().getRankByIndex(level)));
 
         return ParsedObject.of(
+                getOptions().getRankByIndex(level),
                 getTemplate(level),
                 clone,
                 () -> hasNext(level) ? parse(prisoner, level + 1) : null,

@@ -90,7 +90,7 @@ allprojects {
         destinationDir file('../archive')
         archiveName project.name + ".jar"
 
-        relocate("com.oop.orangeengine", "com.bgsoftware.superiorprison.engine")
+        //relocate("com.oop.orangeengine", "com.bgsoftware.superiorprison.engine")
         relocate("com.oop.datamodule", "com.bgsoftware.superiorprison.datamodule")
         relocate("io.papermc.lib", "com.bgsoftware.superiorprison.paper")
     }

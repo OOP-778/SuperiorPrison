@@ -99,8 +99,7 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
     @Getter
     private int prestige;
 
-    public SPrisoner() {
-    }
+    public SPrisoner() {}
 
     public SPrisoner(UUID uuid) {
         this.uuid = uuid;
@@ -112,6 +111,8 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
         autoPickup = prisonerDefaults.isAutoPickup();
         fortuneBlocks = prisonerDefaults.isFortuneBlocks();
         this.textureValue = getOnlineSkullTexture();
+
+        this.ladderRank = 1;
     }
 
     @Override

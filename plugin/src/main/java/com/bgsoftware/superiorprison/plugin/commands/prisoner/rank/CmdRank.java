@@ -7,6 +7,8 @@ public class CmdRank extends OCommand {
         label("rank");
         description("set, reset rank");
         permission("superiorprison.admin");
+
         subCommand(new CmdSet());
+        subCommand(new CmdReset());
     }
 }

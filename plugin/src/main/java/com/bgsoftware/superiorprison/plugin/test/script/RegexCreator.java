@@ -92,24 +92,4 @@ public class RegexCreator {
             return builder.toString();
         }
     }
-
-    public static void main(String[] args) {
-        System.out.println(
-                new RegexCreator()
-                        .addGroup(group -> {
-                            group.addVariant(NUMBER_VARIANT);
-                            group.addVariant(VARIABLE_VARIANT);
-                        })
-                        .addGroup(group -> {
-                            group.matching = false;
-                            group.addVariant("is equal or less to");
-                            group.addVariant("<=");
-                            group.addVariant("=<");
-                            group.addVariant("is less(?: than)* or equal to");
-                        })
-                        .addFromClone(0)
-                        .compile()
-
-        );
-    }
 }

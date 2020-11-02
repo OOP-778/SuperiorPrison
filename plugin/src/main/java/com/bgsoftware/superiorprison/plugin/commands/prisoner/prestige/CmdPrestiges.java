@@ -10,5 +10,6 @@ public class CmdPrestiges extends OCommand {
         permission("superiorprison.admin");
 
         subCommand(new CmdSet());
+        subCommand(new CmdReset());
     }
 }

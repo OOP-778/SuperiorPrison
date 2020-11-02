@@ -38,10 +38,14 @@ public class ParsedObject implements LadderObject {
     private Supplier<ParsedObject> next;
     private Supplier<ParsedObject> previous;
 
+    @Getter
+    private String name;
+
     private ParsedObject() {}
 
-    public static ParsedObject of(GeneratorTemplate template, GlobalVariableMap map, Supplier<ParsedObject> next, Supplier<ParsedObject> previous) {
+    public static ParsedObject of(String name, GeneratorTemplate template, GlobalVariableMap map, Supplier<ParsedObject> next, Supplier<ParsedObject> previous) {
         ParsedObject parsedObject = new ParsedObject();
+        parsedObject.name = name;
         parsedObject.variableMap = map;
         parsedObject.prefix = map.extractVariables(template.getPrefix());
         parsedObject.template = template;
@@ -71,11 +75,6 @@ public class ParsedObject implements LadderObject {
                 ", variableMap=" + variableMap +
                 ", template=" + template +
                 '}';
-    }
-
-    @Override
-    public String getName() {
-        return getPrefix();
     }
 
     @Override

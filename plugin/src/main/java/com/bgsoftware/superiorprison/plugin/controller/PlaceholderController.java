@@ -3,7 +3,6 @@ package com.bgsoftware.superiorprison.plugin.controller;
 import com.bgsoftware.superiorprison.api.data.mine.flags.Flag;
 import com.bgsoftware.superiorprison.api.data.player.LadderObject;
 import com.bgsoftware.superiorprison.api.data.player.booster.Booster;
-import com.bgsoftware.superiorprison.api.requirement.DeclinedRequirement;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.commands.args.TopTypeArg;
 import com.bgsoftware.superiorprison.plugin.menu.settings.SettingsObject;
@@ -22,6 +21,7 @@ import com.bgsoftware.superiorprison.plugin.object.player.booster.SBooster;
 import com.bgsoftware.superiorprison.plugin.object.top.STopEntry;
 import com.bgsoftware.superiorprison.plugin.object.top.blocks.BlockTopEntry;
 import com.bgsoftware.superiorprison.plugin.object.top.prestige.SPrestigeTopEntry;
+import com.bgsoftware.superiorprison.plugin.test.requirement.DeclinedRequirement;
 import com.bgsoftware.superiorprison.plugin.util.TextUtil;
 import com.bgsoftware.superiorprison.plugin.util.TimeUtil;
 import com.google.common.collect.Maps;
@@ -72,8 +72,8 @@ public class PlaceholderController {
         add(Flag.class, "{flag_name}", flag -> Helper.beautify(flag.name()));
         add(Flag.class, "{flag_description}", Flag::getDescription);
 
-        add(DeclinedRequirement.class, "{requirement_type}", ex -> TextUtil.beautify(ex.getDisplayName()));
-        add(DeclinedRequirement.class, "{requirement_current}", ex -> TextUtil.beautify(ex.getCurrent()));
+        add(DeclinedRequirement.class, "{requirement_type}", ex -> TextUtil.beautify(ex.getDisplay()));
+        add(DeclinedRequirement.class, "{requirement_current}", ex -> TextUtil.beautify(ex.getValue()));
         add(DeclinedRequirement.class, "{requirement_expected}", ex -> TextUtil.beautify(ex.getRequired()));
 
         add(SMineMessage.class, "{message_type}", message -> Helper.beautify(message.getType()));

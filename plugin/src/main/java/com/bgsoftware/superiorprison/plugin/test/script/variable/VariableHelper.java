@@ -4,6 +4,7 @@ import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 import com.bgsoftware.superiorprison.plugin.test.script.util.RegexHelper;
 import com.bgsoftware.superiorprison.plugin.test.script.util.Values;
 import com.google.common.base.Preconditions;
+import com.google.common.primitives.Primitives;
 import org.bukkit.OfflinePlayer;
 
 import java.util.function.Function;
@@ -88,7 +89,11 @@ public class VariableHelper {
         return getVariableAndMakeSure(
                 id,
                 variableMap,
-                in -> Number.class.isAssignableFrom(in.getVariable().getType()),
+                in -> {
+                    Class<?> unwrap = Primitives.wrap(in.getVariable().getType());
+                    return Number.class.isAssignableFrom(unwrap);
+
+                },
                 vd -> "Variable '" + vd + "' does not return a number!"
         );
     }

@@ -76,7 +76,6 @@ public class SBlockController implements BlockController {
         int[] experience = new int[]{0};
 
         SMineBlockData mineBlockData = (SMineBlockData) mine.getGenerator().getBlockData();
-
         Map<OMaterial, Integer> materialsAmount = new HashMap<>();
 
         for (Location location : locations) {
@@ -168,7 +167,9 @@ public class SBlockController implements BlockController {
                         d.getValue().addAll(left.values());
                     });
 
-            XPUtil.setTotalExperience(prisoner.getPlayer(), XPUtil.getTotalExperience(prisoner.getPlayer()) + event.getExperience());
+            if (event.getExperience() >= 1)
+                XPUtil.setTotalExperience(prisoner.getPlayer(), XPUtil.getTotalExperience(prisoner.getPlayer()) + event.getExperience());
+
             event.setExperience(0);
         }
 

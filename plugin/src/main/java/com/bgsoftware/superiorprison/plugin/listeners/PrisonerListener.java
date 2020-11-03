@@ -2,6 +2,7 @@ package com.bgsoftware.superiorprison.plugin.listeners;
 
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
 import com.bgsoftware.superiorprison.api.data.mine.area.AreaEnum;
+import com.bgsoftware.superiorprison.api.data.mine.settings.ResetSettings;
 import com.bgsoftware.superiorprison.api.event.mine.MineEnterEvent;
 import com.bgsoftware.superiorprison.api.event.mine.MineLeaveEvent;
 import com.bgsoftware.superiorprison.api.event.mine.MultiBlockBreakEvent;
@@ -14,6 +15,7 @@ import com.bgsoftware.superiorprison.plugin.hook.impl.PapiHook;
 import com.bgsoftware.superiorprison.plugin.object.chat.ChatFormat;
 import com.bgsoftware.superiorprison.plugin.object.mine.area.SArea;
 import com.bgsoftware.superiorprison.plugin.object.mine.effects.SMineEffect;
+import com.bgsoftware.superiorprison.plugin.object.mine.settings.SResetSettings;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.util.SPLocation;
 import com.bgsoftware.superiorprison.plugin.util.frameworks.Framework;
@@ -22,6 +24,7 @@ import com.oop.orangeengine.main.events.SyncEvents;
 import com.oop.orangeengine.main.task.OTask;
 import com.oop.orangeengine.main.task.StaticTask;
 import com.oop.orangeengine.main.util.data.cache.OCache;
+import com.oop.orangeengine.material.OMaterial;
 import com.oop.orangeengine.message.OMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -163,6 +166,7 @@ public class PrisonerListener {
                 return;
             }
 
+            OMaterial blockType = OMaterial.matchMaterial(event.getBlock());
             BlockBreakEvent bouncedEvent = new BlockBreakEvent(event.getBlock(), prisoner.getPlayer());
             ignoreEvents.put(bouncedEvent, true);
 
@@ -175,6 +179,20 @@ public class PrisonerListener {
                 // If they cancelled and set the block to AIR
                 if (event.getBlock().getType() == Material.AIR)
                     minePair.getKey().getGenerator().getBlockData().remove(event.getBlock().getLocation());
+
+                // Increase the the block broken to player
+                SuperiorPrisonPlugin.getInstance().getStatisticsController()
+                        .getContainer(prisoner.getUUID())
+                        .getBlocksStatistic()
+                        .update(blockType, 1);
+
+                // Decrease the type
+                if (minePair.getKey().getSettings().getResetSettings() instanceof SResetSettings.SPercentage) {
+                    ResetSettings.Percentage percentage = minePair.getKey().getSettings().getResetSettings().asPercentage();
+                    int percentageLeft = minePair.getKey().getGenerator().getBlockData().getPercentageLeft();
+                    if (percentageLeft <= percentage.getValue())
+                        minePair.getKey().getGenerator().generate();
+                }
                 return;
             }
 

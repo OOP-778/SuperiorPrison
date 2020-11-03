@@ -1,5 +1,9 @@
 package com.bgsoftware.superiorprison.plugin.tasks;
 
+import com.bgsoftware.superiorprison.api.SuperiorPrisonAPI;
+import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
+import com.bgsoftware.superiorprison.api.data.mine.area.AreaEnum;
+import com.bgsoftware.superiorprison.api.data.mine.flags.Flag;
 import com.bgsoftware.superiorprison.api.data.player.rank.LadderRank;
 import com.bgsoftware.superiorprison.api.requirement.Requirement;
 import com.bgsoftware.superiorprison.api.requirement.RequirementException;
@@ -28,7 +32,12 @@ public class RankupTask extends OTask {
             SuperiorPrisonPlugin.getInstance().getPrisonerController()
                     .streamOnline()
                     .filter(prisoner -> prisoner.getCurrentMine().isPresent())
-                    .filter(prisoner -> cache.getIfPresent(prisoner.getUUID()) == null || !Objects.requireNonNull(cache.getIfPresent(prisoner.getUUID())).contentEquals(prisoner.getCurrentLadderRank().getName()))
+                    .filter(prisoner -> {
+                        String ifPresent = cache.getIfPresent(prisoner.getUUID());
+                        if (ifPresent == null) return true;
+
+                        return !ifPresent.contentEquals(prisoner.getCurrentLadderRank().getName());
+                    })
                     .filter(prisoner -> {
                         LadderRank rank = prisoner.getCurrentLadderRank();
                         if (rank == null) return false;

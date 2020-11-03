@@ -3,6 +3,7 @@ package com.bgsoftware.superiorprison.plugin.commands;
 import com.bgsoftware.superiorprison.plugin.commands.backpacks.CmdBackpacks;
 import com.bgsoftware.superiorprison.plugin.commands.bombs.CmdBombs;
 import com.bgsoftware.superiorprison.plugin.commands.ladder.PrestigeMaxCmd;
+import com.bgsoftware.superiorprison.plugin.commands.ladder.RankupCmd;
 import com.bgsoftware.superiorprison.plugin.commands.ladder.RankupMaxCmd;
 import com.bgsoftware.superiorprison.plugin.commands.mines.CmdMines;
 import com.bgsoftware.superiorprison.plugin.commands.pcp.CmdPrisonerCP;
@@ -53,6 +54,7 @@ public class CommandsRegister {
 
         controller.register(new RankupMaxCmd());
         controller.register(new PrestigeMaxCmd());
+        controller.register(new RankupCmd());
         //new CommandsPrinter(controller, new File(SuperiorPrisonPlugin.getInstance().getDataFolder(), "commands.txt"));
 
         // Unregister all similar commands from other plugins

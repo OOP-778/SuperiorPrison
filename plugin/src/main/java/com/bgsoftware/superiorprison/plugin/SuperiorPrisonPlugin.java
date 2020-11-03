@@ -168,6 +168,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
 
             player.kickPlayer(Helper.color(LocaleEnum.PRISON_SHUTDOWN.getMessage().raw()[0]));
         });
+
         instance = null;
         Updater.plugin = null;
         SuperiorPrisonAPI.onDisable();

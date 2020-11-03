@@ -1,6 +1,5 @@
 package com.bgsoftware.superiorprison.plugin.commands.ladder;
 
-import com.bgsoftware.superiorprison.api.data.player.LadderObject;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
@@ -8,12 +7,8 @@ import com.bgsoftware.superiorprison.plugin.test.Testing;
 import com.bgsoftware.superiorprison.plugin.test.generator.ParsedObject;
 import com.bgsoftware.superiorprison.plugin.test.requirement.DeclinedRequirement;
 import com.oop.orangeengine.command.OCommand;
-import com.oop.orangeengine.main.Helper;
 import com.oop.orangeengine.main.task.StaticTask;
-import com.oop.orangeengine.main.util.data.pair.OPair;
-import org.bukkit.block.data.type.Ladder;
 import org.bukkit.entity.Player;
-import org.junit.Test;
 
 import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.listedBuilder;
 import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
@@ -41,12 +36,7 @@ public class PrestigeMaxCmd extends OCommand {
                 return;
             }
 
-            command.getSender().sendMessage(maxIndex + "");
-            command.getSender().sendMessage(Helper.color(prisoner.getParsedLadderRank().getName()));
-            command.getSender().sendMessage(Helper.color(prisoner.getParsedPrestige().map(LadderObject::getName).orElse("None")));
-
             ParsedObject startingParsed = (ParsedObject) prisoner.getParsedPrestige().orElse(null);
-
             StaticTask.getInstance().async(() -> {
                 ParsedObject last = null;
                 while (currentPrestige[0] != maxIndex) {
@@ -57,7 +47,7 @@ public class PrestigeMaxCmd extends OCommand {
                     if (current == null) break;
 
                     if (prisoner.getLadderRank() != Testing.ranksGenerator.getMaxIndex())
-                         LadderHelper.doMaxRank(prisoner, prisoner.getLadderRank(), Testing.ranksGenerator.getMaxIndex(), (ParsedObject) prisoner.getParsedLadderRank().getNext().get());
+                        LadderHelper.doMaxRank(prisoner, prisoner.getLadderRank(), Testing.ranksGenerator.getMaxIndex(), (ParsedObject) prisoner.getParsedLadderRank().getNext().get());
 
                     if (prisoner.getLadderRank() != Testing.ranksGenerator.getMaxIndex()) {
                         if (last != null && (last.getIndex() - startingParsed.getIndex()) != 0) {

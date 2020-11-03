@@ -7,7 +7,6 @@ import com.oop.orangeengine.main.util.data.pair.OPair;
 public class LadderHelper {
     public static OPair<ParsedObject, Integer> doMaxRank(SPrisoner prisoner, int currentRank, int maxRank, ParsedObject parsedObject) {
         ParsedObject last = null;
-
         int startingRank = currentRank;
 
         while (currentRank != maxRank) {

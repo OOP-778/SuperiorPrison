@@ -146,4 +146,9 @@ public class Values {
         return false;
     }
 
+    public static boolean isSameClass(Class<?> v1, Class<?> v2) {
+        Class<?> c1 = Primitives.unwrap(v1);
+        Class<?> c2 = Primitives.unwrap(v2);
+        return c1.isAssignableFrom(c2) || c2.isAssignableFrom(c1);
+    }
 }

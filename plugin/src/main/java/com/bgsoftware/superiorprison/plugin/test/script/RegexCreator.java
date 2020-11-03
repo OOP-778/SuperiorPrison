@@ -12,12 +12,12 @@ public class RegexCreator {
     public static String VARIABLE_VARIANT = "[0-9]+V";
     public static String NUMBER_VARIANT = "[-]*[0-9]+";
 
-    private List<VariantCreator> groups = new LinkedList<>();
+    private List<String> groups = new LinkedList<>();
 
-    public RegexCreator addGroup(@NonNull Consumer<VariantCreator> consumer) {
+    public RegexCreator add(@NonNull Consumer<VariantCreator> consumer) {
         VariantCreator variantCreator = new VariantCreator();
         consumer.accept(variantCreator);
-        groups.add(variantCreator);
+        groups.add(variantCreator.toString());
         return this;
     }
 
@@ -26,8 +26,13 @@ public class RegexCreator {
         return this;
     }
 
-    public RegexCreator addGroup(String input, boolean optional, boolean matching) {
-        return addGroup(group -> {
+    public RegexCreator add(String input) {
+        groups.add(input);
+        return this;
+    }
+
+    public RegexCreator add(String input, boolean optional, boolean matching) {
+        return add(group -> {
             group.addVariant(input);
             group.optional = optional;
             group.matching = matching;
@@ -36,7 +41,7 @@ public class RegexCreator {
 
     public String buildToString() {
         StringBuilder builder = new StringBuilder();
-        String[] strings = groups.stream().map(VariantCreator::toString).toArray(String[]::new);
+        String[] strings = groups.toArray(new String[0]);
         for (int i = 0; i < strings.length; i++) {
             builder.append(strings[i]);
             if (i != (strings.length - 1))
@@ -47,6 +52,7 @@ public class RegexCreator {
     }
 
     public Pattern compile() {
+        System.out.println(buildToString());
         return Pattern.compile(buildToString(), Pattern.CASE_INSENSITIVE);
     }
 

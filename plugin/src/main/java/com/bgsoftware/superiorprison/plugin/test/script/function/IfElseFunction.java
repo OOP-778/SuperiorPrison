@@ -1,5 +1,7 @@
 package com.bgsoftware.superiorprison.plugin.test.script.function;
 
+import com.bgsoftware.superiorprison.plugin.test.script.RegexCreator;
+import com.bgsoftware.superiorprison.plugin.test.script.util.Values;
 import com.bgsoftware.superiorprison.plugin.test.script.variable.GlobalVariableMap;
 import com.bgsoftware.superiorprison.plugin.test.script.variable.Variable;
 import com.bgsoftware.superiorprison.plugin.test.script.variable.VariableHelper;
@@ -10,7 +12,19 @@ import java.util.regex.Pattern;
 
 public class IfElseFunction implements Function<Object> {
 
-    public static final Pattern IF_ELSE_PATTERN = Pattern.compile("if ([0-9]+V): ([0-9]+V) else: ([0-9]+V)");
+    ///public static final Pattern IF_ELSE_PATTERN = Pattern.compile("if : ([0-9]+V) else: ([0-9]+V)");
+    public static final Pattern IF_ELSE_PATTERN = new RegexCreator()
+            .add("if")
+            .add(variant -> {
+                variant.addVariant(RegexCreator.VARIABLE_VARIANT);
+                variant.addVariant(RegexCreator.NUMBER_VARIANT);
+                variant.setMatching(true);
+            })
+            .add(":")
+            .addFromClone(1)
+            .add("else:")
+            .addFromClone(1)
+            .compile();
 
     private int checkId;
     private int case1Id;
@@ -29,11 +43,11 @@ public class IfElseFunction implements Function<Object> {
                 (vd) -> "Failed to find variable for if else check by `" + matcher.group(1) + "`"
         ).getId();
 
-        GlobalVariableMap.VariableData case1Data = VariableHelper.getVariable(matcher.group(2), variableMap);
-        GlobalVariableMap.VariableData case2Data = VariableHelper.getVariable(matcher.group(3), variableMap);
+        GlobalVariableMap.VariableData case1Data = VariableHelper.getElseCreate(matcher.group(2), variableMap);
+        GlobalVariableMap.VariableData case2Data = VariableHelper.getElseCreate(matcher.group(3), variableMap);
 
         Preconditions.checkArgument(
-                case1Data.getVariable().getType().isAssignableFrom(case2Data.getVariable().getType()),
+                Values.isSameClass(case1Data.getVariable().getType(), case2Data.getVariable().getType()),
                 "Failed to initialize if else expression, cause both cases doesn't return similar objects " +
                         "case1 " + case1Data.getVariable().getType().getName() + ", case2: " + case2Data.getVariable().getType().getName()
         );

@@ -15,11 +15,11 @@ import static com.bgsoftware.superiorprison.plugin.test.script.RegexCreator.*;
 
 public class ConditionFunction implements Function<Boolean> {
     private static final Pattern LESS_THAN = new RegexCreator()
-            .addGroup(group -> {
+            .add(group -> {
                 group.addVariant(VARIABLE_VARIANT);
                 group.addVariant(NUMBER_VARIANT);
             })
-            .addGroup(group -> {
+            .add(group -> {
                 group.setMatching(false);
                 group.addVariant("<");
                 group.addVariant("<");
@@ -28,11 +28,11 @@ public class ConditionFunction implements Function<Boolean> {
             .compile();
 
     private static final Pattern MORE_THAN = new RegexCreator()
-            .addGroup(group -> {
+            .add(group -> {
                 group.addVariant(VARIABLE_VARIANT);
                 group.addVariant(NUMBER_VARIANT);
             })
-            .addGroup(group -> {
+            .add(group -> {
                 group.setMatching(false);
                 group.addVariant(">");
                 group.addVariant(">");
@@ -41,11 +41,11 @@ public class ConditionFunction implements Function<Boolean> {
             .compile();
 
     private static final Pattern EQUALS_OR_MORE = new RegexCreator()
-            .addGroup(group -> {
+            .add(group -> {
                 group.addVariant(VARIABLE_VARIANT);
                 group.addVariant(NUMBER_VARIANT);
             })
-            .addGroup(group -> {
+            .add(group -> {
                 group.setMatching(false);
                 group.addVariant("is equal to or more than");
                 group.addVariant(">=");
@@ -56,11 +56,11 @@ public class ConditionFunction implements Function<Boolean> {
             .compile();
 
     private static final Pattern LESS_THAN_OR_EQUALS = new RegexCreator()
-            .addGroup(group -> {
+            .add(group -> {
                 group.addVariant(VARIABLE_VARIANT);
                 group.addVariant(NUMBER_VARIANT);
             })
-            .addGroup(group -> {
+            .add(group -> {
                 group.setMatching(false);
                 group.addVariant("is equal or less to");
                 group.addVariant("<=");
@@ -71,11 +71,11 @@ public class ConditionFunction implements Function<Boolean> {
             .compile();
 
     private static final Pattern IS_EQUAL = new RegexCreator()
-            .addGroup(group -> {
+            .add(group -> {
                 group.addVariant(VARIABLE_VARIANT);
                 group.addVariant(NUMBER_VARIANT);
             })
-            .addGroup(group -> {
+            .add(group -> {
                 group.setMatching(false);
                 group.addVariant("is equal to");
                 group.addVariant("==");

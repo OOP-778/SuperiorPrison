@@ -142,7 +142,7 @@ public class SBlockController implements BlockController {
                     .forEach(c -> {
                         c.getValue().removeIf(itemStack -> {
                             BigDecimal price = prisoner.getPrice(itemStack);
-                            if (price.intValue() == 0) return false;
+                            if (price.doubleValue() == 0) return false;
 
                             deposit[0] = deposit[0].add(price);
                             return true;

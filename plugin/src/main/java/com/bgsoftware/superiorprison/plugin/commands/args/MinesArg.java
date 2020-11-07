@@ -18,7 +18,7 @@ public class MinesArg extends CommandArgument<SNormalMine> {
             Optional<SuperiorMine> superiorMine = SuperiorPrisonPlugin.getInstance().getMineController().getMines().stream()
                     .filter(mine -> mine.getName().equalsIgnoreCase(mineName))
                     .findFirst();
-            return new OPair<>(superiorMine.orElse(null), "Failed to find mine with name " + mineName);
+            return new OPair<>((SNormalMine) superiorMine.orElse(null), "Failed to find mine with name " + mineName);
         });
     }
 

@@ -1,38 +1,46 @@
 package com.bgsoftware.superiorprison.plugin.commands.args;
 
-import com.bgsoftware.superiorprison.api.data.player.LadderObject;
+import com.bgsoftware.superiorprison.api.data.player.Prestige;
+import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
+import com.bgsoftware.superiorprison.plugin.object.player.SPrestige;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
-import com.bgsoftware.superiorprison.plugin.test.Testing;
 import com.oop.orangeengine.command.OCommand;
 import com.oop.orangeengine.command.arg.CommandArgument;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public class PrestigesArg extends CommandArgument<Function<SPrisoner, LadderObject>> {
+public class PrestigesArg extends CommandArgument<SPrestige> {
     public PrestigesArg() {
         setIdentity("prestige");
         setDescription("A prestige");
 
-        setMapper(name -> new OPair<>(Testing.prestigeGenerator.getParser(name).orElse(null), "Failed to find prestige by name " + name));
+        setMapper(name -> {
+            Optional<Prestige> first = getPrestiges()
+                    .stream()
+                    .filter(prestige -> prestige.getName().equalsIgnoreCase(name))
+                    .findFirst();
+            return new OPair<>((SPrestige)first.orElse(null), "Failed to find prestige by name " + name);
+        });
+    }
+
+    public List<Prestige> getPrestiges() {
+        return new ArrayList<>(SuperiorPrisonPlugin.getInstance().getPrestigeController().getPrestiges());
     }
 
     @Override
     public void onAdd(OCommand command) {
         command.nextTabComplete((previous, args) -> {
-            List<String> available = Testing.prestigeGenerator.getAvailable();
             SPrisoner prisoner = previous.find(SPrisoner.class).orElse(null);
-            if (available.size() > 20) {
-                available = available.subList(0, 20);
-                available.add("...");
-            }
+            Stream<Prestige> stream = SuperiorPrisonPlugin.getInstance().getPrestigeController().getPrestiges().stream();
+            if (prisoner != null)
+                stream = stream.filter(prestige -> !prisoner.hasPrestige(prestige));
 
-            if (prisoner != null && prisoner.getPrestige() != -1)
-                available
-                        .removeIf(p -> Integer.parseInt(p) <= prisoner.getPrestige());
-
-            return available;
+            return stream.map(Prestige::getName).collect(Collectors.toList());
         });
     }
 }

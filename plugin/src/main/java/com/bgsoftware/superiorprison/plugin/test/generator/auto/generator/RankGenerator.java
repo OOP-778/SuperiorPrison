@@ -28,7 +28,8 @@ public class RankGenerator extends ObjectGenerator<RankGeneratorOptions> {
                 getTemplate(level),
                 clone,
                 () -> hasNext(level) ? parse(prisoner, level + 1) : null,
-                () -> isValid(level - 1) ? parse(prisoner, level - 1) : null
+                () -> isValid(level - 1) ? parse(prisoner, level - 1) : null,
+                level
         );
     }
 

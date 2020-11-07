@@ -60,8 +60,7 @@ public class VariableHelper {
             if (Values.isNumber(_input.toString()))
                 return getVariableAndMakeSure(Values.parseAsInt(_input.toString()), variableMap, filter, error);
 
-            Object final_input = _input;
-            data = variableMap.findVariableDataBy(vd -> vd.getInput().equalsIgnoreCase(final_input.toString())).orElse(null);
+            data = variableMap.getVariableByInput(_input.toString()).orElse(null);
 
             if (data == null) {
                 _input = ((String) _input).replaceAll("[^\\d.]", "");
@@ -92,7 +91,6 @@ public class VariableHelper {
                 in -> {
                     Class<?> unwrap = Primitives.wrap(in.getVariable().getType());
                     return Number.class.isAssignableFrom(unwrap);
-
                 },
                 vd -> "Variable '" + vd + "' does not return a number!"
         );

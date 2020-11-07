@@ -21,7 +21,7 @@ template:
       display: "Money"
 
       # Required value
-      value: "50% of {%level% * 200}"
+      value: "50% of {%index% * 200}"
 
       # Current value
       getter: "get balance of %prisoner%"

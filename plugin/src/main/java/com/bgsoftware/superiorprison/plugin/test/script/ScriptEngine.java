@@ -85,7 +85,7 @@ public class ScriptEngine {
                     String[] groupMatch = new String[]{group.function};
                     matchedGroups.forEach((match, i) -> groupMatch[0] = groupMatch[0].replace(match, i + "V"));
 
-                    Optional<GlobalVariableMap.VariableData> variableDataBy = varMap.findVariableDataBy(vd -> vd.getInput().equalsIgnoreCase("{" + groupMatch[0] + "}"));
+                    Optional<GlobalVariableMap.VariableData> variableDataBy = varMap.getVariableByInput("{" + groupMatch[0] + "}");
                     if (variableDataBy.isPresent()) {
                         matchedGroups.put(variableDataBy.get().getInput(), variableDataBy.get().getId());
                         continue;

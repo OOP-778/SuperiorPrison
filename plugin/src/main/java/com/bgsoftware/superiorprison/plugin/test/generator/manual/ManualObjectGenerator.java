@@ -68,7 +68,8 @@ public abstract class ManualObjectGenerator implements ObjectSupplier {
                             generatorTemplate,
                             prisonerMap,
                             () -> this.getParser(index + 1).map(f -> f.apply(prisoner)).orElse(null),
-                            () -> this.getParser(index - 1).map(f -> f.apply(prisoner)).orElse(null)
+                            () -> this.getParser(index - 1).map(f -> f.apply(prisoner)).orElse(null),
+                            index
                     );
                 };
 

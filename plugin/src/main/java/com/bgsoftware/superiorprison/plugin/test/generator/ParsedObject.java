@@ -43,13 +43,13 @@ public class ParsedObject implements LadderObject {
 
     private ParsedObject() {}
 
-    public static ParsedObject of(String name, GeneratorTemplate template, GlobalVariableMap map, Supplier<ParsedObject> next, Supplier<ParsedObject> previous) {
+    public static ParsedObject of(String name, GeneratorTemplate template, GlobalVariableMap map, Supplier<ParsedObject> next, Supplier<ParsedObject> previous, int index) {
         ParsedObject parsedObject = new ParsedObject();
         parsedObject.name = name;
         parsedObject.variableMap = map;
         parsedObject.prefix = map.extractVariables(template.getPrefix());
         parsedObject.template = template;
-        parsedObject.index = ((Number)VariableHelper.getVariableAsNumber("index", map).getVariable().get(map)).intValue();
+        parsedObject.index = index;
         parsedObject.commands = template.getCommands()
                 .stream()
                 .map(map::extractVariables)

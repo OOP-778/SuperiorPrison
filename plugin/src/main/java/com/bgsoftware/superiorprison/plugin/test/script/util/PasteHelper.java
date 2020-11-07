@@ -1,8 +1,10 @@
 package com.bgsoftware.superiorprison.plugin.test.script.util;
 
 import com.bgsoftware.superiorprison.plugin.test.script.variable.GlobalVariableMap;
+import com.oop.datamodule.SerializedData;
 import com.oop.datamodule.StorageInitializer;
 import com.oop.datamodule.gson.Gson;
+import com.oop.datamodule.gson.JsonObject;
 import lombok.SneakyThrows;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -18,7 +20,10 @@ public class PasteHelper {
     @SneakyThrows
     public static String paste(GlobalVariableMap variableMap) {
         Gson prettyfiedGson = StorageInitializer.getInstance().getPrettyfiedGson();
-        String s = prettyfiedGson.toJson(variableMap);
+        SerializedData data = new SerializedData(new JsonObject());
+        variableMap.serialize(data);
+
+        String s = prettyfiedGson.toJson(data.getJsonElement());
 
         byte[] postData = s.getBytes(StandardCharsets.UTF_8);
         int postDataLength = postData.length;

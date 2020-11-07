@@ -4,8 +4,13 @@ import com.bgsoftware.superiorprison.plugin.test.script.util.Data;
 import com.bgsoftware.superiorprison.plugin.test.script.util.ReflectionUtil;
 import com.bgsoftware.superiorprison.plugin.test.script.util.Values;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
+import com.google.common.primitives.Ints;
 import com.google.common.primitives.Primitives;
-import com.oop.orangeengine.main.util.OSimpleReflection;
+import com.oop.datamodule.SerializableObject;
+import com.oop.datamodule.SerializedData;
+import com.oop.datamodule.gson.JsonArray;
+import com.oop.datamodule.gson.JsonObject;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,19 +20,18 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class GlobalVariableMap {
+public class GlobalVariableMap implements SerializableObject {
     public static final Pattern VAR_PATTERN = Pattern.compile("%([^ ]+)%");
     public static final Pattern METHOD_PATTERN = Pattern.compile("%([^ ]+#[^ ]+)%");
     public static final Pattern PARSED_VAR_PATTERN = Pattern.compile("([0-9]+)V");
     private static final Pattern BOOL_PATTERN = Pattern.compile("(true|false)");
-
-    private Map<Integer, VariableData> variables = new HashMap<>();
     private AtomicInteger varId = new AtomicInteger(0);
+
+    private final VariableStorage variableStorage = new VariableStorage();
 
     /*
     Initializes event variables
@@ -65,12 +69,11 @@ public class GlobalVariableMap {
             OPair<String, String>[] pars = parseMultiVars(matcher.group(1));
 
             // Check if variable is inside the eventData
-            System.out.println(pars[0].getKey());
             Class<?> lastMethodType = eventData == null ? null : (Class<?>) eventData.get(pars[0].getKey()).orElse(null);
 
             if (lastMethodType == null) {
                 Matcher finalMatcher = matcher;
-                lastMethodType = findVariableDataBy(vd -> vd.input.equalsIgnoreCase(pars[0].getKey()))
+                lastMethodType = getVariableByInput(pars[0].getKey())
                         .map(vd -> vd.getVariable().getType())
                         .orElseThrow(() -> new IllegalStateException("Failed to initialize reflection call at " + finalMatcher.group(1) + " cause unknown data type by '" + pars[0].getKey() + "'"));
             }
@@ -131,7 +134,7 @@ public class GlobalVariableMap {
 
     public Optional<VariableData> getVariableByInput(String input) {
         Preconditions.checkArgument(input != null, "Input cannot be null!");
-        return Optional.ofNullable(variables.get(variables.values().stream().filter(data -> data.input.equalsIgnoreCase(input)).findFirst().map(VariableData::getId).orElse(-1)));
+        return variableStorage.lookupByInput(input);
     }
 
     public <T> Variable<T> getRequiredVariableByInput(String input, Class<T> type) {
@@ -143,7 +146,7 @@ public class GlobalVariableMap {
 
     @SneakyThrows
     public <T> Variable<T> getRequiredVariableById(int id, Class<T> type) {
-        return (Variable<T>) Optional.ofNullable(variables.get(id))
+        return (Variable<T>) variableStorage.lookupById(id)
                 .map(VariableData::getVariable)
                 .filter(v -> {
                     Class vType = v.getType();
@@ -155,29 +158,9 @@ public class GlobalVariableMap {
                 .orElseThrow(() -> new IllegalStateException("Failed to find variable by id " + id + " that returns " + type.getSimpleName()));
     }
 
-    public <T> Variable<T> getRequiredVariableById(String id, Class<T> type) {
-        return getRequiredVariableById(Values.parseAsInt(id.replaceAll("[^\\d.]", "")), type);
-    }
-
-    public Optional<VariableData> findVariableDataBy(Predicate<VariableData> filter) {
-        return variables.values()
-                .stream()
-                .filter(filter)
-                .findFirst();
-    }
-
     public VariableData getVariableDataById(int id) {
-        return findVariableDataBy(vd -> vd.id == id)
+        return variableStorage.lookupById(id)
                 .orElseThrow(() -> new IllegalStateException("Failed to find variable " + id));
-    }
-
-    public VariableData getVariableDataByInput(String input) {
-        return findVariableDataBy(vd -> vd.input.equalsIgnoreCase(input))
-                .orElseThrow(() -> new IllegalStateException("Failed to find variable " + input));
-    }
-
-    public VariableData getVariableDataById(String id) {
-        return getVariableDataById(Values.parseAsInt(id.replaceAll("[^\\d.]", "")));
     }
 
     public VariableData newVariable(String input, Variable<?> variable) {
@@ -188,7 +171,7 @@ public class GlobalVariableMap {
         int id = varId.getAndIncrement();
 
         VariableData variableData = new VariableData(input, id, variable);
-        variables.put(id, variableData);
+        variableStorage.insert(id, input, variableData);
         return variableData;
     }
 
@@ -207,6 +190,31 @@ public class GlobalVariableMap {
         }
 
         return newVariable(input, variable);
+    }
+
+    @Override
+    public void serialize(SerializedData serializedData) {
+        serializedData.write("var count", varId.get());
+        JsonArray array = new JsonArray();
+
+        variableStorage.byId.forEach((id, varData) -> {
+            JsonObject jsonVarData = new JsonObject();
+            jsonVarData.addProperty("id", id);
+            jsonVarData.addProperty("input", varData.getInput());
+
+            JsonObject variable = new JsonObject();
+            variable.addProperty("type", varData.getVariable().getType().getSimpleName());
+            variable.addProperty("value", varData.getVariable().get(this) + "");
+
+            jsonVarData.add("variable", variable);
+            array.add(jsonVarData);
+        });
+
+        serializedData.write("data", array);
+    }
+
+    @Override
+    public void deserialize(SerializedData serializedData) {
     }
 
     @AllArgsConstructor
@@ -239,8 +247,9 @@ public class GlobalVariableMap {
     public String extractVariables(String input) {
         Matcher matcher = PARSED_VAR_PATTERN.matcher(input);
         while (matcher.find()) {
-            Variable<Object> requiredVariableById = getRequiredVariableById(Integer.parseInt(matcher.group(1)), Object.class);
-            input = input.replace(matcher.group(), Objects.requireNonNull(requiredVariableById.get(this), "Variable by id " + Integer.parseInt(matcher.group(1)) + ", type: " + requiredVariableById.getType()).toString());
+            Integer id = Ints.tryParse(matcher.group(1));
+            Variable<Object> requiredVariableById = getRequiredVariableById(id, Object.class);
+            input = input.replace(matcher.group(), Objects.requireNonNull(requiredVariableById.get(this), "Variable by id " + id + ", type: " + requiredVariableById.getType()).toString());
         }
         return input;
     }
@@ -265,7 +274,7 @@ public class GlobalVariableMap {
     @Override
     public String toString() {
         return "GlobalVariableMap{" +
-                "variables=" + Arrays.toString(variables.values().stream().map(vd -> vd.toString(this)).toArray()) +
+                "variables=" + Arrays.toString(variableStorage.byId.values().stream().map(vd -> vd.toString(this)).toArray()) +
                 ", counter=" + varId +
                 '}';
     }
@@ -273,9 +282,53 @@ public class GlobalVariableMap {
     public GlobalVariableMap clone() {
         GlobalVariableMap varMap = new GlobalVariableMap();
         varMap.varId = new AtomicInteger(varId.get());
-        variables.forEach((key, value) -> {
-            varMap.variables.put(key, new VariableData(value.input, value.id, value.variable));
+        variableStorage.byId.forEach((key, value) -> {
+            varMap.variableStorage.insert(key, value.input, new VariableData(value.input, value.id, value.variable));
         });
         return varMap;
+    }
+
+    /**
+     * Because of the way of storing variable data just by id, is not enough
+     * We gonna have two maps for that
+     */
+    public static class VariableStorage {
+
+        // Store input to variable data
+        private Map<String, VariableData> byInput = Maps.newHashMap();
+
+        // Store id to variable data
+        private Map<Integer, VariableData> byId = Maps.newHashMap();
+
+        public Optional<VariableData> lookupById(int id) {
+            return Optional.ofNullable(byId.get(id));
+        }
+
+        public Optional<VariableData> lookupByInput(String input) {
+            return Optional.ofNullable(byInput.get(input));
+        }
+
+        public Optional<VariableData> lookupByUnknown(String unknown) {
+            // First see if it's contained within the input map
+            VariableData lookup;
+
+            lookup = byInput.get(unknown.toLowerCase(Locale.ROOT));
+            if (lookup != null)
+                return Optional.of(lookup);
+
+            int i = Values.parseAsInt(unknown);
+            if (i != -1) {
+                lookup = byId.get(i);
+                if (lookup != null)
+                    return Optional.of(lookup);
+            }
+
+            return Optional.empty();
+        }
+
+        public void insert(int id, String input, VariableData variable) {
+            byId.put(id, variable);
+            byInput.put(input.toLowerCase(Locale.ROOT), variable);
+        }
     }
 }

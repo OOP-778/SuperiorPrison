@@ -43,6 +43,6 @@ public class RankupTask extends OTask {
                         LocaleEnum.RANKUP_AVAILABLE.getWithPrefix().send(ImmutableMap.of("{rank_name}", prisoner.getParsedLadderRank().getNext().get().getName()), prisoner.getPlayer());
                     });
         });
-        execute();
+        //execute();
     }
 }

@@ -3,11 +3,13 @@ package com.bgsoftware.superiorprison.plugin.hook.impl;
 import com.bgsoftware.superiorprison.plugin.hook.SHook;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.oop.orangeengine.main.task.OTask;
+import com.oop.orangeengine.main.util.data.pair.OPair;
 import lombok.Getter;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
 import java.math.BigDecimal;
@@ -26,7 +28,9 @@ public class VaultHook extends SHook {
     private static final BigDecimal MAX_DOUBLE = BigDecimal.valueOf(Double.MAX_VALUE);
     private Economy ecoProvider;
     private Permission permProvider;
+
     private final Map<UUID, BigDecimal> owed = new ConcurrentHashMap<>();
+    private final Map<UUID, OPair<BigDecimal, BigDecimal>> cachedBalance = new ConcurrentHashMap<>();
 
     public VaultHook() {
         super(null);
@@ -47,6 +51,36 @@ public class VaultHook extends SHook {
                 .repeat(true)
                 .runnable(this::handleDeposit)
                 .execute();
+    }
+
+    public void withdrawPlayer(OfflinePlayer player, BigDecimal amount) {
+        OPair<BigDecimal, BigDecimal> cache = cachedBalance.get(player.getUniqueId());
+        if (cache != null) {
+            cache.setFirst(cache.getFirst().subtract(amount));
+            return;
+        }
+
+        getEcoProvider().withdrawPlayer(player, amount.doubleValue());
+    }
+
+    public BigDecimal getBalance(OfflinePlayer player) {
+        OPair<BigDecimal, BigDecimal> cache = cachedBalance.get(player.getUniqueId());
+        if (cache != null) return cache.getFirst();
+
+        return BigDecimal.valueOf(getEcoProvider().getBalance(player));
+    }
+
+    public void submitWithdrawCache(OfflinePlayer player) {
+        OPair<BigDecimal, BigDecimal> cache = cachedBalance.get(player.getUniqueId());
+        if (cache != null) {
+            BigDecimal subtract = cache.getSecond().subtract(cache.getFirst());
+            getEcoProvider().withdrawPlayer(player, subtract.doubleValue());
+        }
+    }
+
+    public void enableCacheFor(Player player) {
+        BigDecimal bigDecimal = BigDecimal.valueOf(getEcoProvider().getBalance(player));
+        cachedBalance.put(player.getUniqueId(), new OPair<>(bigDecimal, bigDecimal));
     }
 
     public void removePermissions(SPrisoner prisoner, List<String> permissions) {

@@ -27,7 +27,8 @@ public class PrestigeGenerator extends ObjectGenerator<PrestigeGeneratorOptions>
                 getTemplate(level),
                 clone,
                 () -> getParsed(prisoner, level + 1).orElse(null),
-                () -> getParsed(prisoner, level - 1).orElse(null)
+                () -> getParsed(prisoner, level - 1).orElse(null),
+                level
         );
     }
 

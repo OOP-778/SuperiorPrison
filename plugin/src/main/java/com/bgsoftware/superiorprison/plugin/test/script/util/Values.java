@@ -1,6 +1,8 @@
 package com.bgsoftware.superiorprison.plugin.test.script.util;
 
 import com.google.common.collect.Sets;
+import com.google.common.primitives.Doubles;
+import com.google.common.primitives.Ints;
 import com.google.gson.internal.Primitives;
 import lombok.NonNull;
 
@@ -12,8 +14,8 @@ import static com.oop.orangeengine.main.Engine.getEngine;
 
 public class Values {
     private static final Set<Function<String, Number>> numberWrappers = Sets.newHashSet(
-            in -> wrap(() -> Integer.parseInt(in)),
-            in -> wrap(() -> Double.parseDouble(in))
+            in -> wrap(() -> Ints.tryParse(in)),
+            in -> wrap(() -> Doubles.tryParse(in))
     );
 
     private static <T> T wrap(Supplier<T> supplier) {

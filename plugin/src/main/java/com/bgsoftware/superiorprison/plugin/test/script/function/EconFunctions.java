@@ -14,11 +14,17 @@ import java.math.BigDecimal;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.bgsoftware.superiorprison.plugin.test.script.variable.VariableHelper.*;
+import static com.bgsoftware.superiorprison.plugin.test.script.variable.VariableHelper.getElseCreate;
+import static com.bgsoftware.superiorprison.plugin.test.script.variable.VariableHelper.getVariable;
 
 public class EconFunctions {
     public static final Pattern GET_BALANCE_PATTERN = Pattern.compile("get balance of (%([^ ]+)%|([0-9]+)V)");
     public static final Pattern TAKE_BALANCE_PATTERN = Pattern.compile("take ([0-9]+V|[0-9]+|-[0-9]+) from ([0-9]+)V balance");
+
+    private static final VaultHook hook = SuperiorPrisonPlugin
+            .getInstance().getHookController()
+            .findHook(() -> VaultHook.class)
+            .get();
 
     public static class GetBalance implements Function<Number> {
         private int varId;
@@ -54,10 +60,7 @@ public class EconFunctions {
                 throw new IllegalStateException("Failed to validate variable by id " + varId + " required type: Player or Prisoner. Found: " + variableData.getVariable().getType());
 
             Object o = variable.get(globalVariables);
-            return SuperiorPrisonPlugin.getInstance()
-                    .getHookController()
-                    .findHook(() -> VaultHook.class).map(hook -> hook.getEcoProvider().getBalance(o instanceof Prisoner ? ((Prisoner) o).getOfflinePlayer() : (OfflinePlayer) o))
-                    .orElse(0.0);
+            return hook.getBalance(o instanceof Prisoner ? ((Prisoner) o).getOfflinePlayer() : (OfflinePlayer) o).doubleValue();
         }
 
         @Override
@@ -104,10 +107,7 @@ public class EconFunctions {
             Preconditions.checkArgument(who instanceof OfflinePlayer || who instanceof Prisoner, "Failed to find a valid player by variable id: " + fromWhoId);
             Preconditions.checkArgument(amount instanceof Number, "Failed to find valid number by id: " + amountId);
 
-            SuperiorPrisonPlugin
-                    .getInstance().getHookController()
-                    .findHook(() -> VaultHook.class)
-                    .ifPresent(hook -> hook.getEcoProvider().withdrawPlayer(who instanceof OfflinePlayer ? (OfflinePlayer) who : ((Prisoner) who).getOfflinePlayer(), ((Number) amount).doubleValue()));
+            hook.withdrawPlayer(who instanceof OfflinePlayer ? (OfflinePlayer) who : ((Prisoner) who).getOfflinePlayer(), BigDecimal.valueOf(((Number) amount).doubleValue()));
             return true;
         }
 

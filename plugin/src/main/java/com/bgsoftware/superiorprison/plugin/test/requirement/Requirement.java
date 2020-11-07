@@ -4,6 +4,7 @@ import com.bgsoftware.superiorprison.plugin.test.script.util.Values;
 import com.bgsoftware.superiorprison.plugin.test.script.variable.GlobalVariableMap;
 import com.bgsoftware.superiorprison.plugin.test.script.variable.VariableHelper;
 import com.oop.orangeengine.main.util.data.pair.OPair;
+import org.bukkit.Bukkit;
 
 public class Requirement {
     public OPair<Boolean, DeclinedRequirement> test(RequirementData data, GlobalVariableMap map) {
@@ -13,13 +14,23 @@ public class Requirement {
         map.newOrReplace("%getter%", VariableHelper.createVariable(getter));
         map.newOrReplace("%value%", VariableHelper.createVariable(value));
 
+        //Bukkit.broadcastMessage(data.getDisplayName() + " ~ " + getter + " ~ " + value);
+
         boolean succeed = data.getCheck().execute(map);
         return new OPair<>(succeed, !succeed ? new DeclinedRequirement(null, getter, value) : null);
     }
 
     public boolean take(RequirementData data, GlobalVariableMap map) {
+        Object getter = data.getGetter().execute(map);
+        Object value = data.getCheckValue().execute(map);
+
+        map.newOrReplace("%getter%", VariableHelper.createVariable(getter));
+        map.newOrReplace("%value%", VariableHelper.createVariable(value));
+
+        //Bukkit.broadcastMessage(data.getDisplayName() + " ~ " + getter + " ~ " + value);
+
         if (data.getTaker() != null)
-            return data.getTaker().execute(map);
+            return data.getTaker().executeWithTiming(map);
 
         return true;
     }

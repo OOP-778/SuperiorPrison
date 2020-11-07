@@ -2,12 +2,14 @@ package com.bgsoftware.superiorprison.plugin.commands.ladder;
 
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
+import com.bgsoftware.superiorprison.plugin.hook.impl.VaultHook;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.test.Testing;
 import com.bgsoftware.superiorprison.plugin.test.generator.ParsedObject;
 import com.bgsoftware.superiorprison.plugin.test.requirement.DeclinedRequirement;
 import com.oop.orangeengine.command.OCommand;
 import com.oop.orangeengine.main.task.StaticTask;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.listedBuilder;
@@ -37,7 +39,11 @@ public class PrestigeMaxCmd extends OCommand {
             }
 
             ParsedObject startingParsed = (ParsedObject) prisoner.getParsedPrestige().orElse(null);
+            VaultHook vaultHook = SuperiorPrisonPlugin.getInstance().getHookController().findHook(() -> VaultHook.class).get();
+            vaultHook.enableCacheFor(player);
+
             StaticTask.getInstance().async(() -> {
+                long start = System.currentTimeMillis();
                 ParsedObject last = null;
                 while (currentPrestige[0] != maxIndex) {
                     currentPrestige[0] += 1;
@@ -112,6 +118,8 @@ public class PrestigeMaxCmd extends OCommand {
                 });
 
                 prisoner.save(true);
+                vaultHook.submitWithdrawCache(player);
+                Bukkit.broadcastMessage("took " + (System.currentTimeMillis() - start) + "ms");
             });
         });
     }

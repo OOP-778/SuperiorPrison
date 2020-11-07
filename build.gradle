@@ -96,7 +96,6 @@ allprojects {
     }
 
     processResources {
-
         setOnlyIf {true}
         outputs.upToDateWhen {false}
 

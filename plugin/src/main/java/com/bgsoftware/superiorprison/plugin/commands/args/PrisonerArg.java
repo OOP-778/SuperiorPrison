@@ -21,7 +21,7 @@ public class PrisonerArg extends CommandArgument<SPrisoner> {
         setIdentity("prisoner");
         setMapper(prisoner -> {
             Optional<Prisoner> prisoner1 = SuperiorPrisonPlugin.getInstance().getPrisonerController().getPrisoner(prisoner);
-            return new OPair<>(prisoner1.orElse(null), "Failed to find prisoner with name " + prisoner);
+            return new OPair<>((SPrisoner)prisoner1.orElse(null), "Failed to find prisoner with name " + prisoner);
         });
     }
 

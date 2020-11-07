@@ -24,7 +24,7 @@ public class PrestigesArg extends CommandArgument<SPrestige> {
                     .stream()
                     .filter(prestige -> prestige.getName().equalsIgnoreCase(name))
                     .findFirst();
-            return new OPair<>(first.orElse(null), "Failed to find prestige by name " + name);
+            return new OPair<>((SPrestige)first.orElse(null), "Failed to find prestige by name " + name);
         });
     }
 

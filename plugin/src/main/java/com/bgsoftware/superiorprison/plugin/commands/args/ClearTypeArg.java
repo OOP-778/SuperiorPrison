@@ -9,7 +9,7 @@ public class ClearTypeArg extends CommandArgument<String> {
     public ClearTypeArg() {
         setIdentity("type");
         setDescription("If set to ladder, it will clear only ladder access, if set to special otherwise");
-        setMapper(in -> new OPair<Object, String>((in.equalsIgnoreCase("ladder") || in.equalsIgnoreCase("special")) ? in : null, "Cannot find clear type by " + in));
+        setMapper(in -> new OPair<>((in.equalsIgnoreCase("ladder") || in.equalsIgnoreCase("special")) ? in : null, "Cannot find clear type by " + in));
     }
 
     @Override

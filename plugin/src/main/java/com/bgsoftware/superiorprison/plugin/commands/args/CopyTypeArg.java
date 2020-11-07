@@ -8,7 +8,7 @@ import com.oop.orangeengine.main.util.data.pair.OPair;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-public class CopyTypeArg extends CommandArgument<CopyTypeArg> {
+public class CopyTypeArg extends CommandArgument<OptionEnum> {
     public CopyTypeArg() {
         setIdentity("type");
         setDescription("Copy type");

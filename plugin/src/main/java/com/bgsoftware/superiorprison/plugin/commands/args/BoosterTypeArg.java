@@ -9,7 +9,7 @@ public class BoosterTypeArg extends CommandArgument<String> {
     public BoosterTypeArg() {
         setIdentity("type");
         setDescription("Booster type either drops or money");
-        setMapper(in -> new OPair<Object, String>((in.equalsIgnoreCase("drops") || in.equalsIgnoreCase("money")) || in.equalsIgnoreCase("xp") ? in : null, "Cannot find booster type by " + in));
+        setMapper(in -> new OPair<>((in.equalsIgnoreCase("drops") || in.equalsIgnoreCase("money")) || in.equalsIgnoreCase("xp") ? in : null, "Cannot find booster type by " + in));
     }
 
     @Override

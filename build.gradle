@@ -14,7 +14,7 @@ group 'SuperiorPrison'
 apply plugin: 'maven'
 apply plugin: 'base'
 
-version = "0.2.1-BETA"
+version = "0.2.2-BETA"
 
 allprojects {
     apply plugin: 'java'

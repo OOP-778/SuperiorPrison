@@ -172,8 +172,6 @@ public class SBlockController implements BlockController {
             event.setExperience(0);
         }
 
-
-
         mine.getGenerator().getBlockData().unlock(lock);
         return event;
     }
@@ -210,24 +208,26 @@ public class SBlockController implements BlockController {
             Player player = prisoner.getPlayer();
             OItem item = new OItem(tool);
 
-            if (!player.hasPermission("prison.prisoner.ignoredurability")) {
-                int enchantmentLevel = item.getEnchantLevel(Enchantment.DURABILITY);
-                if (enchantmentLevel != 0) {
-                    double chance = (100 / enchantmentLevel + 1);
-                    double generatedChance = ThreadLocalRandom.current().nextDouble(0, 100);
+            if (tool.getType().getMaxDurability() > 0) {
+                if (!player.hasPermission("prison.prisoner.ignoredurability")) {
+                    int enchantmentLevel = item.getEnchantLevel(Enchantment.DURABILITY);
+                    if (enchantmentLevel != 0) {
+                        double chance = (100 / enchantmentLevel + 1);
+                        double generatedChance = ThreadLocalRandom.current().nextDouble(0, 100);
 
-                    if (chance > generatedChance)
+                        if (chance > generatedChance)
+                            tool.setDurability((short) (tool.getDurability() + 1));
+                    } else
                         tool.setDurability((short) (tool.getDurability() + 1));
+
+                    if (tool.getDurability() == item.getMaterial().getMaxDurability())
+                        player.setItemInHand(null);
+
                 } else
-                    tool.setDurability((short) (tool.getDurability() + 1));
+                    tool.setDurability((short) 0);
 
-                if (tool.getDurability() == item.getMaterial().getMaxDurability())
-                    player.setItemInHand(null);
-
-            } else {
-                tool.setDurability((short) 0);
+                player.updateInventory();
             }
-            player.updateInventory();
         }
 
         List<ItemStack> drop = new ArrayList<>();

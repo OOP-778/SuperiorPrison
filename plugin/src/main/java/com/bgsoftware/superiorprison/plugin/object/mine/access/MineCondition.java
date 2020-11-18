@@ -2,10 +2,10 @@ package com.bgsoftware.superiorprison.plugin.object.mine.access;
 
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
-import com.bgsoftware.superiorprison.plugin.test.script.function.Function;
-import com.bgsoftware.superiorprison.plugin.test.script.util.ScriptHelper;
-import com.bgsoftware.superiorprison.plugin.test.script.variable.GlobalVariableMap;
-import com.bgsoftware.superiorprison.plugin.test.script.variable.VariableHelper;
+import com.bgsoftware.superiorprison.plugin.util.script.function.Function;
+import com.bgsoftware.superiorprison.plugin.util.script.util.ScriptHelper;
+import com.bgsoftware.superiorprison.plugin.util.script.variable.GlobalVariableMap;
+import com.bgsoftware.superiorprison.plugin.util.script.variable.VariableHelper;
 import com.oop.datamodule.SerializableObject;
 import com.oop.datamodule.SerializedData;
 import lombok.Getter;

@@ -1,8 +1,33 @@
-default prefix: "&8(&e&lP&e{prestige_name}&8)"
+options:
+  # The first prestige order
+  min: 1
 
-"1":
-  order: 1
+  # The last prestige order
+  max: 100000
 
+template:
+  # Prefix of the prestige
+  prefix: "&c[P%index%]"
+
+  # Requirements of the prestige
   requirements:
-    - "{RANK} C"
-    - "{ECO} 20000"
+    "eco req":
+      # Display name of the requirement
+      display: "Money"
+
+      # Required value
+      value: "50% of {%index% * 200}"
+
+      # Current value
+      getter: "get balance of %prisoner%"
+
+      # A function which returns either true or false
+      checker: "%getter% >= %value%"
+
+      # A function witch takes the value from prisoner
+      taker: "take %value% from %prisoner% balance"
+
+      # Taker can also be command
+      # taker:
+      #  type: "command"
+      #  command: "eco take %prisoner#player#name% %value%"

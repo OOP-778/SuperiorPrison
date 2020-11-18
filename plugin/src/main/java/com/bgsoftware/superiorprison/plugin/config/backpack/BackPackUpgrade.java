@@ -1,11 +1,11 @@
 package com.bgsoftware.superiorprison.plugin.config.backpack;
 
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
-import com.bgsoftware.superiorprison.plugin.test.Testing;
-import com.bgsoftware.superiorprison.plugin.test.requirement.RequirementHolder;
-import com.bgsoftware.superiorprison.plugin.test.requirement.RequirementMigrator;
-import com.bgsoftware.superiorprison.plugin.test.script.variable.GlobalVariableMap;
-import com.bgsoftware.superiorprison.plugin.test.script.variable.VariableHelper;
+import com.bgsoftware.superiorprison.plugin.requirement.RequirementController;
+import com.bgsoftware.superiorprison.plugin.requirement.RequirementHolder;
+import com.bgsoftware.superiorprison.plugin.requirement.RequirementMigrator;
+import com.bgsoftware.superiorprison.plugin.util.script.variable.GlobalVariableMap;
+import com.bgsoftware.superiorprison.plugin.util.script.variable.VariableHelper;
 import com.oop.orangeengine.yaml.ConfigSection;
 import lombok.Getter;
 
@@ -29,6 +29,6 @@ public class BackPackUpgrade<T extends BackPackConfig<T>> {
         section.ifValuePresent("description", List.class, desc -> this.description = desc);
 
         RequirementMigrator.migrate(section);
-        requirementHolder = Testing.controller.initializeRequirementsSection(section.getSection("requirements").get(), variableMap);
+        requirementHolder = RequirementController.initializeRequirementsSection(section.getSection("requirements").get(), variableMap);
     }
 }

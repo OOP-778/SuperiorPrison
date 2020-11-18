@@ -11,8 +11,7 @@ import com.bgsoftware.superiorprison.plugin.object.mine.settings.SMineSettings;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.object.statistic.SBlocksStatistic;
 import com.bgsoftware.superiorprison.plugin.object.statistic.SStatisticsContainer;
-import com.bgsoftware.superiorprison.plugin.test.Testing;
-import com.bgsoftware.superiorprison.plugin.test.generator.ParsedObject;
+import com.bgsoftware.superiorprison.plugin.ladder.ParsedObject;
 import com.bgsoftware.superiorprison.plugin.util.RequirementUtil;
 import com.bgsoftware.superiorprison.plugin.util.TimeUtil;
 import com.bgsoftware.superiorprison.plugin.util.placeholders.parser.ArgsCrawler;
@@ -54,7 +53,7 @@ public class PlaceholderParser {
                     if (currentPrestige.isPresent())
                         nextPrestige = currentPrestige.get().getNext().orElse(null);
                     else
-                        nextPrestige = Testing.prestigeGenerator.getParsed(prisoner, 1).get();
+                        nextPrestige = SuperiorPrisonPlugin.getInstance().getPrestigeController().getParsed(prisoner, 1).get();
                     if (nextPrestige == null)
                         return SuperiorPrisonPlugin.getInstance().getMainConfig().getPlaceholdersSection().getPrestigeNotFound();
 
@@ -72,7 +71,7 @@ public class PlaceholderParser {
                     if (currentPrestige.isPresent())
                         nextPrestige = currentPrestige.get().getNext().orElse(null);
                     else
-                        nextPrestige = Testing.prestigeGenerator.getParsed(prisoner, 1).get();
+                        nextPrestige = SuperiorPrisonPlugin.getInstance().getPrestigeController().getParsed(prisoner, 1).get();
                     if (nextPrestige == null)
                         return SuperiorPrisonPlugin.getInstance().getMainConfig().getPlaceholdersSection().getPrestigeNotFound();
 

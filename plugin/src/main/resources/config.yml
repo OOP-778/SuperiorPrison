@@ -142,3 +142,32 @@ disable interactable blocks:
   - "BREWING_STAND"
   - "ANVIL"
   - "ITEM_FRAME"
+
+# Chat filter when ladder rank is being increased
+# On /pmax, rmax
+# This filter is there to make sure player won't receive any spam from external plugins
+# Ex. crates
+# Every value is ignore case
+ladder chat filter:
+  - "starts:Crates"
+  - "contains:Vouchers"
+
+# How much ladder objects per time it should go thru
+# When /pmax && /rmax is executed
+# Please test the number when you set it
+# Keep it above a million if possible
+max ladder per rank: 10000
+
+# Modules disabled
+# More modules will come with time
+disabled modules:
+  backpacks: false
+
+# Should we cache the mine data?
+# Using cache more memory will be used
+# Without using it will take longer to resets mines
+use mine cache: true
+
+# To make the server load lighter
+# From which percentage should mines auto reset?
+mine reset at load percentage: 70

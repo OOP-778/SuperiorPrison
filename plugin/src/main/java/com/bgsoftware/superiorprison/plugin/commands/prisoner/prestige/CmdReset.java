@@ -3,9 +3,9 @@ package com.bgsoftware.superiorprison.plugin.commands.prisoner.prestige;
 import com.bgsoftware.superiorprison.plugin.commands.args.PrisonerArg;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
-import com.bgsoftware.superiorprison.plugin.test.Testing;
-import com.bgsoftware.superiorprison.plugin.test.generator.ParsedObject;
 import com.oop.orangeengine.command.OCommand;
+
+import java.math.BigInteger;
 
 import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
 
@@ -18,7 +18,7 @@ public class CmdReset extends OCommand {
         onCommand(command -> {
             SPrisoner prisoner = command.getArgAsReq("prisoner");
 
-            prisoner._setPrestige(0);
+            prisoner._setPrestige(BigInteger.ZERO);
             prisoner.save(true);
 
             messageBuilder(LocaleEnum.PRISONER_PRESTIGE_RESET.getWithPrefix())

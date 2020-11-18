@@ -20,7 +20,6 @@ import com.bgsoftware.superiorprison.plugin.object.mine.reward.SMineRewards;
 import com.bgsoftware.superiorprison.plugin.object.mine.settings.SMineSettings;
 import com.bgsoftware.superiorprison.plugin.object.mine.shop.SShop;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
-import com.bgsoftware.superiorprison.plugin.test.Testing;
 import com.bgsoftware.superiorprison.plugin.util.Removeable;
 import com.bgsoftware.superiorprison.plugin.util.SPLocation;
 import com.bgsoftware.superiorprison.plugin.util.frameworks.Framework;
@@ -54,12 +53,16 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
 
     @Setter
     private String name;
+
     private MineEnum type = MineEnum.NORMAL_MINE;
+
     @Setter
     private SPLocation spawnPoint = null;
+
     private SMineGenerator generator;
     @Setter
     private SShop shop;
+
     @Getter
     @Setter
     private SMineSettings settings;
@@ -131,7 +134,7 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
         generator.setMineArea(getArea(AreaEnum.MINE));
 
         defaults.getShopPrices().forEach(item -> shop.addItem(item.getFirst().parseItem(), item.getSecond()));
-        StaticTask.getInstance().async(() -> generator.initCache(() -> generator.generate()));
+        StaticTask.getInstance().async(() -> generator.reset());
         settings.setPlayerLimit(defaults.getLimit());
 
         effects = new SMineEffects();
@@ -363,6 +366,7 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
         this.effects = data.has("effects") ? data.applyAs("effects", SMineEffects.class) : new SMineEffects();
         this.messages = data.has("messages") ? data.applyAs("messages", SMineMessages.class) : new SMineMessages();
         JsonArray areasArray = data.getElement("areas").get().getAsJsonArray();
+
         for (JsonElement element : areasArray) {
             JsonObject jsonObject = element.getAsJsonObject();
             JsonElement key = jsonObject.get("key");
@@ -374,7 +378,6 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
         this.icon = data.applyAs("icon", ItemStack.class);
         this.rewards = data.has("rewards") ? data.applyAs("rewards", SMineRewards.class) : new SMineRewards();
 
-        generator.attach(this);
         shop.attach(this);
         settings.attach(this);
         effects.attach(this);
@@ -409,24 +412,25 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
                 .getChildren("ranks")
                 .ifPresent(sd -> migrateLadder(sd, true));
         initializeLinkableObjects();
+        generator.attach(this);
     }
 
     private void migrateLadder(SerializedData data, boolean isRank) {
         String getter = isRank ? "%prisoner#ladderrank%" : "%prisoner#prestige%";
         String name = isRank ? "Rank Check" : "Prestige Check";
 
-        data.applyAsCollection()
-                .map(sd -> sd.applyAs(String.class))
-                .mapToInt(sd -> Testing.prestigeGenerator.getIndex(sd))
-                .filter(index -> index != -1)
-                .max()
-                .ifPresent(index -> {
-                    access
-                            .addScript(
-                                    name,
-                                    "if {" + getter + " == 0}: false else: { " + getter +  " >= " + index + "}"
-                            );
-                });
+//        data.applyAsCollection()
+//                .map(sd -> sd.applyAs(String.class))
+//                .mapToInt(sd -> SuperiorPrisonPlugin.getInstance().getPrestigeController().getIndex(sd))
+//                .filter(index -> index)
+//                .max()
+//                .ifPresent(index -> {
+//                    access
+//                            .addScript(
+//                                    name,
+//                                    "if {" + getter + " == 0}: false else: { " + getter +  " >= " + index + "}"
+//                            );
+//                });
     }
 
     private void initializeLinkableObjects() {

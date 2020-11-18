@@ -133,4 +133,5 @@ task copyJarToServer {
 
 task buildJar(dependsOn: [build, shadowJar])
 copyJarToServer.dependsOn(build)
+
 shadowJar.dependsOn(subprojects.shadowJar)

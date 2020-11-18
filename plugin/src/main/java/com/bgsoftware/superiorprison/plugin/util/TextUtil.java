@@ -2,7 +2,7 @@ package com.bgsoftware.superiorprison.plugin.util;
 
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.hook.impl.PapiHook;
-import com.bgsoftware.superiorprison.plugin.test.script.util.Values;
+import com.bgsoftware.superiorprison.plugin.util.script.util.Values;
 import com.google.gson.internal.Primitives;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.material.OMaterial;

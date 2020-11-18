@@ -76,7 +76,6 @@ public class SBlockController implements BlockController {
         int[] experience = new int[]{0};
 
         SMineBlockData mineBlockData = (SMineBlockData) mine.getGenerator().getBlockData();
-
         Map<OMaterial, Integer> materialsAmount = new HashMap<>();
 
         for (Location location : locations) {
@@ -172,7 +171,8 @@ public class SBlockController implements BlockController {
             event.setExperience(0);
         }
 
-        mine.getGenerator().getBlockData().unlock(lock);
+        if (addToLock)
+            mine.getGenerator().getBlockData().unlock(lock);
         return event;
     }
 

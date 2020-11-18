@@ -1,60 +1,122 @@
 # Default prefix for a rank
-default prefix: "&8[&a{rank_name}&r&8]"
-
-# Order 1 is the default rank
+default prefix: "&8[&a%rank_name%&r&8]"
 "A":
-  order: 1
+  index: 1
 
 "B":
-  order: 2
-  requirements:
-    - "{ECO} 1000"
-    - "{XP_LEVEL, take=false} 10"
-
-  # Commands that are executed upon receiving rank
   commands:
-    - "give {prisoner} diamond"
+    - "give %prisoner#player#name% diamond"
+  index: 2
+  requirements:
+    eco:
+      display: "Money"
+      value: "1000"
+      getter: "get balance of %prisoner%"
+      checker: "%getter% >= %value%"
+      taker: "take %value% from %prisoner% balance"
 
-  permissions:
-    - "superiorprison.autopickup"
+    xp_level:
+      display: "Xp Level"
+      value: "10"
+      getter: "get xp level of %prisoner%"
+      checker: "%getter% >= %value%"
 
 "C":
-  order: 3
+  index: 3
   requirements:
-    - "{ECO} 2000"
-    - "{XP_LEVEL, take=false} 20"
+    eco:
+      display: "Money"
+      value: "2000"
+      getter: "get balance of %prisoner%"
+      checker: "%getter% >= %value%"
+      taker: "take %value% from %prisoner% balance"
+
+    xp_level:
+      display: "Xp Level"
+      value: "20"
+      getter: "get xp level of %prisoner%"
+      checker: "%getter% >= %value%"
 
 "D":
-  order: 4
+  index: 4
   requirements:
-    - "{ECO} 2000"
-    - "{XP_LEVEL, take=false} 20"
+    eco:
+      display: "Money"
+      value: "2000"
+      getter: "get balance of %prisoner%"
+      checker: "%getter% >= %value%"
+      taker: "take %value% from %prisoner% balance"
+
+    xp_level:
+      display: "Xp Level"
+      value: "20"
+      getter: "get xp level of %prisoner%"
+      checker: "%getter% >= %value%"
+
 
 "E":
-  order: 5
+  index: 5
   requirements:
-    - "{ECO} 2000"
-    - "{XP_LEVEL, take=false} 20"
+    eco:
+      display: "Money"
+      value: "2000"
+      getter: "get balance of %prisoner%"
+      checker: "%getter% >= %value%"
+      taker: "take %value% from %prisoner% balance"
+
+    xp_level:
+      display: "Xp Level"
+      value: "20"
+      getter: "get xp level of %prisoner%"
+      checker: "%getter% >= %value%"
+
 
 "F":
-  order: 6
+  index: 6
   requirements:
-    - "{ECO} 2000"
-    - "{XP_LEVEL, take=false} 20"
+    eco:
+      display: "Money"
+      value: "2000"
+      getter: "get balance of %prisoner%"
+      checker: "%getter% >= %value%"
+      taker: "take %value% from %prisoner% balance"
+
+    xp_level:
+      display: "Xp Level"
+      value: "20"
+      getter: "get xp level of %prisoner%"
+      checker: "%getter% >= %value%"
+
 
 "G":
-  order: 7
+  index: 7
   requirements:
-    - "{ECO} 2000"
-    - "{XP_LEVEL, take=false} 20"
+    eco:
+      display: "Money"
+      value: "2000"
+      getter: "get balance of %prisoner%"
+      checker: "%getter% >= %value%"
+      taker: "take %value% from %prisoner% balance"
+
+    xp_level:
+      display: "Xp Level"
+      value: "20"
+      getter: "get xp level of %prisoner%"
+      checker: "%getter% >= %value%"
+
 
 "H":
-  order: 8
+  index: 8
   requirements:
-    - "{ECO} 2000"
-    - "{XP_LEVEL, take=false} 20"
+    eco:
+      display: "Money"
+      value: "2000"
+      getter: "get balance of %prisoner%"
+      checker: "%getter% >= %value%"
+      taker: "take %value% from %prisoner% balance"
 
-"VIP":
-  prefix: "&8[&b&lVIP&8]"
-  commands:
-    - "broadcast {prisoner} received VIP!"
+    xp_level:
+      display: "Xp Level"
+      value: "20"
+      getter: "get xp level of %prisoner%"
+      checker: "%getter% >= %value%"

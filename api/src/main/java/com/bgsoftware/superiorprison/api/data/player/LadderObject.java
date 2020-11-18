@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorprison.api.data.player;
 
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Optional;
 
@@ -8,7 +9,7 @@ public interface LadderObject {
 
     String getName();
 
-    int getIndex();
+    BigInteger getIndex();
 
     List<String> getPermissions();
 

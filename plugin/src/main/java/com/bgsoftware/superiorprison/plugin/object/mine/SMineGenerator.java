@@ -5,7 +5,10 @@ import com.bgsoftware.superiorprison.api.data.mine.area.AreaEnum;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.object.mine.area.SArea;
 import com.bgsoftware.superiorprison.plugin.object.mine.linkable.LinkableObject;
-import com.bgsoftware.superiorprison.plugin.util.*;
+import com.bgsoftware.superiorprison.plugin.util.Attachable;
+import com.bgsoftware.superiorprison.plugin.util.ChunkResetData;
+import com.bgsoftware.superiorprison.plugin.util.ClassDebugger;
+import com.bgsoftware.superiorprison.plugin.util.Cuboid;
 import com.bgsoftware.superiorprison.plugin.util.frameworks.Framework;
 import com.oop.datamodule.SerializableObject;
 import com.oop.datamodule.SerializedData;
@@ -28,7 +31,6 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.event.world.WorldLoadEvent;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -70,8 +72,11 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
 
     @Setter
     private transient SArea mineArea;
+
     private AtomicLong blocksRegenerated = new AtomicLong();
     private Cuboid cuboid;
+
+    private int lastRestartPercentage = -1;
 
     protected SMineGenerator() {
         caching = false;
@@ -125,6 +130,11 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
                                 SuperiorPrisonPlugin.getInstance().getOLogger().printDebug("Finished mine {} reset. Took {}ms", mine.getName(), (System.currentTimeMillis() - start));
                                 resetting = false;
                                 data.clear();
+
+                                if (!SuperiorPrisonPlugin.getInstance().getMainConfig().isUseMineDataCache()) {
+                                    cachedChunksData.clear();
+                                    cachedMaterials = new OMaterial[0];
+                                }
                             }
                         });
                 data.add(chunkResetData);
@@ -152,12 +162,13 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
 
         // Check for cache
         StaticTask.getInstance().async(() -> {
-            if (blocksInRegion == -1)
+            if (blocksInRegion == -1 || cachedChunksData.isEmpty())
                 initCache(this::reset);
 
             else
                 generate();
         });
+
         lastReset = getDate().toInstant();
         mine.onReset();
     }
@@ -223,7 +234,28 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
         this.mine = (SNormalMine) obj;
         this.mineArea = (SArea) obj.getArea(AreaEnum.MINE);
         this.blockData.attach(this);
-        initCache(this::reset);
+
+        if (lastRestartPercentage == -1 || lastRestartPercentage <= SuperiorPrisonPlugin.getInstance().getMainConfig().getResetMineAtRestartAt()) {
+            ClassDebugger.debug("Loading mine with reset {}", mine.getName());
+            reset();
+        } else {
+            ClassDebugger.debug("Loading mine without reset {}, % left: {}", mine.getName(), lastRestartPercentage);
+            initCache(() -> {
+                long blocksLeft = 0;
+                for (ChunkData value : cachedChunksData.values()) {
+                    for (Location location : value.getLocations()) {
+                        OMaterial blockType = SuperiorPrisonPlugin.getInstance().getNms().getBlockType(value.chunk, location);
+                        if (blockType == null) continue;
+
+
+                        blocksLeft++;
+                        blockData.getLocToMaterial().put(location, blockType);
+                    }
+                }
+
+                blockData.setBlocksLeft(blocksLeft);
+            });
+        }
     }
 
     private <T> T[] shuffleArray(T[] array) {
@@ -237,22 +269,6 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
         return array;
     }
 
-    public double getCurrentUsedRate() {
-        double[] rate = new double[]{0};
-        generatorMaterials.forEach(pair -> rate[0] = rate[0] + pair.getFirst());
-        return rate[0];
-    }
-
-    public double getCurrentUsedRate(OMaterial minus) {
-        double[] rate = new double[]{0};
-        generatorMaterials.forEach(pair -> {
-            if (pair.getSecond() == minus) return;
-            rate[0] = rate[0] + pair.getFirst();
-        });
-
-        return rate[0];
-    }
-
     @Override
     public void serialize(SerializedData serializedData) {
         JsonArray array = new JsonArray();
@@ -262,7 +278,9 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
             object.addProperty("c", generatorMaterial.getFirst().toString());
             array.add(object);
         }
+        serializedData.write("blockData", blockData);
         serializedData.getJsonElement().getAsJsonObject().add("materials", array);
+        serializedData.write("percentage", blockData.getPercentageLeft());
     }
 
     @Override
@@ -275,6 +293,8 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
                     OMaterial.valueOf(object.get("m").getAsString())
             ));
         }
+        lastRestartPercentage = serializedData.applyAs("percentage", int.class, () -> -1);
+        blockData = serializedData.applyAs("blockData", SMineBlockData.class, SMineBlockData::new);
     }
 
     @Override

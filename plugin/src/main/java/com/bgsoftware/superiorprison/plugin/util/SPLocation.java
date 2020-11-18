@@ -23,7 +23,7 @@ public class SPLocation implements Cloneable, SerializableObject {
     private float pitch = 0;
     private float yaw = 0;
 
-    protected SPLocation() {
+    public SPLocation() {
     }
 
     public SPLocation(String worldName, double x, double y, double z) {

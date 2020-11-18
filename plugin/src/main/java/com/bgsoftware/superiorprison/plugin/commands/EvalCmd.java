@@ -2,10 +2,10 @@ package com.bgsoftware.superiorprison.plugin.commands;
 
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
-import com.bgsoftware.superiorprison.plugin.test.script.ScriptEngine;
-import com.bgsoftware.superiorprison.plugin.test.script.function.Function;
-import com.bgsoftware.superiorprison.plugin.test.script.variable.GlobalVariableMap;
-import com.bgsoftware.superiorprison.plugin.test.script.variable.VariableHelper;
+import com.bgsoftware.superiorprison.plugin.util.script.ScriptEngine;
+import com.bgsoftware.superiorprison.plugin.util.script.function.Function;
+import com.bgsoftware.superiorprison.plugin.util.script.variable.GlobalVariableMap;
+import com.bgsoftware.superiorprison.plugin.util.script.variable.VariableHelper;
 import com.oop.orangeengine.command.OCommand;
 import com.oop.orangeengine.command.arg.arguments.StringArg;
 import org.bukkit.entity.Player;

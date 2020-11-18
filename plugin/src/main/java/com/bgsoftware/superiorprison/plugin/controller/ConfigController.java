@@ -49,6 +49,9 @@ public class ConfigController implements OComponent<SuperiorPrisonPlugin> {
             this.backPacksConfig = new Config(backpacksFile);
             this.bombsConfig = new Config(bombsFile);
 
+            SuperiorPrisonPlugin.getInstance().setPrestigeController(new LadderObjectController(prestigesConfig, true));
+            SuperiorPrisonPlugin.getInstance().setRankController(new LadderObjectController(ranksConfig, false));
+
             JarUtil.copyFolderFromJar("menus", dataFolder, JarUtil.CopyOption.COPY_IF_NOT_EXIST, SuperiorPrisonPlugin.class);
 
             // Update

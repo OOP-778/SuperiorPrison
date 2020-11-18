@@ -21,7 +21,7 @@ import com.bgsoftware.superiorprison.plugin.object.player.booster.SBooster;
 import com.bgsoftware.superiorprison.plugin.object.top.STopEntry;
 import com.bgsoftware.superiorprison.plugin.object.top.blocks.BlockTopEntry;
 import com.bgsoftware.superiorprison.plugin.object.top.prestige.SPrestigeTopEntry;
-import com.bgsoftware.superiorprison.plugin.test.requirement.DeclinedRequirement;
+import com.bgsoftware.superiorprison.plugin.requirement.DeclinedRequirement;
 import com.bgsoftware.superiorprison.plugin.util.TextUtil;
 import com.bgsoftware.superiorprison.plugin.util.TimeUtil;
 import com.google.common.collect.Maps;

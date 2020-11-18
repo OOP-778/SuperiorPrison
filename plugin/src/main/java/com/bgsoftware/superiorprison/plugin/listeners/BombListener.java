@@ -4,12 +4,14 @@ import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
 import com.bgsoftware.superiorprison.api.data.mine.area.Area;
 import com.bgsoftware.superiorprison.api.data.mine.area.AreaEnum;
 import com.bgsoftware.superiorprison.api.data.mine.locks.Lock;
+import com.bgsoftware.superiorprison.api.event.mine.MultiBlockBreakEvent;
 import com.bgsoftware.superiorprison.api.util.Pair;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.config.bomb.BombConfig;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.controller.BombController;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
+import com.bgsoftware.superiorprison.plugin.object.mine.locks.SBLocksLock;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.util.*;
 import com.oop.orangeengine.main.events.SyncEvents;
@@ -127,7 +129,7 @@ public class BombListener {
                             controller.putCooldown(event.getPlayer(), bomb);
 
                             SNormalMine key = (SNormalMine) mine.getKey();
-                            Lock lock = mine.getKey().newLock();
+                            Lock lock = key.getGenerator().getBlockData().newBlockDataLock();
                             try {
                                 List<Location> sphereAt = key.getGenerator().getCuboid().getSphereAt(checkLocation, bomb.getRadius());
 
@@ -150,16 +152,18 @@ public class BombListener {
                                         SuperiorPrisonPlugin.getInstance().getPrisonerController().getInsertIfAbsent(event.getPlayer()),
                                         mine.getKey(),
                                         null,
-                                        null,
+                                        lock,
                                         sphereAt.toArray(new Location[0])
                                 );
                                 ClassDebugger.debug("Took {}ms", (System.currentTimeMillis() - dropStart));
 
                                 int[] amount = new int[]{0};
-
                                 for (Location location : sphereAt) {
                                     if (!mine.getKey().getGenerator().getBlockData().has(location))
                                         continue;
+
+                                    ((SBLocksLock) lock).getLockedLocations().add(location);
+                                    ClassDebugger.debug("Setting block");
 
                                     amount[0] = amount[0] + 1;
                                     data.add(
@@ -167,7 +171,7 @@ public class BombListener {
                                                 particleExecution.accept(location);
                                                 if (counter.incrementAndGet() == amount[0]) {
                                                     async(() -> SuperiorPrisonPlugin.getInstance().getNms().refreshChunks(checkLocation.getWorld(), sphereAt, checkLocation.getWorld().getPlayers()));
-                                                    key.unlock(lock);
+                                                    key.getGenerator().getBlockData().unlock(lock);
                                                 }
                                             })
                                     );
@@ -176,8 +180,8 @@ public class BombListener {
                                 for (ChunkResetData datum : data)
                                     datum.setReady(true);
                             } catch (Exception ex) {
-                                key.unlock(lock);
                                 ex.printStackTrace();
+                                key.getGenerator().getBlockData().unlock(lock);
                             }
                         } else if (bomb.getTrailParticle() != null)
                             OParticle.getProvider().display(bomb.getTrailParticle(), checkLocation.clone().add(0, 0.2, 0.0), 1);

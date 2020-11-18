@@ -3,7 +3,7 @@ package com.bgsoftware.superiorprison.plugin;
 import com.bgsoftware.superiorprison.api.SuperiorPrison;
 import com.bgsoftware.superiorprison.api.SuperiorPrisonAPI;
 import com.bgsoftware.superiorprison.api.controller.RankController;
-import com.bgsoftware.superiorprison.plugin.commands.CommandsRegister;
+import com.bgsoftware.superiorprison.plugin.commands.CommandsRegisterer;
 import com.bgsoftware.superiorprison.plugin.config.main.MainConfig;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.controller.*;
@@ -13,34 +13,43 @@ import com.bgsoftware.superiorprison.plugin.data.SStatisticHolder;
 import com.bgsoftware.superiorprison.plugin.hook.impl.*;
 import com.bgsoftware.superiorprison.plugin.listeners.*;
 import com.bgsoftware.superiorprison.plugin.metrics.Metrics;
+import com.bgsoftware.superiorprison.plugin.module.BackPacksModule;
 import com.bgsoftware.superiorprison.plugin.nms.SuperiorNms;
 import com.bgsoftware.superiorprison.plugin.object.inventory.PatchedInventory;
+import com.bgsoftware.superiorprison.plugin.protocol.PrisonProtocol;
 import com.bgsoftware.superiorprison.plugin.tasks.MineVisualization;
 import com.bgsoftware.superiorprison.plugin.tasks.PlayerInventoryUpdateTask;
 import com.bgsoftware.superiorprison.plugin.tasks.ResetQueueTask;
 import com.bgsoftware.superiorprison.plugin.tasks.TasksStarter;
-import com.bgsoftware.superiorprison.plugin.test.Testing;
+import com.bgsoftware.superiorprison.plugin.requirement.RequirementController;
 import com.bgsoftware.superiorprison.plugin.util.menu.MenuListener;
 import com.oop.datamodule.StorageInitializer;
-import com.oop.orangeengine.item.custom.OItem;
 import com.oop.orangeengine.main.Helper;
 import com.oop.orangeengine.main.plugin.EnginePlugin;
 import com.oop.orangeengine.main.task.ClassicTaskController;
 import com.oop.orangeengine.main.task.StaticTask;
 import com.oop.orangeengine.main.task.TaskController;
-import com.oop.orangeengine.nbt.NBTItem;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
-import org.bukkit.inventory.ItemStack;
 
 @Getter
 public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison {
-
     public static boolean disabling = false;
     private static SuperiorPrisonPlugin instance;
     private PlaceholderController placeholderController;
     private ConfigController configController;
+
+    @Setter
+    private LadderObjectController prestigeController;
+
+    @Setter
+    private LadderObjectController rankController;
+
+    private RequirementController requirementController = new RequirementController();
+
+    @Setter
+    private PlayerChatFilterController playerChatFilterController;
 
     @Setter
     private MainConfig mainConfig;
@@ -54,6 +63,8 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
     private SuperiorNms nms;
     private ResetQueueTask resetQueueTask;
     private PlayerInventoryUpdateTask inventoryUpdateTask;
+
+    private CommandsRegisterer commandsRegisterer;
 
     public static SuperiorPrisonPlugin getInstance() {
         return instance;
@@ -71,9 +82,10 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
 
         getOLogger()
                 .setMainColor("&d");
-
         getOLogger()
                 .setSecondaryColor("&5");
+
+        commandsRegisterer = new CommandsRegisterer();
 
         try {
             // Setup NMS
@@ -93,8 +105,6 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
             // Make sure plugin data folder exists
             if (!getDataFolder().exists())
                 getDataFolder().mkdirs();
-
-            Testing.main(new String[]{"ff"});
 
             resetQueueTask = new ResetQueueTask();
             inventoryUpdateTask = new PlayerInventoryUpdateTask();
@@ -121,7 +131,6 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
             new MineListener();
             new PrisonerListener();
             new StatisticsListener();
-            new BackPackListener();
             new BombListener();
             new RewardsListener();
 
@@ -130,8 +139,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
             // Initialize tasks
             new TasksStarter();
 
-            // Register commands
-            CommandsRegister.register();
+            BackPacksModule.init();
 
             Updater.plugin = this;
             if (Updater.isOutdated()) {
@@ -140,6 +148,8 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
                 getOLogger().printWarning("Version's Description: {}", Updater.getVersionDescription());
                 getOLogger().printWarning("");
             }
+
+            new PrisonProtocol();
 
             new Metrics(this);
             resetQueueTask.execute();
@@ -190,11 +200,6 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
     @Override
     public SPrisonerHolder getPrisonerController() {
         return databaseController.getPrisonerHolder();
-    }
-
-    @Override
-    public RankController getRankController() {
-        return null;
     }
 
     @Override

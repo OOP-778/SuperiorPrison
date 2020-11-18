@@ -3,14 +3,17 @@ package com.bgsoftware.superiorprison.plugin.commands.ladder;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.hook.impl.VaultHook;
+import com.bgsoftware.superiorprison.plugin.ladder.ParsedObject;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
-import com.bgsoftware.superiorprison.plugin.test.Testing;
-import com.bgsoftware.superiorprison.plugin.test.generator.ParsedObject;
-import com.bgsoftware.superiorprison.plugin.test.requirement.DeclinedRequirement;
+import com.bgsoftware.superiorprison.plugin.requirement.DeclinedRequirement;
+import com.bgsoftware.superiorprison.plugin.util.NumberUtil;
 import com.oop.orangeengine.command.OCommand;
 import com.oop.orangeengine.main.task.StaticTask;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+
+import java.math.BigInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.listedBuilder;
 import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
@@ -25,12 +28,12 @@ public class PrestigeMaxCmd extends OCommand {
             Player player = command.getSenderAsPlayer();
             SPrisoner prisoner = SuperiorPrisonPlugin.getInstance().getPrisonerController().getInsertIfAbsent(player);
 
-            int wasPrestige = prisoner.getPrestige();
-            int[] currentPrestige = new int[]{prisoner.getPrestige()};
-            int maxIndex = Testing.prestigeGenerator.getMaxIndex();
+            BigInteger wasPrestige = prisoner.getPrestige();
+            AtomicReference<BigInteger> currentPrestige = new AtomicReference<>(prisoner.getPrestige());
+            BigInteger maxIndex = SuperiorPrisonPlugin.getInstance().getPrestigeController().getMaxIndex();
 
             // If prisoner is max prestige, return
-            if (currentPrestige[0] == maxIndex) {
+            if (NumberUtil.equals(maxIndex, wasPrestige)) {
                 LocaleEnum
                         .PRISONER_MAX_PRESTIGE
                         .getWithErrorPrefix()
@@ -42,27 +45,47 @@ public class PrestigeMaxCmd extends OCommand {
             VaultHook vaultHook = SuperiorPrisonPlugin.getInstance().getHookController().findHook(() -> VaultHook.class).get();
             vaultHook.enableCacheFor(player);
 
+            int maxLadderUpsPerTime = SuperiorPrisonPlugin.getInstance().getMainConfig().getMaxLadderUpsPerTime();
+
             StaticTask.getInstance().async(() -> {
                 long start = System.currentTimeMillis();
                 ParsedObject last = null;
-                while (currentPrestige[0] != maxIndex) {
-                    currentPrestige[0] += 1;
+
+                int allCount = 0;
+                int pCount = 0;
+
+                while (!NumberUtil.equals(currentPrestige.get(), maxIndex)) {
+                    pCount++;
+                    allCount++;
+                    if (pCount == 100 || allCount == maxLadderUpsPerTime) {
+                        pCount = 0;
+                        System.out.println(prisoner.getPrestige().toString());
+                        vaultHook.submitWithdrawCache(player);
+                        vaultHook.enableCacheFor(player);
+
+                        if (allCount == maxLadderUpsPerTime)
+                            break;
+                    }
+
+                    currentPrestige.set(currentPrestige.get().add(BigInteger.ONE));
                     ParsedObject current = last == null
-                            ? Testing.prestigeGenerator.getParsed(prisoner, currentPrestige[0]).get()
+                            ? SuperiorPrisonPlugin.getInstance().getPrestigeController().getParsed(prisoner, currentPrestige.get()).get()
                             : (ParsedObject) last.getNext().orElse(null);
                     if (current == null) break;
 
-                    if (prisoner.getLadderRank() != Testing.ranksGenerator.getMaxIndex())
-                        LadderHelper.doMaxRank(prisoner, prisoner.getLadderRank(), Testing.ranksGenerator.getMaxIndex(), (ParsedObject) prisoner.getParsedLadderRank().getNext().get());
+                    if (!NumberUtil.equals(SuperiorPrisonPlugin.getInstance().getRankController().getMaxIndex(), prisoner.getLadderRank()))
+                        LadderHelper.doMaxRank(prisoner, prisoner.getLadderRank().intValue(), SuperiorPrisonPlugin.getInstance().getRankController().getMaxIndex().intValue(), (ParsedObject) prisoner.getParsedLadderRank().getNext().get());
 
-                    if (prisoner.getLadderRank() != Testing.ranksGenerator.getMaxIndex()) {
-                        if (last != null && (last.getIndex() - startingParsed.getIndex()) != 0) {
-                            int difference = last.getIndex() - wasPrestige;
-                            messageBuilder(LocaleEnum.MAX_PRESTIGE_SUCCESS_NEW.getWithPrefix())
-                                    .replace("{times}", difference)
-                                    .replace("{starting_prestige}", startingParsed.getName())
-                                    .replace("{current_prestige}", last.getName())
-                                    .send(command.getSender());
+                    if (!NumberUtil.equals(SuperiorPrisonPlugin.getInstance().getRankController().getMaxIndex(), prisoner.getLadderRank())) {
+                        if (last != null) {
+                            BigInteger difference = last.getIndex().subtract(wasPrestige);
+                            if (!NumberUtil.equals(difference, BigInteger.ZERO)) {
+                                messageBuilder(LocaleEnum.MAX_PRESTIGE_SUCCESS_NEW.getWithPrefix())
+                                        .replace("{times}", difference.toString())
+                                        .replace("{starting_prestige}", startingParsed.getName())
+                                        .replace("{current_prestige}", last.getName())
+                                        .send(command.getSender());
+                            }
                         }
 
                         ParsedObject nextRank = (ParsedObject) prisoner.getParsedLadderRank().getNext().get();
@@ -82,16 +105,16 @@ public class PrestigeMaxCmd extends OCommand {
                     current.take();
 
                     // Set current prestige
-                    prisoner.setPrestige(current.getIndex(), true);
+                    prisoner._setPrestige(current.getIndex());
 
                     if (SuperiorPrisonPlugin.getInstance().getMainConfig().isResetRanks())
-                        prisoner._setLadderRank(1);
+                        prisoner._setLadderRank(BigInteger.valueOf(1));
 
                     last = current;
                 }
 
                 if (last == null) {
-                    ParsedObject parsedObject = Testing.prestigeGenerator.getParsed(prisoner, prisoner.getPrestige() + 1).get();
+                    ParsedObject parsedObject = SuperiorPrisonPlugin.getInstance().getPrestigeController().getParsed(prisoner, prisoner.getPrestige().add(BigInteger.ONE)).get();
                     listedBuilder(DeclinedRequirement.class)
                             .message(LocaleEnum.PRESTIGE_NEED_TILL_RANKUP_REQUIREMENTS.getMessage().clone())
                             .addObject(parsedObject.getTemplate().getRequirements().meets(parsedObject.getVariableMap()).getSecond().toArray(new DeclinedRequirement[0]))
@@ -101,9 +124,9 @@ public class PrestigeMaxCmd extends OCommand {
                     return;
                 }
 
-                int difference = last.getIndex() - wasPrestige;
+                BigInteger difference = last.getIndex().subtract(wasPrestige);
                 messageBuilder(LocaleEnum.MAX_PRESTIGE_SUCCESS_NEW.getWithPrefix())
-                        .replace("{times}", difference)
+                        .replace("{times}", difference.toString())
                         .replace("{starting_prestige}", startingParsed == null ? "None" : startingParsed.getName())
                         .replace("{current_prestige}", last.getName())
                         .send(command.getSender());

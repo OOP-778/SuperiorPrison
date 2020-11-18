@@ -1,7 +1,5 @@
 package com.bgsoftware.superiorprison.plugin.listeners;
 
-import com.bgsoftware.superiorprison.api.SuperiorPrison;
-import com.bgsoftware.superiorprison.api.data.backpack.BackPack;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.config.backpack.SimpleBackPackConfig;
 import com.bgsoftware.superiorprison.plugin.menu.backpack.AdvancedBackPackView;
@@ -9,21 +7,17 @@ import com.bgsoftware.superiorprison.plugin.menu.backpack.BackpackLockable;
 import com.bgsoftware.superiorprison.plugin.menu.backpack.SimpleBackPackView;
 import com.bgsoftware.superiorprison.plugin.object.backpack.SBackPack;
 import com.bgsoftware.superiorprison.plugin.object.inventory.PatchedInventory;
-import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.object.inventory.SPlayerInventory;
+import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.util.PermUtil;
 import com.oop.orangeengine.main.events.SyncEvents;
 import com.oop.orangeengine.main.task.OTask;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.inventory.InventoryEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 
-import javax.sound.midi.Patch;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -143,7 +137,7 @@ public class BackPackListener {
             if (event.isCancelled()) return;
             if (!(event.getPlayer().getInventory() instanceof PatchedInventory)) return;
 
-            SPlayerInventory inventory = ((PatchedInventory)event.getPlayer().getInventory()).getOwner();
+            SPlayerInventory inventory = ((PatchedInventory) event.getPlayer().getInventory()).getOwner();
 
             SBackPack backPackBy = inventory.findBackPackBy(event.getItemDrop().getItemStack());
             if (backPackBy == null) return;
@@ -165,7 +159,7 @@ public class BackPackListener {
             new OTask()
                     .delay(100)
                     .runnable(() -> {
-                        SPlayerInventory inventory = ((PatchedInventory)event.getPlayer().getInventory()).getOwner();
+                        SPlayerInventory inventory = ((PatchedInventory) event.getPlayer().getInventory()).getOwner();
                         inventory.init();
                     })
                     .execute();

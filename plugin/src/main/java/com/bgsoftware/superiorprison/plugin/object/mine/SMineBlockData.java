@@ -1,9 +1,14 @@
 package com.bgsoftware.superiorprison.plugin.object.mine;
 
-import com.bgsoftware.superiorprison.api.data.mine.locks.Lock;
 import com.bgsoftware.superiorprison.api.data.mine.MineBlockData;
+import com.bgsoftware.superiorprison.api.data.mine.locks.Lock;
 import com.bgsoftware.superiorprison.plugin.object.mine.locks.SBLocksLock;
 import com.bgsoftware.superiorprison.plugin.util.Attachable;
+import com.oop.datamodule.SerializableObject;
+import com.oop.datamodule.SerializedData;
+import com.oop.datamodule.gson.JsonArray;
+import com.oop.datamodule.gson.JsonElement;
+import com.oop.datamodule.gson.JsonObject;
 import com.oop.orangeengine.main.util.data.cache.OCache;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.material.OMaterial;
@@ -18,7 +23,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
-public class SMineBlockData implements Attachable<SMineGenerator>, MineBlockData {
+public class SMineBlockData implements Attachable<SMineGenerator>, MineBlockData, SerializableObject {
 
     // Material, current value, starting value
     @Getter
@@ -107,6 +112,8 @@ public class SMineBlockData implements Attachable<SMineGenerator>, MineBlockData
     @Override
     public void unlock(Lock lock) {
         lockedBlocks.remove((SBLocksLock) lock);
+        for (Location lockedLocation : ((SBLocksLock) lock).lockedLocations)
+            locToMaterial.remove(lockedLocation);
     }
 
     @Override
@@ -122,5 +129,38 @@ public class SMineBlockData implements Attachable<SMineGenerator>, MineBlockData
     @Override
     public boolean has(Location location) {
         return locToMaterial.containsKey(location);
+    }
+
+    @Override
+    public void serialize(SerializedData serializedData) {
+        JsonArray materialData = new JsonArray();
+        for (Map.Entry<OMaterial, OPair<Long, Long>> matData : materials.entrySet()) {
+            JsonObject matDataJson = new JsonObject();
+            matDataJson.addProperty("material", matData.getKey().name());
+            matDataJson.addProperty("current", matData.getValue().getKey());
+            matDataJson.addProperty("all", matData.getValue().getValue());
+
+            materialData.add(matDataJson);
+        }
+
+        serializedData.write("mats", materialData);
+    }
+
+    @Override
+    public void deserialize(SerializedData serializedData) {
+        // Deserialize material data
+        serializedData
+                .getElement("mats")
+                .map(JsonElement::getAsJsonArray)
+                .ifPresent(materialsData -> {
+                    for (JsonElement materialsDatum : materialsData) {
+                        JsonObject matDataJson = materialsDatum.getAsJsonObject();
+                        OMaterial material = OMaterial.matchMaterial(matDataJson.getAsJsonPrimitive("material").getAsString());
+                        long current = matDataJson.getAsJsonPrimitive("current").getAsLong();
+                        long was = matDataJson.getAsJsonPrimitive("all").getAsLong();
+
+                        materials.put(material, new OPair<>(current, was));
+                    }
+                });
     }
 }

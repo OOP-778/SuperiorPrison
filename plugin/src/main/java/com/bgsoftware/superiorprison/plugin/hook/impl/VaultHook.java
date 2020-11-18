@@ -75,6 +75,7 @@ public class VaultHook extends SHook {
         if (cache != null) {
             BigDecimal subtract = cache.getSecond().subtract(cache.getFirst());
             getEcoProvider().withdrawPlayer(player, subtract.doubleValue());
+            cachedBalance.remove(player.getUniqueId());
         }
     }
 

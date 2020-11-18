@@ -228,7 +228,7 @@ public class MineListener {
                 ResetSettings.Percentage percentage = event.getMine().getSettings().getResetSettings().asPercentage();
                 int percentageLeft = event.getMine().getGenerator().getBlockData().getPercentageLeft();
                 if (percentageLeft <= percentage.getValue())
-                    event.getMine().getGenerator().generate();
+                    event.getMine().getGenerator().reset();
             }
         });
     }

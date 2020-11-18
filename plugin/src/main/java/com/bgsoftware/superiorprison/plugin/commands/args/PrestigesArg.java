@@ -1,8 +1,8 @@
 package com.bgsoftware.superiorprison.plugin.commands.args;
 
+import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
-import com.bgsoftware.superiorprison.plugin.test.Testing;
-import com.bgsoftware.superiorprison.plugin.test.generator.ParsedObject;
+import com.bgsoftware.superiorprison.plugin.ladder.ParsedObject;
 import com.oop.orangeengine.command.OCommand;
 import com.oop.orangeengine.command.arg.CommandArgument;
 import com.oop.orangeengine.main.util.data.pair.OPair;
@@ -16,15 +16,7 @@ public class PrestigesArg extends CommandArgument<Function<SPrisoner, ParsedObje
         setIdentity("prestige");
         setDescription("A prestige");
 
-        setMapper(name -> new OPair<>(Testing.prestigeGenerator.getParser(name).orElse(null), "Failed to find prestige by name " + name));
+        setMapper(name -> new OPair<>(SuperiorPrisonPlugin.getInstance().getPrestigeController().getParser(name).orElse(null), "Failed to find prestige by name " + name));
     }
 
-    public List<String> getPrestiges() {
-        return new ArrayList<>(Testing.prestigeGenerator.getAvailable());
-    }
-
-    @Override
-    public void onAdd(OCommand command) {
-        command.nextTabComplete((previous, args) -> getPrestiges());
-    }
 }

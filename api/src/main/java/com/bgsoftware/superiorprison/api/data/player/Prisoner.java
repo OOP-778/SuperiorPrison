@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -48,13 +49,13 @@ public interface Prisoner {
 
     void setLadderRank(String name, boolean applyOnAdd);
 
-    void setLadderRank(int index, boolean applyOnAdd);
+    void setLadderRank(BigInteger index, boolean applyOnAdd);
 
-    void setPrestige(int index, boolean applyOnAdd);
+    void setPrestige(BigInteger index, boolean applyOnAdd);
 
-    int getLadderRank();
+    BigInteger getLadderRank();
 
-    int getPrestige();
+    BigInteger getPrestige();
 
     LadderObject getParsedLadderRank();
 

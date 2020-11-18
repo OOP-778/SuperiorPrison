@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorprison.plugin.config.main;
 
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
+import com.bgsoftware.superiorprison.plugin.controller.PlayerChatFilterController;
 import com.bgsoftware.superiorprison.plugin.util.TimeUtil;
 import com.bgsoftware.superiorprison.plugin.util.configwrapper.ConfigWrapper;
 import com.google.common.collect.Lists;
@@ -37,6 +38,7 @@ public class MainConfig extends ConfigWrapper {
     private PrisonerDefaults prisonerDefaults;
     private TopSystemsSection topSystemsSection;
     private PlaceholdersSection placeholdersSection;
+    private DisabledModulesSection disabledModulesSection;
 
     private List<OMaterial> disabledInteractableBlocks = new ArrayList<>();
 
@@ -45,6 +47,9 @@ public class MainConfig extends ConfigWrapper {
     private boolean itemDropping = false;
 
     private boolean handleNamedItems;
+    private int maxLadderUpsPerTime;
+    private boolean useMineDataCache;
+    private int resetMineAtRestartAt;
 
     public MainConfig() {
         load();
@@ -65,6 +70,7 @@ public class MainConfig extends ConfigWrapper {
         this.prisonerDefaults = addSection("prisoner defaults", new PrisonerDefaults());
         this.topSystemsSection = addSection("top systems", new TopSystemsSection());
         this.placeholdersSection = addSection("placeholders", new PlaceholdersSection());
+        this.disabledModulesSection = addSection("disabled modules", new DisabledModulesSection());
 
         // Load Mine Defaults
         this.mineDefaults = addSection("mine defaults", new MineDefaultsSection());
@@ -77,6 +83,7 @@ public class MainConfig extends ConfigWrapper {
         rankupMessageInterval = TimeUtil.toSeconds(configuration.getAs("rankup message interval", String.class, () -> "6s", "How often it should check the rankup"));
         resetRanks = configuration.getAs("reset ranks after prestige up", boolean.class, () -> false, "Should it reset the ranks after prestige");
         useMineShopsByRank = configuration.getAs("use mine shops by rank", boolean.class, () -> false, "Should it use mine shop of the current rank of the player");
+
         chunksPerTick = configuration.getAs(
                 "chunks per tick", int.class, () -> 4,
                 "How much chunks per tick should the block setting use",
@@ -95,6 +102,32 @@ public class MainConfig extends ConfigWrapper {
                 .toMillis(TimeUtil.toSeconds(configuration.getAs("update backpacks every", String.class, () -> "1s", "Update backpacks every")));
 
         handleNamedItems = configuration.getAs("handle named items", boolean.class, () -> false, "Handle items with name, lore, etc.", "In shops, auto sell, etc.");
+        useMineDataCache = configuration.getAs("use mine cache", boolean.class, () -> true, "Should we cache the mine data?", "Using cache more memory will be used", "Without using it will take longer to resets mines");
+
+        resetMineAtRestartAt = configuration.getAs("mine reset at load percentage", int.class, () -> 70, "To make the server load lighter", "From which percentage should mines auto reset?");
+
+        SuperiorPrisonPlugin.getInstance().setPlayerChatFilterController(new PlayerChatFilterController(
+                configuration.getAs(
+                        "ladder chat filter",
+                        List.class,
+                        () -> Lists.newArrayList("starts:Crates", "contains:Vouchers"),
+                        "Chat filter when ladder rank is being increased",
+                        "On /pup, /pmax, /rup, rmax",
+                        "This filter is there to make sure player won't receive any spam from external plugins",
+                        "Ex. crates",
+                        "Every value is ignore case"
+                )
+        ));
+
+        maxLadderUpsPerTime = configuration.getAs(
+                "max ladder per rank",
+                int.class,
+                () -> 10000,
+                "How much ladder objects per time it should go thru",
+                "When /pmax && /rmax is executed",
+                "Please test the number when you set it",
+                "Keep it above a million if possible"
+        );
 
         SuperiorPrisonPlugin.getInstance().getOLogger().setDebugMode(configuration.getAs("debug", boolean.class, () -> false));
         SuperiorPrisonPlugin.getInstance().getResetQueueTask().setChunksPerTick(chunksPerTick);

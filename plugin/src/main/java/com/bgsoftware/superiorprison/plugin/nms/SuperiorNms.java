@@ -29,4 +29,8 @@ public interface SuperiorNms {
         mapped.forEach((chunk, l) -> finalLocations.put(world.getChunkAt(chunk.getFirst(), chunk.getSecond()), l));
         StaticTask.getInstance().ensureSync(() -> refreshChunks(world, finalLocations, players));
     }
+
+    default OMaterial getBlockType(Chunk chunk, Location location) {
+        return null;
+    }
 }

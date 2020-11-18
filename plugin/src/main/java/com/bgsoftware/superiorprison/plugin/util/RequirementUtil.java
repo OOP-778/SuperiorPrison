@@ -2,7 +2,7 @@ package com.bgsoftware.superiorprison.plugin.util;
 
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.config.main.ProgressionScaleSection;
-import com.bgsoftware.superiorprison.plugin.test.generator.ParsedObject;
+import com.bgsoftware.superiorprison.plugin.ladder.ParsedObject;
 
 public class RequirementUtil {
     public static int getPercentageCompleted(ParsedObject parsedObject) {

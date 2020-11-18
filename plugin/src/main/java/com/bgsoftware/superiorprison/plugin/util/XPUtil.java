@@ -7,9 +7,6 @@ public class XPUtil {
     public static void setTotalExperience(final Player player, final int exp) {
         Preconditions.checkArgument(exp > 0, "Cannot set the players xp to a negative value!");
 
-        if (exp < 0) {
-            throw new IllegalArgumentException("Experience is negative!");
-        }
         player.setExp(0);
         player.setLevel(0);
         player.setTotalExperience(0);

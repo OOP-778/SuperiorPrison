@@ -1,7 +1,7 @@
 package com.bgsoftware.superiorprison.plugin.commands.ladder;
 
+import com.bgsoftware.superiorprison.plugin.ladder.ParsedObject;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
-import com.bgsoftware.superiorprison.plugin.test.generator.ParsedObject;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 
 public class LadderHelper {

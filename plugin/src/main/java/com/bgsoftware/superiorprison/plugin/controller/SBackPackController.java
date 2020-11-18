@@ -6,6 +6,7 @@ import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.config.backpack.AdvancedBackPackConfig;
 import com.bgsoftware.superiorprison.plugin.config.backpack.BackPackConfig;
 import com.bgsoftware.superiorprison.plugin.config.backpack.SimpleBackPackConfig;
+import com.bgsoftware.superiorprison.plugin.module.BackPacksModule;
 import com.bgsoftware.superiorprison.plugin.object.backpack.SBackPack;
 import com.bgsoftware.superiorprison.plugin.object.inventory.PatchedInventory;
 import com.bgsoftware.superiorprison.plugin.object.inventory.SPlayerInventory;
@@ -31,6 +32,7 @@ public class SBackPackController implements BackPackController, OComponent<Super
 
     @Override
     public boolean isBackPack(@NonNull ItemStack itemStack) {
+        if (BackPacksModule.isDisabled()) return false;
         return new NBTItem(itemStack).getKeys()
                 .stream()
                 .anyMatch(in -> in.startsWith(NBT_KEY));
@@ -38,6 +40,8 @@ public class SBackPackController implements BackPackController, OComponent<Super
 
     @Override
     public BackPack getBackPack(@NonNull ItemStack itemStack, Player player)  {
+        if (BackPacksModule.isDisabled()) return null;
+
         if (!(player.getInventory() instanceof PatchedInventory)) {
             try {
                 return new SBackPack(itemStack, player);
@@ -60,6 +64,8 @@ public class SBackPackController implements BackPackController, OComponent<Super
 
     @Override
     public BackPack getBackPack(int slot, @NonNull Player player) {
+        if (BackPacksModule.isDisabled()) return null;
+
         if (!(player.getInventory() instanceof PatchedInventory)) {
             ItemStack item = player.getInventory().getItem(slot);
             return getBackPack(item, player);
@@ -80,6 +86,8 @@ public class SBackPackController implements BackPackController, OComponent<Super
     @Override
     public List<BackPack> findBackPacks(Player player) {
         List<BackPack> backPacks = new LinkedList<>();
+        if (BackPacksModule.isDisabled()) return backPacks;
+
         for (ItemStack content : player.getInventory().getContents()) {
             if (content == null || content.getType() == Material.AIR) continue;
             if (isBackPack(content)) backPacks.add(getBackPack(content, player));
@@ -89,6 +97,8 @@ public class SBackPackController implements BackPackController, OComponent<Super
 
     @Override
     public boolean load() {
+        if (BackPacksModule.isDisabled()) return true;
+
         backpackConfigs.clear();
         Config backPacksConfig = SuperiorPrisonPlugin.getInstance().getConfigController().getBackPacksConfig();
 

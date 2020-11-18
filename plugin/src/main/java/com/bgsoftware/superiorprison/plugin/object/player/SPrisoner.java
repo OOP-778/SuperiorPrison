@@ -13,8 +13,8 @@ import com.bgsoftware.superiorprison.plugin.object.backpack.SBackPack;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.player.booster.SBoosters;
 import com.bgsoftware.superiorprison.plugin.object.statistic.SStatisticsContainer;
-import com.bgsoftware.superiorprison.plugin.test.Testing;
-import com.bgsoftware.superiorprison.plugin.test.script.util.Values;
+import com.bgsoftware.superiorprison.plugin.util.NumberUtil;
+import com.bgsoftware.superiorprison.plugin.util.script.util.Values;
 import com.bgsoftware.superiorprison.plugin.util.Removeable;
 import com.bgsoftware.superiorprison.plugin.util.SPair;
 import com.mojang.authlib.GameProfile;
@@ -22,6 +22,7 @@ import com.mojang.authlib.properties.Property;
 import com.oop.datamodule.SerializedData;
 import com.oop.datamodule.body.MultiTypeBody;
 import com.oop.datamodule.gson.JsonElement;
+import com.oop.datamodule.util.DataUtil;
 import com.oop.orangeengine.main.util.OSimpleReflection;
 import com.oop.orangeengine.main.util.data.cache.OCache;
 import com.oop.orangeengine.main.util.data.pair.OPair;
@@ -35,6 +36,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -94,10 +96,10 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
             .build();
 
     @Getter
-    private int ladderRank;
+    private BigInteger ladderRank;
 
     @Getter
-    private int prestige;
+    private BigInteger prestige;
 
     public SPrisoner() {}
 
@@ -112,7 +114,8 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
         fortuneBlocks = prisonerDefaults.isFortuneBlocks();
         this.textureValue = getOnlineSkullTexture();
 
-        this.ladderRank = 1;
+        this.ladderRank = BigInteger.ONE;
+        this.prestige = BigInteger.ZERO;
     }
 
     @Override
@@ -170,43 +173,43 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
 
     @Override
     public void setLadderRank(String name, boolean applyOnAdd) {
-        Testing.ranksGenerator
+        SuperiorPrisonPlugin.getInstance().getRankController()
                 .getParsed(this, name)
                 .ifPresent(po -> this.ladderRank = po.getIndex());
     }
 
     @Override
-    public void setLadderRank(int index, boolean applyOnAdd) {
-        Testing.ranksGenerator
+    public void setLadderRank(BigInteger index, boolean applyOnAdd) {
+        SuperiorPrisonPlugin.getInstance().getRankController()
                 .getParsed(this, index)
                 .ifPresent(po -> this.ladderRank = po.getIndex());
     }
 
-    public void _setLadderRank(int index) {
+    public void _setLadderRank(BigInteger index) {
         this.ladderRank = index;
     }
 
     @Override
-    public void setPrestige(int index, boolean applyOnAdd) {
-        Testing.prestigeGenerator
+    public void setPrestige(BigInteger index, boolean applyOnAdd) {
+        SuperiorPrisonPlugin.getInstance().getPrestigeController()
                 .getParsed(this, index)
                 .ifPresent(po -> this.prestige = po.getIndex());
     }
 
-    public void _setPrestige(int index) {
+    public void _setPrestige(BigInteger index) {
         this.prestige = index;
     }
 
     @Override
     public LadderObject getParsedLadderRank() {
-        return Testing.ranksGenerator
+        return SuperiorPrisonPlugin.getInstance().getRankController()
                 .getParsed(this, ladderRank)
                 .orElseThrow(() -> new IllegalStateException("Failed to find ladder rank by index: " + ladderRank));
     }
 
     @Override
     public Optional<LadderObject> getParsedPrestige() {
-        return Optional.ofNullable(prestige <= 0 ? null : Testing.prestigeGenerator
+        return Optional.ofNullable(NumberUtil.isLessOrEquals(prestige, BigInteger.ZERO) ? null : SuperiorPrisonPlugin.getInstance().getPrestigeController()
                 .getParsed(this, prestige)
                 .orElseThrow(() -> new IllegalStateException("Failed to find prestige by index: " + prestige)));
     }
@@ -319,8 +322,8 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
         data.write("autopickup", autoPickup);
         data.write("autosell", autoSell);
         data.write("fortuneblocks", fortuneBlocks);
-        data.write("currentLadderRank", ladderRank);
-        data.write("currentPrestige", prestige);
+        data.write("currentLadderRank", ladderRank.toString());
+        data.write("currentPrestige", prestige.toString());
         data.write("boosters", boosters);
         data.write("logoutmine", logoutMine);
         data.write("texture", textureValue);
@@ -341,18 +344,19 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
         if (data.has("currentLadderRank")) {
             String currentLadderRank = data.getChildren("currentLadderRank").get().applyAs(String.class);
             ladderRank = Values.isNumber(currentLadderRank)
-                    ? Values.parseAsInt(currentLadderRank)
-                    : Testing.ranksGenerator.getParsed(this, currentLadderRank)
+                    ? Values.parseAsBigInt(currentLadderRank)
+                    : SuperiorPrisonPlugin.getInstance().getRankController().getParsed(this, currentLadderRank)
                     .orElseThrow(() -> new IllegalStateException("Failed to find rank by " + currentLadderRank))
                     .getIndex();
         }
 
         data.getChildren("currentPrestige").ifPresent(currentPrestige -> {
-            if (currentPrestige.applyAs(int.class) != 0)
-                this.prestige = Testing.prestigeGenerator
-                        .isValid(currentPrestige.applyAs(int.class))
-                        ? currentPrestige.applyAs(int.class)
-                        : 0;
+            Object o = DataUtil.fromElement(currentPrestige.getJsonElement());
+            if (Integer.class.isAssignableFrom(o.getClass()))
+                this.prestige = BigInteger.valueOf(((Integer) o).longValue());
+            else {
+                this.prestige = new BigInteger(o.toString());
+            }
         });
 
         ensurePlayerNotNull();

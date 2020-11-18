@@ -1,6 +1,5 @@
 package com.bgsoftware.superiorprison.plugin.object.top.prestige;
 
-import com.bgsoftware.superiorprison.api.data.player.LadderObject;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.object.top.STopSystem;
@@ -11,10 +10,9 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 public class SPrestigeTopSystem extends STopSystem<SPrisoner, SPrestigeTopEntry> {
-
     @Override
     protected Comparator<SPrisoner> comparator() {
-        return Comparator.comparingInt(p -> p.getParsedPrestige().map(LadderObject::getIndex).get());
+        return Comparator.comparing(SPrisoner::getPrestige);
     }
 
     @Override

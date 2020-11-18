@@ -4,7 +4,7 @@ import com.bgsoftware.superiorprison.plugin.commands.args.PrisonerArg;
 import com.bgsoftware.superiorprison.plugin.commands.args.RanksArg;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
-import com.bgsoftware.superiorprison.plugin.test.generator.ParsedObject;
+import com.bgsoftware.superiorprison.plugin.ladder.ParsedObject;
 import com.oop.orangeengine.command.OCommand;
 
 import java.util.function.Function;

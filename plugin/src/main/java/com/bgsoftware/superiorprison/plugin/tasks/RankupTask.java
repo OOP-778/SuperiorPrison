@@ -3,18 +3,19 @@ package com.bgsoftware.superiorprison.plugin.tasks;
 import com.bgsoftware.superiorprison.api.data.player.LadderObject;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
-import com.bgsoftware.superiorprison.plugin.test.generator.ParsedObject;
+import com.bgsoftware.superiorprison.plugin.ladder.ParsedObject;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableMap;
 import com.oop.orangeengine.main.task.OTask;
 
+import java.math.BigInteger;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class RankupTask extends OTask {
-    private final Cache<UUID, Integer> cache = CacheBuilder.newBuilder()
+    private final Cache<UUID, BigInteger> cache = CacheBuilder.newBuilder()
             .expireAfterWrite(5, TimeUnit.MINUTES)
             .build();
 

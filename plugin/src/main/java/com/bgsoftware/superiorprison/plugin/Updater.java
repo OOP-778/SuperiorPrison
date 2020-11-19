@@ -14,10 +14,6 @@ public class Updater {
     public static SuperiorPrisonPlugin plugin = SuperiorPrisonPlugin.getInstance();
     private static String latestVersion, versionDescription;
 
-    static {
-        setLatestVersion();
-    }
-
     // Just so no one would be able to call the constructor
     private Updater() {
     }
@@ -35,7 +31,7 @@ public class Updater {
     }
 
     @SuppressWarnings("unchecked")
-    private static void setLatestVersion() {
+    public static void setLatestVersion() {
         try {
             HttpsURLConnection connection = (HttpsURLConnection) new URL("https://bg-software.com/versions.json").openConnection();
 

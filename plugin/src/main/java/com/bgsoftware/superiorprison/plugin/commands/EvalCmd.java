@@ -31,6 +31,7 @@ public class EvalCmd extends OCommand {
                 long start = System.nanoTime();
                 Object execute = function.execute(map);
 
+                System.out.println(execute.getClass());
                 command.getSenderAsPlayer().sendMessage("Took: " + (System.nanoTime() - start) + "ns, Result: " + execute);
             } catch (Exception ex) {
                 ex.printStackTrace();

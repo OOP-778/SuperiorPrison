@@ -4,6 +4,7 @@ import com.bgsoftware.superiorprison.api.data.player.LadderObject;
 import com.bgsoftware.superiorprison.plugin.util.script.variable.GlobalVariableMap;
 import com.oop.orangeengine.message.OMessage;
 import lombok.Getter;
+import org.bukkit.Bukkit;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -69,11 +70,6 @@ public class ParsedObject implements LadderObject {
     }
 
     @Override
-    public List<String> getPermissions() {
-        return null;
-    }
-
-    @Override
     public Optional<LadderObject> getNext() {
         return Optional.ofNullable(next.get());
     }
@@ -86,5 +82,11 @@ public class ParsedObject implements LadderObject {
     @Override
     public void take() {
         template.getRequirements().take(getVariableMap());
+    }
+
+    @Override
+    public void executeCommands() {
+        for (String command : getCommands())
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
     }
 }

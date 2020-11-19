@@ -18,6 +18,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.event.player.PlayerEvent;
 
 import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class CommandHelper {
@@ -124,13 +126,20 @@ public class CommandHelper {
     public static class ListedBuilder<T> {
 
         private final Map<Class, Set<OPair<String, Function<Object, String>>>> placeholders = Maps.newHashMap();
+
         private @NonNull OMessage message;
+
         @Setter
         private @NonNull String identifier;
+
         @Setter
         private Set<T> objects = Sets.newHashSet();
+
         @Setter
         private Set<Object> placeholderObjects = Sets.newHashSet();
+
+        @Setter
+        private BiConsumer<LineContent, T> objectContentModifier;
 
         public ListedBuilder<T> addObject(T... objects) {
             this.objects.addAll(Arrays.asList(objects));
@@ -159,12 +168,6 @@ public class CommandHelper {
                 return new HashSet<>();
 
             return allPlaceholders.getOrDefault(first.get(), new HashSet<>());
-        }
-
-        private boolean compareClasses(Class n1, Class n2) {
-            List<Class> n1Classes = findAllParents(n1);
-            List<Class> n2Classes = findAllParents(n2);
-            return n1Classes.stream().anyMatch(c1 -> n2Classes.stream().anyMatch(c2 -> c1 == c2));
         }
 
         private List<Class> findAllParents(Class clazz) {
@@ -235,6 +238,8 @@ public class CommandHelper {
                 for (T object : objects) {
                     LineContent objectContent = lineContent.clone();
                     objectContent.replace(object, findFor(object.getClass(), allPlaceholders));
+                    if (objectContentModifier != null)
+                        objectContentModifier.accept(objectContent, object);
 
                     messageLine.append(objectContent);
 
@@ -249,6 +254,10 @@ public class CommandHelper {
 
         public void send(WrappedCommand command) {
             sendMessage(command.getSender(), build());
+        }
+
+        public void send(CommandSender sender) {
+            sendMessage(sender, build());
         }
     }
 }

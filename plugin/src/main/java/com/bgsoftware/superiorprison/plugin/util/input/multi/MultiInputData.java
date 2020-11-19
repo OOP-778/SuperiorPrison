@@ -1,9 +1,12 @@
 package com.bgsoftware.superiorprison.plugin.util.input.multi;
 
+import lombok.Getter;
+
 import java.util.Map;
 import java.util.Optional;
 
 public class MultiInputData {
+    @Getter
     private final Map<String, Object> data;
 
     public MultiInputData(Map<String, Object> parsedData) {

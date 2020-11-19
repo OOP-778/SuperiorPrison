@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 public class LadderTemplate {
-    private static final Data data = new Data();
+    public static final Data data = new Data();
 
     static {
         data.add("prisoner", SPrisoner.class);

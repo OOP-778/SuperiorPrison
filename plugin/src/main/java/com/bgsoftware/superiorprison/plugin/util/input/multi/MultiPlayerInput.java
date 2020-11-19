@@ -42,6 +42,7 @@ public class MultiPlayerInput {
     @Getter
     private boolean cancelled;
     private final Queue<InputData> queue = new ConcurrentLinkedDeque<>();
+
     private final Map<String, Object> parsedData = new HashMap<>();
 
     public MultiPlayerInput(Player player) {

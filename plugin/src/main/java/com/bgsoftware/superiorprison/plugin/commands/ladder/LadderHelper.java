@@ -25,6 +25,8 @@ public class LadderHelper {
             // Set the current ladder rank
             prisoner._setLadderRank(parsed.getIndex());
 
+            parsed.executeCommands();
+
             // End
             last = parsed;
         }

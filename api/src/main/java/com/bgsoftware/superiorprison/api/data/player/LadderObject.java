@@ -11,11 +11,13 @@ public interface LadderObject {
 
     BigInteger getIndex();
 
-    List<String> getPermissions();
+    List<String> getCommands();
 
     Optional<LadderObject> getNext();
 
     Optional<LadderObject> getPrevious();
 
     void take();
+
+    void executeCommands();
 }

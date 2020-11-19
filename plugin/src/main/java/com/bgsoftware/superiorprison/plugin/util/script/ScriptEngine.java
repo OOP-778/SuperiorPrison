@@ -35,6 +35,7 @@ public class ScriptEngine {
         registerFunction(new PlaceholderFunction(), input -> PlaceholderFunction.PATTERN.matcher(input).find());
         registerFunction(new XpFunctions.SET_XP(), input -> RegexHelper.matches(input, XpFunctions.SET_XP_LEVEL_PATTERN));
         registerFunction(new XpFunctions.GET_XP_FUNCTION(), input -> RegexHelper.matches(input, XpFunctions.GET_XP_PATTERN));
+        registerFunction(new HasPermissionFunction(), input -> RegexHelper.matches(input, HasPermissionFunction.PATTERN));
     }
 
     public static ScriptEngine getInstance() {

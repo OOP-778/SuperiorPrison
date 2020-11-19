@@ -11,5 +11,6 @@ public class CmdBoosters extends OCommand {
         subCommand(new CmdAdd());
         subCommand(new CmdClear());
         subCommand(new CmdRemove());
+        subCommand(new CmdList());
     }
 }

@@ -328,7 +328,55 @@ public enum LocaleEnum {
     ),
     EDIT_REWARD_ADDED_CMD("Successfully added &d{command} to the commands list"),
     EDIT_REWARD_CHANCE("Successfully set chance of the reward to {chance}"),
-    EDIT_REWARD_REMOVED_COMMAND("Successfully removed command at index {index}");
+    EDIT_REWARD_REMOVED_COMMAND("Successfully removed command at index {index}"),
+
+    MINE_CONDITION_CREATE_STEP1(
+            new OChatMessage()
+                    .append(" ")
+                    .append("Please choose one of the ways to create a new condition.")
+                    .append(
+                            new ChatLine()
+                                    .append("&d&l* &7")
+                                    .append(
+                                            new LineContent("Template &d&l(Click Me)")
+                                                    .hover()
+                                                    .add("&7There's few preset templates that you can use")
+                                                    .add("&7To create mine conditions with ease")
+                                                    .parent()
+                                                    .chat()
+                                                    .message("template")
+                                                    .parent()
+                                    )
+                                    .append("&7, ")
+                                    .append(
+                                            new LineContent("Your Own &d&l(Click Me)")
+                                                    .hover()
+                                                    .add("&7You can create your own condition")
+                                                    .add("&7How to do that check our wiki :)")
+                                                    .parent()
+                                                    .chat()
+                                                    .message("own")
+                                                    .parent()
+                                    )
+                    )
+                    .append(" ")
+    ),
+    MINE_CONDITION_CREATE_FROM_TEMPLATE_TYPE(
+            new OChatMessage(
+                    new ChatLine(" "),
+                    new ChatLine("Available templates: ")
+                            .append(
+                                    new LineContent("{TEMPLATE}&7{template_name} &d&l(Click Me)")
+                                            .hover()
+                                            .add("&7Click to choose")
+                                            .parent()
+                                            .chat()
+                                            .message("{template_name}")
+                                            .parent()
+                            ),
+                    new ChatLine(" ")
+            )
+    );
 
     private final OMessage[] cache = new OMessage[2];
 

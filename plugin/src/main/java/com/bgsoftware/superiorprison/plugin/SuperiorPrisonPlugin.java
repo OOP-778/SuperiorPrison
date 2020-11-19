@@ -141,7 +141,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
 
             BackPacksModule.init();
 
-            Updater.plugin = this;
+            Updater.setLatestVersion();
             if (Updater.isOutdated()) {
                 getOLogger().printWarning("");
                 getOLogger().printWarning("A new version is available {}!", Updater.getLatestVersion());

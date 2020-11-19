@@ -64,14 +64,16 @@ public class MenuUpdater {
         if (!tempFolder.exists()) tempFolder.mkdirs();
 
         for (File file : menusFolder.listFiles(file -> file.getName().endsWith("yml"))) {
-            // Copy the file from source
-            JarUtil.copyFileFromJar(
-                    folderName + "/" + file.getName(),
-                    tempFolder,
-                    JarUtil.CopyOption.REPLACE_IF_EXIST,
-                    file.getName(),
-                    SuperiorPrisonPlugin.class
-            );
+            try {
+                // Copy the file from source
+                JarUtil.copyFileFromJar(
+                        folderName + "/" + file.getName(),
+                        tempFolder,
+                        JarUtil.CopyOption.REPLACE_IF_EXIST,
+                        file.getName(),
+                        SuperiorPrisonPlugin.class
+                );
+            } catch (Throwable ignored) {}
 
             // Get the copied file
             File tempFile = new File(tempFolder, file.getName());

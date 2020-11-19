@@ -7,7 +7,6 @@ import io.netty.channel.Channel;
 import lombok.SneakyThrows;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;

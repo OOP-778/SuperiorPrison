@@ -9,6 +9,7 @@ import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.config.main.MineDefaultsSection;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.data.SMineHolder;
+import com.bgsoftware.superiorprison.plugin.ladder.ObjectSupplier;
 import com.bgsoftware.superiorprison.plugin.object.mine.access.SMineAccess;
 import com.bgsoftware.superiorprison.plugin.object.mine.area.SArea;
 import com.bgsoftware.superiorprison.plugin.object.mine.effects.SMineEffects;
@@ -403,7 +404,6 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
         this.access = data.getChildren("access").map(sd -> sd.applyAs(SMineAccess.class)).orElse(new SMineAccess());
         access.attach(this);
 
-        // Migrate old data (FUCKING HARD)
         data
                 .getChildren("prestiges")
                 .ifPresent(sd -> migrateLadder(sd, false));
@@ -419,18 +419,21 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
         String getter = isRank ? "%prisoner#ladderrank%" : "%prisoner#prestige%";
         String name = isRank ? "Rank Check" : "Prestige Check";
 
-//        data.applyAsCollection()
-//                .map(sd -> sd.applyAs(String.class))
-//                .mapToInt(sd -> SuperiorPrisonPlugin.getInstance().getPrestigeController().getIndex(sd))
-//                .filter(index -> index)
-//                .max()
-//                .ifPresent(index -> {
-//                    access
-//                            .addScript(
-//                                    name,
-//                                    "if {" + getter + " == 0}: false else: { " + getter +  " >= " + index + "}"
-//                            );
-//                });
+        ObjectSupplier supplier = isRank
+                ? SuperiorPrisonPlugin.getInstance().getRankController()
+                : SuperiorPrisonPlugin.getInstance().getPrestigeController();
+
+        data.applyAsCollection()
+                .map(sd -> sd.applyAs(String.class))
+                .mapToInt(sd -> supplier.getIndex(sd).intValue())
+                .max()
+                .ifPresent(index -> {
+                    access
+                            .addScript(
+                                    name,
+                                    "if {" + getter + " == 0}: false else: { " + getter +  " >= " + index + "}"
+                            );
+                });
     }
 
     private void initializeLinkableObjects() {
@@ -460,38 +463,6 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
                 .filter(player -> player.getLocation().getWorld().getName().equalsIgnoreCase(getWorld().getName()))
                 .filter(player -> getArea(AreaEnum.REGION).isInsideWithoutY(player.getLocation()))
                 .forEach(player -> prisoners.add(SuperiorPrisonPlugin.getInstance().getPrisonerController().getInsertIfAbsent(player)));
-    }
-
-    public void updateHighests() {
-        StaticTask.getInstance().ensureAsync(() -> {
-            canEnterCache.clear();
-
-//            // Find highest prestige
-//            highestPrestige = (SPrestige) prestiges
-//                    .stream()
-//                    .map(prestigeName -> SuperiorPrisonPlugin.getInstance().getPrestigeController().getPrestige(prestigeName).orElse(null))
-//                    .filter(Objects::nonNull)
-//                    .max(Comparator.comparingInt(Prestige::getOrder))
-//                    .orElse(null);
-//
-//            // Initialize ranks
-//            specialRanks.clear();
-//            List<LadderRank> ladderRanks = new ArrayList<>();
-//            for (String rankName : ranks) {
-//                Rank rank = SuperiorPrisonPlugin.getInstance().getRankController().getRank(rankName).orElse(null);
-//                if (rank == null) continue;
-//
-//                if (rank instanceof LadderRank)
-//                    ladderRanks.add((LadderRank) rank);
-//                else
-//                    specialRanks.add((SSpecialRank) rank);
-//            }
-//
-//            highestRank = (SLadderRank) ladderRanks
-//                    .stream()
-//                    .max(Comparator.comparingInt(LadderRank::getOrder))
-//                    .orElse(null);
-        });
     }
 
     public Map<String, LinkableObject> getLinkableObjects() {

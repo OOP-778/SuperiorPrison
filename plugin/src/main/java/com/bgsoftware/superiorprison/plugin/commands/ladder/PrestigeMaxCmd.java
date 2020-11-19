@@ -8,11 +8,15 @@ import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.requirement.DeclinedRequirement;
 import com.bgsoftware.superiorprison.plugin.util.NumberUtil;
 import com.oop.orangeengine.command.OCommand;
+import com.oop.orangeengine.main.task.OTask;
 import com.oop.orangeengine.main.task.StaticTask;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.listedBuilder;
@@ -41,12 +45,27 @@ public class PrestigeMaxCmd extends OCommand {
                 return;
             }
 
+            List<String> commands = new ArrayList<>();
+
+            // Rewards executor
+            Runnable commandsExecutor = () -> StaticTask.getInstance().sync(() -> {
+                SuperiorPrisonPlugin.getInstance().getPlayerChatFilterController().filter(prisoner.getPlayer().getUniqueId());
+                for (String s : commands)
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), s);
+
+                // Because packets are sent async, we've got to add a delay here.
+                new OTask()
+                        .delay(TimeUnit.SECONDS, Math.max(4, commands.size() / 100))
+                        .sync(false)
+                        .runnable(() -> SuperiorPrisonPlugin.getInstance().getPlayerChatFilterController().unfilter(prisoner.getOfflinePlayer().getUniqueId()))
+                        .execute();
+            });
+
             ParsedObject startingParsed = (ParsedObject) prisoner.getParsedPrestige().orElse(null);
             VaultHook vaultHook = SuperiorPrisonPlugin.getInstance().getHookController().findHook(() -> VaultHook.class).get();
             vaultHook.enableCacheFor(player);
 
             int maxLadderUpsPerTime = SuperiorPrisonPlugin.getInstance().getMainConfig().getMaxLadderUpsPerTime();
-
             StaticTask.getInstance().async(() -> {
                 long start = System.currentTimeMillis();
                 ParsedObject last = null;
@@ -54,19 +73,10 @@ public class PrestigeMaxCmd extends OCommand {
                 int allCount = 0;
                 int pCount = 0;
 
+                boolean breakCauseOfLimit = false;
                 while (!NumberUtil.equals(currentPrestige.get(), maxIndex)) {
                     pCount++;
                     allCount++;
-                    if (pCount == 100 || allCount == maxLadderUpsPerTime) {
-                        pCount = 0;
-                        System.out.println(prisoner.getPrestige().toString());
-                        vaultHook.submitWithdrawCache(player);
-                        vaultHook.enableCacheFor(player);
-
-                        if (allCount == maxLadderUpsPerTime)
-                            break;
-                    }
-
                     currentPrestige.set(currentPrestige.get().add(BigInteger.ONE));
                     ParsedObject current = last == null
                             ? SuperiorPrisonPlugin.getInstance().getPrestigeController().getParsed(prisoner, currentPrestige.get()).get()
@@ -99,10 +109,14 @@ public class PrestigeMaxCmd extends OCommand {
                     }
 
                     // Check if prestige meets up to the requirements
-                    if (!current.getMeets().get()) break;
+                    if (!current.getMeets().get())
+                        break;
 
                     // Take the requirements
                     current.take();
+
+                    // Execute the commands
+                    commands.addAll(current.getCommands());
 
                     // Set current prestige
                     prisoner._setPrestige(current.getIndex());
@@ -111,6 +125,16 @@ public class PrestigeMaxCmd extends OCommand {
                         prisoner._setLadderRank(BigInteger.valueOf(1));
 
                     last = current;
+                    if (pCount == 100 || allCount == maxLadderUpsPerTime) {
+                        pCount = 0;
+                        vaultHook.submitWithdrawCache(player);
+                        vaultHook.enableCacheFor(player);
+
+                        if (allCount == maxLadderUpsPerTime) {
+                            breakCauseOfLimit = true;
+                            break;
+                        }
+                    }
                 }
 
                 if (last == null) {
@@ -131,18 +155,20 @@ public class PrestigeMaxCmd extends OCommand {
                         .replace("{current_prestige}", last.getName())
                         .send(command.getSender());
 
-                last.getNext().ifPresent(prestige -> {
-                    listedBuilder(DeclinedRequirement.class)
-                            .addObject(((ParsedObject) prestige).getTemplate().getRequirements().meets(((ParsedObject) prestige).getVariableMap()).getSecond().toArray(new DeclinedRequirement[0]))
-                            .addPlaceholderObject(prestige)
-                            .identifier("{TEMPLATE}")
-                            .message(LocaleEnum.PRESTIGE_NEED_TILL_RANKUP_REQUIREMENTS.getMessage())
-                            .send(command);
-                });
+                if (!breakCauseOfLimit)
+                    last.getNext().ifPresent(prestige -> {
+                        listedBuilder(DeclinedRequirement.class)
+                                .addObject(((ParsedObject) prestige).getTemplate().getRequirements().meets(((ParsedObject) prestige).getVariableMap()).getSecond().toArray(new DeclinedRequirement[0]))
+                                .addPlaceholderObject(prestige)
+                                .identifier("{TEMPLATE}")
+                                .message(LocaleEnum.PRESTIGE_NEED_TILL_RANKUP_REQUIREMENTS.getMessage())
+                                .send(command);
+                    });
 
                 prisoner.save(true);
                 vaultHook.submitWithdrawCache(player);
                 Bukkit.broadcastMessage("took " + (System.currentTimeMillis() - start) + "ms");
+                commandsExecutor.run();
             });
         });
     }

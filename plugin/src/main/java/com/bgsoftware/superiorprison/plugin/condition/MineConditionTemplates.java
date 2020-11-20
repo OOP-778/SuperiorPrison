@@ -13,7 +13,6 @@ import java.util.function.Consumer;
 
 public class MineConditionTemplates {
     private static final Map<String, MineConditionTemplate> templateMap = new ConcurrentHashMap<>();
-
     public static Map<String, MineConditionTemplate> getTemplateMap() {
         return templateMap;
     }

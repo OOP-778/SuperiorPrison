@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorprison.plugin.util.input;
 
 import lombok.NonNull;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 
@@ -11,7 +12,7 @@ public class Input {
         return new PlayerInput<Integer>(((Player) player))
                 .parser(string -> {
                     try {
-                        return Integer.parseInt(string);
+                        return Integer.parseInt(ChatColor.stripColor(string));
                     } catch (Throwable throwable) {
                         throw new IllegalStateException("Invalid number: " + string);
                     }
@@ -22,7 +23,7 @@ public class Input {
         return new PlayerInput<Double>(((Player) player))
                 .parser(string -> {
                     try {
-                        return Double.parseDouble(string);
+                        return Double.parseDouble(ChatColor.stripColor(string));
                     } catch (Throwable throwable) {
                         throw new IllegalStateException("Invalid number: " + string);
                     }
@@ -33,7 +34,7 @@ public class Input {
         return new PlayerInput<BigDecimal>(((Player) player))
                 .parser(string -> {
                     try {
-                        return new BigDecimal(string);
+                        return new BigDecimal(ChatColor.stripColor(string));
                     } catch (Throwable throwable) {
                         throw new IllegalStateException("Invalid number: " + string);
                     }

@@ -31,8 +31,7 @@ public class LadderTemplate {
     private OMessage message;
     private RequirementHolder requirements;
 
-    private LadderTemplate() {
-    }
+    private LadderTemplate() {}
 
     public LadderTemplate(ConfigSection section, GlobalVariableMap map) {
         section.ifValuePresent("prefix", String.class, p -> this.prefix = p);

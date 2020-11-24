@@ -164,13 +164,11 @@ public class SPlayerInventory {
             // Check if the itemstack had last location
             SBackPack currentBackpack = backPackMap.get(slot);
 
-
             UUID uuid = SuperiorPrisonPlugin.getInstance().getBackPackController().getUUID(itemStack);
             if (uuid != null && currentBackpack != null && uuid.equals(currentBackpack.getUuid())) return itemStack;
 
             else {
                 SBackPack pack = (SBackPack) SuperiorPrisonPlugin.getInstance().getBackPackController().getBackPack(itemStack, player);
-
                 backPackMap.put(slot, pack);
             }
 

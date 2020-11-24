@@ -6,7 +6,9 @@ import com.oop.orangeengine.main.plugin.OComponent;
 import com.oop.orangeengine.nbt.NBTItem;
 import com.oop.orangeengine.yaml.Config;
 import com.oop.orangeengine.yaml.ConfigSection;
+import org.bukkit.ChunkSnapshot;
 import org.bukkit.Material;
+import org.bukkit.craftbukkit.v1_12_R1.CraftChunk;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 

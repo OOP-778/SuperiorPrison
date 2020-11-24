@@ -256,7 +256,6 @@ public class SBackPack implements BackPack {
 
         String data = StorageInitializer.getInstance().getGson().toJson(oldData);
 
-
         // Compress the data
         data = compress(data.getBytes(StandardCharsets.UTF_8));
 

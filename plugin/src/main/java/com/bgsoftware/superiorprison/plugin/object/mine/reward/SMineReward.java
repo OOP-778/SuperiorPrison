@@ -1,8 +1,8 @@
 package com.bgsoftware.superiorprison.plugin.object.mine.reward;
 
 import com.bgsoftware.superiorprison.api.data.mine.reward.MineReward;
-import com.oop.datamodule.SerializableObject;
-import com.oop.datamodule.SerializedData;
+import com.oop.datamodule.api.SerializedData;
+import com.oop.datamodule.api.SerializableObject;
 import lombok.Getter;
 import lombok.Setter;
 

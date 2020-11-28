@@ -2,11 +2,8 @@ package com.bgsoftware.superiorprison.plugin.condition;
 
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.util.NumberUtil;
-import com.bgsoftware.superiorprison.plugin.util.SPair;
 
 import java.math.BigInteger;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
@@ -36,7 +33,7 @@ public class MineConditionTemplates {
                 );
 
                 parser.conditionProvider(values -> {
-                    String permission = values.get("permission");
+                    String permission = values.get("permission").toString();
                     return "%prisoner% has permission '" + permission + "'";
                 });
             });
@@ -59,7 +56,7 @@ public class MineConditionTemplates {
                 );
 
                 parser.conditionProvider(values -> {
-                    String rank = values.get("rank");
+                    String rank = values.get("rank").toString();
                     BigInteger index = SuperiorPrisonPlugin.getInstance().getRankController().getIndex(rank);
 
                     return "%prisoner#ladderrank% >= " + index.toString();
@@ -84,7 +81,7 @@ public class MineConditionTemplates {
                 );
 
                 parser.conditionProvider(values -> {
-                    String rank = values.get("prestige");
+                    String rank = values.get("prestige").toString();
                     BigInteger index = SuperiorPrisonPlugin.getInstance().getRankController().getIndex(rank);
 
                     return "%prisoner#ladderrank% >= " + index.toString();

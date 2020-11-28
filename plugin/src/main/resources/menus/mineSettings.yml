@@ -103,3 +103,10 @@ buttons:
       lore:
         - "&d&l* &7Click to change"
         - "&d&l* &7Current: &d{setting_value}"
+
+    mine-order:
+      material: name tag
+      display name: "&dMine Order"
+      lore:
+        - "&d&l* &7Click to change"
+        - "&d&l* &7Current: &d{setting_value}"

@@ -5,49 +5,44 @@ import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.controller.DatabaseController;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import com.oop.datamodule.database.TableEditor;
+import com.oop.datamodule.commonsql.storage.SqlStorage;
+import com.oop.datamodule.commonsql.util.TableEditor;
+import com.oop.datamodule.universal.UniversalStorage;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
-import java.io.File;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
-public class SPrisonerHolder extends UniversalDataHolder<UUID, SPrisoner> implements PrisonerHolder {
+public class SPrisonerHolder extends UniversalStorage<SPrisoner> implements PrisonerHolder {
 
     @Getter
     private final Map<String, UUID> usernameToUuidMap = Maps.newConcurrentMap();
 
+    @Getter
+    private Map<UUID, SPrisoner> prisonerMap = new ConcurrentHashMap<>();
+
     public SPrisonerHolder(DatabaseController controller) {
-        super(controller, SPrisoner::getUUID);
+        super(controller);
+        addVariant("prisoners", SPrisoner.class);
 
-        String type = SuperiorPrisonPlugin.getInstance().getMainConfig().getDatabase().getType();
-        if (type.equalsIgnoreCase("flat")) {
-            currentHolder(
-                    DataSettings.builder(DataSettings.FlatStorageSettings.class, SPrisoner.class)
-                            .directory(new File(SuperiorPrisonPlugin.getInstance().getDataFolder() + "/prisoners"))
-                            .variants(ImmutableMap.of("prisoner", SPrisoner.class))
-            );
-        } else if (type.equalsIgnoreCase("sqlite") || type.equalsIgnoreCase("mysql")) {
-            currentHolder(
-                    DataSettings.builder(DataSettings.SQlSettings.class, SPrisoner.class)
-                            .databaseWrapper(controller.getDatabase())
-                            .variants(new Class[]{SPrisoner.class})
-            );
-        }
+        currentImplementation(
+                SuperiorPrisonPlugin.getInstance().getMainConfig().getStorageSection().provideFor(this, "prisoners")
+        );
 
-        if (controller.getDatabase() != null) {
+        if (getCurrentImplementation() instanceof SqlStorage) {
             new TableEditor("prisoners")
                     .renameColumn("prestiges", "currentPrestige")
                     .addColumn("currentLadderRank", "TEXT")
                     .addDropColumn("ranks")
-                    .edit(controller.getDatabase());
+                    .edit(((SqlStorage<SPrisoner>) getCurrentImplementation()).getDatabase());
         }
     }
 
@@ -57,14 +52,22 @@ public class SPrisonerHolder extends UniversalDataHolder<UUID, SPrisoner> implem
 
     @Override
     public Optional<Prisoner> getPrisoner(UUID uuid) {
-        return Optional.ofNullable(getDataMap().get(uuid));
+        return Optional.ofNullable(getPrisonerMap().get(uuid));
+    }
+
+    @Override
+    protected void onAdd(SPrisoner prisoner) {
+        prisonerMap.put(prisoner.getUUID(), prisoner);
+    }
+
+    @Override
+    protected void onRemove(SPrisoner prisoner) {
+        prisonerMap.put(prisoner.getUUID(), prisoner);
     }
 
     @Override
     public Stream<SPrisoner> stream() {
-        return super
-                .stream()
-                .filter(prisoner -> !prisoner.isRemoved());
+        return prisonerMap.values().stream();
     }
 
     @Override
@@ -92,7 +95,6 @@ public class SPrisonerHolder extends UniversalDataHolder<UUID, SPrisoner> implem
         return prisoner;
     }
 
-
     public SPrisoner getInsertIfAbsent(UUID uuid) {
         Optional<Prisoner> optionalPrisoner = getPrisoner(uuid);
         return optionalPrisoner
@@ -106,10 +108,6 @@ public class SPrisonerHolder extends UniversalDataHolder<UUID, SPrisoner> implem
         }
     }
 
-    public Map<UUID, SPrisoner> getPrisonerMap() {
-        return dataMap;
-    }
-
     public void cleanInvalids() {
         long start = System.currentTimeMillis();
         long count = stream()
@@ -118,5 +116,10 @@ public class SPrisonerHolder extends UniversalDataHolder<UUID, SPrisoner> implem
                 .count();
 
         SuperiorPrisonPlugin.getInstance().getOLogger().print("Prisoner Invalidation DONE ({}) Took {}ms", count, (System.currentTimeMillis() - start));
+    }
+
+    @Override
+    public Iterator<SPrisoner> iterator() {
+        return prisonerMap.values().iterator();
     }
 }

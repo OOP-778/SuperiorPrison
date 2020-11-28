@@ -1,7 +1,7 @@
 package com.bgsoftware.superiorprison.plugin.util;
 
-import com.oop.datamodule.SerializableObject;
-import com.oop.datamodule.SerializedData;
+import com.oop.datamodule.api.SerializableObject;
+import com.oop.datamodule.api.SerializedData;
 import lombok.*;
 import lombok.experimental.Accessors;
 import org.bukkit.Bukkit;

@@ -7,6 +7,7 @@ import com.bgsoftware.superiorprison.plugin.ladder.ParsedObject;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.requirement.DeclinedRequirement;
 import com.bgsoftware.superiorprison.plugin.util.NumberUtil;
+import com.bgsoftware.superiorprison.plugin.util.TimeUtil;
 import com.oop.orangeengine.command.OCommand;
 import com.oop.orangeengine.main.task.OTask;
 import com.oop.orangeengine.main.task.StaticTask;
@@ -36,6 +37,10 @@ public class PrestigeMaxCmd extends OCommand {
             AtomicReference<BigInteger> currentPrestige = new AtomicReference<>(prisoner.getPrestige());
             BigInteger maxIndex = SuperiorPrisonPlugin.getInstance().getPrestigeController().getMaxIndex();
 
+            // If player has cooldown, return...
+            if (!LadderHelper.checkForCooldown(player))
+                return;
+
             // If prisoner is max prestige, return
             if (NumberUtil.equals(maxIndex, wasPrestige)) {
                 LocaleEnum
@@ -50,7 +55,7 @@ public class PrestigeMaxCmd extends OCommand {
             // Rewards executor
             Runnable commandsExecutor = () -> StaticTask.getInstance().sync(() -> {
                 SuperiorPrisonPlugin.getInstance().getPlayerChatFilterController().filter(prisoner.getPlayer().getUniqueId());
-                for (String s : commands)
+                for (String s : LadderHelper.mergeCommands(commands))
                     Bukkit.dispatchCommand(Bukkit.getConsoleSender(), s);
 
                 // Because packets are sent async, we've got to add a delay here.
@@ -78,6 +83,7 @@ public class PrestigeMaxCmd extends OCommand {
                     pCount++;
                     allCount++;
                     currentPrestige.set(currentPrestige.get().add(BigInteger.ONE));
+
                     ParsedObject current = last == null
                             ? SuperiorPrisonPlugin.getInstance().getPrestigeController().getParsed(prisoner, currentPrestige.get()).get()
                             : (ParsedObject) last.getNext().orElse(null);
@@ -164,6 +170,18 @@ public class PrestigeMaxCmd extends OCommand {
                                 .message(LocaleEnum.PRESTIGE_NEED_TILL_RANKUP_REQUIREMENTS.getMessage())
                                 .send(command);
                     });
+                else {
+                    long cooldown = SuperiorPrisonPlugin.getInstance().getMainConfig().getMaxLadderUpsCooldown();
+                    messageBuilder(LocaleEnum
+                            .PRISONER_LADDERUP_REACHED_LIMIT
+                            .getWithErrorPrefix()
+                    )
+                            .replace("{limit}", maxLadderUpsPerTime)
+                            .replace("{cooldown}", TimeUtil.toString(cooldown))
+                            .send(player);
+
+                    LadderHelper.cooldown(player.getUniqueId(), cooldown);
+                }
 
                 prisoner.save(true);
                 vaultHook.submitWithdrawCache(player);

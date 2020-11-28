@@ -10,12 +10,12 @@ import com.bgsoftware.superiorprison.plugin.util.ChunkResetData;
 import com.bgsoftware.superiorprison.plugin.util.ClassDebugger;
 import com.bgsoftware.superiorprison.plugin.util.Cuboid;
 import com.bgsoftware.superiorprison.plugin.util.frameworks.Framework;
-import com.oop.datamodule.SerializableObject;
-import com.oop.datamodule.SerializedData;
-import com.oop.datamodule.gson.JsonArray;
-import com.oop.datamodule.gson.JsonElement;
-import com.oop.datamodule.gson.JsonObject;
-import com.oop.datamodule.util.DataUtil;
+import com.oop.datamodule.api.SerializableObject;
+import com.oop.datamodule.api.SerializedData;
+import com.oop.datamodule.api.util.DataUtil;
+import com.oop.datamodule.lib.google.gson.JsonArray;
+import com.oop.datamodule.lib.google.gson.JsonElement;
+import com.oop.datamodule.lib.google.gson.JsonObject;
 import com.oop.orangeengine.eventssubscription.SubscriptionFactory;
 import com.oop.orangeengine.eventssubscription.SubscriptionProperties;
 import com.oop.orangeengine.main.task.OTask;
@@ -238,6 +238,7 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
         if (lastRestartPercentage == -1 || lastRestartPercentage <= SuperiorPrisonPlugin.getInstance().getMainConfig().getResetMineAtRestartAt()) {
             ClassDebugger.debug("Loading mine with reset {}", mine.getName());
             reset();
+
         } else {
             ClassDebugger.debug("Loading mine without reset {}, % left: {}", mine.getName(), lastRestartPercentage);
             initCache(() -> {
@@ -249,7 +250,7 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
 
 
                         blocksLeft++;
-                        blockData.getLocToMaterial().put(location, blockType);
+                        blockData.set(location, blockType);
                     }
                 }
 

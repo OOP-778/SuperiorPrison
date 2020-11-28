@@ -57,7 +57,7 @@ allprojects {
             compileOnly("com.github.MilkBowl:VaultAPI:1.7")
             compileOnly 'me.clip:placeholderapi:2.10.4'
 
-            compile "com.oop:data:1.5"
+            compile "com.oop.datamodule:universal:1.6"
             compileOnly 'com.github.brcdev-minecraft:shopgui-api:1.5.0'
             compileOnly 'be.maximvdw:MVdWPlaceholderAPI:3.1.1-SNAPSHOT'
             compileOnly fileTree("../lib")
@@ -90,7 +90,7 @@ allprojects {
         destinationDir file('../archive')
         archiveName project.name + ".jar"
 
-        //relocate("com.oop.orangeengine", "com.bgsoftware.superiorprison.engine")
+        relocate("com.oop.orangeengine", "com.bgsoftware.superiorprison.engine")
         relocate("com.oop.datamodule", "com.bgsoftware.superiorprison.datamodule")
         relocate("io.papermc.lib", "com.bgsoftware.superiorprison.paper")
     }

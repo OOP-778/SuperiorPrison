@@ -2,26 +2,26 @@ package com.bgsoftware.superiorprison.plugin.data;
 
 import com.bgsoftware.superiorprison.api.controller.MineHolder;
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
-import com.bgsoftware.superiorprison.api.data.mine.type.NormalMine;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.controller.DatabaseController;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.util.ChunkDataQueue;
 import com.bgsoftware.superiorprison.plugin.util.ChunkResetData;
-import com.google.common.collect.ImmutableMap;
+import com.oop.datamodule.universal.UniversalStorage;
 import com.oop.orangeengine.main.util.data.cache.OCache;
 import com.oop.orangeengine.material.OMaterial;
 import lombok.Getter;
 import org.bukkit.Location;
 
-import java.io.File;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public class SMineHolder extends UniversalDataHolder<String, SNormalMine> implements MineHolder {
+public class SMineHolder extends UniversalStorage<SNormalMine> implements MineHolder {
 
     @Getter
     private final ChunkDataQueue queue = new ChunkDataQueue();
@@ -32,23 +32,15 @@ public class SMineHolder extends UniversalDataHolder<String, SNormalMine> implem
             .expireAfter(5, TimeUnit.SECONDS)
             .build();
 
-    public SMineHolder(DatabaseController controller) {
-        super(controller, SNormalMine::getKey);
+    private Map<String, SNormalMine> dataMap = new ConcurrentHashMap<>();
 
-        String type = SuperiorPrisonPlugin.getInstance().getMainConfig().getDatabase().getType();
-        if (type.equalsIgnoreCase("flat")) {
-            currentHolder(
-                    DataSettings.builder(DataSettings.FlatStorageSettings.class, SNormalMine.class)
-                            .directory(new File(SuperiorPrisonPlugin.getInstance().getDataFolder() + "/mines"))
-                            .variants(ImmutableMap.of("normalMine", SNormalMine.class))
-            );
-        } else if (type.equalsIgnoreCase("sqlite") || type.equalsIgnoreCase("mysql")) {
-            currentHolder(
-                    DataSettings.builder(DataSettings.SQlSettings.class, SNormalMine.class)
-                            .databaseWrapper(controller.getDatabase())
-                            .variants(new Class[]{SNormalMine.class})
-            );
-        }
+    public SMineHolder(DatabaseController controller) {
+        super(controller);
+        addVariant("mines", SNormalMine.class);
+
+        currentImplementation(
+                SuperiorPrisonPlugin.getInstance().getMainConfig().getStorageSection().provideFor(this, "mines")
+        );
     }
 
     @Override
@@ -56,9 +48,8 @@ public class SMineHolder extends UniversalDataHolder<String, SNormalMine> implem
         return getMines(null);
     }
 
-    public Set<SuperiorMine> getMines(Predicate<SuperiorMine> filter) {
+    public Set<SuperiorMine> getMines(Predicate<SNormalMine> filter) {
         return stream()
-                .map(mine -> (SuperiorMine) mine)
                 .filter(mine -> filter == null || filter.test(mine))
                 .collect(Collectors.toSet());
     }
@@ -71,12 +62,11 @@ public class SMineHolder extends UniversalDataHolder<String, SNormalMine> implem
 
     @Override
     public Optional<SuperiorMine> getMine(String mineName) {
-        return Optional.ofNullable(getDataMap().get(mineName));
+        return Optional.ofNullable(dataMap.get(mineName));
     }
 
     @Override
     public Optional<SuperiorMine> getMineAt(Location location) {
-
         return stream()
                 .filter(mine -> mine.isInside(location))
                 .map(mine -> (SuperiorMine) mine)
@@ -89,7 +79,7 @@ public class SMineHolder extends UniversalDataHolder<String, SNormalMine> implem
 
         mines = stream()
                 .filter(mine -> prisoner.getPlayer().hasPermission("prison.admin.editmine") || (mine.canEnter(prisoner) && mine.getSettings().isTeleportation()))
-                .sorted(Comparator.comparing(SNormalMine::getName))
+                .sorted(Comparator.comparing(mine -> mine.getSettings().getOrder()))
                 .collect(Collectors.toList());
         minesCache.put(prisoner.getUUID(), mines);
         return mines;
@@ -126,5 +116,27 @@ public class SMineHolder extends UniversalDataHolder<String, SNormalMine> implem
             value.clean();
 
         dataMap.clear();
+    }
+
+    @Override
+    protected void onAdd(SNormalMine sNormalMine) {
+        if (sNormalMine.getSettings().getOrder() == -1)
+            sNormalMine.getSettings().setOrder(dataMap.size());
+        dataMap.put(sNormalMine.getName(), sNormalMine);
+    }
+
+    @Override
+    protected void onRemove(SNormalMine sNormalMine) {
+        dataMap.remove(sNormalMine.getName());
+    }
+
+    @Override
+    public Stream<SNormalMine> stream() {
+        return dataMap.values().stream();
+    }
+
+    @Override
+    public Iterator<SNormalMine> iterator() {
+        return dataMap.values().iterator();
     }
 }

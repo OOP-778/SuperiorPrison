@@ -23,4 +23,7 @@ public interface MineSettings {
 
     // Check if monster spawn is disabled
     boolean isDisableMonsterSpawn();
+
+    // Get order of the mine
+    int getOrder();
 }

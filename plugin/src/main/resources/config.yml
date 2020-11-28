@@ -4,19 +4,47 @@ locale: "en-us"
 # Enables or disables debug
 debug: false
 
-database:
-  # There's two database types
-  # SQLITE
-  # MYSQL
-  # FLAT
-  type: sqlite
+# Setup of databases
+# You can define what database
+# Will be used per object type
+# You can set default
+# And then you can set per object
+# Available objects: prisoners, mines, statistics
+storages:
+  types:
+    # The credentials for sqlite
+    # Only database name is required :)
+    "sqlite":
+      enabled: true
+      database: "data"
 
-  # <<< If you're using SQLITE you should ignore under >>>
-  database: "data"
-  hostname: 127.0.0.1
-  port: 3306
-  username: "root"
-  password: "ouf123"
+    # The credentials for mongodb
+    # You can pass connection uri
+    # Or fill everything yourself
+    # Required values: username, hostname, password, database
+    # Optional: port
+    "mongodb":
+      enabled: false
+      database: "test"
+      connection uri: ""
+
+    # The credentials for mysql
+    # Required values: username, hostname, password, database
+    # Optional: port
+    "mysql":
+      enabled: false
+      username: "admin"
+      hostname: "localhost"
+      password: "password"
+      database: "test"
+
+    # The credentials for json
+    # Flat file based storage
+    # There's no options here
+    "flat":
+      enabled: false
+
+  default: sqlite
 
 # Top systems configurations
 top systems:
@@ -156,7 +184,11 @@ ladder chat filter:
 # When /pmax && /rmax is executed
 # Please test the number when you set it
 # Keep it above a million if possible
-max ladder per rank: 10000
+max ladder up per time: 1000
+
+# Cooldown of when 'max ladder up per time'
+# Is reached
+max ladder up cooldown: "10s"
 
 # Modules disabled
 # More modules will come with time

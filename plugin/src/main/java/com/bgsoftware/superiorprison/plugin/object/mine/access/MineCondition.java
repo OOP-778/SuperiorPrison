@@ -6,8 +6,8 @@ import com.bgsoftware.superiorprison.plugin.util.script.function.Function;
 import com.bgsoftware.superiorprison.plugin.util.script.util.ScriptHelper;
 import com.bgsoftware.superiorprison.plugin.util.script.variable.GlobalVariableMap;
 import com.bgsoftware.superiorprison.plugin.util.script.variable.VariableHelper;
-import com.oop.datamodule.SerializableObject;
-import com.oop.datamodule.SerializedData;
+import com.oop.datamodule.api.SerializedData;
+import com.oop.datamodule.api.SerializableObject;
 import lombok.Getter;
 
 @Getter

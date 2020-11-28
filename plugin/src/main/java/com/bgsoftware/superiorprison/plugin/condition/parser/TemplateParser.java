@@ -14,13 +14,13 @@ public class TemplateParser {
 
     @NonNull
     @Getter
-    private Function<Map<String, String>, String> templateParser;
+    private Function<Map<String, Object>, String> templateParser;
 
     public void addField(String valueName, String requestMessage, ParserFunction parser) {
         values.put(new OPair<>(valueName, requestMessage), parser);
     }
 
-    public void conditionProvider(Function<Map<String, String>, String> templateParser) {
+    public void conditionProvider(Function<Map<String, Object>, String> templateParser) {
         this.templateParser = templateParser;
     }
 }

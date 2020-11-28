@@ -49,6 +49,8 @@ public enum LocaleEnum {
     EDIT_SETTINGS_VALUE("Please write new {setting_name} for resetting"),
     EDIT_SETTINGS_VALUE_SUCCESS("Set the {setting_name} to {setting_value}"),
 
+    EDIT_SETTINGS_ORDER("Please write new order of the mine"),
+    EDIT_SETTINGS_ORDER_SUCCESS("Set the new order to {setting_value}"),
 
     EDIT_SETTINGS_ERROR("Error while editing setting {setting_name}: &c{error}"),
 
@@ -216,6 +218,8 @@ public enum LocaleEnum {
     SUCCESSFULLY_REMOVED_PRESTIGE("Successfully removed &d{prestige_name}&7 for &d{prisoner_name}"),
 
     SUCCESSFULLY_RESET_PRISONER("{prisoner_name} was successfully reset!"),
+    PRISONER_LADDERUP_REACHED_LIMIT("You have reached the limit of &c{limit} &7and been put on a cooldown for &c{cooldown}"),
+    PRISONER_LADDERUP_COOLDOWN("You cannot ladder up cause you're on cooldown. &c{cooldown} left"),
     PRISONER_RANKS_VIEW("&d{prisoner_name}&7 ranks information:", "&d&l* &7Ladder rank: &d{prisoner_ladderrank}"),
     PRISONER_PRESTIGE_VIEW("&d{prisoner_name}&7 Current Prestige: &d{prisoner_prestige}"),
     PRISONER_PRESTIGE_SET("&d{prisoner_name} &7prestige was set to &d{prestige_name}"),
@@ -332,7 +336,6 @@ public enum LocaleEnum {
 
     MINE_CONDITION_CREATE_STEP1(
             new OChatMessage()
-                    .append(" ")
                     .append("Please choose one of the ways to create a new condition.")
                     .append(
                             new ChatLine()
@@ -347,17 +350,17 @@ public enum LocaleEnum {
                                                     .message("template")
                                                     .parent()
                                     )
-                                    .append("&7, ")
-                                    .append(
-                                            new LineContent("Your Own &d&l(Click Me)")
-                                                    .hover()
-                                                    .add("&7You can create your own condition")
-                                                    .add("&7How to do that check our wiki :)")
-                                                    .parent()
-                                                    .chat()
-                                                    .message("own")
-                                                    .parent()
-                                    )
+                                    //.append("&7, ")
+//                                    .append(
+//                                            new LineContent("Your Own &d&l(Click Me)")
+//                                                    .hover()
+//                                                    .add("&7You can create your own condition")
+//                                                    .add("&7How to do that check our wiki :)")
+//                                                    .parent()
+//                                                    .chat()
+//                                                    .message("own")
+//                                                    .parent()
+//                                    )
                     )
                     .append(" ")
     ),
@@ -376,7 +379,8 @@ public enum LocaleEnum {
                             ),
                     new ChatLine(" ")
             )
-    );
+    ),
+    MINE_CONDITION_CREATED("Mine condition: &d{condition}&7 was successfully created!");
 
     private final OMessage[] cache = new OMessage[2];
 
@@ -427,5 +431,11 @@ public enum LocaleEnum {
             } else return cache[1];
         }
         return message;
+    }
+
+    public static OMessage getWithPrefix(OChatMessage message) {
+        OChatMessage chatMessage = message.clone();
+        chatMessage.lineList().get(0).insert(new LineContent(PREFIX_ERROR.message.asChat().lineList().get(0).raw()), 0);
+        return chatMessage;
     }
 }

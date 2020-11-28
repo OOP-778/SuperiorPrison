@@ -9,6 +9,7 @@ import com.oop.orangeengine.file.OFile;
 import com.oop.orangeengine.item.custom.OItem;
 import com.oop.orangeengine.material.OMaterial;
 import com.oop.orangeengine.yaml.Config;
+import com.oop.orangeengine.yaml.ConfigSection;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -25,7 +26,6 @@ public class MainConfig extends ConfigWrapper {
 
     private long cacheTime = TimeUnit.HOURS.toMillis(1);
     private long soldMessageInterval = TimeUnit.MINUTES.toMillis(3);
-    private DatabaseSection database;
     private MineDefaultsSection mineDefaults;
     private OItem areaSelectionTool;
 
@@ -40,6 +40,7 @@ public class MainConfig extends ConfigWrapper {
     private PlaceholdersSection placeholdersSection;
     private DisabledModulesSection disabledModulesSection;
 
+    private StorageSection storageSection;
     private List<OMaterial> disabledInteractableBlocks = new ArrayList<>();
 
     private int chunksPerTick;
@@ -48,6 +49,7 @@ public class MainConfig extends ConfigWrapper {
 
     private boolean handleNamedItems;
     private int maxLadderUpsPerTime;
+    private long maxLadderUpsCooldown;
     private boolean useMineDataCache;
     private int resetMineAtRestartAt;
 
@@ -60,11 +62,13 @@ public class MainConfig extends ConfigWrapper {
         this.configuration = new Config(new OFile(SuperiorPrisonPlugin.getInstance().getDataFolder(), "config.yml").createIfNotExists(true));
         setConfig(configuration);
 
+        System.out.println("print");
+        for (ConfigSection value : configuration.getSections().values()) {
+            System.out.println(value.getKey());
+        }
+
         // Set Locale
         configuration.ifValuePresent("locale", String.class, locale -> this.locale = locale);
-
-        // Load Database Section
-        this.database = addSection("database", new DatabaseSection());
 
         // Load prisoner defaults
         this.prisonerDefaults = addSection("prisoner defaults", new PrisonerDefaults());
@@ -129,11 +133,15 @@ public class MainConfig extends ConfigWrapper {
                 "Keep it above a million if possible"
         );
 
+        this.maxLadderUpsCooldown =
+                TimeUtil.toSeconds(configuration.getAs("max ladder up cooldown", String.class, () -> "10s", "Cooldown of when 'max ladder up per time'", "Is reached"));
+
         SuperiorPrisonPlugin.getInstance().getOLogger().setDebugMode(configuration.getAs("debug", boolean.class, () -> false));
         SuperiorPrisonPlugin.getInstance().getResetQueueTask().setChunksPerTick(chunksPerTick);
         SuperiorPrisonPlugin.getInstance().getInventoryUpdateTask().setUpdateEvery(updateBackpacksEvery);
         initialize();
 
+        storageSection = new StorageSection(configuration);
         configuration.save();
     }
 }

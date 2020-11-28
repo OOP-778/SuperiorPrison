@@ -3,6 +3,7 @@ package com.bgsoftware.superiorprison.plugin.controller;
 import com.bgsoftware.superiorprison.api.controller.BlockController;
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
 import com.bgsoftware.superiorprison.api.data.mine.locks.Lock;
+import com.bgsoftware.superiorprison.api.data.mine.type.NormalMine;
 import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 import com.bgsoftware.superiorprison.api.data.player.booster.DropsBooster;
 import com.bgsoftware.superiorprison.api.data.player.booster.MoneyBooster;
@@ -14,9 +15,9 @@ import com.bgsoftware.superiorprison.plugin.block.DropsHandler;
 import com.bgsoftware.superiorprison.plugin.block.XpHandler;
 import com.bgsoftware.superiorprison.plugin.hook.impl.VaultHook;
 import com.bgsoftware.superiorprison.plugin.object.mine.SMineBlockData;
+import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.mine.locks.SBLocksLock;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
-import com.bgsoftware.superiorprison.plugin.util.DebuggableList;
 import com.bgsoftware.superiorprison.plugin.util.SPair;
 import com.bgsoftware.superiorprison.plugin.util.XPUtil;
 import com.google.common.base.Preconditions;
@@ -78,16 +79,25 @@ public class SBlockController implements BlockController {
         SMineBlockData mineBlockData = (SMineBlockData) mine.getGenerator().getBlockData();
         Map<OMaterial, Integer> materialsAmount = new HashMap<>();
 
-        for (Location location : locations) {
-            if (addToLock)
-                if (mine.getGenerator().getBlockData().isLocked(location))
-                    continue;
-                else
-                    ((SBLocksLock) lock).getLockedLocations().add(location);
+        System.out.println("===");
+        System.out.println(mineBlockData.getBlocksLeft());
+        System.out.println(mineBlockData.getLocToMaterial().size());
+        System.out.println(((SNormalMine) mine).getGenerator().getBlocksInRegion());
+        System.out.println("===");
 
+        boolean finalAddToLock = addToLock;
+        Lock finalLock = lock;
+        for (Location location : locations) {
             mineBlockData
                     .getOMaterialAt(location)
                     .ifPresent(mat -> {
+                        if (finalAddToLock) {
+                            if (mine.getGenerator().getBlockData().isLocked(location))
+                                return;
+                            else
+                                ((SBLocksLock) finalLock).getLockedLocations().add(location);
+                        }
+
                         List<ItemStack> drops = new ArrayList<>();
 
                         // Handle auto burn
@@ -103,9 +113,9 @@ public class SBlockController implements BlockController {
 
                         // Handle fortune
                         if (finalHasFortune)
-                            drops.forEach(itemStack -> {
-                                if ((itemStack.getType().isBlock() && prisoner.isFortuneBlocks()) || !itemStack.getType().isBlock())
-                                    itemStack.setAmount(getItemCountWithFortune(itemStack.getType(), finalFortuneLevel));
+                            new HashSet<>(drops).forEach(itemStack -> {
+                                drops.remove(itemStack);
+                                drops.addAll(getItems(itemStack, getItemCountWithFortune(itemStack.getType(), finalFortuneLevel)));
                             });
 
                         // Handle dropsBooster
@@ -123,15 +133,19 @@ public class SBlockController implements BlockController {
                                 drops));
 
                         materialsAmount.merge(mat, 1, Integer::sum);
-                        mineBlockData.remove(location);
                     });
         }
-
-        materialsAmount.forEach((mat, amount) -> SuperiorPrisonPlugin.getInstance().getStatisticsController().getContainer(prisoner.getUUID()).getBlocksStatistic().update(mat, amount));
 
         // Call block break event for the blocks
         MultiBlockBreakEvent event = new MultiBlockBreakEvent(mine, prisoner, tool, blockData, lock, experience[0]);
         Bukkit.getPluginManager().callEvent(event);
+
+        if (event.isCancelled()) {
+            event.setCancelled(true);
+            return event;
+        }
+
+        materialsAmount.forEach((mat, amount) -> SuperiorPrisonPlugin.getInstance().getStatisticsController().getContainer(prisoner.getUUID()).getBlocksStatistic().update(mat, amount));
 
         // Handle auto selling
         if (prisoner.isAutoSell()) {
@@ -173,6 +187,10 @@ public class SBlockController implements BlockController {
 
         if (addToLock)
             mine.getGenerator().getBlockData().unlock(lock);
+        else
+            for (Location location : event.getBlockData().keySet())
+                mineBlockData.remove(location);
+
         return event;
     }
 
@@ -186,12 +204,21 @@ public class SBlockController implements BlockController {
         Preconditions.checkArgument(Bukkit.isPrimaryThread(), "Cannot call break block in non main thread!");
 
         MultiBlockBreakEvent multiBlockBreakEvent = handleBlockBreak(prisoner, mine, tool, null, locations);
+//        if (multiBlockBreakEvent.isCancelled())
+//            return multiBlockBreakEvent;
+
         if (locations.length == 1)
             SuperiorPrisonPlugin.getInstance().getNms().setBlockAndUpdate(locations[0].getChunk(), locations[0], OMaterial.AIR, mine.getWorld().getPlayers());
 
         else {
+
+            System.out.println("====");
+            System.out.println("Before: " + locations.length);
+            System.out.println("After: " + multiBlockBreakEvent.getBlockData().size());
+            System.out.println("====");
+
             Map<OPair<Integer, Integer>, Chunk> chunkMap = new HashMap<>();
-            for (Location location : locations) {
+            for (Location location : multiBlockBreakEvent.getBlockData().keySet()) {
                 Chunk chunk = chunkMap.get(new OPair<>(location.getBlockX() >> 4, location.getBlockY() >> 4));
                 if (chunk == null) {
                     chunk = location.getChunk();
@@ -201,7 +228,7 @@ public class SBlockController implements BlockController {
                 SuperiorPrisonPlugin.getInstance().getNms().setBlock(chunk, location, OMaterial.AIR);
             }
 
-            SuperiorPrisonPlugin.getInstance().getNms().refreshChunks(mine.getWorld(), Arrays.asList(locations), mine.getWorld().getPlayers());
+            SuperiorPrisonPlugin.getInstance().getNms().refreshChunks(mine.getWorld(), multiBlockBreakEvent.getBlockData().keySet(), mine.getWorld().getPlayers());
         }
 
         if (tool != null) {
@@ -251,12 +278,33 @@ public class SBlockController implements BlockController {
         return multiBlockBreakEvent;
     }
 
-    private int getItemCountWithFortune(Material material, int enchant_level) {
-        int drops = ThreadLocalRandom.current().nextInt(enchant_level + 2) - 1;
+    private long getItemCountWithFortune(Material material, int enchant_level) {
+        long drops = ThreadLocalRandom.current().nextLong(enchant_level + 2) - 1;
         if (drops < 0)
             drops = 0;
 
-        int i = material == Material.LAPIS_BLOCK ? 4 + ThreadLocalRandom.current().nextInt(5) : 1;
+        long i = material == Material.LAPIS_BLOCK ? 4 + ThreadLocalRandom.current().nextLong(5) : 1;
         return i * (drops + 1);
     }
+
+    private List<ItemStack> getItems(ItemStack itemStack, long amount) {
+        List<ItemStack> itemStacks = new ArrayList<>();
+        itemStack = itemStack.clone();
+        while (amount != 0) {
+            if (amount > itemStack.getMaxStackSize()) {
+                itemStack.setAmount(itemStack.getMaxStackSize());
+                amount -= itemStack.getMaxStackSize();
+
+            } else {
+                itemStack.setAmount((int) amount);
+                amount = 0;
+            }
+
+            itemStacks.add(itemStack);
+            itemStack = itemStack.clone();
+        }
+
+        return itemStacks;
+    }
+
 }

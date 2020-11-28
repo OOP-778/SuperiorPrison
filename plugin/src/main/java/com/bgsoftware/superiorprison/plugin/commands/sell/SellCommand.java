@@ -1,6 +1,5 @@
 package com.bgsoftware.superiorprison.plugin.commands.sell;
 
-import com.bgsoftware.superiorprison.api.data.backpack.BackPack;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.commands.PermissionsInitializer;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
@@ -43,6 +42,7 @@ public class SellCommand extends OCommand {
                         .onCommand(command -> {
                             Player player = command.getSenderAsPlayer();
                             ItemStack hand = player.getItemInHand();
+
                             if (hand == null || hand.getType() == Material.AIR) {
                                 LocaleEnum.SELL_HAND_MUST_HOLD_SOMETHING.getWithErrorPrefix().send(command.getSender());
                                 return;
@@ -80,10 +80,13 @@ public class SellCommand extends OCommand {
                             Set<OPair<ItemStack, Runnable>> items = new HashSet<>();
                             ItemStack[] contents = player.getInventory().getContents();
 
-                            Collection<SBackPack> backpacks = ((PatchedInventory) player.getInventory()).getOwner().getBackPackMap().values();
-                            backpacks.stream()
-                                    .filter(backpack -> backpack.getData().isSell())
-                                    .forEach(backpack -> backpack.getStored().forEach(itemStack -> items.add(new OPair<>(itemStack, () -> backpack.remove(itemStack)))));
+                            Collection<SBackPack> backpacks = new HashSet<>();
+                            if (player.getInventory() instanceof PatchedInventory) {
+                                backpacks = ((PatchedInventory) player.getInventory()).getOwner().getBackPackMap().values();
+                                backpacks.stream()
+                                        .filter(backpack -> backpack.getData().isSell())
+                                        .forEach(backpack -> backpack.getStored().forEach(itemStack -> items.add(new OPair<>(itemStack, () -> backpack.remove(itemStack)))));
+                            }
 
                             for (int i = 0; i < contents.length; i++) {
                                 ItemStack itemStack = contents[i];

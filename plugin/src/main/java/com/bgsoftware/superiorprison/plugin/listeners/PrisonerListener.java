@@ -22,6 +22,7 @@ import com.oop.orangeengine.main.events.SyncEvents;
 import com.oop.orangeengine.main.task.OTask;
 import com.oop.orangeengine.main.task.StaticTask;
 import com.oop.orangeengine.main.util.data.cache.OCache;
+import com.oop.orangeengine.material.OMaterial;
 import com.oop.orangeengine.message.OMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -163,28 +164,32 @@ public class PrisonerListener {
                 return;
             }
 
+            OMaterial blockMaterial = OMaterial.matchMaterial(event.getBlock());
+
             BlockBreakEvent bouncedEvent = new BlockBreakEvent(event.getBlock(), prisoner.getPlayer());
             ignoreEvents.put(bouncedEvent, true);
 
             Bukkit.getPluginManager().callEvent(bouncedEvent);
+            ignoreEvents.remove(bouncedEvent);
 
             if (bouncedEvent.isCancelled()) {
                 event.setExpToDrop(0);
                 event.setCancelled(true);
-
-                // If they cancelled and set the block to AIR
-                if (event.getBlock().getType() == Material.AIR)
-                    minePair.getKey().getGenerator().getBlockData().remove(event.getBlock().getLocation());
-                return;
             }
 
             // If they not cancelled it, but set the block to air. Same...
-            if (event.getBlock().getType() == Material.AIR) {
+            if (bouncedEvent.isCancelled() || event.getBlock().getType() == Material.AIR) {
                 minePair.getKey().getGenerator().getBlockData().remove(event.getBlock().getLocation());
+                SuperiorPrisonPlugin.getInstance().getStatisticsController().getContainer(prisoner.getUUID()).getBlocksStatistic().update(blockMaterial, 1);
                 return;
             }
 
-            MultiBlockBreakEvent multiBlockBreakEvent = SuperiorPrisonPlugin.getInstance().getBlockController().breakBlock(prisoner, minePair.getKey(), event.getPlayer().getItemInHand(), event.getBlock().getLocation());
+            SuperiorPrisonPlugin.getInstance().getBlockController().breakBlock(
+                    prisoner,
+                    minePair.getKey(),
+                    event.getPlayer().getItemInHand(),
+                    event.getBlock().getLocation()
+            );
         });
 
         SyncEvents.listen(MineEnterEvent.class, EventPriority.LOWEST, event -> {

@@ -7,10 +7,11 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.common.primitives.Ints;
 import com.google.common.primitives.Primitives;
-import com.oop.datamodule.SerializableObject;
-import com.oop.datamodule.SerializedData;
-import com.oop.datamodule.gson.JsonArray;
-import com.oop.datamodule.gson.JsonObject;
+
+import com.oop.datamodule.api.SerializableObject;
+import com.oop.datamodule.api.SerializedData;
+import com.oop.datamodule.lib.google.gson.JsonArray;
+import com.oop.datamodule.lib.google.gson.JsonObject;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

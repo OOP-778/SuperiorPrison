@@ -1,6 +1,5 @@
 package com.bgsoftware.superiorprison.plugin.menu;
 
-import com.bgsoftware.superiorprison.api.data.player.booster.Booster;
 import com.bgsoftware.superiorprison.plugin.condition.MineConditionTemplate;
 import com.bgsoftware.superiorprison.plugin.condition.MineConditionTemplates;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
@@ -15,15 +14,26 @@ import com.bgsoftware.superiorprison.plugin.util.menu.OPagedMenu;
 import com.oop.orangeengine.item.custom.OItem;
 import com.oop.orangeengine.message.impl.OChatMessage;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.listedBuilder;
+import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
 
 public class ConditionsMenu extends OPagedMenu<MineCondition> implements OMenu.Templateable {
     private SNormalMine mine;
 
     public ConditionsMenu(SPrisoner viewer, SNormalMine mine) {
         super("mineAccessList", viewer);
+
+        clickHandler("condition")
+                .handle(event -> {
+                    MineCondition mineCondition = requestObject(event.getRawSlot());
+                    mine.getAccess().getConditions().remove(mineCondition);
+                    mine.save(true);
+                    refresh();
+                });
 
         clickHandler("create")
                 .handle(event -> {
@@ -40,7 +50,6 @@ public class ConditionsMenu extends OPagedMenu<MineCondition> implements OMenu.T
                                     createFromTemplate(pi);
                                 }
                             })
-                            .onCancel(this::refresh)
                             .listen();
                 });
         this.mine = mine;
@@ -67,19 +76,28 @@ public class ConditionsMenu extends OPagedMenu<MineCondition> implements OMenu.T
 
             MultiPlayerInput multiPlayerInput = new MultiPlayerInput(pi.player());
             template.parser().getValues().forEach((pair, parser) -> {
-                new MultiPlayerInput.InputData()
-                        .id(pair.getFirst())
-                        .requestMessage(new OChatMessage(pair.getSecond()))
-                        .parser(in -> {
-                            String parse = parser.parse((String) in);
-                            return parse;
-                        });
+                multiPlayerInput.add(
+                        new MultiPlayerInput.InputData()
+                                .id(pair.getFirst())
+                                .requestMessage(LocaleEnum.getWithPrefix(new OChatMessage(pair.getSecond())))
+                                .parser(in -> {
+                                    String parse = parser.parse((String) in);
+                                    return parse;
+                                })
+                );
             });
 
-            multiPlayerInput.onInput((p, vars) ->{
-                String apply = template.parser().getTemplateParser().apply((Map<String, String>) vars);
-                System.out.println(apply);
+            multiPlayerInput.onInput((p, vars) -> {
+                String apply = template.parser().getTemplateParser().apply(vars.getData());
+                messageBuilder(LocaleEnum.MINE_CONDITION_CREATED.getWithPrefix())
+                        .replace("{condition}", apply)
+                        .send(p);
+
+                mine.getAccess().addScript(input, apply);
+                mine.save(true);
             });
+
+            multiPlayerInput.listen();
         });
     }
 

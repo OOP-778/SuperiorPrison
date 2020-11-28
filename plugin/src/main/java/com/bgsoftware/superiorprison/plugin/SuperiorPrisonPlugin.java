@@ -2,7 +2,6 @@ package com.bgsoftware.superiorprison.plugin;
 
 import com.bgsoftware.superiorprison.api.SuperiorPrison;
 import com.bgsoftware.superiorprison.api.SuperiorPrisonAPI;
-import com.bgsoftware.superiorprison.api.controller.RankController;
 import com.bgsoftware.superiorprison.plugin.commands.CommandsRegisterer;
 import com.bgsoftware.superiorprison.plugin.config.main.MainConfig;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
@@ -17,13 +16,13 @@ import com.bgsoftware.superiorprison.plugin.module.BackPacksModule;
 import com.bgsoftware.superiorprison.plugin.nms.SuperiorNms;
 import com.bgsoftware.superiorprison.plugin.object.inventory.PatchedInventory;
 import com.bgsoftware.superiorprison.plugin.protocol.PrisonProtocol;
+import com.bgsoftware.superiorprison.plugin.requirement.RequirementController;
 import com.bgsoftware.superiorprison.plugin.tasks.MineVisualization;
 import com.bgsoftware.superiorprison.plugin.tasks.PlayerInventoryUpdateTask;
 import com.bgsoftware.superiorprison.plugin.tasks.ResetQueueTask;
 import com.bgsoftware.superiorprison.plugin.tasks.TasksStarter;
-import com.bgsoftware.superiorprison.plugin.requirement.RequirementController;
 import com.bgsoftware.superiorprison.plugin.util.menu.MenuListener;
-import com.oop.datamodule.StorageInitializer;
+import com.oop.datamodule.api.StorageInitializer;
 import com.oop.orangeengine.main.Helper;
 import com.oop.orangeengine.main.plugin.EnginePlugin;
 import com.oop.orangeengine.main.task.ClassicTaskController;
@@ -76,8 +75,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
 
         StorageInitializer.initialize(
                 StaticTask.getInstance()::async,
-                StaticTask.getInstance()::sync,
-                null
+                StaticTask.getInstance()::sync
         );
 
         getOLogger()
@@ -122,7 +120,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
                     .add(bombController, true)
                     .load();
 
-            this.databaseController = new DatabaseController(mainConfig);
+            this.databaseController = new DatabaseController();
             this.placeholderController = new PlaceholderController();
             this.topController = new STopController();
 
@@ -162,7 +160,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
 
     @Override
     public void disable() {
-        if (getDatabaseController() != null && getDatabaseController().getDatabase() != null)
+        if (getDatabaseController() != null)
             getDatabaseController().save(false);
 
         getHookController()

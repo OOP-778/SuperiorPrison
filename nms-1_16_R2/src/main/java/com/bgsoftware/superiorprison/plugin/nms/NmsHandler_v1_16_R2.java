@@ -13,7 +13,6 @@ import org.bukkit.craftbukkit.v1_16_R2.CraftWorld;
 import org.bukkit.craftbukkit.v1_16_R2.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_16_R2.util.CraftMagicNumbers;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.SimplePluginManager;
 
 import java.lang.reflect.Constructor;
 import java.util.*;
@@ -27,12 +26,12 @@ public class NmsHandler_v1_16_R2 implements SuperiorNms {
     static {
         try {
             SHORT_ARRAY_SET_CLASS = Class.forName("it.unimi.dsi.fastutil.shorts.ShortArraySet");
-            Class<?> shortSetClass = Class.forName("it.unimi.dsi.fastutil.shorts.ShortSet");
-            for(Constructor<?> constructor : PacketPlayOutMultiBlockChange.class.getConstructors()){
-                if(constructor.getParameterCount() > 0)
+            for (Constructor<?> constructor : PacketPlayOutMultiBlockChange.class.getConstructors()) {
+                if (constructor.getParameterCount() > 0)
                     MULTI_BLOCK_CHANGE_CONSTRUCTOR = constructor;
             }
-        }catch (Exception ignored){}
+        } catch (Exception ignored) {
+        }
     }
 
     @Override
@@ -92,20 +91,20 @@ public class NmsHandler_v1_16_R2 implements SuperiorNms {
         }
     }
 
-    private static Set<Short> createShortSet(){
-        if(SHORT_ARRAY_SET_CLASS == null)
+    private static Set<Short> createShortSet() {
+        if (SHORT_ARRAY_SET_CLASS == null)
             return new ShortArraySet();
 
-        try{
+        try {
             return (Set<Short>) SHORT_ARRAY_SET_CLASS.newInstance();
-        }catch (Throwable ex){
+        } catch (Throwable ex) {
             ex.printStackTrace();
             return null;
         }
     }
 
-    private static PacketPlayOutMultiBlockChange createMultiBlockChangePacket(SectionPosition sectionPosition, Set<Short> shortSet, ChunkSection chunkSection){
-        if(MULTI_BLOCK_CHANGE_CONSTRUCTOR == null){
+    private static PacketPlayOutMultiBlockChange createMultiBlockChangePacket(SectionPosition sectionPosition, Set<Short> shortSet, ChunkSection chunkSection) {
+        if (MULTI_BLOCK_CHANGE_CONSTRUCTOR == null) {
             return new PacketPlayOutMultiBlockChange(
                     sectionPosition,
                     (ShortSet) shortSet,
@@ -114,9 +113,9 @@ public class NmsHandler_v1_16_R2 implements SuperiorNms {
             );
         }
 
-        try{
+        try {
             return (PacketPlayOutMultiBlockChange) MULTI_BLOCK_CHANGE_CONSTRUCTOR.newInstance(sectionPosition, shortSet, chunkSection, true);
-        }catch (Throwable ex){
+        } catch (Throwable ex) {
             ex.printStackTrace();
             return null;
         }
@@ -128,7 +127,7 @@ public class NmsHandler_v1_16_R2 implements SuperiorNms {
 
         PacketPlayOutBlockChange packet = new PacketPlayOutBlockChange(((CraftWorld) location.getWorld()).getHandle(), new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ()));
         for (Player player : players)
-            ((CraftPlayer)player).getHandle().playerConnection.sendPacket(packet);
+            ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
     }
 
 }

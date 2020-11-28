@@ -1,10 +1,10 @@
 package com.bgsoftware.superiorprison.plugin.util.script.util;
 
 import com.bgsoftware.superiorprison.plugin.util.script.variable.GlobalVariableMap;
-import com.oop.datamodule.SerializedData;
-import com.oop.datamodule.StorageInitializer;
-import com.oop.datamodule.gson.Gson;
-import com.oop.datamodule.gson.JsonObject;
+import com.oop.datamodule.api.SerializedData;
+import com.oop.datamodule.api.StorageInitializer;
+import com.oop.datamodule.lib.google.gson.Gson;
+import com.oop.datamodule.lib.google.gson.JsonObject;
 import lombok.SneakyThrows;
 
 import javax.net.ssl.HttpsURLConnection;

@@ -4,13 +4,12 @@ import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.config.backpack.BackPackConfig;
 import com.bgsoftware.superiorprison.plugin.config.backpack.SimpleBackPackConfig;
 import com.google.common.base.Preconditions;
-import com.oop.datamodule.SerializableObject;
-import com.oop.datamodule.SerializedData;
-import com.oop.datamodule.gson.JsonArray;
-import com.oop.datamodule.gson.JsonElement;
-import com.oop.datamodule.gson.JsonObject;
-import com.oop.datamodule.gson.JsonPrimitive;
-import com.oop.datamodule.util.DataUtil;
+import com.oop.datamodule.api.SerializableObject;
+import com.oop.datamodule.api.SerializedData;
+import com.oop.datamodule.api.util.DataUtil;
+import com.oop.datamodule.lib.google.gson.JsonArray;
+import com.oop.datamodule.lib.google.gson.JsonElement;
+import com.oop.datamodule.lib.google.gson.JsonPrimitive;
 import com.oop.orangeengine.item.ItemStackUtil;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.material.OMaterial;
@@ -30,10 +29,10 @@ public class BackPackData implements SerializableObject {
 
     @Setter
     private int level;
+
     @Setter
     private @NonNull String configId;
-    private @NonNull
-    final SBackPack holder;
+    private @NonNull final SBackPack holder;
 
     @Setter
     private boolean sell = false;
@@ -161,58 +160,22 @@ public class BackPackData implements SerializableObject {
         JsonArray itemsArray = serializedData.getJsonElement().getAsJsonObject().getAsJsonArray("items");
         if (itemsArray.size() == 0) return;
 
-        boolean isNewMethod = !itemsArray.get(0).isJsonObject();
-        if (!isNewMethod) {
-            int page = 1;
-            Map<Integer, ItemStack[]> halfConvertedData = new HashMap<>();
-            int pageSize = 0;
-
-            // Converting data into easier use
+        BackPackConfig<?> config = SuperiorPrisonPlugin.getInstance().getBackPackController().getConfig(configId).orElseThrow(() -> new IllegalStateException("Failed to find backPack by id " + configId + " level " + level)).getByLevel(level);
+        if (config instanceof SimpleBackPackConfig) {
+            List<ItemStack> list = new ArrayList<>();
             for (JsonElement element : itemsArray) {
-                JsonObject itemsData = element.getAsJsonObject();
-
-                if (pageSize == 0)
-                    pageSize = itemsData.entrySet().size();
-
-                ItemStack[] arrayPageData = new ItemStack[pageSize];
-                for (int i = 0; i < arrayPageData.length; i++)
-                    arrayPageData[i] = unwrap(itemsData.get("" + i++));
-
-                halfConvertedData.put(page, arrayPageData);
-                page++;
+                JsonArray itemArray = element.getAsJsonArray();
+                list.add(unwrap(itemArray.get(1)));
             }
 
-            // Migrating data
-            stored = new ItemStack[pageSize * halfConvertedData.size()];
-            page = 1;
-            int slot = 0;
-            for (int i = 0; i < stored.length; i++) {
-                if (slot == pageSize) {
-                    slot = 0;
-                    page++;
-                }
-
-                stored[i] = halfConvertedData.get(page)[slot];
-                slot++;
-            }
+            stored = list.toArray(new ItemStack[0]);
         } else {
-            BackPackConfig<?> config = SuperiorPrisonPlugin.getInstance().getBackPackController().getConfig(configId).orElseThrow(() -> new IllegalStateException("Failed to find backPack by id " + configId + " level " + level)).getByLevel(level);
-            if (config instanceof SimpleBackPackConfig) {
-                List<ItemStack> list = new ArrayList<>();
-                for (JsonElement element : itemsArray) {
-                    JsonArray itemArray = element.getAsJsonArray();
-                    list.add(unwrap(itemArray.get(1)));
-                }
-
-                stored = list.toArray(new ItemStack[0]);
-            } else {
-                stored = new ItemStack[config.getCapacity() / 64];
-                for (JsonElement element : itemsArray) {
-                    JsonArray itemArray = element.getAsJsonArray();
-                    int index = itemArray.get(0).getAsInt();
-                    ItemStack itemStack = unwrap(itemArray.get(1));
-                    stored[index] = itemStack;
-                }
+            stored = new ItemStack[config.getCapacity() / 64];
+            for (JsonElement element : itemsArray) {
+                JsonArray itemArray = element.getAsJsonArray();
+                int index = itemArray.get(0).getAsInt();
+                ItemStack itemStack = unwrap(itemArray.get(1));
+                stored[index] = itemStack;
             }
         }
     }

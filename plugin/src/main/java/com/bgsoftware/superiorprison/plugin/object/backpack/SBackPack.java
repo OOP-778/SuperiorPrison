@@ -9,9 +9,9 @@ import com.bgsoftware.superiorprison.plugin.menu.backpack.AdvancedBackPackView;
 import com.bgsoftware.superiorprison.plugin.object.inventory.PatchedInventory;
 import com.bgsoftware.superiorprison.plugin.util.TextUtil;
 import com.google.common.base.Preconditions;
-import com.oop.datamodule.SerializedData;
-import com.oop.datamodule.StorageInitializer;
-import com.oop.datamodule.gson.JsonObject;
+import com.oop.datamodule.api.SerializedData;
+import com.oop.datamodule.api.StorageInitializer;
+import com.oop.datamodule.lib.google.gson.JsonObject;
 import com.oop.orangeengine.item.ItemBuilder;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.material.OMaterial;
@@ -80,15 +80,13 @@ public class SBackPack implements BackPack {
         this.owner = player;
         this.itemStack = itemStack;
         this.nbtItem = new NBTItem(itemStack);
-
         this.currentSlot = player.getInventory().first(itemStack);
         Preconditions.checkArgument(nbtItem.getKeys().stream().anyMatch(in -> in.startsWith(NBT_KEY)), "The given item is not an backpack");
 
         String serialized = uncoverData(nbtItem);
         try {
             serialized = decompress(serialized);
-        } catch (Exception ignored) {
-        }
+        } catch (Exception ignored) {}
 
         oldData = StorageInitializer.getInstance().getGson().fromJson(serialized, JsonObject.class);
 
@@ -282,8 +280,20 @@ public class SBackPack implements BackPack {
             for (ItemStack itemStack : itemStacks) {
                 if (itemStack == null) continue;
                 int startingAmount = itemStack.getAmount();
-                int added = 0;
 
+                /*
+                    Check if there is a similar itemstack in the map
+                    Optional<OPair<Integer, ItemStack>> similar = data.findSimilar(itemStack, true);
+
+                     if(present){
+                        Set amount to current amount+startingamount
+                     }
+                     else{
+                     Add new itemstack
+                     }
+                 */
+
+                int added = 0;
                 while (itemStack.getAmount() != 0) {
                     Optional<OPair<Integer, ItemStack>> similar = data.findSimilar(itemStack, true);
                     if (similar.isPresent()) {
@@ -298,7 +308,7 @@ public class SBackPack implements BackPack {
                         ItemStack slotItem = similar.get().getSecond();
 
                         int currentAmount = slotItem.getAmount();
-                        int canAdd = slotItem.getMaxStackSize() - currentAmount;
+                        int canAdd = slotItem.getMaxStackSize() - currentAmount; // replace maxstacksize with MaxInt
 
                         int adding = Math.min(canAdd, itemClone.getAmount());
                         slotItem.setAmount(slotItem.getAmount() + adding);

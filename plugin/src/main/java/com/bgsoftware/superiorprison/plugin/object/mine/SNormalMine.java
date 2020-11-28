@@ -25,12 +25,12 @@ import com.bgsoftware.superiorprison.plugin.util.Removeable;
 import com.bgsoftware.superiorprison.plugin.util.SPLocation;
 import com.bgsoftware.superiorprison.plugin.util.frameworks.Framework;
 import com.google.common.collect.Maps;
-import com.oop.datamodule.SerializedData;
-import com.oop.datamodule.body.MultiTypeBody;
-import com.oop.datamodule.gson.JsonArray;
-import com.oop.datamodule.gson.JsonElement;
-import com.oop.datamodule.gson.JsonObject;
-import com.oop.datamodule.util.DataUtil;
+import com.oop.datamodule.api.SerializedData;
+import com.oop.datamodule.api.util.DataUtil;
+import com.oop.datamodule.lib.google.gson.JsonArray;
+import com.oop.datamodule.lib.google.gson.JsonElement;
+import com.oop.datamodule.lib.google.gson.JsonObject;
+import com.oop.datamodule.universal.model.UniversalBodyModel;
 import com.oop.orangeengine.item.ItemBuilder;
 import com.oop.orangeengine.main.Helper;
 import com.oop.orangeengine.main.task.StaticTask;
@@ -49,7 +49,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
-public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.type.NormalMine, Serializable, MultiTypeBody, Removeable {
+public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.type.NormalMine, Serializable, UniversalBodyModel, Removeable {
     private final Set<Prisoner> prisoners = ConcurrentHashMap.newKeySet();
 
     @Setter
@@ -101,14 +101,8 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
     @Getter
     @Setter
     private boolean removed = false;
-    private final OCache<UUID, Boolean> canEnterCache = OCache
-            .builder()
-            .concurrencyLevel(1)
-            .expireAfter(5, TimeUnit.SECONDS)
-            .build();
 
-    private SNormalMine() {
-    }
+    private SNormalMine() {}
 
     public SNormalMine(@NonNull String name, @NonNull SPLocation regionPos1, @NonNull SPLocation regionPos2, @NonNull SPLocation minePos1, @NonNull SPLocation minePos2, @NonNull SPLocation spawnPoint) {
         this.name = name;
@@ -287,18 +281,8 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
     }
 
     @Override
-    public String getTable() {
-        return "mines";
-    }
-
-    @Override
     public String getKey() {
         return name;
-    }
-
-    @Override
-    public String getSerializedType() {
-        return "normalMine";
     }
 
     @Override
@@ -446,7 +430,6 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
         getLinkableObjects().put("access", access);
     }
 
-    @Override
     public void remove() {
         removed = true;
         SuperiorPrisonPlugin.getInstance().getDatabaseController().getStorage(SMineHolder.class).remove(this);
@@ -497,5 +480,10 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
         location.setPitch(player.getEyeLocation().getPitch());
         location.setYaw(player.getEyeLocation().getYaw());
         setSpawnPoint(new SPLocation(location));
+    }
+
+    @Override
+    public String getIdentifierKey() {
+        return "mine";
     }
 }

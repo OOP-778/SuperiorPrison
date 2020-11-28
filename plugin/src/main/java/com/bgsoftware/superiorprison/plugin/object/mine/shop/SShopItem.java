@@ -1,8 +1,8 @@
 package com.bgsoftware.superiorprison.plugin.object.mine.shop;
 
 import com.bgsoftware.superiorprison.api.data.mine.shop.ShopItem;
-import com.oop.datamodule.SerializableObject;
-import com.oop.datamodule.SerializedData;
+import com.oop.datamodule.api.SerializedData;
+import com.oop.datamodule.api.SerializableObject;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;

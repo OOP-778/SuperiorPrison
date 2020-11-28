@@ -8,8 +8,8 @@ import com.bgsoftware.superiorprison.plugin.menu.settings.impl.*;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.mine.linkable.LinkableObject;
 import com.bgsoftware.superiorprison.plugin.util.Attachable;
-import com.oop.datamodule.SerializableObject;
-import com.oop.datamodule.SerializedData;
+import com.oop.datamodule.api.SerializedData;
+import com.oop.datamodule.api.SerializableObject;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -31,6 +31,7 @@ public class SMineSettings implements Attachable<SNormalMine>, com.bgsoftware.su
     private boolean disableEnderPearls = false;
     private boolean disableMonsterSpawn = false;
     private boolean disableAnimalSpawn = false;
+    private int order;
 
     SMineSettings() {
     }
@@ -70,6 +71,7 @@ public class SMineSettings implements Attachable<SNormalMine>, com.bgsoftware.su
         data.write("disableEnderPearls", disableEnderPearls);
         data.write("disableAnimalSpawn", disableAnimalSpawn);
         data.write("disableMonsterSpawn", disableMonsterSpawn);
+        data.write("order", order);
     }
 
     @Override
@@ -85,6 +87,9 @@ public class SMineSettings implements Attachable<SNormalMine>, com.bgsoftware.su
 
         this.disableAnimalSpawn = data.getChildren("disableAnimalSpawn")
                 .map(sd -> sd.applyAs(boolean.class)).orElse(false);
+
+        this.order = data.getChildren("order")
+                .map(sd -> sd.applyAs(int.class)).orElse(-1);
     }
 
     public List<SettingsObject> getSettingObjects() {
@@ -96,6 +101,7 @@ public class SMineSettings implements Attachable<SNormalMine>, com.bgsoftware.su
         objects.add(new DisableEnderPearlsSetting(this));
         objects.add(new DisableAnimalSpawnSetting(this));
         objects.add(new DisableMonsterSpawnSetting(this));
+        objects.add(new MineOrderSetting(this));
         return objects;
     }
 

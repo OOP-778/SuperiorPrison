@@ -4,6 +4,7 @@ import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
 import com.bgsoftware.superiorprison.api.data.mine.area.Area;
 import com.bgsoftware.superiorprison.api.data.mine.area.AreaEnum;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
+import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.oop.orangeengine.main.task.OTask;
 import com.oop.orangeengine.particle.OParticle;
 import org.bukkit.Location;
@@ -18,21 +19,21 @@ public class MineVisualization extends OTask {
         delay(TimeUnit.SECONDS, 1);
         runnable(() -> {
             for (SuperiorMine mine : SuperiorPrisonPlugin.getInstance().getMineController().getMines()) {
-                for (AreaEnum value : AreaEnum.values()) {
-                    String particle = value == AreaEnum.MINE ? "CLOUD" : "BARRIER";
-                    Area area = mine.getArea(value);
-                    Location minPoint = area.getMinPoint().clone().add(0.5, 0.5, 0.5);
-                    Location highPoint = area.getHighPoint().add(0.5, 0.5, 0.5);
-
-                    Location thirdCorner = new Location(mine.getWorld(), minPoint.getX(), 95, highPoint.getZ());
-                    Location fourthCorner = new Location(mine.getWorld(), highPoint.getX(), 95, minPoint.getZ());
-
-                    // Line 1
-                    drawLine(highPoint, fourthCorner, 95, 1.5, particle);
-                    drawLine(thirdCorner, minPoint, 95, 1.5, particle);
-                    drawLine(thirdCorner, highPoint, 95, 1.5, particle);
-                    drawLine(fourthCorner, minPoint, 95, 1.5, particle);
-                }
+//                for (AreaEnum value : AreaEnum.values()) {
+//                    String particle = value == AreaEnum.MINE ? "CLOUD" : "BARRIER";
+//                    Area area = mine.getArea(value);
+//                    Location minPoint = area.getMinPoint().clone().add(0.5, 0.5, 0.5);
+//                    Location highPoint = area.getHighPoint().add(0.5, 0.5, 0.5);
+//
+//                    Location thirdCorner = new Location(mine.getWorld(), minPoint.getX(), 95, highPoint.getZ());
+//                    Location fourthCorner = new Location(mine.getWorld(), highPoint.getX(), 95, minPoint.getZ());
+//
+//                    // Line 1
+//                    drawLine(highPoint, fourthCorner, 95, 1.5, particle);
+//                    drawLine(thirdCorner, minPoint, 95, 1.5, particle);
+//                    drawLine(thirdCorner, highPoint, 95, 1.5, particle);
+//                    drawLine(fourthCorner, minPoint, 95, 1.5, particle);
+//                }
             }
         });
         execute();

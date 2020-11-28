@@ -4,11 +4,11 @@ import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.util.Attachable;
 import com.google.common.collect.Sets;
-import com.oop.datamodule.SerializableObject;
-import com.oop.datamodule.SerializedData;
-import com.oop.datamodule.gson.JsonArray;
-import com.oop.datamodule.gson.JsonElement;
-import com.oop.datamodule.gson.JsonObject;
+import com.oop.datamodule.api.SerializedData;
+import com.oop.datamodule.api.SerializableObject;
+import com.oop.datamodule.lib.google.gson.JsonArray;
+import com.oop.datamodule.lib.google.gson.JsonElement;
+import com.oop.datamodule.lib.google.gson.JsonObject;
 import lombok.Getter;
 
 import java.util.HashMap;

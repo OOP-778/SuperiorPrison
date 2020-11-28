@@ -12,4 +12,6 @@ public interface SuperiorPrison {
     BackPackController getBackPackController();
 
     TopController getTopController();
+
+    BlockController getBlockController();
 }

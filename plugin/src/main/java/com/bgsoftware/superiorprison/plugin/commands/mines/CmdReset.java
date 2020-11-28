@@ -24,7 +24,7 @@ public class CmdReset extends OCommand {
                 return;
             }
 
-            StaticTask.getInstance().async(() -> mine.getGenerator().reset());
+            mine.getGenerator().reset();
 
             messageBuilder(LocaleEnum.MINE_RESET_SUCCESSFUL.getWithPrefix())
                     .replace(mine)

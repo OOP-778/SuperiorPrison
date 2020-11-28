@@ -58,18 +58,25 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.type.NormalMine, Serializable, MultiTypeBody, Removeable {
-
     private final Set<Prisoner> prisoners = ConcurrentHashMap.newKeySet();
+
     private final Set<String> ranks = new OConcurrentSet<>();
+
     private final Set<String> prestiges = new OConcurrentSet<>();
+
     @Setter
     private String name;
+
     private MineEnum type = MineEnum.NORMAL_MINE;
+
     @Setter
     private SPLocation spawnPoint = null;
+
     private SMineGenerator generator;
+
     @Setter
     private SShop shop;
+
     @Getter
     @Setter
     private SMineSettings settings;

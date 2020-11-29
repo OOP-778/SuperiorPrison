@@ -35,7 +35,7 @@ public class DatabaseController extends StorageRegistry {
         StorageInitializer.getInstance().registerAdapter(ItemStack.class, true, new TypeAdapter<ItemStack>() {
             @Override
             public void write(JsonWriter writer, ItemStack itemStack) throws IOException {
-                if (itemStack == null)
+                if (itemStack == null || itemStack.getType() == Material.AIR)
                     writer.nullValue();
                 else
                     writer.value(serialize(itemStack).getAsString());
@@ -78,7 +78,7 @@ public class DatabaseController extends StorageRegistry {
     }
 
     public JsonElement serialize(ItemStack itemStack) {
-        return (itemStack == null || itemStack.getType() == Material.AIR) ? JsonNull.INSTANCE : new JsonPrimitive(NBTItem.convertItemtoNBT(itemStack).asNBTString());
+        return new JsonPrimitive(NBTItem.convertItemtoNBT(itemStack).asNBTString());
     }
 
     public String utf8(String text) {

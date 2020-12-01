@@ -7,6 +7,8 @@ import com.bgsoftware.superiorprison.plugin.util.TPS;
 import com.bgsoftware.superiorprison.plugin.util.frameworks.Framework;
 import com.oop.orangeengine.main.task.OTask;
 import com.oop.orangeengine.main.task.StaticTask;
+import com.oop.orangeengine.main.util.data.pair.OPair;
+import com.oop.orangeengine.main.util.version.OVersion;
 import com.oop.orangeengine.material.OMaterial;
 import lombok.Setter;
 import org.bukkit.Chunk;
@@ -23,11 +25,13 @@ public class ResetQueueTask extends OTask {
     private int chunksPerTick = 4;
 
     private volatile ChunkResetData currentChunk;
-    private Chunk bukkitChunk;
+
+    // Bukkit Chunk, if force loaded
+    private OPair<Chunk, Boolean> bukkitChunk;
 
     public ResetQueueTask() {
         sync(false);
-        delay(70);
+        delay(100);
         repeat(true);
 
         runnable(() -> {
@@ -64,7 +68,7 @@ public class ResetQueueTask extends OTask {
                 cancel = false;
 
                 StaticTask.getInstance().sync(() -> {
-                    int proccedChunks = 0;
+                    int proceedChunks = 0;
                     try {
                         while (currentChunk != null && !currentChunk.getData().isEmpty()) {
                             if (cancel || currentChunk == null || currentChunk.getData().isEmpty())
@@ -73,23 +77,31 @@ public class ResetQueueTask extends OTask {
                             if (bukkitChunk == null) {
                                 gettingChunk = true;
                                 Framework.FRAMEWORK.loadChunk(currentChunk.getWorld(), currentChunk.getX(), currentChunk.getZ(), chunk -> {
-                                    this.bukkitChunk = chunk;
+                                    if (OVersion.isAfter(16)) {
+                                        chunk.addPluginChunkTicket(SuperiorPrisonPlugin.getInstance());
+                                        this.bukkitChunk = new OPair<>(chunk, true);
+                                    } else
+                                        this.bukkitChunk = new OPair<>(chunk, false);
+
                                     this.gettingChunk = false;
                                 });
                                 break;
                             }
 
                             ListenablePair<Location, OMaterial> poll = currentChunk.getData().poll();
-                            SuperiorPrisonPlugin.getInstance().getNms().setBlock(bukkitChunk, poll.getFirst(), poll.getSecond());
+                            SuperiorPrisonPlugin.getInstance().getNms().setBlock(bukkitChunk.getFirst(), poll.getFirst(), poll.getSecond());
                             poll.complete();
 
                             if (currentChunk != null && currentChunk.getData().isEmpty()) {
-                                proccedChunks++;
-                                if (proccedChunks == chunksPerTick)
-                                    break;
-
+                                proceedChunks++;
                                 currentChunk = SuperiorPrisonPlugin.getInstance().getMineController().getQueue().next();
+
+                                if (bukkitChunk.getValue())
+                                    bukkitChunk.getKey().removePluginChunkTicket(SuperiorPrisonPlugin.getInstance());
+
                                 bukkitChunk = null;
+                                if (proceedChunks == chunksPerTick)
+                                    break;
                             }
                         }
                     } catch (Exception exception) {

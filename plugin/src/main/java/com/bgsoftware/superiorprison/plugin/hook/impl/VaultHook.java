@@ -24,7 +24,6 @@ import static org.bukkit.Bukkit.getServer;
 
 @Getter
 public class VaultHook extends SHook {
-
     private static final BigDecimal MAX_DOUBLE = BigDecimal.valueOf(Double.MAX_VALUE);
     private Economy ecoProvider;
     private Permission permProvider;

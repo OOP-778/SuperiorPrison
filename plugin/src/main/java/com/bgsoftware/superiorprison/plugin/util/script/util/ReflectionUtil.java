@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ReflectionUtil {
-    private static Map<Class<?>, Map<String, Method>> cache = new HashMap<>();
+    private static final Map<Class<?>, Map<String, Method>> cache = new HashMap<>();
 
     @SneakyThrows
     public static Object invoke(Object where, String methodName) {

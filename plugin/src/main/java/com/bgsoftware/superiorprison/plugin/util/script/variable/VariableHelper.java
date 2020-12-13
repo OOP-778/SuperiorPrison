@@ -9,8 +9,12 @@ import org.bukkit.OfflinePlayer;
 
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 
 public class VariableHelper {
+
+    private static final Pattern NUMBER_PATTERN = Pattern.compile("[^\\d.]");
+
     public static <T> Variable<T> createVariable(T object) {
         return new WrappedVariable<>(
                 new Variable<T>() {
@@ -63,7 +67,7 @@ public class VariableHelper {
             data = variableMap.getVariableByInput(_input.toString()).orElse(null);
 
             if (data == null) {
-                _input = ((String) _input).replaceAll("[^\\d.]", "");
+                _input = NUMBER_PATTERN.matcher(((String) _input)).replaceAll("");
                 if (_input.toString().length() > 0) {
                     if (Values.isNumber(_input.toString()))
                         return getVariableAndMakeSure(Values.parseAsInt(_input.toString()), variableMap, filter, error);

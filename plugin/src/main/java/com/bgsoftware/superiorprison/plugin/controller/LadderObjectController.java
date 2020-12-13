@@ -15,7 +15,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 public class LadderObjectController implements ObjectSupplier {
-    private ObjectSupplier loadedSupplier;
+    private final ObjectSupplier loadedSupplier;
     public LadderObjectController(Config config, boolean isPrestige) {
         // We got automatico
         if (config.isSectionPresent("template"))

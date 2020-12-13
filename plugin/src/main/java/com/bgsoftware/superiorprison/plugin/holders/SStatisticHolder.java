@@ -1,4 +1,4 @@
-package com.bgsoftware.superiorprison.plugin.data;
+package com.bgsoftware.superiorprison.plugin.holders;
 
 import com.bgsoftware.superiorprison.api.controller.StatisticsController;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
@@ -14,16 +14,24 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 public class SStatisticHolder extends UniversalStorage<SStatisticsContainer> implements StatisticsController {
-    private Map<UUID, SStatisticsContainer> statisticsContainerMap = new ConcurrentHashMap<>();
+    private final Map<UUID, SStatisticsContainer> statisticsContainerMap = new ConcurrentHashMap<>();
 
     public SStatisticHolder(DatabaseController controller) {
         super(controller);
-
         addVariant("statistics", SStatisticsContainer.class);
 
         currentImplementation(
-                SuperiorPrisonPlugin.getInstance().getMainConfig().getStorageSection().provideFor(this, "statistics")
+                SuperiorPrisonPlugin.getInstance().getMainConfig().getStorageSection().provideFor(this)
         );
+
+        long start = System.currentTimeMillis();
+        onLoad(mine -> {
+            SuperiorPrisonPlugin.getInstance().getOLogger().print(
+                    "Loaded {} statistics. Took ({}ms)",
+                    statisticsContainerMap.size(),
+                    (System.currentTimeMillis() - start)
+            );
+        });
     }
 
     @Override

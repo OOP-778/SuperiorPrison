@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 public abstract class ObjectGenerator<G extends GeneratorOptions> implements ObjectSupplier {
-    private LadderTemplate template;
+    private final LadderTemplate template;
 
     @Getter
     private final GlobalVariableMap variableMap = new GlobalVariableMap();
@@ -31,14 +31,14 @@ public abstract class ObjectGenerator<G extends GeneratorOptions> implements Obj
     @NonNull
     private final G options;
 
-    private OCache<UUID, Map<BigInteger, ParsedObject>> parsedCache =
+    private final OCache<UUID, Map<BigInteger, ParsedObject>> parsedCache =
             OCache
                     .builder()
                     .concurrencyLevel(1)
                     .expireAfter(3, TimeUnit.SECONDS)
                     .build();
 
-    private Map<BigInteger, LadderTemplate> specificCache = new ConcurrentHashMap<>();
+    private final Map<BigInteger, LadderTemplate> specificCache = new ConcurrentHashMap<>();
 
     public ObjectGenerator(Valuable valuable) {
         if (!valuable.isSectionPresent("template") || !valuable.isSectionPresent("options"))

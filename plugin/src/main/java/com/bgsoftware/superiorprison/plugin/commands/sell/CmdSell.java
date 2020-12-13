@@ -14,58 +14,64 @@ import com.oop.orangeengine.command.OCommand;
 import com.oop.orangeengine.command.WrappedCommand;
 import com.oop.orangeengine.command.arg.arguments.PlayerArg;
 import com.oop.orangeengine.main.util.data.pair.OPair;
+import lombok.Getter;
 import org.bukkit.Material;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
 
-public class SellCommand extends OCommand {
-    public SellCommand() {
+public class CmdSell extends OCommand {
+
+    @Getter
+    private final Runnable initConosoleCommands;
+
+    public CmdSell() {
         label("sell");
         permission("superiorprison.sell");
         ableToExecute(Player.class);
 
         PermissionsInitializer.registerPrisonerCommand(this);
 
-        subCommand(
-                new OCommand()
-                        .label("hand")
-                        .permission("prison.sell.hand")
-                        .ableToExecute(Player.class)
-                        .description("Sell your inventory matched by hand")
-                        .onCommand(command -> {
-                            Player player = command.getSenderAsPlayer();
-                            ItemStack hand = player.getItemInHand();
+        subCommand(new OCommand()
+                .label("hand")
+                .permission("prison.sell.hand")
+                .ableToExecute(Player.class)
+                .description("Sell your inventory matched by hand")
+                .onCommand(command -> {
+                    Player player = command.getSenderAsPlayer();
+                    ItemStack hand = player.getItemInHand();
 
-                            if (hand == null || hand.getType() == Material.AIR) {
-                                LocaleEnum.SELL_HAND_MUST_HOLD_SOMETHING.getWithErrorPrefix().send(command.getSender());
-                                return;
-                            }
+                    if (hand == null || hand.getType() == Material.AIR) {
+                        LocaleEnum.SELL_HAND_MUST_HOLD_SOMETHING.getWithErrorPrefix().send(command.getSender());
+                        return;
+                    }
 
-                            SPrisoner prisoner = SuperiorPrisonPlugin.getInstance().getPrisonerController().getInsertIfAbsent(player);
+                    SPrisoner prisoner = SuperiorPrisonPlugin.getInstance().getPrisonerController().getInsertIfAbsent(player);
 
-                            // Backpack check
-                            if (SuperiorPrisonPlugin.getInstance().getBackPackController().isBackPack(hand)) {
-                                SBackPack backPack = (SBackPack) SuperiorPrisonPlugin.getInstance().getBackPackController().getBackPack(hand, player);
-                                if (!backPack.getData().isSell()) return;
+                    // Backpack check
+                    if (SuperiorPrisonPlugin.getInstance().getBackPackController().isBackPack(hand)) {
+                        SBackPack backPack = (SBackPack) SuperiorPrisonPlugin.getInstance().getBackPackController().getBackPack(hand, player);
+                        if (!backPack.getData().isSell()) return;
 
-                                handleSell(backPack.getStored().stream().map(item -> new OPair<ItemStack, Runnable>(item, () -> backPack.remove(item))).collect(Collectors.toSet()), prisoner);
-                                if (backPack.isModified()) {
-                                    backPack.save();
-                                    backPack.update();
-                                }
-                                return;
-                            }
+                        handleSell(backPack.getStored().stream().map(item -> new OPair<ItemStack, Runnable>(item, () -> backPack.remove(item))).collect(Collectors.toSet()), prisoner);
+                        if (backPack.isModified()) {
+                            backPack.save();
+                            backPack.update();
+                        }
+                        return;
+                    }
 
-                            handleSell(Sets.newHashSet(new OPair<>(hand, () -> player.getInventory().remove(hand))), prisoner);
-                        })
-        );
+                    handleSell(Sets.newHashSet(new OPair<>(hand, () -> player.getInventory().remove(hand))), prisoner);
+                }));
 
         subCommand(
                 new OCommand()
@@ -117,9 +123,15 @@ public class SellCommand extends OCommand {
                         .onCommand(command -> new SellMenu(SuperiorPrisonPlugin.getInstance().getPrisonerController().getInsertIfAbsent(command.getSenderAsPlayer())).open())
         );
 
-        createSubCommandByConsole("inventory");
-        createSubCommandByConsole("hand");
-        createSubCommandByConsole("gui");
+        OCommand consoleCommand = new OCommand()
+                .label("console")
+                .ableToExecute(ConsoleCommandSender.class);
+        subCommand(consoleCommand);
+
+        initConosoleCommands = () -> {
+            for (OCommand value : getSubCommands().values())
+                createSubCommandByConsole(value, consoleCommand);
+        };
 
         getSubCommands().values().forEach(PermissionsInitializer::registerPrisonerCommand);
     }
@@ -149,14 +161,11 @@ public class SellCommand extends OCommand {
             LocaleEnum.SELL_INVENTORY_WORTHLESS.getWithPrefix().send(prisoner.getPlayer());
     }
 
-    private void createSubCommandByConsole(String subCommand) {
-        OCommand consoleSubCommand = getSubCommands().computeIfAbsent("console", cmd -> new OCommand().label("console").ableToExecute(ConsoleCommandSender.class));
-        OCommand oCommand = subCommand(subCommand);
-
-        consoleSubCommand
+    private void createSubCommandByConsole(OCommand oCommand, OCommand consoleCmd) {
+        consoleCmd
                 .subCommand(
                         new OCommand()
-                                .label(subCommand)
+                                .label(oCommand.getLabel())
                                 .argument(new PlayerArg())
                                 .onCommand(command -> oCommand.getListener().accept(new WrappedCommand(command.getArgAsReq("player"), new HashMap<>())))
                 );

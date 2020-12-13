@@ -14,4 +14,6 @@ public interface SuperiorPrison {
     TopController getTopController();
 
     BlockController getBlockController();
+
+    EconomyController getEconomyController();
 }

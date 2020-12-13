@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Locale;
 
 public class DisabledModulesSection extends SectionWrapper {
-    private List<String> disabledModules = new ArrayList<>();
+    private final List<String> disabledModules = new ArrayList<>();
 
     public boolean contains(String in) {
         return disabledModules.contains(in.toLowerCase(Locale.ROOT));

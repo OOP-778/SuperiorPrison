@@ -10,6 +10,6 @@ public class DeclinedRequirement {
 
     @Setter
     private String display;
-    private Object value;
-    private Object required;
+    private final Object value;
+    private final Object required;
 }

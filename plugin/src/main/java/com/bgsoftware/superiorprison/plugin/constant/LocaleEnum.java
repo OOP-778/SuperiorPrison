@@ -244,7 +244,6 @@ public enum LocaleEnum {
                             )
             )
     ),
-
     PRISONER_MAX_PRESTIGE("You have the highest prestige!"),
     PRISONER_OPTION_TOGGLE("You have {state} {option_name}"),
 
@@ -350,17 +349,6 @@ public enum LocaleEnum {
                                                     .message("template")
                                                     .parent()
                                     )
-                                    //.append("&7, ")
-//                                    .append(
-//                                            new LineContent("Your Own &d&l(Click Me)")
-//                                                    .hover()
-//                                                    .add("&7You can create your own condition")
-//                                                    .add("&7How to do that check our wiki :)")
-//                                                    .parent()
-//                                                    .chat()
-//                                                    .message("own")
-//                                                    .parent()
-//                                    )
                     )
                     .append(" ")
     ),
@@ -380,7 +368,16 @@ public enum LocaleEnum {
                     new ChatLine(" ")
             )
     ),
-    MINE_CONDITION_CREATED("Mine condition: &d{condition}&7 was successfully created!");
+    MINE_CONDITION_CREATED("Mine condition: &d{condition}&7 was successfully created!"),
+
+    ECONOMY_SET("You've set money of &d{target}&7 to {money_formatted}"),
+    ECONOMY_SET_TARGET("&d{who}&7 has set your money to &d{money_formatted}"),
+
+    ECONOMY_GIVE("You have given &d{money_formatted} money &7to &d{target}"),
+    ECONOMY_GIVE_TARGET("You have received &d{money_formatted} money &7from &d{who}"),
+
+    ECONOMY_WITHDRAW("You withdrew &d{money_formatted}&7 money from &d{target}"),
+    ECONOMY_WITHDRAW_TARGET("&d{target} &7withdrew &d{money_formatted} &7money from you.");
 
     private final OMessage[] cache = new OMessage[2];
 

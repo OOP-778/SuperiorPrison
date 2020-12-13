@@ -32,21 +32,26 @@ global options:
     "2":
       rows: 3
       pages: 2
-
-      requirements:
-        - "{ECO} 1000"
-
       description:
         - "&cGain +1 page"
-
+      requirements:
+        eco:
+          display: "Money"
+          value: "1000"
+          getter: "get balance of %prisoner%"
+          checker: "%getter% >= %value%"
+          taker: "take %value% from %prisoner% balance"
     "3":
       pages: 3
-
-      requirements:
-        - "{ECO} 2000"
-
       description:
         - "&cGain +1 page"
+      requirements:
+        eco:
+          display: "Money"
+          value: "2000"
+          getter: "get balance of %prisoner%"
+          checker: "%getter% >= %value%"
+          taker: "take %value% from %prisoner% balance"
 
 "simpleBackPack":
   type: simple
@@ -65,18 +70,23 @@ global options:
   upgrades:
     "2":
       capacity: 500
-
-      requirements:
-        - "{ECO} 1000"
-
       description:
         - "&cGain +300 capacity"
-
+      requirements:
+        eco:
+          display: "Money"
+          value: "1000"
+          getter: "get balance of %prisoner%"
+          checker: "%getter% >= %value%"
+          taker: "take %value% from %prisoner% balance"
     "3":
       capacity: 700
-
-      requirements:
-        - "{ECO} 2000"
-
       description:
         - "&cGain +200 capacity"
+      requirements:
+        eco:
+          display: "Money"
+          value: "2000"
+          getter: "get balance of %prisoner%"
+          checker: "%getter% >= %value%"
+          taker: "take %value% from %prisoner% balance"

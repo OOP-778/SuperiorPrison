@@ -1,6 +1,7 @@
 package com.bgsoftware.superiorprison.plugin.commands.args;
 
 import com.bgsoftware.superiorprison.api.data.top.TopSystem;
+import com.bgsoftware.superiorprison.plugin.object.top.balance.SBalanceTopSystem;
 import com.bgsoftware.superiorprison.plugin.object.top.blocks.SBlocksTopSystem;
 import com.bgsoftware.superiorprison.plugin.object.top.prestige.SPrestigeTopSystem;
 import com.oop.orangeengine.command.OCommand;
@@ -14,7 +15,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class TopTypeArg extends CommandArgument<TopTypeArg.TopType> {
-
     public TopTypeArg() {
         setIdentity("type");
         setDescription("Top type");
@@ -33,7 +33,8 @@ public class TopTypeArg extends CommandArgument<TopTypeArg.TopType> {
     @Getter
     public enum TopType {
         BLOCKS(SBlocksTopSystem.class),
-        PRESTIGE(SPrestigeTopSystem.class);
+        PRESTIGE(SPrestigeTopSystem.class),
+        BALANCE(SBalanceTopSystem.class);
 
         private final Class<? extends TopSystem> clazz;
 

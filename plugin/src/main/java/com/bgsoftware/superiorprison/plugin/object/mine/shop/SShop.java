@@ -7,6 +7,7 @@ import com.bgsoftware.superiorprison.plugin.object.mine.linkable.LinkableObject;
 import com.bgsoftware.superiorprison.plugin.util.Attachable;
 import com.oop.datamodule.api.SerializedData;
 import com.oop.datamodule.api.SerializableObject;
+import com.oop.datamodule.mongodb.MongoHelper;
 import com.oop.orangeengine.main.util.data.set.OConcurrentSet;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -32,7 +33,7 @@ public class SShop implements MineShop, Attachable<SNormalMine>, SerializableObj
         from.items
                 .stream()
                 .map(SShopItem::from)
-                .forEach(item -> shop.items.add(item));
+                .forEach(shop.items::add);
 
         return shop;
     }

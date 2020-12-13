@@ -13,13 +13,15 @@ public class RequirementUtil {
         ProgressionScaleSection section = SuperiorPrisonPlugin.getInstance().getMainConfig().getScaleSection();
         StringBuilder scaleBuilder = new StringBuilder(section.getCompletedColor());
 
-        char symbol = section.getSymbols().toCharArray()[0];
-        int amountShouldBeColored = getPercentageCompleted(parsedObject) / section.getSymbols().toCharArray().length;
+        int len = section.getSymbols().length();
+        char symbol = section.getSymbols().charAt(0);
+
+        int amountShouldBeColored = getPercentageCompleted(parsedObject) / len;
         for (int i = 0; i < amountShouldBeColored; i++)
             scaleBuilder.append(symbol);
 
         scaleBuilder.append(section.getColor());
-        for (int i = 0; i < (section.getSymbols().toCharArray().length - amountShouldBeColored); i++)
+        for (int i = 0; i < (len - amountShouldBeColored); i++)
             scaleBuilder.append(symbol);
 
         return scaleBuilder.toString();

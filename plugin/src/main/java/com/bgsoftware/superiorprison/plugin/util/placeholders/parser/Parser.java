@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorprison.plugin.util.placeholders.parser;
 
+import com.bgsoftware.superiorprison.plugin.util.ExpireableCache;
 import lombok.NonNull;
 
 import java.util.HashMap;
@@ -8,19 +9,14 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class Parser<P, T> implements Cloneable {
-
     private final Map<String, Parser> children = new HashMap<>();
     private final Map<String, PlaceholderFunction<P, T, Object>> parsers = new HashMap<>();
-    private int index;
     private @NonNull Parser<P, Object> parent;
-    private String id;
-    private T object;
     private Class<T> clazz;
     private PlaceholderFunction<P, T, T> mapper;
 
     public Parser(Parser parent, Class<T> clazz, String id) {
         this.parent = parent;
-        this.id = id;
         this.clazz = clazz;
     }
 

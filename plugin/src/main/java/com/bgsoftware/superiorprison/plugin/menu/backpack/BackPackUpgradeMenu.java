@@ -5,18 +5,19 @@ import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.object.backpack.SBackPack;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.requirement.DeclinedRequirement;
-import com.bgsoftware.superiorprison.plugin.util.script.variable.GlobalVariableMap;
-import com.bgsoftware.superiorprison.plugin.util.script.variable.VariableHelper;
+import com.bgsoftware.superiorprison.plugin.requirement.RequirementHolder;
+import com.bgsoftware.superiorprison.plugin.util.TextUtil;
 import com.bgsoftware.superiorprison.plugin.util.menu.MenuAction;
 import com.bgsoftware.superiorprison.plugin.util.menu.OMenu;
 import com.bgsoftware.superiorprison.plugin.util.menu.OMenuButton;
+import com.bgsoftware.superiorprison.plugin.util.script.variable.GlobalVariableMap;
+import com.bgsoftware.superiorprison.plugin.util.script.variable.VariableHelper;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class BackPackUpgradeMenu extends OMenu implements BackpackLockable {
-
     private final SBackPack backPack;
 
     public BackPackUpgradeMenu(SPrisoner viewer, SBackPack backPack) {
@@ -50,8 +51,7 @@ public class BackPackUpgradeMenu extends OMenu implements BackpackLockable {
 
     public OMenuButton.ButtonItemBuilder request(OMenuButton button) {
         if (backPack.getCurrentLevel() == backPack.getConfig().getMaxLevel()) {
-            OMenuButton.ButtonItemBuilder max = button.getStateItem("max");
-            return max;
+            return button.getStateItem("max");
 
         } else
             return parseInfoButton(button.getStateItem("upgrade available"));
@@ -59,6 +59,10 @@ public class BackPackUpgradeMenu extends OMenu implements BackpackLockable {
 
     public OMenuButton.ButtonItemBuilder parseInfoButton(OMenuButton.ButtonItemBuilder item) {
         BackPackUpgrade<?> nextUpgrade = backPack.getConfig().getUpgrade(backPack.getCurrentLevel() + 1);
+
+        GlobalVariableMap map = nextUpgrade.getVariableMap().clone();
+        map.newOrReplace("prisoner", VariableHelper.createVariable(getViewer()));
+        map.newOrReplace("backpack", VariableHelper.createVariable(backPack));
 
         List<String> newLore = new ArrayList<>();
         List<String> lore = item.itemBuilder().getLore();
@@ -68,16 +72,12 @@ public class BackPackUpgradeMenu extends OMenu implements BackpackLockable {
 
             } else if (s.contains("{REQUIREMENT}")) {
                 String template = s.replace("{REQUIREMENT}", "");
-//                for (RequirementData requirementData : nextUpgrade.getRequirements()) {
-//                    Optional<Requirement> optionalRequirement = SuperiorPrisonPlugin.getInstance().getRequirementController().findRequirement(requirementData.getType());
-//                    if (!optionalRequirement.isPresent()) continue;
-//
-//                    Requirement requirement = optionalRequirement.get();
-//                    String current = TextUtil.beautifyNumber(requirement.getHandler().getCurrent(getViewer(), requirementData));
-//                    String required = TextUtil.beautifyNumber(requirementData.getValue());
-//                    String percentage = requirement.getHandler().getPercentage(getViewer(), requirementData) + "";
-//                    newLore.add(template.replace("{current}", current).replace("{needed}", required).replace("{percentage}", percentage).replace("{type}", requirement.getId().toLowerCase()));
-//                }
+                for (RequirementHolder.HoldingData requirementData : nextUpgrade.getRequirementHolder().getHoldingData()) {
+                    String current = TextUtil.beautify(requirementData.getData().getGetter().execute(map));
+                    String required = TextUtil.beautify(requirementData.getData().getCheckValue().execute(map));
+                    String percentage = requirementData.getRequirement().getPercentage(requirementData.getData(), map) + "";
+                    newLore.add(template.replace("{current}", current).replace("{needed}", required).replace("{percentage}", percentage).replace("{type}", requirementData.getData().getDisplayName()));
+                }
             } else
                 newLore.add(s.replace("{backpack_nextlevel}", nextUpgrade.getConfig().getLevel() + ""));
         }

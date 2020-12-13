@@ -22,7 +22,7 @@ import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messag
 import static com.bgsoftware.superiorprison.plugin.util.TextUtil.mergeText;
 
 public class MineRewardsMenu extends OPagedMenu<SMineReward> implements OMenu.Templateable {
-    private SNormalMine mine;
+    private final SNormalMine mine;
 
     public MineRewardsMenu(SPrisoner viewer, SNormalMine mine) {
         super("mineRewards", viewer);

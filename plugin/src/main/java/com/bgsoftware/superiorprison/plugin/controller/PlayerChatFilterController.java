@@ -5,8 +5,8 @@ import java.util.*;
 import java.util.function.Function;
 
 public class PlayerChatFilterController {
-    private Set<UUID> filteredPlayers = new HashSet<>();
-    private Set<Function<String, Boolean>> filters = new HashSet<>();
+    private final Set<UUID> filteredPlayers = new HashSet<>();
+    private final Set<Function<String, Boolean>> filters = new HashSet<>();
 
     public PlayerChatFilterController(List<String> rawFilters) {
         for (String rawFilter : rawFilters) {

@@ -12,7 +12,7 @@ public class RegexCreator {
     public static String VARIABLE_VARIANT = "[0-9]+V";
     public static String NUMBER_VARIANT = "[-]*[0-9]+";
 
-    private List<String> groups = new LinkedList<>();
+    private final List<String> groups = new LinkedList<>();
 
     public RegexCreator add(@NonNull Consumer<VariantCreator> consumer) {
         VariantCreator variantCreator = new VariantCreator();
@@ -52,7 +52,6 @@ public class RegexCreator {
     }
 
     public Pattern compile() {
-        System.out.println(buildToString());
         return Pattern.compile(buildToString(), Pattern.CASE_INSENSITIVE);
     }
 

@@ -15,10 +15,10 @@ import static com.bgsoftware.superiorprison.plugin.util.script.util.ScriptHelper
 
 @Getter
 public class RequirementData {
-    private Function<Object> getter;
+    private final Function<Object> getter;
     private Function<Boolean> taker;
-    private Function<Object> checkValue;
-    private Function<Boolean> check;
+    private final Function<Object> checkValue;
+    private final Function<Boolean> check;
     private String displayName;
 
     public RequirementData(ConfigSection section, GlobalVariableMap varMap) {

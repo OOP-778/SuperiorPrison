@@ -19,9 +19,12 @@ import com.bgsoftware.superiorprison.plugin.object.mine.shop.SShopItem;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.object.player.booster.SBooster;
 import com.bgsoftware.superiorprison.plugin.object.top.STopEntry;
+import com.bgsoftware.superiorprison.plugin.object.top.balance.SBalanceTopEntry;
+import com.bgsoftware.superiorprison.plugin.object.top.balance.SBalanceTopSystem;
 import com.bgsoftware.superiorprison.plugin.object.top.blocks.BlockTopEntry;
 import com.bgsoftware.superiorprison.plugin.object.top.prestige.SPrestigeTopEntry;
 import com.bgsoftware.superiorprison.plugin.requirement.DeclinedRequirement;
+import com.bgsoftware.superiorprison.plugin.util.NumberUtil;
 import com.bgsoftware.superiorprison.plugin.util.TextUtil;
 import com.bgsoftware.superiorprison.plugin.util.TimeUtil;
 import com.google.common.collect.Maps;
@@ -101,6 +104,9 @@ public class PlaceholderController {
         add(STopEntry.class, "{entry_position}", STopEntry::getPosition);
         add(BlockTopEntry.class, "{entry_blocks}", entry -> TextUtil.beautifyNumber(entry.getObject().getTotal()));
         add(SPrestigeTopEntry.class, "{entry_prestige}", entry -> entry.getObject().getParsedPrestige().get().getName());
+        add(SPrestigeTopEntry.class, "{entry_prestige_formatted}", entry -> NumberUtil.formatBigInt(entry.getObject().getParsedPrestige().get().getIndex()));
+        add(SBalanceTopEntry.class, "{entry_balance}", entry -> entry.getObject().getBalance().toPlainString());
+        add(SBalanceTopEntry.class, "{entry_balance_formatted}", entry -> NumberUtil.formatBigDecimal(entry.getObject().getBalance()));
 
         add(SMineReward.class, "{reward_chance}", SMineReward::getChance);
         add(SMineReward.class, "{reward_commands}", r -> String.join(", ", r.getCommands()));

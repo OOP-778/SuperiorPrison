@@ -11,8 +11,6 @@ import com.oop.orangeengine.yaml.Config;
 import com.oop.orangeengine.yaml.ConfigSection;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -27,7 +25,7 @@ public class ManualRankGenerator extends ManualObjectGenerator {
     public boolean hasNext(Object key) {
         BigInteger index = getIndex(key);
 
-        return ranksMap.get2(index.intValue() + 1) != null;
+        return ranksMap.getSecond(index.intValue() + 1) != null;
     }
 
     @Override
@@ -51,7 +49,7 @@ public class ManualRankGenerator extends ManualObjectGenerator {
 
         else {
             // Get int key by string
-            currentKey = ranksMap.getKey2By1(key.toString());
+            currentKey = ranksMap.getSecondKeyByFirstKey(key.toString());
         }
 
         return BigInteger.valueOf(currentKey == null ? -1 : currentKey);
@@ -60,7 +58,11 @@ public class ManualRankGenerator extends ManualObjectGenerator {
     @Override
     protected void registerObject(ConfigSection section, int index, Function<SPrisoner, ParsedObject> parser) {
         if (ranksMap == null)
-            ranksMap = DualKeyMap.create(0);
+            ranksMap = DualKeyMap.create(
+                    0,
+                    null,
+                    null
+            );
 
         String name = section.getKey();
         ranksMap.put(name, index, parser);
@@ -79,11 +81,11 @@ public class ManualRankGenerator extends ManualObjectGenerator {
     @Override
     public Optional<Function<SPrisoner, ParsedObject>> getParser(Object key) {
         if (key instanceof Number)
-            return Optional.ofNullable(ranksMap.get2(((Number) key).intValue()));
+            return Optional.ofNullable(ranksMap.getSecond(((Number) key).intValue()));
         else if (Values.isNumber(key.toString()))
-            return Optional.ofNullable(ranksMap.get2(Values.parseAsInt(key.toString())));
+            return Optional.ofNullable(ranksMap.getSecond(Values.parseAsInt(key.toString())));
 
-        Function<SPrisoner, ParsedObject> handler = ranksMap.get1(key.toString());
+        Function<SPrisoner, ParsedObject> handler = ranksMap.getFirst(key.toString());
         return Optional.ofNullable(handler);
     }
 

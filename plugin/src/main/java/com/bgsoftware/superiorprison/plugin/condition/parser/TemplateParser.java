@@ -10,7 +10,7 @@ import java.util.function.Function;
 
 public class TemplateParser {
     @Getter
-    private Map<OPair<String, String>, ParserFunction> values = new HashMap<>();
+    private final Map<OPair<String, String>, ParserFunction> values = new HashMap<>();
 
     @NonNull
     @Getter

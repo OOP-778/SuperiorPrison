@@ -2,7 +2,7 @@ package com.bgsoftware.superiorprison.plugin.util.script.function;
 
 import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
-import com.bgsoftware.superiorprison.plugin.hook.impl.PapiHook;
+import com.bgsoftware.superiorprison.plugin.hook.impl.placeholder.PapiHook;
 import com.bgsoftware.superiorprison.plugin.util.script.variable.GlobalVariableMap;
 import com.bgsoftware.superiorprison.plugin.util.script.variable.VariableHelper;
 import com.google.common.base.Preconditions;

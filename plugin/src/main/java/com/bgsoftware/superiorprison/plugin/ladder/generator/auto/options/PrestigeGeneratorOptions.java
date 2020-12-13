@@ -12,8 +12,8 @@ import java.util.List;
 
 @Getter
 public class PrestigeGeneratorOptions extends GeneratorOptions<BigInteger> {
-    private BigInteger max;
-    private BigInteger min;
+    private final BigInteger max;
+    private final BigInteger min;
 
     public PrestigeGeneratorOptions(ConfigSection section, GlobalVariableMap map) {
         super(map);

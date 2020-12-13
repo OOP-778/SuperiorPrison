@@ -9,7 +9,7 @@ debug: false
 # Will be used per object type
 # You can set default
 # And then you can set per object
-# Available objects: prisoners, mines, statistics
+# Available objects: prisoner, mines, statistics, accounts
 storages:
   types:
     # The credentials for sqlite
@@ -62,7 +62,21 @@ top systems:
     # How much entries should be there?
     entries limit: 10
 
+  balance:
+    # Update interval
+    interval: "15s"
+
+    # How much entries should be there?
+    entries limit: 10
+
 prisoner defaults:
+  # Default rank
+  rank: "A"
+
+  # Default prestige
+  # -1 means none
+  prestige: "-1"
+
   # Is auto sell enabled
   auto sell: false
 
@@ -203,3 +217,27 @@ use mine cache: true
 # To make the server load lighter
 # From which percentage should mines auto reset?
 mine reset at load percentage: 70
+
+# Suffixes for formatting numbers
+# Each value goes by +3 0's
+number formatter suffixes:
+  - ""
+  - "k"
+  - "m"
+  - "b"
+  - "T"
+  - "Q"
+  - "Qt"
+  - "S"
+  - "ST"
+  - "O"
+  - "N"
+  - "D"
+  - "UD"
+  - "DD"
+  - "Z"
+
+# Should SP give full control to TokenEnchant
+# When handling it's enchants?
+# Doing so will break SP's autopickup, autosell, backpacks..
+full token enchant control: false

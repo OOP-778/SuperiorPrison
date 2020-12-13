@@ -50,7 +50,7 @@ public class CommandHelper {
         return messageBuilder(message, true);
     }
 
-    public static <T extends Object> ListedBuilder<T> listedBuilder(Class<T> clazz) {
+    public static <T> ListedBuilder<T> listedBuilder(Class<T> clazz) {
         return new ListedBuilder<>();
     }
 
@@ -151,7 +151,7 @@ public class CommandHelper {
             return this;
         }
 
-        public <E extends Object> ListedBuilder<T> addPlaceholder(E object, String placeholder, Function<E, String> function) {
+        public <E> ListedBuilder<T> addPlaceholder(E object, String placeholder, Function<E, String> function) {
             Set<OPair<String, Function<Object, String>>> pairs = placeholders.computeIfAbsent(object.getClass(), clazz -> new HashSet<>());
             pairs.add(new OPair<>(placeholder, (Function<Object, String>) function));
             return this;
@@ -221,7 +221,7 @@ public class CommandHelper {
 
             // Handle message stuff
             OPair<ChatLine, LineContent> line1 = ((OChatMessage) message).findContent(content -> content.text().contains(identifier));
-            if (line1.getFirst() == null) return null;
+            if (line1.getFirst() == null) return message;
 
             ChatLine messageLine = line1.getFirst().clone();
             messageLine.removeContentIf(lineContent -> lineContent.text().contentEquals(line1.getSecond().text()));

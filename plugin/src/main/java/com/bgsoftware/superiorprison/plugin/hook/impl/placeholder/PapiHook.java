@@ -1,4 +1,4 @@
-package com.bgsoftware.superiorprison.plugin.hook.impl;
+package com.bgsoftware.superiorprison.plugin.hook.impl.placeholder;
 
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.hook.SHook;
@@ -11,6 +11,8 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 public class PapiHook extends SHook {
     public PapiHook() {
@@ -70,11 +72,19 @@ public class PapiHook extends SHook {
 
         @Override
         public String onRequest(OfflinePlayer p, String params) {
+            Optional<String> request = PlaceholderCache.request(p.getUniqueId(), params);
+            if (request.isPresent())
+                return request.get();
+
             String[] split = params.split("_");
             ObjectCache cache = new ObjectCache();
-            if (p != null)
-                SuperiorPrisonPlugin.getInstance().getPrisonerController().getPrisoner(p.getUniqueId()).ifPresent(cache::add);
-            return PlaceholderParser.parse(split, cache);
+            SuperiorPrisonPlugin.getInstance().getPrisonerController()
+                    .getPrisoner(p.getUniqueId())
+                    .ifPresent(cache::add);
+
+            String parse = PlaceholderParser.parse(split, cache);
+            PlaceholderCache.put(p.getUniqueId(), params, parse, 5);
+            return parse;
         }
 
         @Override

@@ -14,7 +14,7 @@ import org.bukkit.entity.Player;
 import java.util.*;
 
 public class NmsHandler_v1_8_R3 implements SuperiorNms {
-    private Map<OMaterial, IBlockData> dataMap = new HashMap<>();
+    private final Map<OMaterial, IBlockData> dataMap = new HashMap<>();
 
     @Override
     public void setBlock(@NonNull Chunk chunk, @NonNull Location location, @NonNull OMaterial material) {

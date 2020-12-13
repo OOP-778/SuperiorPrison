@@ -19,19 +19,17 @@ import java.util.stream.IntStream;
 public class RankGeneratorOptions extends GeneratorOptions<String> {
     private static final HashFunction hashing = Hashing.crc32();
 
-    private char start;
-    private char end;
     private int repeat = -1;
 
     // Level to Index and other way around
-    private HashBiMap<Integer, Integer> hashConverter = HashBiMap.create();
+    private final HashBiMap<Integer, Integer> hashConverter = HashBiMap.create();
 
     // Rank name to index and other way around
     @Getter
-    private HashBiMap<String, Integer> rankToIndex = HashBiMap.create();
+    private final HashBiMap<String, Integer> rankToIndex = HashBiMap.create();
 
     // Indexes of chars
-    private List<Character> chars = new LinkedList<>();
+    private final List<Character> chars = new LinkedList<>();
 
     // Max level of ranks
     @Getter
@@ -43,8 +41,8 @@ public class RankGeneratorOptions extends GeneratorOptions<String> {
 
         String range = section.getAs("range");
         String[] split = range.split("-");
-        start = split[0].toCharArray()[0];
-        end = split[1].toCharArray()[0];
+        char start = split[0].toCharArray()[0];
+        char end = split[1].toCharArray()[0];
 
         section.ifValuePresent("repeat", int.class, v -> this.repeat = v);
         List<String> ranks = new LinkedList<>();

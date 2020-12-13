@@ -8,7 +8,7 @@ import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.config.main.MineDefaultsSection;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
-import com.bgsoftware.superiorprison.plugin.data.SMineHolder;
+import com.bgsoftware.superiorprison.plugin.holders.SMineHolder;
 import com.bgsoftware.superiorprison.plugin.ladder.ObjectSupplier;
 import com.bgsoftware.superiorprison.plugin.object.mine.access.SMineAccess;
 import com.bgsoftware.superiorprison.plugin.object.mine.area.SArea;
@@ -92,7 +92,7 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
     private final Map<String, LinkableObject> linkableObjectMap = new HashMap<>();
 
     @Getter
-    private OCache<Lock, Boolean> pendingTasks = OCache
+    private final OCache<Lock, Boolean> pendingTasks = OCache
             .builder()
             .concurrencyLevel(1)
             .expireAfter(5, TimeUnit.SECONDS)
@@ -415,7 +415,7 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
                     access
                             .addScript(
                                     name,
-                                    "if {" + getter + " == 0}: false else: { " + getter +  " >= " + index + "}"
+                                    getter +  " >= " + index
                             );
                 });
     }

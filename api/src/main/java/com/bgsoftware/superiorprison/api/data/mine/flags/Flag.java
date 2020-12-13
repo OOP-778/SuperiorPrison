@@ -11,8 +11,8 @@ public enum Flag {
     FALL_DAMAGE(false, "Toggle fall damage"),
     HUNGER(true, "Toggle hunger");
 
-    private boolean defaultValue;
-    private Set<AreaEnum> areas;
+    private final boolean defaultValue;
+    private final Set<AreaEnum> areas;
     private String description;
 
     Flag(boolean defaultValue, String description) {

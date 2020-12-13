@@ -65,4 +65,14 @@ buttons:
         - ""
         - "&d&lInformation"
         - "&d&l* &7Position: &d{entry_position}"
-        - "&d&l* &7Prestige: &d{entry_prestige}"
+        - "&d&l* &7Prestige: &d{entry_prestige_formatted}"
+
+    balance entry:
+      material: player head
+      texture: "{entry_texture}"
+      display name: "&d&l{prisoner_name}"
+      lore:
+        - ""
+        - "&d&lInformation"
+        - "&d&l* &7Position: &d{entry_position}"
+        - "&d&l* &7Balance: &d{entry_balance_formatted}"

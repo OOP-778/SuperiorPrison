@@ -19,12 +19,12 @@ public class ChatCommands {
 
     @Setter
     private BiConsumer<Player, Throwable> exceptionHandler;
-    private Player player;
+    private final Player player;
     private Runnable finish;
 
     private Runnable afterInput;
 
-    private AtomicBoolean canceller = new AtomicBoolean(false);
+    private final AtomicBoolean canceller = new AtomicBoolean(false);
 
     public ChatCommands(Player player) {
         this.player = player;

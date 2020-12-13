@@ -1,11 +1,13 @@
 package com.bgsoftware.superiorprison.plugin.util.script.function;
 
+import com.bgsoftware.superiorprison.plugin.util.NumberUtil;
 import com.bgsoftware.superiorprison.plugin.util.script.RegexCreator;
 import com.bgsoftware.superiorprison.plugin.util.script.util.RegexHelper;
 import com.bgsoftware.superiorprison.plugin.util.script.util.Values;
 import com.bgsoftware.superiorprison.plugin.util.script.variable.GlobalVariableMap;
 import com.bgsoftware.superiorprison.plugin.util.script.variable.VariableHelper;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -125,29 +127,56 @@ public class ConditionFunction implements Function<Boolean> {
         return check(whatObject, toObject);
     }
 
-    private boolean check(Object whatObject, Object toObject) {
-        if (whatObject instanceof Number && toObject instanceof Number) {
+    private boolean checkNumbers(Number number, Number number2) {
+        if (number instanceof Double && number2 instanceof Double) {
             if (matchId == 0)
-                return ((Number) whatObject).doubleValue() < ((Number) toObject).doubleValue();
+                return number.doubleValue() < number2.doubleValue();
             else if (matchId == 1)
-                return ((Number) whatObject).doubleValue() > ((Number) toObject).doubleValue();
+                return number.doubleValue() > number2.doubleValue();
             else if (matchId == 2)
-                return ((Number) whatObject).doubleValue() >= ((Number) toObject).doubleValue();
+                return number.doubleValue() >= number2.doubleValue();
             else if (matchId == 3)
-                return ((Number) whatObject).doubleValue() <= ((Number) toObject).doubleValue();
+                return number.doubleValue() <= number2.doubleValue();
             else if (matchId == 4)
-                return ((Number) whatObject).doubleValue() == ((Number) toObject).doubleValue();
+                return number.doubleValue() == number2.doubleValue();
+
+            // This never should happen???
+            return false;
         }
 
+        if (number instanceof BigDecimal && number2 instanceof BigDecimal) {
+            if (matchId == 0)
+                return NumberUtil.isLessThan((BigDecimal) number, (BigDecimal) number2);
+            else if (matchId == 1)
+                return NumberUtil.isMoreThan((BigDecimal) number, (BigDecimal) number2);
+            else if (matchId == 2)
+                return NumberUtil.isMoreOrEquals((BigDecimal) number, (BigDecimal) number2);
+            else if (matchId == 3)
+                return NumberUtil.isLessOrEquals((BigDecimal) number, (BigDecimal) number2);
+            else if (matchId == 4)
+                return NumberUtil.equals((BigDecimal) number, (BigDecimal) number2);
+
+            // Should never happen???
+            return false;
+        }
+
+        if (!(number instanceof BigDecimal))
+            number = BigDecimal.valueOf(number.doubleValue());
+
+        if (!(number2 instanceof BigDecimal))
+            number2 = BigDecimal.valueOf(number2.doubleValue());
+
+        return checkNumbers(number, number2);
+    }
+
+    private boolean check(Object whatObject, Object toObject) {
+        if (whatObject instanceof Number && toObject instanceof Number)
+            return checkNumbers((Number) whatObject, (Number) toObject);
+
         if (whatObject instanceof String || toObject instanceof String) {
-            if (Values.isNumber(whatObject.toString()))
-                whatObject = Values.parseAsInt(whatObject.toString());
-
-            if (Values.isNumber(toObject.toString()))
-                toObject = Values.parseAsInt(toObject.toString());
-
-            if (whatObject instanceof Number && toObject instanceof Number)
-                return check(whatObject, toObject);
+            Number[] numbers = Values.parseNumbers(whatObject.toString(), toObject.toString());
+            if (numbers[0] != null && numbers[1] != null)
+                return checkNumbers(numbers[0], numbers[1]);
         }
 
         return Values.compare(whatObject, toObject);

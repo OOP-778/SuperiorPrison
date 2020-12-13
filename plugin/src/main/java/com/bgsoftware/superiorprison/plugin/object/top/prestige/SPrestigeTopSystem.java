@@ -4,6 +4,7 @@ import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.object.top.STopSystem;
 
+import java.math.BigInteger;
 import java.util.Comparator;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
@@ -24,7 +25,7 @@ public class SPrestigeTopSystem extends STopSystem<SPrisoner, SPrestigeTopEntry>
 
     @Override
     protected Predicate<SPrisoner> filter() {
-        return prisoner -> prisoner.getParsedPrestige().isPresent();
+        return prisoner -> prisoner.getPrestige().compareTo(BigInteger.ZERO) != 0;
     }
 
     @Override

@@ -14,8 +14,8 @@ public class MineBlockBreakEvent extends MineEvent implements Cancellable {
     @Setter
     private boolean cancelled;
 
-    private Prisoner prisoner;
-    private Block block;
+    private final Prisoner prisoner;
+    private final Block block;
 
     public MineBlockBreakEvent(SuperiorMine mine, Prisoner prisoner, Block block) {
         super(mine);

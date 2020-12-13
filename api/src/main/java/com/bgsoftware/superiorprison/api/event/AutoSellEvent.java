@@ -12,10 +12,10 @@ Called on every item that's being auto sold!
 public class AutoSellEvent extends PrisonerEvent implements Cancellable {
 
     @Getter
-    private ItemStack itemStack;
+    private final ItemStack itemStack;
 
     @Getter
-    private ShopItemMutable shopItem;
+    private final ShopItemMutable shopItem;
 
     private boolean cancelled = false;
 

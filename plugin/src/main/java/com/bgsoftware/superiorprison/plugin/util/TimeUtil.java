@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorprison.plugin.util;
 
+import java.text.DecimalFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -56,16 +57,20 @@ public class TimeUtil {
         return ZonedDateTime.ofInstant(Instant.ofEpochSecond(epochSeconds), ZoneId.systemDefault());
     }
 
-    public static String toString(long seconds) {
-        long[] longs = calculateTime(seconds);
+    private static final DecimalFormat format = new DecimalFormat("##.#");
+
+    public static String toString(double seconds) {
+        double[] longs = calculateTime(seconds);
         List<String> times = new ArrayList<>();
-        times.add(longs[0] + "s");
-        times.add(longs[1] + "m");
-        times.add(longs[2] + "h");
-        times.add(longs[3] + "d");
+
+        times.add(format.format(longs[0]) + "s");
+        times.add(format.format(longs[1]) + "m");
+        times.add(format.format(longs[2]) + "h");
+        times.add(format.format(longs[3]) + "d");
         Collections.reverse(times);
 
-        times.removeIf(time -> time.startsWith("0"));
+        // Remove times that are 0
+        times.removeIf(time -> time.length() == 2 && time.startsWith("0"));
         return String.join(", ", times);
     }
 
@@ -86,13 +91,13 @@ public class TimeUtil {
         return toString(between.getSeconds());
     }
 
-    public static long[] calculateTime(long seconds) {
-        long sec = seconds % 60;
-        long minutes = seconds % 3600 / 60;
-        long hours = seconds % 86400 / 3600;
-        long days = seconds / 86400;
+    public static double[] calculateTime(double seconds) {
+        double sec = seconds % 60;
+        long minutes = (long) (seconds % 3600 / 60);
+        long hours = (long) seconds % 86400 / 3600;
+        long days = (long) seconds / 86400;
 
-        return new long[]{sec, minutes, hours, days};
+        return new double[]{sec, minutes, hours, days};
     }
 
     public static boolean hasExpired(long instant) {

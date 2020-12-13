@@ -4,13 +4,9 @@ import com.bgsoftware.superiorprison.api.data.mine.MineBlockData;
 import com.bgsoftware.superiorprison.api.data.mine.locks.Lock;
 import com.bgsoftware.superiorprison.plugin.object.mine.locks.SBLocksLock;
 import com.bgsoftware.superiorprison.plugin.util.Attachable;
-import com.oop.datamodule.api.SerializableObject;
-import com.oop.datamodule.api.SerializedData;
-import com.oop.datamodule.lib.google.gson.JsonArray;
-import com.oop.datamodule.lib.google.gson.JsonElement;
-import com.oop.datamodule.lib.google.gson.JsonObject;
 import com.oop.orangeengine.main.util.data.cache.OCache;
 import com.oop.orangeengine.main.util.data.pair.OPair;
+import com.oop.orangeengine.main.util.data.pair.OTriplePair;
 import com.oop.orangeengine.material.OMaterial;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,16 +14,14 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
-public class SMineBlockData implements Attachable<SMineGenerator>, MineBlockData, SerializableObject {
+public class SMineBlockData implements Attachable<SMineGenerator>, MineBlockData {
 
-    // Material, current value, starting value
     @Getter
-    private final Map<Integer, OMaterial> locToMaterial = new ConcurrentHashMap<>();
+    private final Map<OTriplePair<Integer, Integer, Integer>, OMaterial> locToMaterial = new ConcurrentHashMap<>();
 
     @Getter
     private final Map<OMaterial, OPair<Long, Long>> materials = new ConcurrentHashMap<>();
@@ -51,7 +45,7 @@ public class SMineBlockData implements Attachable<SMineGenerator>, MineBlockData
     }
 
     public void set(Location location, OMaterial material) {
-        locToMaterial.put(hash(location), material);
+        locToMaterial.put(locationToPair(location), material);
         OPair<Long, Long> data = materials
                 .computeIfAbsent(material, in -> new OPair<>(0L, 0L));
         data.set(data.getFirst() + 1, data.getSecond() + 1);
@@ -62,7 +56,7 @@ public class SMineBlockData implements Attachable<SMineGenerator>, MineBlockData
     }
 
     public void remove(Location location) {
-        OMaterial material = locToMaterial.get(hash(location));
+        OMaterial material = locToMaterial.get(locationToPair(location));
         if (material == null) return;
 
         materials.merge(material, new OPair<>(1L, 0L), (f, s) -> f.setFirst(Math.max(f.getFirst() - s.getFirst(), 0L)));
@@ -71,7 +65,7 @@ public class SMineBlockData implements Attachable<SMineGenerator>, MineBlockData
 
     @Override
     public Optional<Material> getMaterialAt(Location location) {
-        return Optional.ofNullable(locToMaterial.get(hash(location))).map(OMaterial::parseMaterial);
+        return Optional.ofNullable(locToMaterial.get(locationToPair(location))).map(OMaterial::parseMaterial);
     }
 
     @Override
@@ -80,7 +74,7 @@ public class SMineBlockData implements Attachable<SMineGenerator>, MineBlockData
     }
 
     public Optional<OMaterial> getOMaterialAt(Location location) {
-        return Optional.ofNullable(locToMaterial.get(hash(location)));
+        return Optional.ofNullable(locToMaterial.get(locationToPair(location)));
     }
 
     @Override
@@ -113,7 +107,7 @@ public class SMineBlockData implements Attachable<SMineGenerator>, MineBlockData
     public void unlock(Lock lock) {
         lockedBlocks.remove((SBLocksLock) lock);
         for (Location lockedLocation : ((SBLocksLock) lock).lockedLocations)
-            locToMaterial.remove(hash(lockedLocation));
+            locToMaterial.remove(locationToPair(lockedLocation));
     }
 
     @Override
@@ -128,43 +122,10 @@ public class SMineBlockData implements Attachable<SMineGenerator>, MineBlockData
 
     @Override
     public boolean has(Location location) {
-        return locToMaterial.containsKey(hash(location));
+        return locToMaterial.containsKey(locationToPair(location));
     }
 
-    @Override
-    public void serialize(SerializedData serializedData) {
-        JsonArray materialData = new JsonArray();
-        for (Map.Entry<OMaterial, OPair<Long, Long>> matData : materials.entrySet()) {
-            JsonObject matDataJson = new JsonObject();
-            matDataJson.addProperty("material", matData.getKey().name());
-            matDataJson.addProperty("current", matData.getValue().getKey());
-            matDataJson.addProperty("all", matData.getValue().getValue());
-
-            materialData.add(matDataJson);
-        }
-
-        serializedData.write("mats", materialData);
-    }
-
-    @Override
-    public void deserialize(SerializedData serializedData) {
-        // Deserialize material data
-        serializedData
-                .getElement("mats")
-                .map(JsonElement::getAsJsonArray)
-                .ifPresent(materialsData -> {
-                    for (JsonElement materialsDatum : materialsData) {
-                        JsonObject matDataJson = materialsDatum.getAsJsonObject();
-                        OMaterial material = OMaterial.matchMaterial(matDataJson.getAsJsonPrimitive("material").getAsString());
-                        long current = matDataJson.getAsJsonPrimitive("current").getAsLong();
-                        long was = matDataJson.getAsJsonPrimitive("all").getAsLong();
-
-                        materials.put(material, new OPair<>(current, was));
-                    }
-                });
-    }
-
-    private int hash(Location location) {
-        return Objects.hash(location.getBlockX(), location.getBlockY(), location.getBlockZ());
+    public OTriplePair<Integer, Integer, Integer> locationToPair(Location location) {
+        return new OTriplePair<>(location.getBlockX(), location.getBlockY(), location.getBlockZ());
     }
 }

@@ -13,6 +13,7 @@ import com.oop.orangeengine.yaml.ConfigSection;
 import lombok.Getter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -53,6 +54,10 @@ public class MainConfig extends ConfigWrapper {
     private boolean useMineDataCache;
     private int resetMineAtRestartAt;
 
+    private boolean giveFullControlToTE;
+
+    private List<String> numberFormatterSuffixes;
+
     public MainConfig() {
         load();
     }
@@ -61,11 +66,6 @@ public class MainConfig extends ConfigWrapper {
         addDefault("blocks cache time limit", "1h");
         this.configuration = new Config(new OFile(SuperiorPrisonPlugin.getInstance().getDataFolder(), "config.yml").createIfNotExists(true));
         setConfig(configuration);
-
-        System.out.println("print");
-        for (ConfigSection value : configuration.getSections().values()) {
-            System.out.println(value.getKey());
-        }
 
         // Set Locale
         configuration.ifValuePresent("locale", String.class, locale -> this.locale = locale);
@@ -124,17 +124,50 @@ public class MainConfig extends ConfigWrapper {
         ));
 
         maxLadderUpsPerTime = configuration.getAs(
-                "max ladder per rank",
+                "max ladder per time",
                 int.class,
                 () -> 10000,
                 "How much ladder objects per time it should go thru",
                 "When /pmax && /rmax is executed",
                 "Please test the number when you set it",
-                "Keep it above a million if possible"
+                "Keep it below a million if possible"
         );
 
         this.maxLadderUpsCooldown =
                 TimeUtil.toSeconds(configuration.getAs("max ladder up cooldown", String.class, () -> "10s", "Cooldown of when 'max ladder up per time'", "Is reached"));
+
+        this.numberFormatterSuffixes = configuration.getAs(
+                "number formatter suffixes",
+                List.class,
+                () -> Arrays.asList(
+                        "",
+                        "k",
+                        "m",
+                        "b",
+                        "T",
+                        "Q",
+                        "QT",
+                        "S",
+                        "ST",
+                        "O",
+                        "N",
+                        "D",
+                        "UD",
+                        "DD",
+                        "Z"
+                ),
+                "Suffixes for formatting numbers",
+                "Each value goes by +3 0's"
+        );
+
+        this.giveFullControlToTE = configuration.getAs(
+                "full token enchant control",
+                boolean.class,
+                () -> false,
+                "Should SP give full control to TokenEnchant",
+                "When handling it's enchants?",
+                "Doing so will break SP's autopickup, autosell, backpacks.."
+        );
 
         SuperiorPrisonPlugin.getInstance().getOLogger().setDebugMode(configuration.getAs("debug", boolean.class, () -> false));
         SuperiorPrisonPlugin.getInstance().getResetQueueTask().setChunksPerTick(chunksPerTick);

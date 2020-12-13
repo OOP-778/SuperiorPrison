@@ -153,9 +153,7 @@ public class GlobalVariableMap implements SerializableObject {
                 .filter(v -> {
                     Class vType = v.getType();
                     boolean result = type.isAssignableFrom(Primitives.wrap(vType));
-                    if (!result)
-                        return false;
-                    return true;
+                    return result;
                 })
                 .orElseThrow(() -> new IllegalStateException("Failed to find variable by id " + id + " that returns " + type.getSimpleName()));
     }
@@ -222,8 +220,8 @@ public class GlobalVariableMap implements SerializableObject {
     @AllArgsConstructor
     @Getter
     public static class VariableData {
-        private String input;
-        private int id;
+        private final String input;
+        private final int id;
         private Variable<?> variable;
 
         @Override
@@ -297,10 +295,10 @@ public class GlobalVariableMap implements SerializableObject {
     public static class VariableStorage {
 
         // Store input to variable data
-        private Map<String, VariableData> byInput = Maps.newHashMap();
+        private final Map<String, VariableData> byInput = Maps.newHashMap();
 
         // Store id to variable data
-        private Map<Integer, VariableData> byId = Maps.newHashMap();
+        private final Map<Integer, VariableData> byId = Maps.newHashMap();
 
         public Optional<VariableData> lookupById(int id) {
             return Optional.ofNullable(byId.get(id));

@@ -10,9 +10,9 @@ import lombok.Getter;
 @Getter
 public class MineAreaEnterEvent extends MineEvent {
 
-    private Prisoner prisoner;
-    private Area area;
-    private AreaEnum areaEnum;
+    private final Prisoner prisoner;
+    private final Area area;
+    private final AreaEnum areaEnum;
 
     public MineAreaEnterEvent(Prisoner prisoner, Area area, AreaEnum areaEnum, SuperiorMine mine) {
         super(mine);

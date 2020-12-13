@@ -465,7 +465,7 @@ public class SBackPack implements BackPack {
         return getCapacity() == getUsed();
     }
 
-    private static Pattern BACKPACK_DATA_PATTERN = Pattern.compile(NBT_KEY + "_([0-9]+)");
+    private static final Pattern BACKPACK_DATA_PATTERN = Pattern.compile(NBT_KEY + "_([0-9]+)");
 
     private String uncoverData(NBTItem nbtItem) {
         List<OPair<Integer, String>> uncoveredData = new ArrayList<>();
@@ -543,8 +543,7 @@ public class SBackPack implements BackPack {
         }
 
         bos.close();
-        byte[] output = bos.toByteArray();
-        return new String(output);
+        return bos.toString();
     }
 
     public static String encodeBase64(byte[] bytes) {

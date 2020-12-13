@@ -56,7 +56,7 @@ public abstract class BackPackConfig<T extends BackPackConfig<T>> {
                 });
     }
 
-    protected static <B extends BackPackConfig, T extends Object> void registerUpgrade(String path, Class<B> backpackClass, Class<T> type, BiConsumer<B, T> consumer) {
+    protected static <B extends BackPackConfig, T> void registerUpgrade(String path, Class<B> backpackClass, Class<T> type, BiConsumer<B, T> consumer) {
         upgradeHandlers.put(path, (BiConsumer<BackPackConfig, Object>) consumer);
     }
 

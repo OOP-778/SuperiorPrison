@@ -78,7 +78,7 @@ public class BombListener {
             if (cooldown != -1) {
                 if (cooldown > System.currentTimeMillis()) {
                     messageBuilder(LocaleEnum.BOMB_STILL_ON_COOLDOWN.getWithErrorPrefix())
-                            .replace("{cooldown}", TimeUtil.toString(TimeUnit.MILLISECONDS.toSeconds(cooldown - System.currentTimeMillis())))
+                            .replace("{cooldown}", TimeUtil.toString((cooldown - System.currentTimeMillis()) / 1000f))
                             .send(event.getPlayer());
                     return;
                 }

@@ -1,9 +1,13 @@
 package com.bgsoftware.superiorprison.plugin.requirement;
 
+import com.bgsoftware.superiorprison.plugin.util.NumberUtil;
 import com.bgsoftware.superiorprison.plugin.util.script.util.Values;
 import com.bgsoftware.superiorprison.plugin.util.script.variable.GlobalVariableMap;
 import com.bgsoftware.superiorprison.plugin.util.script.variable.VariableHelper;
 import com.oop.orangeengine.main.util.data.pair.OPair;
+
+import java.util.Arrays;
+import java.util.Objects;
 
 public class Requirement {
     public OPair<Boolean, DeclinedRequirement> test(RequirementData data, GlobalVariableMap map) {
@@ -12,8 +16,6 @@ public class Requirement {
 
         map.newOrReplace("%getter%", VariableHelper.createVariable(getter));
         map.newOrReplace("%value%", VariableHelper.createVariable(value));
-
-        //Bukkit.broadcastMessage(data.getDisplayName() + " ~ " + getter + " ~ " + value);
 
         boolean succeed = data.getCheck().execute(map);
         return new OPair<>(succeed, !succeed ? new DeclinedRequirement(null, getter, value) : null);
@@ -26,10 +28,8 @@ public class Requirement {
         map.newOrReplace("%getter%", VariableHelper.createVariable(getter));
         map.newOrReplace("%value%", VariableHelper.createVariable(value));
 
-        //Bukkit.broadcastMessage(data.getDisplayName() + " ~ " + getter + " ~ " + value);
-
         if (data.getTaker() != null)
-            return data.getTaker().executeWithTiming(map);
+            return data.getTaker().execute(map);
 
         return true;
     }
@@ -38,15 +38,16 @@ public class Requirement {
         Object getter = data.getGetter().execute(map);
         Object value = data.getCheckValue().execute(map);
 
-        if (Values.isNumber(getter) && Values.isNumber(value)) {
+        if (!(getter instanceof Number) || !(value instanceof Number)) {
             Number[] numbers = Values.parseNumbers(getter.toString(), value.toString());
-            int _getter = numbers[0].intValue();
-            int _value = numbers[1].intValue();
+            if (Arrays.stream(numbers).anyMatch(Objects::isNull)) return 100;
 
-            return Math.min(100, (_getter / _value) * 100);
+            getter = numbers[0];
+            value = numbers[1];
         }
 
-        return 100;
+        int min = Math.min(100, NumberUtil.getPercentageBetween((Number) getter, (Number) value));
+        return min;
     }
 
     public String getCurrent(RequirementData data, GlobalVariableMap map) {

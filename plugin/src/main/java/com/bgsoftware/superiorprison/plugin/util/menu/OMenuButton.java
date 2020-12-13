@@ -1,7 +1,7 @@
 package com.bgsoftware.superiorprison.plugin.util.menu;
 
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
-import com.bgsoftware.superiorprison.plugin.hook.impl.PapiHook;
+import com.bgsoftware.superiorprison.plugin.hook.impl.placeholder.PapiHook;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.util.ClassDebugger;
 import com.google.common.collect.Maps;

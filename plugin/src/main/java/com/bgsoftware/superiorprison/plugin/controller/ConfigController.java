@@ -1,8 +1,10 @@
 package com.bgsoftware.superiorprison.plugin.controller;
 
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
+import com.bgsoftware.superiorprison.plugin.config.economy.EconomyConfig;
 import com.bgsoftware.superiorprison.plugin.config.main.MainConfig;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
+import com.bgsoftware.superiorprison.plugin.holders.SEconomyHolder;
 import com.bgsoftware.superiorprison.plugin.util.menu.updater.MenuUpdater;
 import com.google.common.collect.Maps;
 import com.oop.orangeengine.file.OFile;
@@ -26,6 +28,7 @@ public class ConfigController implements OComponent<SuperiorPrisonPlugin> {
     private Config chatConfig;
     private Config backPacksConfig;
     private Config bombsConfig;
+    private Config economyConfig;
 
     public ConfigController() {}
 
@@ -41,6 +44,7 @@ public class ConfigController implements OComponent<SuperiorPrisonPlugin> {
             OFile chatFile = new OFile(dataFolder, "chat.yml").createIfNotExists(true);
             OFile backpacksFile = new OFile(dataFolder, "backpacks.yml").createIfNotExists(true);
             OFile bombsFile = new OFile(dataFolder, "bombs.yml").createIfNotExists(true);
+            OFile economyFile = new OFile(dataFolder, "economy.yml").createIfNotExists(true);
 
             this.chatConfig = new Config(chatFile);
             this.localeConfig = new Config(localeFile);
@@ -48,6 +52,12 @@ public class ConfigController implements OComponent<SuperiorPrisonPlugin> {
             this.prestigesConfig = new Config(prestigesFile);
             this.backPacksConfig = new Config(backpacksFile);
             this.bombsConfig = new Config(bombsFile);
+            this.economyConfig = new Config(economyFile);
+
+            SuperiorPrisonPlugin.getInstance().setMainConfig(new MainConfig());
+
+            if (SuperiorPrisonPlugin.getInstance().getDatabaseController() != null)
+                ((SEconomyHolder) SuperiorPrisonPlugin.getInstance().getEconomyController()).setConfig(new EconomyConfig(new Config(economyFile)));
 
             SuperiorPrisonPlugin.getInstance().setPrestigeController(new LadderObjectController(prestigesConfig, true));
             SuperiorPrisonPlugin.getInstance().setRankController(new LadderObjectController(ranksConfig, false));
@@ -61,8 +71,6 @@ public class ConfigController implements OComponent<SuperiorPrisonPlugin> {
 
             for (File menuFile : Objects.requireNonNull(new File(dataFolder + "/menus").listFiles(File::isFile)))
                 this.menus.put(menuFile.getName().replace(".yml", "").toLowerCase(), new Config(menuFile));
-
-            SuperiorPrisonPlugin.getInstance().setMainConfig(new MainConfig());
 
             Locale.load(SuperiorPrisonPlugin.getInstance().getMainConfig().getLocale());
             LocaleEnum.load();

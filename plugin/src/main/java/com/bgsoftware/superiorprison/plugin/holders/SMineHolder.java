@@ -1,4 +1,4 @@
-package com.bgsoftware.superiorprison.plugin.data;
+package com.bgsoftware.superiorprison.plugin.holders;
 
 import com.bgsoftware.superiorprison.api.controller.MineHolder;
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
@@ -32,15 +32,24 @@ public class SMineHolder extends UniversalStorage<SNormalMine> implements MineHo
             .expireAfter(5, TimeUnit.SECONDS)
             .build();
 
-    private Map<String, SNormalMine> dataMap = new ConcurrentHashMap<>();
+    private final Map<String, SNormalMine> dataMap = new ConcurrentHashMap<>();
 
     public SMineHolder(DatabaseController controller) {
         super(controller);
         addVariant("mines", SNormalMine.class);
 
         currentImplementation(
-                SuperiorPrisonPlugin.getInstance().getMainConfig().getStorageSection().provideFor(this, "mines")
+                SuperiorPrisonPlugin.getInstance().getMainConfig().getStorageSection().provideFor(this)
         );
+
+        long start = System.currentTimeMillis();
+        onLoad(mine -> {
+            SuperiorPrisonPlugin.getInstance().getOLogger().print(
+                    "Loaded {} mines. Took ({}ms)",
+                    dataMap.size(),
+                    (System.currentTimeMillis() - start)
+            );
+        });
     }
 
     @Override

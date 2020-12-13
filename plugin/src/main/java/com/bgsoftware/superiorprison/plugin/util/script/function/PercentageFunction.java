@@ -1,11 +1,14 @@
 package com.bgsoftware.superiorprison.plugin.util.script.function;
 
+import com.bgsoftware.superiorprison.plugin.util.NumberUtil;
 import com.bgsoftware.superiorprison.plugin.util.script.util.RegexHelper;
 import com.bgsoftware.superiorprison.plugin.util.script.util.Values;
 import com.bgsoftware.superiorprison.plugin.util.script.variable.GlobalVariableMap;
 import com.bgsoftware.superiorprison.plugin.util.script.variable.Variable;
 import com.google.common.base.Preconditions;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -54,11 +57,11 @@ public class PercentageFunction implements Function<Number> {
         Variable<Number> percentVar = globalVariables.getRequiredVariableById(percentId, Number.class);
         Variable<Number> numberVar = globalVariables.getRequiredVariableById(numberId, Number.class);
 
-        int percentage = percentVar.get(globalVariables).intValue();
-        int number = numberVar.get(globalVariables).intValue();
+        BigDecimal percentage = NumberUtil.convertToBigDecimal(percentVar.get(globalVariables));
+        BigDecimal number = NumberUtil.convertToBigDecimal(numberVar.get(globalVariables));
 
-        Preconditions.checkArgument(percentage <= 100, "Percentage cannot be higher than 100!");
-        return Math.round((float) number / 100 * percentage);
+        Preconditions.checkArgument(NumberUtil.isMoreThan(percentage, BigDecimal.valueOf(100)), "Percentage cannot be higher than 100!");
+        return number.divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_EVEN).multiply(percentage).max(BigDecimal.valueOf(100)).intValue();
     }
 
     @Override

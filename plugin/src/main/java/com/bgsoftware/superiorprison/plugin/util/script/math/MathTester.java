@@ -143,7 +143,6 @@ public class MathTester {
 
                 if (mathChars.contains(character)) {
                     currentData.setModifierFound(true);
-                    continue;
                 }
             }
 

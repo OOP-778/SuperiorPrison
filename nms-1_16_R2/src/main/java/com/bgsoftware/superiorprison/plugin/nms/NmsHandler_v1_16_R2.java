@@ -18,7 +18,7 @@ import java.lang.reflect.Constructor;
 import java.util.*;
 
 public class NmsHandler_v1_16_R2 implements SuperiorNms {
-    private Map<OMaterial, IBlockData> dataMap = new HashMap<>();
+    private final Map<OMaterial, IBlockData> dataMap = new HashMap<>();
 
     private static Class<?> SHORT_ARRAY_SET_CLASS = null;
     private static Constructor<?> MULTI_BLOCK_CHANGE_CONSTRUCTOR = null;
@@ -130,4 +130,18 @@ public class NmsHandler_v1_16_R2 implements SuperiorNms {
             ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
     }
 
+    @Override
+    public OMaterial getBlockType(Chunk chunk, Location location) {
+        int indexY = location.getBlockY() >> 4;
+        net.minecraft.server.v1_16_R2.Chunk nmsChunk = ((CraftChunk) chunk).getHandle();
+        ChunkSection chunkSection = nmsChunk.getSections()[indexY];
+
+        if (chunkSection == null)
+            return null;
+
+        IBlockData type = chunkSection.getType(location.getBlockX() & 15, location.getBlockY() & 15, location.getBlockZ() & 15);
+        if (type == Blocks.AIR.getBlockData()) return null;
+
+        return OMaterial.byCombinedId(Block.getCombinedId(type));
+    }
 }

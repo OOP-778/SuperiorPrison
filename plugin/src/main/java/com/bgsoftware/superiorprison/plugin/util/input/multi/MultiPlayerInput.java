@@ -76,16 +76,32 @@ public class MultiPlayerInput {
                         return;
                     }
 
+                    boolean finished = false;
+
                     try {
                         if (queue.isEmpty()) return;
 
-                        InputData poll = queue.poll();
-                        Object apply = poll.parser.apply(event.getMessage());
-                        parsedData.put(poll.id, apply);
+                        InputData poll = queue.peek();
+                        try {
+                            Object apply = poll.parser.apply(event.getMessage());
+                            parsedData.put(poll.id, apply);
+
+                            queue.poll();
+                        } catch (Throwable throwable) {
+                            if (onError != null)
+                                onError.accept(this, throwable);
+                            else {
+                                event.getPlayer().sendMessage(Helper.color("&cError: &7" + throwable.getMessage()));
+                                if (throwable instanceof NullPointerException)
+                                    throwable.printStackTrace();
+
+                            }
+                            return;
+                        }
 
                         if (queue.isEmpty()) {
                             onInput.complete(player, new MultiInputData(parsedData));
-                            cancel();
+                            finished = true;
 
                         } else {
                             InputData peek1 = queue.peek();
@@ -93,6 +109,7 @@ public class MultiPlayerInput {
                                 peek1.requestMessage.send(player);
                         }
                     } catch (Throwable ex) {
+                        finished = false;
                         if (onError != null)
                             onError.accept(this, ex);
                         else {
@@ -101,6 +118,9 @@ public class MultiPlayerInput {
                                 ex.printStackTrace();
                         }
                     }
+
+                    if (finished)
+                        cancel();
                 }, new SubscriptionProperties<AsyncPlayerChatEvent>().runTill(event -> cancelled).filter(event -> event.getPlayer().equals(player)))
         );
 

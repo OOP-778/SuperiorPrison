@@ -1,4 +1,4 @@
-package com.bgsoftware.superiorprison.plugin.hook.impl;
+package com.bgsoftware.superiorprison.plugin.hook.impl.placeholder;
 
 import be.maximvdw.placeholderapi.PlaceholderAPI;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;

@@ -13,6 +13,8 @@ import com.bgsoftware.superiorprison.plugin.util.menu.OMenuButton;
 import com.bgsoftware.superiorprison.plugin.util.menu.OPagedMenu;
 import com.oop.orangeengine.item.custom.OItem;
 import com.oop.orangeengine.message.impl.OChatMessage;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +24,7 @@ import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.listed
 import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
 
 public class ConditionsMenu extends OPagedMenu<MineCondition> implements OMenu.Templateable {
-    private SNormalMine mine;
+    private final SNormalMine mine;
 
     public ConditionsMenu(SPrisoner viewer, SNormalMine mine) {
         super("mineAccessList", viewer);
@@ -56,17 +58,21 @@ public class ConditionsMenu extends OPagedMenu<MineCondition> implements OMenu.T
     }
 
     private void createFromTemplate(PlayerInput<String> playerInput) {
-        listedBuilder(MineConditionTemplate.class)
-                .message(LocaleEnum.MINE_CONDITION_CREATE_FROM_TEMPLATE_TYPE.getWithPrefix())
-                .identifier("{TEMPLATE}")
-                .addObject(MineConditionTemplates.getTemplateMap().values().toArray(new MineConditionTemplate[0]))
-                .objectContentModifier((content, object) -> {
-                    content.replace("{template_name}", object.name());
-                    content
-                            .hover()
-                            .add(object.description().toArray(new String[0]));
-                })
-                .send(getViewer().getPlayer());
+        try {
+            listedBuilder(MineConditionTemplate.class)
+                    .message(LocaleEnum.MINE_CONDITION_CREATE_FROM_TEMPLATE_TYPE.getWithPrefix())
+                    .identifier("{TEMPLATE}")
+                    .addObject(MineConditionTemplates.getTemplateMap().values().toArray(new MineConditionTemplate[0]))
+                    .objectContentModifier((content, object) -> {
+                        content.replace("{template_name}", object.name());
+                        content
+                                .hover()
+                                .add(object.description().toArray(new String[0]));
+                    })
+                    .send(getViewer().getPlayer());
+        } catch (Throwable throwable){
+            throwable.printStackTrace();
+        }
 
         playerInput.onInput((pi, input) -> {
             MineConditionTemplate template = MineConditionTemplates.getTemplateMap().get(input);
@@ -77,13 +83,10 @@ public class ConditionsMenu extends OPagedMenu<MineCondition> implements OMenu.T
             MultiPlayerInput multiPlayerInput = new MultiPlayerInput(pi.player());
             template.parser().getValues().forEach((pair, parser) -> {
                 multiPlayerInput.add(
-                        new MultiPlayerInput.InputData()
+                        new MultiPlayerInput.InputData<>()
                                 .id(pair.getFirst())
                                 .requestMessage(LocaleEnum.getWithPrefix(new OChatMessage(pair.getSecond())))
-                                .parser(in -> {
-                                    String parse = parser.parse((String) in);
-                                    return parse;
-                                })
+                                .parser(in -> parser.parse(in))
                 );
             });
 
@@ -95,6 +98,8 @@ public class ConditionsMenu extends OPagedMenu<MineCondition> implements OMenu.T
 
                 mine.getAccess().addScript(input, apply);
                 mine.save(true);
+
+                open();
             });
 
             multiPlayerInput.listen();

@@ -9,9 +9,7 @@ public class RegexHelper {
 
     public static boolean matches(String input, Pattern pattern) {
         Matcher matcher = pattern.matcher(input);
-        if (matcher.find())
-            return true;
-        return false;
+        return matcher.find();
     }
 
     public static Integer removeNonNumberAndParse(String in) {

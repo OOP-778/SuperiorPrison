@@ -11,7 +11,7 @@ import java.util.List;
 
 @Getter
 public class RequirementHolder implements Cloneable {
-    private List<HoldingData> holdingData = new LinkedList<>();
+    private final List<HoldingData> holdingData = new LinkedList<>();
 
     public RequirementHolder() {}
 
@@ -22,7 +22,7 @@ public class RequirementHolder implements Cloneable {
     public void take(GlobalVariableMap clone) {
         for (HoldingData holdingDatum : holdingData) {
             if (holdingDatum.getData().getTaker() != null)
-                holdingDatum.getData().getTaker().execute(clone);
+                holdingDatum.getRequirement().take(holdingDatum.getData(), clone);
         }
     }
 

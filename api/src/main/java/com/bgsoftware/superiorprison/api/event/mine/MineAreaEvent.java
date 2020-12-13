@@ -8,8 +8,8 @@ import lombok.Getter;
 @Getter
 public class MineAreaEvent extends MineEvent {
 
-    private AreaEventType type;
-    private Area area;
+    private final AreaEventType type;
+    private final Area area;
 
     public MineAreaEvent(AreaEventType type, Area area, SuperiorMine mine) {
         super(mine);

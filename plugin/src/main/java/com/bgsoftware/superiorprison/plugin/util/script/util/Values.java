@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorprison.plugin.util.script.util;
 
+import com.bgsoftware.superiorprison.plugin.util.NumberUtil;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Doubles;
@@ -53,6 +54,7 @@ public class Values {
             for (Function<String, Number> numberWrapper : numberWrappers) {
                 Number apply = numberWrapper.apply(numbers[i]);
                 if (apply == null) continue;
+
                 parsed[i] = apply;
             }
         }
@@ -97,6 +99,7 @@ public class Values {
         if (requiredWrapped == Double.class) {
             value = Double.parseDouble(object.toString());
             return (T) value;
+
         } else if (requiredWrapped == Integer.class) {
             value = Integer.parseInt(object.toString());
             return (T) value;
@@ -124,8 +127,8 @@ public class Values {
         return clazz == Boolean.class || clazz == boolean.class;
     }
 
-    public static boolean[] parseBooleansOrNulls(String... strings) {
-        boolean[] array = new boolean[strings.length];
+    public static Boolean[] parseBooleansOrNulls(String... strings) {
+        Boolean[] array = new Boolean[strings.length];
         for (int i = 0; i < strings.length; i++) {
             String atI = strings[i];
             if (atI.equalsIgnoreCase("true") || atI.equalsIgnoreCase("false"))
@@ -135,32 +138,70 @@ public class Values {
         return array;
     }
 
-    public static boolean compare(Object first, Object second) {
+    public static boolean compare(Object what, Object to) {
         // Check if they are strings
-        if (first instanceof String && second instanceof String) {
+        if (what instanceof String && to instanceof String) {
             // Try to parse them as numbers
-            Number[] numbers = parseNumbers(first.toString(), second.toString());
+            Number[] numbers = parseNumbers(what.toString(), to.toString());
             Number numberOne = numbers[0];
             Number numberTwo = numbers[1];
 
             // Check if they are numbers
             if (numberOne != null && numberTwo != null)
-                return numberOne.doubleValue() <= numberTwo.doubleValue();
+                return compare(numberOne, numberTwo);
 
-            boolean[] bools = parseBooleansOrNulls(first.toString(), second.toString());
+            Boolean[] bools = parseBooleansOrNulls(what.toString(), to.toString());
             Boolean boolOne = bools[0];
             Boolean boolTwo = bools[1];
 
             if (boolOne != null && boolTwo != null)
                 return boolOne == boolTwo;
 
-            return first.toString().equalsIgnoreCase(second.toString());
+            return what.toString().equalsIgnoreCase(to.toString());
         }
 
-        if (first instanceof Number && second instanceof Number)
-            return ((Number) second).doubleValue() >= ((Number) first).doubleValue();
+        if (what instanceof Number && to instanceof Number)
+            return compareNumber((Number) what, (Number) to) >= 0;
 
         return false;
+    }
+
+    public static int compareNumber(Number x, Number y) {
+        if(isSpecial(x) || isSpecial(y))
+            return Double.compare(x.doubleValue(), y.doubleValue());
+        else
+            return toBigDecimal(x).compareTo(toBigDecimal(y));
+    }
+
+    private static boolean isSpecial(Number x) {
+        boolean specialDouble = x instanceof Double
+                && (Double.isNaN((Double) x) || Double.isInfinite((Double) x));
+
+        boolean specialFloat = x instanceof Float
+                && (Float.isNaN((Float) x) || Float.isInfinite((Float) x));
+
+        return specialDouble || specialFloat;
+    }
+
+    private static BigDecimal toBigDecimal(Number number) {
+        if(number instanceof BigDecimal)
+            return (BigDecimal) number;
+
+        if(number instanceof BigInteger)
+            return new BigDecimal((BigInteger) number);
+
+        if(number instanceof Byte || number instanceof Short
+                || number instanceof Integer || number instanceof Long)
+            return new BigDecimal(number.longValue());
+
+        if(number instanceof Float || number instanceof Double)
+            return new BigDecimal(number.doubleValue());
+
+        try {
+            return new BigDecimal(number.toString());
+        } catch(final NumberFormatException e) {
+            throw new RuntimeException("The given number (\"" + number + "\" of class " + number.getClass().getName() + ") does not have a parsable string representation", e);
+        }
     }
 
     public static boolean isSameClass(Class<?> v1, Class<?> v2) {

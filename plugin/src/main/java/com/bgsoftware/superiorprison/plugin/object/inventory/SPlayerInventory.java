@@ -29,12 +29,12 @@ import static org.bukkit.Bukkit.getServer;
 
 public class SPlayerInventory {
     private final Player player;
-    private SPrisoner prisoner;
+    private final SPrisoner prisoner;
 
     @Getter
-    private Map<Integer, SBackPack> backPackMap = new ConcurrentHashMap<>();
+    private final Map<Integer, SBackPack> backPackMap = new ConcurrentHashMap<>();
 
-    private static Consumer<Player> patcher;
+    private static final Consumer<Player> patcher;
 
     static {
         String version = getServer().getClass().getPackage().getName().split("\\.")[3];
@@ -124,7 +124,7 @@ public class SPlayerInventory {
 
     public void init() {
         backPackMap.clear();
-        ItemStack contents[] = player.getInventory().getContents();
+        ItemStack[] contents = player.getInventory().getContents();
         for (int i = 0; i < contents.length; i++) {
             ItemStack itemStack = contents[i];
             if (itemStack == null || itemStack.getType() == Material.AIR) continue;

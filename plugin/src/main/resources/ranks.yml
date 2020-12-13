@@ -31,12 +31,6 @@ default prefix: "&8[&a%rank_name%&r&8]"
       checker: "%getter% >= %value%"
       taker: "take %value% from %prisoner% balance"
 
-    xp_level:
-      display: "Xp Level"
-      value: "20"
-      getter: "get xp level of %prisoner%"
-      checker: "%getter% >= %value%"
-
 "D":
   index: 4
   requirements:
@@ -46,13 +40,6 @@ default prefix: "&8[&a%rank_name%&r&8]"
       getter: "get balance of %prisoner%"
       checker: "%getter% >= %value%"
       taker: "take %value% from %prisoner% balance"
-
-    xp_level:
-      display: "Xp Level"
-      value: "20"
-      getter: "get xp level of %prisoner%"
-      checker: "%getter% >= %value%"
-
 
 "E":
   index: 5
@@ -64,13 +51,6 @@ default prefix: "&8[&a%rank_name%&r&8]"
       checker: "%getter% >= %value%"
       taker: "take %value% from %prisoner% balance"
 
-    xp_level:
-      display: "Xp Level"
-      value: "20"
-      getter: "get xp level of %prisoner%"
-      checker: "%getter% >= %value%"
-
-
 "F":
   index: 6
   requirements:
@@ -80,13 +60,6 @@ default prefix: "&8[&a%rank_name%&r&8]"
       getter: "get balance of %prisoner%"
       checker: "%getter% >= %value%"
       taker: "take %value% from %prisoner% balance"
-
-    xp_level:
-      display: "Xp Level"
-      value: "20"
-      getter: "get xp level of %prisoner%"
-      checker: "%getter% >= %value%"
-
 
 "G":
   index: 7
@@ -98,13 +71,6 @@ default prefix: "&8[&a%rank_name%&r&8]"
       checker: "%getter% >= %value%"
       taker: "take %value% from %prisoner% balance"
 
-    xp_level:
-      display: "Xp Level"
-      value: "20"
-      getter: "get xp level of %prisoner%"
-      checker: "%getter% >= %value%"
-
-
 "H":
   index: 8
   requirements:
@@ -114,9 +80,3 @@ default prefix: "&8[&a%rank_name%&r&8]"
       getter: "get balance of %prisoner%"
       checker: "%getter% >= %value%"
       taker: "take %value% from %prisoner% balance"
-
-    xp_level:
-      display: "Xp Level"
-      value: "20"
-      getter: "get xp level of %prisoner%"
-      checker: "%getter% >= %value%"

@@ -14,5 +14,5 @@ public class ItemStack {
     private long amount;
 
     // NBT tags
-    private List<JsonElement> nbtTags = new ArrayList<>();
+    private final List<JsonElement> nbtTags = new ArrayList<>();
 }

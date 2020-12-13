@@ -4,7 +4,7 @@ import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
 import com.bgsoftware.superiorprison.api.data.mine.area.Area;
 import com.bgsoftware.superiorprison.api.data.mine.flags.Flag;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
-import com.bgsoftware.superiorprison.plugin.data.SMineHolder;
+import com.bgsoftware.superiorprison.plugin.holders.SMineHolder;
 import com.oop.orangeengine.main.events.SyncEvents;
 import com.oop.orangeengine.material.OMaterial;
 import org.bukkit.Location;
@@ -44,7 +44,7 @@ public class FlagsListener {
             if (!mineAt.isPresent())
                 return;
 
-            if (!hasBypass(event.getPlayer()))
+            if (hasBypass(event.getPlayer()))
                 event.setCancelled(true);
         });
 
@@ -65,7 +65,7 @@ public class FlagsListener {
                     Optional<SuperiorMine> mineAt = mineHolder.getMineAt(event.getPlayer().getLocation());
                     if (!mineAt.isPresent()) return;
 
-                    if (!hasBypass(event.getPlayer()))
+                    if (hasBypass(event.getPlayer()))
                         event.setCancelled(true);
                 }
             }
@@ -95,7 +95,7 @@ public class FlagsListener {
             }
 
             if (SuperiorPrisonPlugin.getInstance().getMainConfig().getDisabledInteractableBlocks().contains(material)) {
-                if (!hasBypass(event.getPlayer()))
+                if (hasBypass(event.getPlayer()))
                     event.setCancelled(true);
             }
         });
@@ -120,11 +120,11 @@ public class FlagsListener {
         SuperiorMine iSuperiorMine = mineAt.get();
         Area area = iSuperiorMine.getArea(location);
 
-        if (!area.getFlagState(flag) && !hasBypass(player))
+        if (!area.getFlagState(flag) && hasBypass(player))
             event.setCancelled(true);
     }
 
     public boolean hasBypass(Player player) {
-        return player.hasPermission("superiorprison.flags.bypass");
+        return !player.hasPermission("superiorprison.flags.bypass");
     }
 }

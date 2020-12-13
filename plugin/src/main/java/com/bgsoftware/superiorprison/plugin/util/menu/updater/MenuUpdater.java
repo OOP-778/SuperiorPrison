@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 
 public class MenuUpdater {
-    private static Map<String, BiFunction<ConfigSection, ConfigSection, Integer>> updateMap = new HashMap<>();
+    private static final Map<String, BiFunction<ConfigSection, ConfigSection, Integer>> updateMap = new HashMap<>();
 
     static {
         updateMap.put("buttons", (updated, old) -> {

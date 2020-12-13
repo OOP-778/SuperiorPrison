@@ -1,6 +1,8 @@
 package com.bgsoftware.superiorprison.plugin.commands;
 
+import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.commands.bombs.CmdBombs;
+import com.bgsoftware.superiorprison.plugin.commands.eco.CmdEco;
 import com.bgsoftware.superiorprison.plugin.commands.ladder.PrestigeMaxCmd;
 import com.bgsoftware.superiorprison.plugin.commands.ladder.PrestigeUpCmd;
 import com.bgsoftware.superiorprison.plugin.commands.ladder.RankupCmd;
@@ -8,8 +10,9 @@ import com.bgsoftware.superiorprison.plugin.commands.ladder.RankupMaxCmd;
 import com.bgsoftware.superiorprison.plugin.commands.mines.CmdMines;
 import com.bgsoftware.superiorprison.plugin.commands.pcp.CmdPrisonerCP;
 import com.bgsoftware.superiorprison.plugin.commands.prisoner.CmdPrisoner;
-import com.bgsoftware.superiorprison.plugin.commands.sell.SellCommand;
+import com.bgsoftware.superiorprison.plugin.commands.sell.CmdSell;
 import com.bgsoftware.superiorprison.plugin.commands.top.CmdTop;
+import com.bgsoftware.superiorprison.plugin.holders.SEconomyHolder;
 import com.oop.orangeengine.command.CommandController;
 import com.oop.orangeengine.command.OCommand;
 import com.oop.orangeengine.command.scheme.SchemeHolder;
@@ -22,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 import static com.oop.orangeengine.main.Engine.getEngine;
 
 public class CommandsRegisterer {
-    private CommandController controller;
+    private final CommandController controller;
 
     public CommandsRegisterer() {
         OFile schemesFile = new OFile(getEngine().getOwning().getDataFolder(), "commandScheme.yml").createIfNotExists(true);
@@ -30,39 +33,41 @@ public class CommandsRegisterer {
         SchemeHolder schemeHolder = new SchemeHolder(config);
         controller = new CommandController(schemeHolder);
 
-        // Mines
-        controller.register(new CmdMines());
+        CmdSell cmdSell = new CmdSell();
+        MainCmd mainCmd = new MainCmd(controller);
+        com.oop.orangeengine.command.CommandsRegisterer registerer = new com.oop.orangeengine.command.CommandsRegisterer(controller)
+                .add(new CmdMines())
+                .add(cmdSell)
+                .add(new CmdPrisoner())
+                .add(new CmdPrisonerCP())
+                .add(new CmdTop())
+                .add(new CmdMine())
+                .add(new CmdBombs())
+                .add(new RankupMaxCmd())
+                .add(new PrestigeMaxCmd())
+                .add(new RankupCmd())
+                .add(new PrestigeUpCmd())
+                .add(mainCmd);
 
-        // Sell
-        controller.register(new SellCommand());
 
-        // Prisoner
-        controller.register(new CmdPrisoner());
 
-        // Prisoner CP
-        controller.register(new CmdPrisonerCP());
+        if (((SEconomyHolder) SuperiorPrisonPlugin.getInstance().getEconomyController()).getConfig().isEnabled())
+            registerer.add(new CmdEco());
 
-        // Backpacks
-        controller.register(new CmdTop());
+        registerer.remap();
+        registerer.push();
 
-        controller.register(new CmdMine());
-
-        new PermissionsInitializer(controller);
-
-        controller.register(new CmdBombs());
-        controller.register(new MainCmd());
-
-        controller.register(new RankupMaxCmd());
-        controller.register(new PrestigeMaxCmd());
-        controller.register(new RankupCmd());
-        controller.register(new PrestigeUpCmd());
-        //new CommandsPrinter(controller, new File(SuperiorPrisonPlugin.getInstance().getDataFolder(), "commands.txt"));
+        mainCmd.onPush();
+        cmdSell.getInitConosoleCommands().run();
 
         // Unregister all similar commands from other plugins
         new OTask()
                 .delay(TimeUnit.SECONDS, 1)
                 .runnable(controller::unregisterSimilar)
                 .execute();
+
+        // Permissions initializer
+        new PermissionsInitializer(controller);
     }
 
     public void register(OCommand command) {

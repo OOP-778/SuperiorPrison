@@ -16,7 +16,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class MineCreateEvent extends Event implements Cancellable {
 
-    private static HandlerList handlerList = new HandlerList();
+    private static final HandlerList handlerList = new HandlerList();
 
     private final Map<AreaEnum, Area> areas;
     private final String name;

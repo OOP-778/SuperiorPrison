@@ -17,10 +17,10 @@ import java.util.Map;
 
 @Getter
 public class MultiBlockBreakEvent extends MineEvent implements Cancellable {
-    private Map<Location, Pair<Material, List<ItemStack>>> blockData;
-    private Prisoner prisoner;
-    private ItemStack tool;
-    private Lock lock;
+    private final Map<Location, Pair<Material, List<ItemStack>>> blockData;
+    private final Prisoner prisoner;
+    private final ItemStack tool;
+    private final Lock lock;
 
     @Setter
     private int experience;

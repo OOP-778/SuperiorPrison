@@ -118,6 +118,7 @@ public class SBackPackController implements BackPackController, OComponent<Super
                 getEngine().getLogger().printWarning("Failed to initialize backpack by id {}, check for mistakes!", section.getKey());
             }
         }
+        backPacksConfig.save();
 
         Engine.getInstance().getLogger().print("Loaded {} backpacks", backpackConfigs.size());
         return true;

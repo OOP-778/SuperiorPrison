@@ -10,6 +10,8 @@ public class PrisonerDefaults extends SectionWrapper {
     private boolean autoPickup = false;
     private boolean autoBurn = false;
     private boolean fortuneBlocks = false;
+    private String rank;
+    private String prestige;
 
     @Override
     protected void initialize() {
@@ -17,11 +19,15 @@ public class PrisonerDefaults extends SectionWrapper {
         addDefault("auto pickup", false, "Is auto pickup enabled");
         addDefault("auto burn", false, "Is auto burn enabled");
         addDefault("fortune blocks", false, "Is fortune blocks enabled");
+        addDefault("rank", "A", "Default rank");
+        addDefault("prestige", "-1", "Default Prestige", "-1 means none");
         super.initialize();
 
-        autoSell = getSection().getAs("auto sell");
-        autoPickup = getSection().getAs("auto pickup");
-        autoBurn = getSection().getAs("auto burn");
-        fortuneBlocks = getSection().getAs("fortune blocks");
+        this.autoSell = getSection().getAs("auto sell");
+        this.autoPickup = getSection().getAs("auto pickup");
+        this.autoBurn = getSection().getAs("auto burn");
+        this.fortuneBlocks = getSection().getAs("fortune blocks");
+        this.rank = getSection().getAs("rank");
+        this.prestige = getSection().getAs("prestige");
     }
 }

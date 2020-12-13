@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.ListIterator;
 
 public class DebuggableList<T> implements List<T> {
-    private List<T> collection;
-    private String name;
+    private final List<T> collection;
+    private final String name;
 
     public DebuggableList(String name, List<T> collection) {
         this.name = name;

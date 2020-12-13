@@ -7,7 +7,7 @@ import com.bgsoftware.superiorprison.api.data.player.booster.MoneyBooster;
 import com.bgsoftware.superiorprison.api.util.Pair;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.config.main.PrisonerDefaults;
-import com.bgsoftware.superiorprison.plugin.data.SPrisonerHolder;
+import com.bgsoftware.superiorprison.plugin.holders.SPrisonerHolder;
 import com.bgsoftware.superiorprison.plugin.hook.impl.ShopGuiPlusHook;
 import com.bgsoftware.superiorprison.plugin.object.backpack.SBackPack;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;

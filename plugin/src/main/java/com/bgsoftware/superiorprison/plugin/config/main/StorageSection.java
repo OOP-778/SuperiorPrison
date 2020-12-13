@@ -11,17 +11,21 @@ import com.oop.datamodule.sqlite.SQLiteDatabase;
 import com.oop.datamodule.universal.StorageProviders;
 import com.oop.datamodule.universal.UniversalStorage;
 import com.oop.datamodule.universal.model.UniversalBodyModel;
+import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.yaml.Config;
 import com.oop.orangeengine.yaml.ConfigSection;
 import com.oop.orangeengine.yaml.ConfigValue;
+import lombok.Getter;
 
 import java.io.File;
 import java.util.*;
 import java.util.function.Function;
 
 public class StorageSection {
-    private Map<String, Function<UniversalStorage, Storage>> providers = new HashMap<>();
-    private Map<String, String> objectsTypes = new HashMap<>();
+    private final Map<String, Function<UniversalStorage, Storage>> providers = new HashMap<>();
+
+    @Getter
+    private final Map<String, String> objectsTypes = new HashMap<>();
 
     public StorageSection(Config config) {
         ConfigSection storageSection = config.createSection("storages");
@@ -133,16 +137,26 @@ public class StorageSection {
         }
     }
 
-    public <T extends UniversalBodyModel, F extends UniversalStorage<T>> Storage<T> provideFor(F storage, String objName) {
-        String databaseType = objectsTypes.get(objName);
+    public <T extends UniversalBodyModel, F extends UniversalStorage<T>> Storage<T> provideFor(F storage) {
+        return provideForWithType(storage).getSecond();
+    }
+
+    public <T extends UniversalBodyModel, F extends UniversalStorage<T>> OPair<String, Storage<T>> provideForWithType(F storage) {
+        String databaseType = null;
+        for (String s : storage.getVariants().keySet()) {
+            databaseType = objectsTypes.get(s);
+            if (databaseType != null)
+                break;
+        }
+
         if (databaseType == null)
             databaseType = objectsTypes.get("default");
 
         Function<UniversalStorage, Storage> storageProvider = Objects.requireNonNull(providers.get(databaseType), "Failed to find default storage provider!");
-        return storageProvider.apply(storage);
+        return new OPair<>(databaseType, storageProvider.apply(storage));
     }
 
-    public ConfigSection initDefaultTypes(ConfigSection section) {
+    private ConfigSection initDefaultTypes(ConfigSection section) {
         if (section.isSectionPresent("types")) return null;
         ConfigSection types = section.createSection("types");
 

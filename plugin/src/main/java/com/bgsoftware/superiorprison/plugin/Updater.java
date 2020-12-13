@@ -60,4 +60,8 @@ public class Updater {
             latestVersion = plugin.getDescription().getVersion();
         }
     }
+
+    public static void setPlugin() {
+        plugin = SuperiorPrisonPlugin.getInstance();
+    }
 }

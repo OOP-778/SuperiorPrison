@@ -1,0 +1,26 @@
+plugins {
+    id 'java'
+}
+
+apply plugin: 'com.github.johnrengelman.shadow'
+
+group 'SuperiorPrison'
+version '0.2.1-BETA'
+
+repositories {
+    jcenter()
+}
+
+shadowJar {
+    destinationDir file('out')
+    archiveName project.name + ".jar"
+
+    relocate("org.bstats.bukkit", "net.milkbowl.vault.bstats")
+}
+
+dependencies {
+    compileOnly(project(":api"))
+    compileOnly(fileTree("lib"))
+    compile("com.github.MilkBowl:VaultAPI:1.7")
+    compile("org.bstats:bstats-bukkit:1.5")
+}

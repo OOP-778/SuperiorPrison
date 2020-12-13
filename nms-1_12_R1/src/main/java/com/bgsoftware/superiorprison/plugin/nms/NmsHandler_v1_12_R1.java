@@ -15,15 +15,12 @@ import org.bukkit.entity.Player;
 import java.util.*;
 
 public class NmsHandler_v1_12_R1 implements SuperiorNms {
-    private Map<OMaterial, IBlockData> dataMap = new HashMap<>();
+    private final Map<OMaterial, IBlockData> dataMap = new HashMap<>();
 
     @Override
     public void setBlock(@NonNull Chunk chunk, @NonNull Location location, @NonNull OMaterial material) {
         IBlockData data = dataMap.computeIfAbsent(material, mat -> Block.getByCombinedId(material.getCombinedData()));
         net.minecraft.server.v1_12_R1.Chunk nmsChunk = ((CraftChunk) chunk).getHandle();
-
-        if (location.getBlockX() == -65 && location.getBlockY() == 80 && location.getBlockZ() == 160)
-            ClassDebugger.debug("Setting block: " + material);
 
         int indexY = location.getBlockY() >> 4;
         ChunkSection chunkSection = nmsChunk.getSections()[indexY];

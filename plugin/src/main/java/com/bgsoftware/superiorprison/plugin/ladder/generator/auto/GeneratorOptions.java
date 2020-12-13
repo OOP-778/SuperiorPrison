@@ -10,7 +10,7 @@ import java.math.BigInteger;
 
 @Getter
 public abstract class GeneratorOptions<K> {
-    private GlobalVariableMap variableMap;
+    private final GlobalVariableMap variableMap;
 
     public GeneratorOptions(GlobalVariableMap map) {
         this.variableMap = map;

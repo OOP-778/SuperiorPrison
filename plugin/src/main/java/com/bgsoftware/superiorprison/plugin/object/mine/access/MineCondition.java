@@ -14,7 +14,7 @@ import lombok.Getter;
 public class MineCondition implements SerializableObject {
     private String name;
     private String plainString;
-    private GlobalVariableMap variableMap = new GlobalVariableMap();
+    private final GlobalVariableMap variableMap = new GlobalVariableMap();
     private Function<Boolean> function;
 
     private MineCondition() {

@@ -6,18 +6,21 @@ import com.bgsoftware.superiorprison.api.data.player.LadderObject;
 import com.bgsoftware.superiorprison.api.data.statistic.StatisticsContainer;
 import com.bgsoftware.superiorprison.api.util.Pair;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
+import com.bgsoftware.superiorprison.plugin.object.account.SEconomyAccount;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.mine.settings.SMineSettings;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.object.statistic.SBlocksStatistic;
 import com.bgsoftware.superiorprison.plugin.object.statistic.SStatisticsContainer;
 import com.bgsoftware.superiorprison.plugin.ladder.ParsedObject;
+import com.bgsoftware.superiorprison.plugin.util.NumberUtil;
 import com.bgsoftware.superiorprison.plugin.util.RequirementUtil;
 import com.bgsoftware.superiorprison.plugin.util.TimeUtil;
 import com.bgsoftware.superiorprison.plugin.util.placeholders.parser.ArgsCrawler;
 import com.bgsoftware.superiorprison.plugin.util.placeholders.parser.ObjectCache;
 import com.bgsoftware.superiorprison.plugin.util.placeholders.parser.Parser;
 import com.oop.orangeengine.main.Helper;
+import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.material.OMaterial;
 import org.bukkit.Location;
 
@@ -25,6 +28,7 @@ import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.bgsoftware.superiorprison.plugin.util.Analyzer.analyzeTook;
 import static com.bgsoftware.superiorprison.plugin.util.TimeUtil.getDate;
 
 public class PlaceholderParser {
@@ -46,22 +50,26 @@ public class PlaceholderParser {
             .parse("fortuneblocks", prisoner -> booleanToState(prisoner.isFortuneBlocks()))
             .parse("canenter", (prisoner, obj, crawler) -> canEnter(prisoner, crawler))
             .parse("rankupscale/ladderscale", (prisoner, obj, crawler) -> {
-                Optional<LadderObject> nextLadderRank = prisoner.getParsedLadderRank().getNext();
-                if (!nextLadderRank.isPresent()) {
-                    Optional<LadderObject> currentPrestige = prisoner.getParsedPrestige();
-                    LadderObject nextPrestige;
-                    if (currentPrestige.isPresent())
-                        nextPrestige = currentPrestige.get().getNext().orElse(null);
-                    else
-                        nextPrestige = SuperiorPrisonPlugin.getInstance().getPrestigeController().getParsed(prisoner, 1).get();
-                    if (nextPrestige == null)
-                        return SuperiorPrisonPlugin.getInstance().getMainConfig().getPlaceholdersSection().getPrestigeNotFound();
+                OPair<Object, Long> objectLongOPair = analyzeTook(() -> {
+                    Optional<LadderObject> nextLadderRank = prisoner.getParsedLadderRank().getNext();
+                    if (!nextLadderRank.isPresent()) {
+                        Optional<LadderObject> currentPrestige = prisoner.getParsedPrestige();
+                        LadderObject nextPrestige;
+                        if (currentPrestige.isPresent())
+                            nextPrestige = currentPrestige.get().getNext().orElse(null);
+                        else
+                            nextPrestige = SuperiorPrisonPlugin.getInstance().getPrestigeController().getParsed(prisoner, 1).get();
+                        if (nextPrestige == null)
+                            return SuperiorPrisonPlugin.getInstance().getMainConfig().getPlaceholdersSection().getPrestigeNotFound();
 
-                    return RequirementUtil.getProgressScale((ParsedObject) nextPrestige);
-                }
+                        return RequirementUtil.getProgressScale((ParsedObject) nextPrestige);
+                    }
 
-                return nextLadderRank
-                        .map(lo -> RequirementUtil.getProgressScale((ParsedObject) lo));
+                    return nextLadderRank
+                            .map(lo -> RequirementUtil.getProgressScale((ParsedObject) lo))
+                            .orElse(SuperiorPrisonPlugin.getInstance().getMainConfig().getPlaceholdersSection().getRankNotFound());
+                });
+                return objectLongOPair.getFirst();
             })
             .parse("rankuppercentage/ladderpercentage", (prisoner, obj, crawler) -> {
                 Optional<LadderObject> nextLadderRank = prisoner.getParsedLadderRank().getNext();
@@ -72,6 +80,7 @@ public class PlaceholderParser {
                         nextPrestige = currentPrestige.get().getNext().orElse(null);
                     else
                         nextPrestige = SuperiorPrisonPlugin.getInstance().getPrestigeController().getParsed(prisoner, 1).get();
+
                     if (nextPrestige == null)
                         return SuperiorPrisonPlugin.getInstance().getMainConfig().getPlaceholdersSection().getPrestigeNotFound();
 
@@ -79,36 +88,37 @@ public class PlaceholderParser {
                 }
 
                 return nextLadderRank
-                        .map(lo -> RequirementUtil.getPercentageCompleted((ParsedObject) lo));
+                        .map(lo -> RequirementUtil.getPercentageCompleted((ParsedObject) lo) + "")
+                        .orElse(SuperiorPrisonPlugin.getInstance().getMainConfig().getPlaceholdersSection().getRankNotFound());
             })
 
             .add("prestige", LadderObject.class)
             .mapper((none, prisoner, crawler) -> prisoner.getParsedPrestige().orElse(null))
-            .parse("prefix/order/name", (prestige, prisoner, crawler) -> getFromAccess(prestige, crawler.current(), false))
+            .parse("prefix/order/name/index", (prestige, prisoner, crawler) -> getFromAccess(prestige, crawler, false))
 
             .add("next", LadderObject.class)
             .mapper((none, prestige, crawler) -> prestige.getNext().orElse(null))
-            .parse("prefix/order/name/index", (prestige, none, crawler) -> getFromAccess(prestige, crawler.current(), false))
+            .parse("prefix/order/name/index", (prestige, none, crawler) -> getFromAccess(prestige, crawler, false))
             .parent(LadderObject.class, SPrisoner.class)
 
             .add("previous", LadderObject.class)
-            .mapper((none, prestige, crawler) -> (LadderObject) prestige.getPrevious().orElse(null))
-            .parse("prefix/order/name/index", (prestige, none, crawler) -> getFromAccess(prestige, crawler.current(), false))
+            .mapper((none, prestige, crawler) -> prestige.getPrevious().orElse(null))
+            .parse("prefix/order/name/index", (prestige, none, crawler) -> getFromAccess(prestige, crawler, false))
             .parent(LadderObject.class, SPrisoner.class)
 
             .parent(SPrisoner.class, Object.class)
             .add("ladderrank", LadderObject.class)
             .mapper((none, prisoner, crawler) -> prisoner.getParsedLadderRank())
-            .parse("prefix/order/name/index", (rank, none, crawler) -> getFromAccess(rank, crawler.current(), true))
+            .parse("prefix/order/name/index", (rank, none, crawler) -> getFromAccess(rank, crawler, true))
 
             .add("next", LadderObject.class)
             .mapper((none, rank, crawler) -> rank.getNext().orElse(null))
-            .parse("prefix/order/name/index", (rank, none, crawler) -> getFromAccess(rank, crawler.current(), true))
+            .parse("prefix/order/name/index", (rank, none, crawler) -> getFromAccess(rank, crawler, true))
             .parent(LadderObject.class, SPrisoner.class)
 
             .add("previous", LadderObject.class)
             .mapper((none, rank, crawler) -> rank.getPrevious().orElse(null))
-            .parse("prefix/order/name/index", (rank, none, crawler) -> getFromAccess(rank, crawler.current(), true))
+            .parse("prefix/order/name/index", (rank, none, crawler) -> getFromAccess(rank, crawler, true))
             .parent(LadderObject.class, SPrisoner.class)
 
             .parent(SPrisoner.class, Object.class)
@@ -143,7 +153,18 @@ public class PlaceholderParser {
             })
             .parent(StatisticsContainer.class, SPrisoner.class)
             .parent(SPrisoner.class, Object.class)
-            .parent(Object.class, Object.class)
+
+            .add("economy", SEconomyAccount.class)
+            .mapper((none, prisoner, crawler) -> (SEconomyAccount) SuperiorPrisonPlugin.getInstance().getEconomyController().getAccountByUUID(prisoner.getUUID()))
+            .parse("balance", (none, none0, crawler) -> {
+                if (crawler.hasNext())
+                    return SuperiorPrisonPlugin.getInstance().getEconomyController().formatMoney(none.getBalance());
+                else
+                    return none.getBalance().toPlainString();
+            })
+
+            .parent(SPrisoner.class, SEconomyAccount.class)
+            .parent(SPrisoner.class, Object.class)
 
             // Mine Placeholders
             .add("mine", SNormalMine.class)
@@ -203,17 +224,27 @@ public class PlaceholderParser {
         return "Invalid identifier";
     }
 
-    private static String getFromAccess(LadderObject ob, String identifier, boolean rank) {
+    private static String getFromAccess(LadderObject ob, ArgsCrawler crawler, boolean rank) {
+        String identifier = crawler.current();
+
         if (ob == null)
             return !rank ? SuperiorPrisonPlugin.getInstance().getMainConfig().getPlaceholdersSection().getPrestigeNotFound() : SuperiorPrisonPlugin.getInstance().getMainConfig().getPlaceholdersSection().getRankNotFound();
+
+
         if (identifier == null)
             return ob.getName();
 
         if (identifier.equalsIgnoreCase("prefix"))
             return ob.getPrefix();
 
-        if (identifier.equalsIgnoreCase("order") || identifier.equalsIgnoreCase("index"))
+        if (identifier.equalsIgnoreCase("order") || identifier.equalsIgnoreCase("index")) {
+            if (crawler.hasNext()) {
+                String next = crawler.next();
+                if (next.equalsIgnoreCase("formatted"))
+                    return NumberUtil.formatBigInt(ob.getIndex());
+            }
             return ob.getIndex() + "";
+        }
 
         if (identifier.equalsIgnoreCase("name"))
             return ob.getName();

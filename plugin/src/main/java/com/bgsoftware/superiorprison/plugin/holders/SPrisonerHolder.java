@@ -1,4 +1,4 @@
-package com.bgsoftware.superiorprison.plugin.data;
+package com.bgsoftware.superiorprison.plugin.holders;
 
 import com.bgsoftware.superiorprison.api.controller.PrisonerHolder;
 import com.bgsoftware.superiorprison.api.data.player.Prisoner;
@@ -19,22 +19,24 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 public class SPrisonerHolder extends UniversalStorage<SPrisoner> implements PrisonerHolder {
+    private final Pattern uuidPattern = Pattern.compile("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[34][0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}");
 
     @Getter
     private final Map<String, UUID> usernameToUuidMap = Maps.newConcurrentMap();
 
     @Getter
-    private Map<UUID, SPrisoner> prisonerMap = new ConcurrentHashMap<>();
+    private final Map<UUID, SPrisoner> prisonerMap = new ConcurrentHashMap<>();
 
     public SPrisonerHolder(DatabaseController controller) {
         super(controller);
         addVariant("prisoners", SPrisoner.class);
 
         currentImplementation(
-                SuperiorPrisonPlugin.getInstance().getMainConfig().getStorageSection().provideFor(this, "prisoners")
+                SuperiorPrisonPlugin.getInstance().getMainConfig().getStorageSection().provideFor(this)
         );
 
         if (getCurrentImplementation() instanceof SqlStorage) {
@@ -44,6 +46,15 @@ public class SPrisonerHolder extends UniversalStorage<SPrisoner> implements Pris
                     .addDropColumn("ranks")
                     .edit(((SqlStorage<SPrisoner>) getCurrentImplementation()).getDatabase());
         }
+
+        long start = System.currentTimeMillis();
+        onLoad(mine -> {
+            SuperiorPrisonPlugin.getInstance().getOLogger().print(
+                    "Loaded {} prisoners. Took ({}ms)",
+                    prisonerMap.size(),
+                    (System.currentTimeMillis() - start)
+            );
+        });
     }
 
     public Stream<SPrisoner> streamOnline() {
@@ -74,7 +85,7 @@ public class SPrisonerHolder extends UniversalStorage<SPrisoner> implements Pris
     public Optional<Prisoner> getPrisoner(String username) {
         UUID uuid = usernameToUuidMap.get(username);
         if (uuid == null) {
-            if (username.matches("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[34][0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}"))
+            if (uuidPattern.matcher(username).matches())
                 return getPrisoner(UUID.fromString(username));
 
             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(username);

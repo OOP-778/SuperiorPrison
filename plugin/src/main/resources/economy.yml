@@ -1,0 +1,7 @@
+# Is custom economy enabled?
+# For the changes to happen, you'll have to restart
+# The server on toggle
+enabled: false
+
+# Max balance of an account
+max balance: "200_000_000_000_000_000_000"

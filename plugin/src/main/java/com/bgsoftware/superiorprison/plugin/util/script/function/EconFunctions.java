@@ -2,11 +2,15 @@ package com.bgsoftware.superiorprison.plugin.util.script.function;
 
 import com.bgsoftware.superiorprison.api.data.player.Prisoner;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
+import com.bgsoftware.superiorprison.plugin.economy.EconomyFramework;
 import com.bgsoftware.superiorprison.plugin.hook.impl.VaultHook;
+import com.bgsoftware.superiorprison.plugin.util.NumberUtil;
+import com.bgsoftware.superiorprison.plugin.util.script.util.Values;
 import com.bgsoftware.superiorprison.plugin.util.script.variable.GlobalVariableMap;
 import com.bgsoftware.superiorprison.plugin.util.script.variable.Variable;
 import com.bgsoftware.superiorprison.plugin.util.script.variable.VariableHelper;
 import com.google.common.base.Preconditions;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
@@ -21,10 +25,7 @@ public class EconFunctions {
     public static final Pattern GET_BALANCE_PATTERN = Pattern.compile("get balance of (%([^ ]+)%|([0-9]+)V)");
     public static final Pattern TAKE_BALANCE_PATTERN = Pattern.compile("take ([0-9]+V|[0-9]+|-[0-9]+) from ([0-9]+)V balance");
 
-    private static final VaultHook hook = SuperiorPrisonPlugin
-            .getInstance().getHookController()
-            .findHook(() -> VaultHook.class)
-            .get();
+    private static final EconomyFramework economyFramework = EconomyFramework.framework;
 
     public static class GetBalance implements Function<Number> {
         private int varId;
@@ -60,7 +61,7 @@ public class EconFunctions {
                 throw new IllegalStateException("Failed to validate variable by id " + varId + " required type: Player or Prisoner. Found: " + variableData.getVariable().getType());
 
             Object o = variable.get(globalVariables);
-            return hook.getBalance(o instanceof Prisoner ? ((Prisoner) o).getOfflinePlayer() : (OfflinePlayer) o).doubleValue();
+            return economyFramework.getBalance(o instanceof Prisoner ? ((Prisoner) o).getOfflinePlayer() : (OfflinePlayer) o);
         }
 
         @Override
@@ -107,7 +108,11 @@ public class EconFunctions {
             Preconditions.checkArgument(who instanceof OfflinePlayer || who instanceof Prisoner, "Failed to find a valid player by variable id: " + fromWhoId);
             Preconditions.checkArgument(amount instanceof Number, "Failed to find valid number by id: " + amountId);
 
-            hook.withdrawPlayer(who instanceof OfflinePlayer ? (OfflinePlayer) who : ((Prisoner) who).getOfflinePlayer(), BigDecimal.valueOf(((Number) amount).doubleValue()));
+            economyFramework.doWithdrawNow(
+                    who instanceof OfflinePlayer ? (OfflinePlayer) who : ((Prisoner) who).getOfflinePlayer(),
+                    NumberUtil.convertToBigDecimal((Number) amount),
+                    false
+            );
             return true;
         }
 

@@ -248,7 +248,6 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
                         OMaterial blockType = SuperiorPrisonPlugin.getInstance().getNms().getBlockType(value.chunk, location);
                         if (blockType == null) continue;
 
-
                         blocksLeft++;
                         blockData.set(location, blockType);
                     }
@@ -279,7 +278,6 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
             object.addProperty("c", generatorMaterial.getFirst().toString());
             array.add(object);
         }
-        serializedData.write("blockData", blockData);
         serializedData.getJsonElement().getAsJsonObject().add("materials", array);
         serializedData.write("percentage", blockData.getPercentageLeft());
     }
@@ -295,7 +293,6 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
             ));
         }
         lastRestartPercentage = serializedData.applyAs("percentage", int.class, () -> -1);
-        blockData = serializedData.applyAs("blockData", SMineBlockData.class, SMineBlockData::new);
     }
 
     @Override
@@ -348,7 +345,7 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
     @Getter
     @AllArgsConstructor
     private class ChunkData {
-        private Chunk chunk;
-        private Set<Location> locations;
+        private final Chunk chunk;
+        private final Set<Location> locations;
     }
 }

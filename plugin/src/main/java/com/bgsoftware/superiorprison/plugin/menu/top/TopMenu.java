@@ -57,6 +57,9 @@ public class TopMenu extends OPagedMenu<STopEntry> implements OMenu.Templateable
             case PRESTIGE:
                 builder = button.getStateItem("prestige entry");
                 break;
+            case BALANCE:
+                builder = button.getStateItem("balance entry");
+                break;
         }
 
         if (builder.itemBuilder() instanceof OSkull) {

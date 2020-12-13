@@ -3,7 +3,7 @@ package com.bgsoftware.superiorprison.plugin.object.mine.messages;
 import com.bgsoftware.superiorprison.api.data.mine.messages.MessageType;
 import com.bgsoftware.superiorprison.api.data.mine.messages.MineTitleMessage;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
-import com.bgsoftware.superiorprison.plugin.hook.impl.PapiHook;
+import com.bgsoftware.superiorprison.plugin.hook.impl.placeholder.PapiHook;
 import com.oop.datamodule.api.SerializedData;
 import com.oop.datamodule.lib.google.gson.JsonElement;
 import com.oop.orangeengine.main.util.OTitle;

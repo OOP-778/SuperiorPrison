@@ -2,6 +2,7 @@ package com.bgsoftware.superiorprison.plugin.controller;
 
 import com.bgsoftware.superiorprison.api.controller.BlockController;
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
+import com.bgsoftware.superiorprison.api.data.mine.area.AreaEnum;
 import com.bgsoftware.superiorprison.api.data.mine.locks.Lock;
 import com.bgsoftware.superiorprison.api.data.mine.type.NormalMine;
 import com.bgsoftware.superiorprison.api.data.player.Prisoner;
@@ -79,61 +80,58 @@ public class SBlockController implements BlockController {
         SMineBlockData mineBlockData = (SMineBlockData) mine.getGenerator().getBlockData();
         Map<OMaterial, Integer> materialsAmount = new HashMap<>();
 
-        System.out.println("===");
-        System.out.println(mineBlockData.getBlocksLeft());
-        System.out.println(mineBlockData.getLocToMaterial().size());
-        System.out.println(((SNormalMine) mine).getGenerator().getBlocksInRegion());
-        System.out.println("===");
-
         boolean finalAddToLock = addToLock;
         Lock finalLock = lock;
         for (Location location : locations) {
-            mineBlockData
-                    .getOMaterialAt(location)
-                    .ifPresent(mat -> {
-                        if (finalAddToLock) {
-                            if (mine.getGenerator().getBlockData().isLocked(location))
-                                return;
-                            else
-                                ((SBLocksLock) finalLock).getLockedLocations().add(location);
-                        }
+            if (!mine.getArea(AreaEnum.MINE).isInsideWithoutY(location)) continue;
+            Optional<OMaterial> oMaterialAt = mineBlockData
+                    .getOMaterialAt(location);
 
-                        List<ItemStack> drops = new ArrayList<>();
+            oMaterialAt.ifPresent(mat -> {
+//                if (finalAddToLock) {
+//                    if (mine.getGenerator().getBlockData().isLocked(location))
+//                        return;
+//                    else
+//                        ((SBLocksLock) finalLock).getLockedLocations().add(location);
+//                }
+//                ((SBLocksLock) finalLock).getLockedLocations().add(location);
 
-                        // Handle auto burn
-                        if (prisoner.isAutoBurn()) {
-                            if (mat == OMaterial.GOLD_ORE)
-                                drops.add(OMaterial.GOLD_INGOT.parseItem());
-                            else if (mat == OMaterial.IRON_ORE)
-                                drops.add(OMaterial.IRON_INGOT.parseItem());
-                            else
-                                drops.add(finalSilkTouch ? mat.parseItem() : DropsHandler.getDrop(mat));
-                        } else
-                            drops.add(finalSilkTouch ? mat.parseItem() : DropsHandler.getDrop(mat));
+                List<ItemStack> drops = new ArrayList<>();
 
-                        // Handle fortune
-                        if (finalHasFortune)
-                            new HashSet<>(drops).forEach(itemStack -> {
-                                drops.remove(itemStack);
-                                drops.addAll(getItems(itemStack, getItemCountWithFortune(itemStack.getType(), finalFortuneLevel)));
-                            });
+                // Handle auto burn
+                if (prisoner.isAutoBurn()) {
+                    if (mat == OMaterial.GOLD_ORE)
+                        drops.add(OMaterial.GOLD_INGOT.parseItem());
+                    else if (mat == OMaterial.IRON_ORE)
+                        drops.add(OMaterial.IRON_INGOT.parseItem());
+                    else
+                        drops.add(finalSilkTouch ? mat.parseItem() : DropsHandler.getDrop(mat));
+                } else
+                    drops.add(finalSilkTouch ? mat.parseItem() : DropsHandler.getDrop(mat));
 
-                        // Handle dropsBooster
-                        if (dropRate[0] != 0)
-                            drops.forEach(itemStack -> itemStack.setAmount((int) Math.round(dropRate[0] * itemStack.getAmount())));
-
-                        // Get the experience
-                        experience[0] = experience[0] + XpHandler.getEXP(mat, tool);
-
-                        if (xpRate[0] != 0)
-                            experience[0] = (int) Math.ceil(experience[0] * xpRate[0]);
-
-                        blockData.put(location, new SPair<>(
-                                mat.parseMaterial(),
-                                drops));
-
-                        materialsAmount.merge(mat, 1, Integer::sum);
+                // Handle fortune
+                if (finalHasFortune)
+                    new HashSet<>(drops).forEach(itemStack -> {
+                        drops.remove(itemStack);
+                        drops.addAll(getItems(itemStack, getItemCountWithFortune(itemStack.getType(), finalFortuneLevel)));
                     });
+
+                // Handle dropsBooster
+                if (dropRate[0] != 0)
+                    drops.forEach(itemStack -> itemStack.setAmount((int) Math.round(dropRate[0] * itemStack.getAmount())));
+
+                // Get the experience
+                experience[0] = experience[0] + XpHandler.getEXP(mat, tool);
+
+                if (xpRate[0] != 0)
+                    experience[0] = (int) Math.ceil(experience[0] * xpRate[0]);
+
+                blockData.put(location, new SPair<>(
+                        mat.parseMaterial(),
+                        drops));
+
+                materialsAmount.merge(mat, 1, Integer::sum);
+            });
         }
 
         // Call block break event for the blocks
@@ -204,25 +202,19 @@ public class SBlockController implements BlockController {
         Preconditions.checkArgument(Bukkit.isPrimaryThread(), "Cannot call break block in non main thread!");
 
         MultiBlockBreakEvent multiBlockBreakEvent = handleBlockBreak(prisoner, mine, tool, null, locations);
-//        if (multiBlockBreakEvent.isCancelled())
-//            return multiBlockBreakEvent;
+        if (multiBlockBreakEvent.isCancelled())
+            return multiBlockBreakEvent;
 
         if (locations.length == 1)
             SuperiorPrisonPlugin.getInstance().getNms().setBlockAndUpdate(locations[0].getChunk(), locations[0], OMaterial.AIR, mine.getWorld().getPlayers());
 
         else {
-
-            System.out.println("====");
-            System.out.println("Before: " + locations.length);
-            System.out.println("After: " + multiBlockBreakEvent.getBlockData().size());
-            System.out.println("====");
-
             Map<OPair<Integer, Integer>, Chunk> chunkMap = new HashMap<>();
             for (Location location : multiBlockBreakEvent.getBlockData().keySet()) {
-                Chunk chunk = chunkMap.get(new OPair<>(location.getBlockX() >> 4, location.getBlockY() >> 4));
+                Chunk chunk = chunkMap.get(new OPair<>(location.getBlockX() >> 4, location.getBlockZ() >> 4));
                 if (chunk == null) {
                     chunk = location.getChunk();
-                    chunkMap.put(new OPair<>(location.getBlockX() >> 4, location.getBlockY() >> 4), chunk);
+                    chunkMap.put(new OPair<>(location.getBlockX() >> 4, location.getBlockZ() >> 4), chunk);
                 }
 
                 SuperiorPrisonPlugin.getInstance().getNms().setBlock(chunk, location, OMaterial.AIR);

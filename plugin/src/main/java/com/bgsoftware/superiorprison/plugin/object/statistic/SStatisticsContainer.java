@@ -2,7 +2,7 @@ package com.bgsoftware.superiorprison.plugin.object.statistic;
 
 import com.bgsoftware.superiorprison.api.data.statistic.StatisticsContainer;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
-import com.bgsoftware.superiorprison.plugin.data.SStatisticHolder;
+import com.bgsoftware.superiorprison.plugin.holders.SStatisticHolder;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.util.Removeable;
 import com.google.common.collect.Sets;

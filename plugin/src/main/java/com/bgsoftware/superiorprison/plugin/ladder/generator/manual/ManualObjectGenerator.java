@@ -1,10 +1,12 @@
 package com.bgsoftware.superiorprison.plugin.ladder.generator.manual;
 
+import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.ladder.ObjectSupplier;
 import com.bgsoftware.superiorprison.plugin.ladder.ParsedObject;
 import com.bgsoftware.superiorprison.plugin.ladder.LadderTemplate;
 import com.bgsoftware.superiorprison.plugin.requirement.RequirementMigrator;
+import com.bgsoftware.superiorprison.plugin.util.NumberUtil;
 import com.bgsoftware.superiorprison.plugin.util.script.variable.GlobalVariableMap;
 import com.bgsoftware.superiorprison.plugin.util.script.variable.VariableHelper;
 import com.oop.orangeengine.yaml.Config;
@@ -26,6 +28,7 @@ public abstract class ManualObjectGenerator implements ObjectSupplier {
         GlobalVariableMap variableMap = new GlobalVariableMap();
         variableMap.newOrReplace("prisoner", VariableHelper.createNullVariable(SPrisoner.class));
         variableMap.newOrReplace("index", VariableHelper.createVariable(1));
+        variableMap.newOrReplace("index_formatted", VariableHelper.createNullVariable(String.class));
         handleVariableMapCreation(variableMap);
 
         AtomicReference<String> defaultPrefix = new AtomicReference<>(null);
@@ -36,6 +39,12 @@ public abstract class ManualObjectGenerator implements ObjectSupplier {
 
         // Load the prestiges
         for (ConfigSection ladderObjectSection : config.getSections().values()) {
+            if (ladderObjectSection.getKey().length() > 1) {
+                SuperiorPrisonPlugin.getInstance().getOLogger().printWarning(
+                        "Found non supported rank type by name " + ladderObjectSection.getKey() + ", please remove it.");
+                continue;
+            }
+
             try {
                 // Try to migrate requirements
                 RequirementMigrator.migrate(ladderObjectSection);
@@ -52,6 +61,7 @@ public abstract class ManualObjectGenerator implements ObjectSupplier {
 
                 // Replace the old index of the prestige to current
                 prestigeMap.newOrReplace("index", VariableHelper.createVariable(index));
+                prestigeMap.newOrReplace("index_formatted", VariableHelper.createVariable(NumberUtil.formatBigInt(BigInteger.valueOf(index))));
                 handleVariableMapClone(prestigeMap, ladderObjectSection);
 
                 // Get the template

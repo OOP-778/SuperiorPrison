@@ -7,7 +7,7 @@ options:
 
 template:
   # Prefix of the prestige
-  prefix: "&c[P%index%]"
+  prefix: "&c[P%index_formatted%]"
 
   # Requirements of the prestige
   requirements:
@@ -25,9 +25,8 @@ template:
       checker: "%getter% >= %value%"
 
       # A function witch takes the value from prisoner
-      taker: "take %value% from %prisoner% balance"
-
       # Taker can also be command
       # taker:
       #  type: "command"
       #  command: "eco take %prisoner#player#name% %value%"
+      taker: "take %value% from %prisoner% balance"

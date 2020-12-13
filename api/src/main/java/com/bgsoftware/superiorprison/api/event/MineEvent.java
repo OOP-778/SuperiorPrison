@@ -9,9 +9,9 @@ import org.bukkit.event.HandlerList;
 
 @Getter
 public class MineEvent extends Event {
-    private static HandlerList handlerList = new HandlerList();
+    private static final HandlerList handlerList = new HandlerList();
 
-    private SuperiorMine mine;
+    private final SuperiorMine mine;
 
     public MineEvent(SuperiorMine mine) {
         super(!Bukkit.isPrimaryThread());

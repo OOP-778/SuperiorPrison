@@ -10,9 +10,9 @@ import org.bukkit.event.HandlerList;
 @AllArgsConstructor
 public abstract class PrisonerEvent extends Event {
 
-    private static HandlerList handlerList = new HandlerList();
+    private static final HandlerList handlerList = new HandlerList();
 
-    private Prisoner prisoner;
+    private final Prisoner prisoner;
 
     @Override
     public HandlerList getHandlers() {

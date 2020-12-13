@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorprison.plugin.config.backpack;
 
+import com.bgsoftware.superiorprison.plugin.object.backpack.SBackPack;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.requirement.RequirementController;
 import com.bgsoftware.superiorprison.plugin.requirement.RequirementHolder;
@@ -18,13 +19,13 @@ public class BackPackUpgrade<T extends BackPackConfig<T>> {
     private final RequirementHolder requirementHolder;
     private final T config;
 
-    private GlobalVariableMap variableMap = new GlobalVariableMap();
+    private final GlobalVariableMap variableMap = new GlobalVariableMap();
 
     public BackPackUpgrade(ConfigSection section, T config) {
         this.config = config;
 
         variableMap.newOrPut("prisoner", () -> VariableHelper.createNullVariable(SPrisoner.class));
-        variableMap.newOrPut("level", () -> VariableHelper.createVariable(1));
+        variableMap.newOrPut("backpack", () -> VariableHelper.createNullVariable(SBackPack.class));
 
         section.ifValuePresent("description", List.class, desc -> this.description = desc);
 

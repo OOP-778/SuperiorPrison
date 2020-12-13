@@ -92,15 +92,13 @@ public class BackPackListener {
         });
 
         // Patch Player inventory
-        SyncEvents.listen(PlayerJoinEvent.class, event -> {
-            new OTask()
-                    .delay(100)
-                    .runnable(() -> {
-                        if (!event.getPlayer().isOnline()) return;
-                        SPlayerInventory.patch(event.getPlayer());
-                    })
-                    .execute();
-        });
+        SyncEvents.listen(PlayerJoinEvent.class, event -> new OTask()
+                .delay(100)
+                .runnable(() -> {
+                    if (!event.getPlayer().isOnline()) return;
+                    SPlayerInventory.patch(event.getPlayer());
+                })
+                .execute());
 
         // Listen for player slot switch event
         SyncEvents.listen(InventoryClickEvent.class, EventPriority.HIGHEST, event -> {

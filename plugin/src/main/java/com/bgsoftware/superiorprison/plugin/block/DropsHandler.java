@@ -27,7 +27,6 @@ public class DropsHandler {
     }
 
     public static ItemStack getDrop(OMaterial material) {
-        ItemStack itemStack = Optional.ofNullable(drops.get(material.getCombinedData())).map(Supplier::get).orElse(material.parseItem());
-        return itemStack;
+        return Optional.ofNullable(drops.get(material.getCombinedData())).map(Supplier::get).orElse(material.parseItem());
     }
 }

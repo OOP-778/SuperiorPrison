@@ -11,9 +11,9 @@ import org.bukkit.event.Cancellable;
 @Getter
 public class MineAreaChangeEvent extends MineEvent implements Cancellable {
 
-    private Prisoner prisoner;
-    private AreaEnum from;
-    private AreaEnum to;
+    private final Prisoner prisoner;
+    private final AreaEnum from;
+    private final AreaEnum to;
 
     @Setter
     private boolean cancelled = false;

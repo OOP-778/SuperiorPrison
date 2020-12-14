@@ -29,7 +29,7 @@ public class NmsHandler_v1_12_R1 implements SuperiorNms {
 
     @Override
     public void setBlock(@NonNull Chunk chunk, @NonNull Location location, @NonNull OMaterial material) {
-        IBlockData data = dataMap.computeIfAbsent(material, mat -> Block.getByCombinedId(material.getCombinedData()));
+        IBlockData data = dataMap.computeIfAbsent(material, mat -> Block.getByCombinedId(material.getCombinedId()));
         net.minecraft.server.v1_12_R1.Chunk nmsChunk = ((CraftChunk) chunk).getHandle();
 
         if (location.getBlockX() == -65 && location.getBlockY() == 80 && location.getBlockZ() == 160)

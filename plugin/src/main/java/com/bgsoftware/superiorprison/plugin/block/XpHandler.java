@@ -24,7 +24,7 @@ public class XpHandler {
     }
 
     private static void register(OMaterial oMaterial, Supplier<Integer> supplier) {
-        xpHandler.put(oMaterial.getCombinedData(), supplier);
+        xpHandler.put(oMaterial.getCombinedId(), supplier);
     }
 
     private static int random(int min, int max) {
@@ -37,10 +37,10 @@ public class XpHandler {
             if (item.hasEnchant(Enchantment.SILK_TOUCH)) return 0;
         }
 
-        return Optional.ofNullable(xpHandler.get(material.getCombinedData())).map(Supplier::get).orElse(0);
+        return Optional.ofNullable(xpHandler.get(material.getCombinedId())).map(Supplier::get).orElse(0);
     }
 
     public static Supplier<Integer> getSupplier(OMaterial material) {
-        return Optional.ofNullable(xpHandler.get(material.getCombinedData())).orElse(() -> 0);
+        return Optional.ofNullable(xpHandler.get(material.getCombinedId())).orElse(() -> 0);
     }
 }

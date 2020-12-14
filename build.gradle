@@ -42,15 +42,14 @@ allprojects {
         annotationProcessor 'org.projectlombok:lombok:1.18.8'
 
         if (project.name.equalsIgnoreCase("plugin")) {
-            compile "com.oop.orangeengine:file:4.9"
-            compile "com.oop.orangeengine:item:4.9"
-            compile "com.oop.orangeengine:engine:4.9"
-            compile "com.oop.orangeengine:particle:4.9"
-            compile "com.oop.orangeengine:inventory:4.9"
-            compile "com.oop.orangeengine:command:4.9"
-            compile "com.oop.orangeengine:eventssubscription:4.9"
-            compile "com.oop.orangeengine:message:4.9"
-            compile "com.oop.orangeengine:sound:4.9"
+            compile "com.oop.orangeengine:file:5.0"
+            compile "com.oop.orangeengine:item:5.0"
+            compile "com.oop.orangeengine:engine:5.0"
+            compile "com.oop.orangeengine:particle:5.0"
+            compile "com.oop.orangeengine:command:5.0"
+            compile "com.oop.orangeengine:eventssubscription:5.0"
+            compile "com.oop.orangeengine:message:5.0"
+            compile "com.oop.orangeengine:sound:5.0"
             compile "io.papermc:paperlib:1.0.4"
 
             // Dependencies
@@ -63,15 +62,14 @@ allprojects {
             compileOnly fileTree("../lib")
 
         } else {
-            compileOnly "com.oop.orangeengine:file:4.9"
-            compileOnly "com.oop.orangeengine:item:4.9"
-            compileOnly "com.oop.orangeengine:engine:4.9"
-            compileOnly "com.oop.orangeengine:particle:4.9"
-            compileOnly "com.oop.orangeengine:inventory:4.9"
-            compileOnly "com.oop.orangeengine:command:4.9"
-            compileOnly "com.oop.orangeengine:database:4.9"
-            compileOnly "com.oop.orangeengine:eventssubscription:4.9"
-            compileOnly "com.oop.orangeengine:message:4.9"
+            compileOnly "com.oop.orangeengine:file:5.0"
+            compileOnly "com.oop.orangeengine:item:5.0"
+            compileOnly "com.oop.orangeengine:engine:5.0"
+            compileOnly "com.oop.orangeengine:particle:5.0"
+            compileOnly "com.oop.orangeengine:command:5.0"
+            compileOnly "com.oop.orangeengine:database:5.0"
+            compileOnly "com.oop.orangeengine:eventssubscription:5.0"
+            compileOnly "com.oop.orangeengine:message:5.0"
         }
 
         if (project.name.equalsIgnoreCase("plugin")) {
@@ -90,7 +88,7 @@ allprojects {
         destinationDir file('../archive')
         archiveName project.name + ".jar"
 
-        relocate("com.oop.orangeengine", "com.bgsoftware.superiorprison.engine")
+        //relocate("com.oop.orangeengine", "com.bgsoftware.superiorprison.engine")
         relocate("com.oop.datamodule", "com.bgsoftware.superiorprison.datamodule")
         relocate("io.papermc.lib", "com.bgsoftware.superiorprison.paper")
     }

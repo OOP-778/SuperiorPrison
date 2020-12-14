@@ -33,7 +33,7 @@ public class RankGeneratorOptions extends GeneratorOptions<String> {
 
     // Max level of ranks
     @Getter
-    private BigInteger max = BigInteger.ONE;
+    private BigInteger max = BigInteger.ZERO;
 
     public RankGeneratorOptions(ConfigSection section, GlobalVariableMap variableMap) {
         super(variableMap);

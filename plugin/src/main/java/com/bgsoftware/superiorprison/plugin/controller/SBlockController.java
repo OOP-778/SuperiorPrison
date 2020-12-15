@@ -101,8 +101,6 @@ public class SBlockController implements BlockController {
                         } else
                             drops.add(finalSilkTouch ? mat.parseItem() : DropsHandler.getDrop(mat));
 
-                        System.out.println(Arrays.toString(drops.toArray()));
-
                         // Handle fortune
                         if (finalHasFortune)
                             drops.forEach(itemStack -> {
@@ -195,10 +193,10 @@ public class SBlockController implements BlockController {
         else {
             Map<OPair<Integer, Integer>, Chunk> chunkMap = new HashMap<>();
             for (Location location : locations) {
-                Chunk chunk = chunkMap.get(new OPair<>(location.getBlockX() >> 4, location.getBlockY() >> 4));
+                Chunk chunk = chunkMap.get(new OPair<>(location.getBlockX() >> 4, location.getBlockZ() >> 4));
                 if (chunk == null) {
                     chunk = location.getChunk();
-                    chunkMap.put(new OPair<>(location.getBlockX() >> 4, location.getBlockY() >> 4), chunk);
+                    chunkMap.put(new OPair<>(location.getBlockX() >> 4, location.getBlockZ() >> 4), chunk);
                 }
 
                 SuperiorPrisonPlugin.getInstance().getNms().setBlock(chunk, location, OMaterial.AIR);

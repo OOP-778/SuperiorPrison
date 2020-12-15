@@ -101,6 +101,8 @@ public class SBlockController implements BlockController {
                         } else
                             drops.add(finalSilkTouch ? mat.parseItem() : DropsHandler.getDrop(mat));
 
+                        System.out.println(Arrays.toString(drops.toArray()));
+
                         // Handle fortune
                         if (finalHasFortune)
                             drops.forEach(itemStack -> {
@@ -172,8 +174,6 @@ public class SBlockController implements BlockController {
 
             event.setExperience(0);
         }
-
-
 
         mine.getGenerator().getBlockData().unlock(lock);
         return event;

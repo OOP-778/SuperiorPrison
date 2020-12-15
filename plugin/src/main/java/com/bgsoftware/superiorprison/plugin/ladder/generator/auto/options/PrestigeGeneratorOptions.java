@@ -7,8 +7,6 @@ import com.oop.orangeengine.yaml.ConfigSection;
 import lombok.Getter;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 public class PrestigeGeneratorOptions extends GeneratorOptions<BigInteger> {

@@ -1,17 +1,15 @@
 package com.bgsoftware.superiorprison.plugin.ladder.generator.auto.generator;
 
-import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.ladder.ParsedObject;
 import com.bgsoftware.superiorprison.plugin.ladder.generator.auto.ObjectGenerator;
 import com.bgsoftware.superiorprison.plugin.ladder.generator.auto.options.RankGeneratorOptions;
+import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.util.NumberUtil;
 import com.bgsoftware.superiorprison.plugin.util.script.variable.GlobalVariableMap;
 import com.bgsoftware.superiorprison.plugin.util.script.variable.VariableHelper;
 import com.oop.orangeengine.yaml.interfaces.Valuable;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
 
 public class RankGenerator extends ObjectGenerator<RankGeneratorOptions> {
     public RankGenerator(Valuable valuable) {
@@ -24,14 +22,14 @@ public class RankGenerator extends ObjectGenerator<RankGeneratorOptions> {
         clone.newOrReplace("prisoner", VariableHelper.createVariable(prisoner));
         clone.newOrReplace("index", VariableHelper.createVariable(index));
         clone.newOrReplace("index_formatted", VariableHelper.createVariable(NumberUtil.formatBigInt(index)));
-        clone.newOrReplace("rank_name", VariableHelper.createVariable(getOptions().getRankByIndex(index.intValue())));
+        clone.newOrReplace("rank_name", VariableHelper.createVariable(getOptions().getRankByIndex(index)));
 
         return ParsedObject.of(
-                getOptions().getRankByIndex(index.intValue()),
+                getOptions().getRankByIndex(index),
                 getTemplate(index),
                 clone,
                 () -> hasNext(index) ? parse(prisoner, index.add(BigInteger.ONE)) : null,
-                () -> isValid(index.subtract(BigInteger.ONE)) ? parse(prisoner, index.subtract(BigInteger.ONE)) : null,
+                () -> getOptions().hasPrevious(index) ? parse(prisoner, index.subtract(BigInteger.ONE)) : null,
                 index
         );
     }

@@ -61,7 +61,10 @@ public class EconFunctions {
                 throw new IllegalStateException("Failed to validate variable by id " + varId + " required type: Player or Prisoner. Found: " + variableData.getVariable().getType());
 
             Object o = variable.get(globalVariables);
-            return economyFramework.getBalance(o instanceof Prisoner ? ((Prisoner) o).getOfflinePlayer() : (OfflinePlayer) o);
+            BigDecimal money = economyFramework.getBalance(o instanceof Prisoner ? ((Prisoner) o).getOfflinePlayer() : (OfflinePlayer) o);
+            if (money instanceof BigDecimal)
+                System.out.println(money.toPlainString());
+            return money;
         }
 
         @Override

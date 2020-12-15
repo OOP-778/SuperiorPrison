@@ -26,6 +26,9 @@ public class RankupCmd extends OCommand {
             BigInteger currentRank = prisoner.getLadderRank();
             BigInteger maxIndex = SuperiorPrisonPlugin.getInstance().getRankController().getMaxIndex();
 
+            System.out.println(currentRank.toString());
+            System.out.println(maxIndex.toString());
+
             // If prisoner is max rank, return
             if (NumberUtil.equals(currentRank, maxIndex)) {
                 LocaleEnum

@@ -23,10 +23,10 @@ public class DropsHandler {
     }
 
     private static void register(OMaterial oMaterial, Supplier<ItemStack> supplier) {
-        drops.put(oMaterial.getCombinedData(), supplier);
+        drops.put(oMaterial.getCombinedId(), supplier);
     }
 
     public static ItemStack getDrop(OMaterial material) {
-        return Optional.ofNullable(drops.get(material.getCombinedData())).map(Supplier::get).orElse(material.parseItem());
+        return Optional.ofNullable(drops.get(material.getCombinedId())).map(Supplier::get).orElse(material.parseItem());
     }
 }

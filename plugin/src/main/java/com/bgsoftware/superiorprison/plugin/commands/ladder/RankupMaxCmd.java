@@ -54,7 +54,7 @@ public class RankupMaxCmd extends OCommand {
                     prisoner.save(true);
                 }
 
-                if (!NumberUtil.equals(currentRank, maxIndex)) {
+                if (!NumberUtil.equals(prisoner.getLadderRank(), maxIndex)) {
                     ParsedObject nextRank = SuperiorPrisonPlugin.getInstance().getRankController()
                             .getParsed(prisoner, ladderRankIndex.add(BigInteger.ONE))
                             .orElse(null);

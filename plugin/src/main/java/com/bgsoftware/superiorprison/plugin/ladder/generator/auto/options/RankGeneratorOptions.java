@@ -6,6 +6,7 @@ import com.bgsoftware.superiorprison.plugin.util.script.variable.GlobalVariableM
 import com.google.common.collect.HashBiMap;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
+import com.google.common.primitives.Longs;
 import com.oop.orangeengine.yaml.ConfigSection;
 import lombok.Getter;
 
@@ -16,17 +17,17 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
-public class RankGeneratorOptions extends GeneratorOptions<String> {
+public class RankGeneratorOptions extends GeneratorOptions<BigInteger> {
     private static final HashFunction hashing = Hashing.crc32();
 
     private int repeat = -1;
 
     // Level to Index and other way around
-    private final HashBiMap<Integer, Integer> hashConverter = HashBiMap.create();
+    private final HashBiMap<Integer, Long> hashConverter = HashBiMap.create();
 
     // Rank name to index and other way around
     @Getter
-    private final HashBiMap<String, Integer> rankToIndex = HashBiMap.create();
+    private final HashBiMap<String, Long> rankToIndex = HashBiMap.create();
 
     // Indexes of chars
     private final List<Character> chars = new LinkedList<>();
@@ -58,55 +59,52 @@ public class RankGeneratorOptions extends GeneratorOptions<String> {
                 });
 
         for (String rank : ranks) {
-            int hash = getHash(rank);
-            hashConverter.put(hash, max.intValue());
-            rankToIndex.put(rank, max.intValue());
             max = max.add(BigInteger.ONE);
+            int hash = getHash(rank);
+            hashConverter.put(hash, max.longValueExact());
+            rankToIndex.put(rank, max.longValueExact());
         }
     }
 
     @Override
-    public boolean hasNext(String key) {
-        int index = getIndex(key).intValueExact();
-        return (index + 1) < max.intValue();
+    public boolean hasNext(BigInteger key) {
+        return isValid(key.add(BigInteger.ONE));
     }
 
     @Override
-    public boolean hasPrevious(String key) {
-        int index = getIndex(key).intValueExact();
-        return (index - 1) != 0;
+    public boolean hasPrevious(BigInteger key) {
+        return isValid(key.subtract(BigInteger.ONE));
     }
 
     @Override
-    public boolean isValid(String key) {
-        return rankToIndex.inverse().containsKey(getIndex(key).intValueExact());
+    public boolean isValid(BigInteger key) {
+        return rankToIndex.inverse().containsKey(getIndex(key).longValueExact());
     }
 
     @Override
     public BigInteger getIndex(Object in) {
-        BigInteger level;
+        if (in instanceof BigInteger)
+            return (BigInteger) in;
 
         if (in instanceof Number) {
             return BigInteger.valueOf(((Number) in).longValue());
 
         } else {
             String s = in.toString();
-            if (Values.isNumber(s))
-                level = getIndex(Values.parseAsInt(s));
-            else {
-                level = BigInteger.valueOf(hashConverter.get(getHash(s)).longValue());
-            }
-        }
+            Long number = Longs.tryParse(s);
+            if (number != null)
+                return getIndex(number);
 
-        return Objects.requireNonNull(level, "Failed to find rank by " + in);
+            return BigInteger.valueOf(hashConverter.get(getHash(s)));
+        }
     }
 
     public int getHash(String key) {
         return hashing.hashString(key, StandardCharsets.UTF_8).asInt();
     }
 
-    public String getRankByIndex(int index) {
-        return Objects.requireNonNull(rankToIndex.inverse().get(index), "Failed to find rank by index: " + index);
+    public String getRankByIndex(BigInteger index) {
+        return Objects.requireNonNull(rankToIndex.inverse().get(index.longValueExact()), "Failed to find rank by index: " + index);
     }
 
     public String getRankByHash(int hash) {

@@ -3,6 +3,7 @@ package com.bgsoftware.superiorprison.plugin.util;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.hook.impl.placeholder.PapiHook;
 import com.bgsoftware.superiorprison.plugin.util.script.util.Values;
+import com.google.common.primitives.Doubles;
 import com.google.gson.internal.Primitives;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.material.OMaterial;
@@ -70,7 +71,7 @@ public class TextUtil {
 
     public static String beautify(String text) {
         if (Values.isNumber(text))
-            return beautifyNumber(Values.parseAsInt(text));
+            return beautifyNumber(Doubles.tryParse(text));
         return capitalizeAll(text.toLowerCase().replace("_", " "));
     }
 

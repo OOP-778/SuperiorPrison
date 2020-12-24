@@ -377,7 +377,10 @@ public enum LocaleEnum {
     ECONOMY_GIVE_TARGET("You have received &d{money_formatted} money &7from &d{who}"),
 
     ECONOMY_WITHDRAW("You withdrew &d{money_formatted}&7 money from &d{target}"),
-    ECONOMY_WITHDRAW_TARGET("&d{target} &7withdrew &d{money_formatted} &7money from you.");
+    ECONOMY_WITHDRAW_TARGET("&d{target} &7withdrew &d{money_formatted} &7money from you."),
+
+    BALANCE_SELF("You've got &d{money}$"),
+    BALANCE_OTHER("&d{target} &7has got &d{money}$");
 
     private final OMessage[] cache = new OMessage[2];
 

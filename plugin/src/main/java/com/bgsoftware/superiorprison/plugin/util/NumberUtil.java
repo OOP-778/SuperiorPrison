@@ -13,7 +13,6 @@ import java.util.TreeMap;
 public class NumberUtil {
     private static final BigDecimal BIG_DECIMAL_THOUSAND = BigDecimal.valueOf(1000);
 
-
     private static String getSuffixAt(int index) {
         try {
             return SuperiorPrisonPlugin.getInstance()

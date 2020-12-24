@@ -10,7 +10,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
 
 public class DropsHandler {
-    private static final HashMap<Integer, Supplier<ItemStack>> drops = new HashMap<>();
+    private static final HashMap<OMaterial, Supplier<ItemStack>> drops = new HashMap<>();
 
     static {
         register(OMaterial.DIAMOND_ORE, () -> new ItemStack(Material.DIAMOND));
@@ -23,10 +23,12 @@ public class DropsHandler {
     }
 
     private static void register(OMaterial oMaterial, Supplier<ItemStack> supplier) {
-        drops.put(oMaterial.getCombinedId(), supplier);
+        drops.put(oMaterial, supplier);
     }
 
     public static ItemStack getDrop(OMaterial material) {
-        return Optional.ofNullable(drops.get(material.getCombinedId())).map(Supplier::get).orElse(material.parseItem());
+        return Optional.ofNullable(drops.get(material))
+                .map(Supplier::get)
+                .orElse(material.parseItem());
     }
 }

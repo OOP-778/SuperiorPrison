@@ -51,23 +51,26 @@ public class PrestigeMaxCmd extends OCommand {
                 return;
             }
 
-            List<String> commands = new ArrayList<>();
+            final List<String>[] commands = new List[]{new ArrayList<>()};
             LadderHelper.addPeopleRunningLadderCmd(prisoner.getUUID());
 
             // Rewards executor
-            Runnable commandsExecutor = () -> StaticTask.getInstance().sync(() -> {
-                SuperiorPrisonPlugin.getInstance().getPlayerChatFilterController().filter(prisoner.getPlayer().getUniqueId());
-                for (String s : LadderHelper.mergeCommands(commands)) {
-                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), s);
-                }
+            Runnable commandsExecutor = () -> {
+                commands[0] = LadderHelper.mergeCommands(commands[0]);
+                StaticTask.getInstance().sync(() -> {
+                    SuperiorPrisonPlugin.getInstance().getPlayerChatFilterController().filter(prisoner.getPlayer().getUniqueId());
+                    for (String s : commands[0]) {
+                        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), s);
+                    }
 
-                // Because packets are sent async, we've got to add a delay here.
-                new OTask()
-                        .delay(TimeUnit.SECONDS, Math.max(4, commands.size() / 100))
-                        .sync(false)
-                        .runnable(() -> SuperiorPrisonPlugin.getInstance().getPlayerChatFilterController().unfilter(prisoner.getOfflinePlayer().getUniqueId()))
-                        .execute();
-            });
+                    // Because packets are sent async, we've got to add a delay here.
+                    new OTask()
+                            .delay(TimeUnit.SECONDS, Math.max(4, commands[0].size() / 100))
+                            .sync(false)
+                            .runnable(() -> SuperiorPrisonPlugin.getInstance().getPlayerChatFilterController().unfilter(prisoner.getOfflinePlayer().getUniqueId()))
+                            .execute();
+                });
+            };
 
             ParsedObject startingParsed = (ParsedObject) prisoner.getParsedPrestige().orElse(null);
 
@@ -131,7 +134,7 @@ public class PrestigeMaxCmd extends OCommand {
                     current.take();
 
                     // Execute the commands
-                    commands.addAll(current.getCommands());
+                    commands[0].addAll(current.getCommands());
 
                     // Set current prestige
                     prisoner._setPrestige(current.getIndex());

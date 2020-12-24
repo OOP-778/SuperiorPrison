@@ -12,6 +12,9 @@ public class MainCmd extends OCommand {
         label("superiorprison");
         alias("sp");
         permission("prison.cmds.admin.main");
+
+        subCommand(new CmdReload());
+        subCommand(new CmdEval());
     }
 
     public void onPush() {
@@ -20,7 +23,5 @@ public class MainCmd extends OCommand {
 
             subCommand(value.clone());
         }
-
-        subCommand(new CmdReload());
     }
 }

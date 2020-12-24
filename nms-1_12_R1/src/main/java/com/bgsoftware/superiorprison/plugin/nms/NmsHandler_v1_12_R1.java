@@ -1,6 +1,5 @@
 package com.bgsoftware.superiorprison.plugin.nms;
 
-import com.bgsoftware.superiorprison.plugin.util.ClassDebugger;
 import com.oop.orangeengine.material.OMaterial;
 import lombok.NonNull;
 import net.minecraft.server.v1_12_R1.*;
@@ -35,8 +34,8 @@ public class NmsHandler_v1_12_R1 implements SuperiorNms {
     public void refreshChunks(World world, Map<Chunk, Set<Location>> locations, Collection<Player> receivers) {
         List<Packet> packets = new LinkedList<>();
 
-        boolean usePacketChunk = locations.size() > 15;
         locations.forEach((chunk, locs) -> {
+            boolean usePacketChunk = locs.size() > 100;
             net.minecraft.server.v1_12_R1.Chunk nmsChunk = ((CraftChunk) chunk).getHandle();
             nmsChunk.markDirty();
 
@@ -51,7 +50,6 @@ public class NmsHandler_v1_12_R1 implements SuperiorNms {
                 }
 
                 packets.add(new PacketPlayOutMultiBlockChange(locsSize, values, nmsChunk));
-
             } else {
                 packets.add(new PacketPlayOutMapChunk(((CraftChunk) chunk).getHandle(), 65280));
                 packets.add(new PacketPlayOutMapChunk(((CraftChunk) chunk).getHandle(), 255));

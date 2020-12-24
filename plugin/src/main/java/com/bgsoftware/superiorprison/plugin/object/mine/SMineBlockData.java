@@ -13,6 +13,7 @@ import lombok.Setter;
 import org.bukkit.Location;
 import org.bukkit.Material;
 
+import javax.swing.plaf.synth.SynthUI;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -42,6 +43,7 @@ public class SMineBlockData implements Attachable<SMineGenerator>, MineBlockData
     public void reset() {
         locToMaterial.clear();
         materials.clear();
+        lockedBlocks.clear();
     }
 
     public void set(Location location, OMaterial material) {
@@ -57,7 +59,10 @@ public class SMineBlockData implements Attachable<SMineGenerator>, MineBlockData
 
     public void remove(Location location) {
         OMaterial material = locToMaterial.get(locationToPair(location));
-        if (material == null) return;
+        if (material == null) {
+            System.out.println("mat not found :)");
+            return;
+        }
 
         materials.merge(material, new OPair<>(1L, 0L), (f, s) -> f.setFirst(Math.max(f.getFirst() - s.getFirst(), 0L)));
         blocksLeft = Math.max(blocksLeft - 1, 0L);
@@ -88,6 +93,7 @@ public class SMineBlockData implements Attachable<SMineGenerator>, MineBlockData
 
     @Override
     public int getPercentageLeft() {
+        System.out.println(blocksLeft);
         return (int) (blocksLeft * 100.0 / generator.getBlocksInRegion());
     }
 
@@ -107,7 +113,7 @@ public class SMineBlockData implements Attachable<SMineGenerator>, MineBlockData
     public void unlock(Lock lock) {
         lockedBlocks.remove((SBLocksLock) lock);
         for (Location lockedLocation : ((SBLocksLock) lock).lockedLocations)
-            locToMaterial.remove(locationToPair(lockedLocation));
+            remove(lockedLocation);
     }
 
     @Override

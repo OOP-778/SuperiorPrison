@@ -2,6 +2,7 @@ package com.bgsoftware.superiorprison.plugin.commands;
 
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.commands.bombs.CmdBombs;
+import com.bgsoftware.superiorprison.plugin.commands.eco.CmdBalance;
 import com.bgsoftware.superiorprison.plugin.commands.eco.CmdEco;
 import com.bgsoftware.superiorprison.plugin.commands.ladder.PrestigeMaxCmd;
 import com.bgsoftware.superiorprison.plugin.commands.ladder.PrestigeUpCmd;
@@ -35,6 +36,7 @@ public class CommandsRegisterer {
 
         CmdSell cmdSell = new CmdSell();
         MainCmd mainCmd = new MainCmd(controller);
+
         com.oop.orangeengine.command.CommandsRegisterer registerer = new com.oop.orangeengine.command.CommandsRegisterer(controller)
                 .add(new CmdMines())
                 .add(cmdSell)
@@ -49,10 +51,10 @@ public class CommandsRegisterer {
                 .add(new PrestigeUpCmd())
                 .add(mainCmd);
 
-
-
-        if (((SEconomyHolder) SuperiorPrisonPlugin.getInstance().getEconomyController()).getConfig().isEnabled())
+        if (((SEconomyHolder) SuperiorPrisonPlugin.getInstance().getEconomyController()).getConfig().isEnabled()) {
             registerer.add(new CmdEco());
+            registerer.add(new CmdBalance());
+        }
 
         registerer.remap();
         registerer.push();

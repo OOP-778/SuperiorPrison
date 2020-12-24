@@ -160,6 +160,9 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
     public void reset() {
         if (resetting || caching) return;
 
+        lastReset = getDate().toInstant();
+        mine.onReset();
+
         // Check for cache
         StaticTask.getInstance().async(() -> {
             if (blocksInRegion == -1 || cachedChunksData.isEmpty())
@@ -168,9 +171,6 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
             else
                 generate();
         });
-
-        lastReset = getDate().toInstant();
-        mine.onReset();
     }
 
     @Override

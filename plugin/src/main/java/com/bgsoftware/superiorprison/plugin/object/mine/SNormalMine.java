@@ -378,9 +378,6 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
         this.areas = newAreas;
         areas.values().forEach(area -> area.attach(this));
 
-        if (getSettings().getResetSettings().isTimed())
-            getGenerator().reset();
-
         if (data.has("linker"))
             linker = data.applyAs("linker", ObjectLinker.class);
 

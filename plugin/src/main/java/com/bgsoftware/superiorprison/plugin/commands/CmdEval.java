@@ -10,8 +10,8 @@ import com.oop.orangeengine.command.OCommand;
 import com.oop.orangeengine.command.arg.arguments.StringArg;
 import org.bukkit.entity.Player;
 
-public class EvalCmd extends OCommand {
-    public EvalCmd() {
+public class CmdEval extends OCommand {
+    public CmdEval() {
         label("eval");
         description("Evaluate a expression");
         ableToExecute(Player.class);

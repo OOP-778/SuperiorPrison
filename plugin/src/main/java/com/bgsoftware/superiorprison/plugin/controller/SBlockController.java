@@ -39,10 +39,18 @@ import org.bukkit.inventory.ItemStack;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Consumer;
+
+import static com.oop.orangeengine.main.events.AsyncEvents.async;
 
 public class SBlockController implements BlockController {
+
     @Override
     public MultiBlockBreakEvent handleBlockBreak(Prisoner prisoner, SuperiorMine mine, ItemStack tool, Lock lock, Location... locations) {
+        return handleBlockBreak(prisoner, mine, tool, lock, null, locations);
+    }
+
+    public MultiBlockBreakEvent handleBlockBreak(Prisoner prisoner, SuperiorMine mine, ItemStack tool, Lock lock, Consumer<MultiBlockBreakEvent> beforeCall, Location... locations) {
         boolean silkTouch = false;
         boolean hasFortune = false;
         int fortuneLevel = -1;
@@ -88,13 +96,13 @@ public class SBlockController implements BlockController {
                     .getOMaterialAt(location);
 
             oMaterialAt.ifPresent(mat -> {
-//                if (finalAddToLock) {
-//                    if (mine.getGenerator().getBlockData().isLocked(location))
-//                        return;
-//                    else
-//                        ((SBLocksLock) finalLock).getLockedLocations().add(location);
-//                }
-//                ((SBLocksLock) finalLock).getLockedLocations().add(location);
+                if (finalAddToLock) {
+                    if (mine.getGenerator().getBlockData().isLocked(location))
+                        return;
+                    else
+                        ((SBLocksLock) finalLock).getLockedLocations().add(location);
+                }
+                ((SBLocksLock) finalLock).getLockedLocations().add(location);
 
                 List<ItemStack> drops = new ArrayList<>();
 
@@ -189,6 +197,17 @@ public class SBlockController implements BlockController {
             for (Location location : event.getBlockData().keySet())
                 mineBlockData.remove(location);
 
+        if (!mine.getSettings().getResetSettings().isTimed()) {
+            async(() -> {
+                int percentageOfFullBlocks = mineBlockData.getPercentageLeft();
+                long percentageRequired = mine.getSettings().getResetSettings().asPercentage().getValue();
+
+                if (percentageOfFullBlocks <= percentageRequired) {
+                    mine.getGenerator().reset();
+                }
+            });
+        }
+
         return event;
     }
 
@@ -199,6 +218,11 @@ public class SBlockController implements BlockController {
 
     @Override
     public MultiBlockBreakEvent breakBlock(Prisoner prisoner, SuperiorMine mine, ItemStack tool, Location... locations) {
+        return breakBlock(prisoner, mine, tool, null, locations);
+    }
+
+    @Override
+    public MultiBlockBreakEvent breakBlock(Prisoner prisoner, SuperiorMine mine, ItemStack tool, Consumer<MultiBlockBreakEvent> beforeCall, Location... locations) {
         Preconditions.checkArgument(Bukkit.isPrimaryThread(), "Cannot call break block in non main thread!");
 
         MultiBlockBreakEvent multiBlockBreakEvent = handleBlockBreak(prisoner, mine, tool, null, locations);

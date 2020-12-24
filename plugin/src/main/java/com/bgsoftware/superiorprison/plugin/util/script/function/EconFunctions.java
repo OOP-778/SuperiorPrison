@@ -1,16 +1,12 @@
 package com.bgsoftware.superiorprison.plugin.util.script.function;
 
 import com.bgsoftware.superiorprison.api.data.player.Prisoner;
-import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.economy.EconomyFramework;
-import com.bgsoftware.superiorprison.plugin.hook.impl.VaultHook;
 import com.bgsoftware.superiorprison.plugin.util.NumberUtil;
-import com.bgsoftware.superiorprison.plugin.util.script.util.Values;
 import com.bgsoftware.superiorprison.plugin.util.script.variable.GlobalVariableMap;
 import com.bgsoftware.superiorprison.plugin.util.script.variable.Variable;
 import com.bgsoftware.superiorprison.plugin.util.script.variable.VariableHelper;
 import com.google.common.base.Preconditions;
-import net.milkbowl.vault.economy.Economy;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
@@ -62,8 +58,6 @@ public class EconFunctions {
 
             Object o = variable.get(globalVariables);
             BigDecimal money = economyFramework.getBalance(o instanceof Prisoner ? ((Prisoner) o).getOfflinePlayer() : (OfflinePlayer) o);
-            if (money instanceof BigDecimal)
-                System.out.println(money.toPlainString());
             return money;
         }
 

@@ -11,7 +11,7 @@ import java.net.URL;
 
 public class Updater {
 
-    public static SuperiorPrisonPlugin plugin = SuperiorPrisonPlugin.getInstance();
+    private static SuperiorPrisonPlugin plugin = SuperiorPrisonPlugin.getInstance();
     private static String latestVersion, versionDescription;
 
     static {
@@ -23,7 +23,7 @@ public class Updater {
     }
 
     public static boolean isOutdated() {
-        return !plugin.getDescription().getVersion().equals(latestVersion);
+        return !getPlugin().getDescription().getVersion().equals(latestVersion);
     }
 
     public static String getLatestVersion() {
@@ -49,7 +49,7 @@ public class Updater {
                 JsonObject superiorprison = allVersions.getAsJsonObject("superiorprison");
 
                 if (superiorprison == null) {
-                    latestVersion = plugin.getDescription().getVersion();
+                    latestVersion = getPlugin().getDescription().getVersion();
                     return;
                 }
 
@@ -61,7 +61,18 @@ public class Updater {
             }
         } catch (Exception ex) {
             //Something went wrong...
-            latestVersion = plugin.getDescription().getVersion();
+            if (getPlugin() == null)
+                latestVersion = "Broken...";
+            else
+                latestVersion = getPlugin().getDescription().getVersion();
         }
+    }
+
+    public static SuperiorPrisonPlugin getPlugin() {
+        return plugin;
+    }
+
+    public static void setPlugin(SuperiorPrisonPlugin plugin) {
+        Updater.plugin = plugin;
     }
 }

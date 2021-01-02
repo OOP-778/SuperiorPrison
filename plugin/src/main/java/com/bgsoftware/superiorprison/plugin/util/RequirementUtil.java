@@ -63,4 +63,10 @@ public class RequirementUtil {
         return scaleBuilder.toString();
     }
 
+    public static String getRequired(RequirementData requirementData, SPrisoner prisoner) {
+        Optional<Requirement> requirement = SuperiorPrisonPlugin.getInstance().getRequirementController().findRequirement(requirementData.getType());
+        if (!requirement.isPresent()) return "invalid req";
+
+        return TextUtil.beautifyNumber(requirement.get().getHandler().getCurrent(prisoner, requirementData));
+    }
 }

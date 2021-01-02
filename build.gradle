@@ -4,24 +4,19 @@ buildscript {
         maven { url "https://plugins.gradle.org/m2/" }
     }
     dependencies {
-        classpath 'com.github.jengelman.gradle.plugins:shadow:5.2.0'
-        classpath "se.patrikerdes:gradle-use-latest-versions-plugin:0.2.13"
-        classpath 'com.github.ben-manes:gradle-versions-plugin:0.21.0'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:6.1.0'
     }
 }
 
 group 'SuperiorPrison'
 apply plugin: 'maven'
 apply plugin: 'base'
+apply plugin: 'com.github.johnrengelman.shadow'
 
 version = "0.2.2-BETA"
 
 allprojects {
     apply plugin: 'java'
-    apply plugin: 'com.github.johnrengelman.shadow'
-
-    apply plugin: 'com.github.ben-manes.versions'
-    apply plugin: 'se.patrikerdes.use-latest-versions'
 
     repositories {
         jcenter()
@@ -32,12 +27,11 @@ allprojects {
         maven { url 'http://repo.extendedclip.com/content/repositories/placeholderapi/' }
         maven { url 'https://papermc.io/repo/repository/maven-public' }
         maven { url 'http://repo.mvdw-software.be/content/groups/public/' }
-        maven { url 'https://raw.githubusercontent.com/TeamVK/maven-repository/master/release' }
     }
 
     dependencies {
         if (!project.name.startsWith("nms"))
-            compileOnly "org.spigotmc:spigot:1.16.4-R0.1-SNAPSHOT"
+            compileOnly "org.spigotmc:spigot:1.12.2-R0.1-SNAPSHOT"
         compileOnly 'org.projectlombok:lombok:1.18.8'
         annotationProcessor 'org.projectlombok:lombok:1.18.8'
 
@@ -46,14 +40,16 @@ allprojects {
             compile "com.oop.orangeengine:item:5.0"
             compile "com.oop.orangeengine:engine:5.0"
             compile "com.oop.orangeengine:particle:5.0"
+            compile "com.oop.orangeengine:inventory:5.0"
             compile "com.oop.orangeengine:command:5.0"
             compile "com.oop.orangeengine:eventssubscription:5.0"
             compile "com.oop.orangeengine:message:5.0"
             compile "com.oop.orangeengine:sound:5.0"
             compile "io.papermc:paperlib:1.0.4"
 
+            compileOnly(project(":api"))
+
             // Dependencies
-            compileOnly("com.github.MilkBowl:VaultAPI:1.7")
             compileOnly 'me.clip:placeholderapi:2.10.4'
 
             compile "com.oop:data:1.5"
@@ -61,72 +57,84 @@ allprojects {
             compileOnly 'be.maximvdw:MVdWPlaceholderAPI:3.1.1-SNAPSHOT'
             compileOnly fileTree("../lib")
 
+            compileOnly("com.github.MilkBowl:VaultAPI:1.7")
+            compileOnly "net.md-5:bungeecord-chat:1.16-R0.1"
+
         } else {
             compileOnly "com.oop.orangeengine:file:5.0"
             compileOnly "com.oop.orangeengine:item:5.0"
             compileOnly "com.oop.orangeengine:engine:5.0"
             compileOnly "com.oop.orangeengine:particle:5.0"
+            compileOnly "com.oop.orangeengine:inventory:5.0"
             compileOnly "com.oop.orangeengine:command:5.0"
             compileOnly "com.oop.orangeengine:database:5.0"
             compileOnly "com.oop.orangeengine:eventssubscription:5.0"
             compileOnly "com.oop.orangeengine:message:5.0"
+
+            if (!project.name.equalsIgnoreCase("api") && !project.name.equalsIgnoreCase("vault"))
+                compileOnly project(":plugin")
         }
-
-        if (project.name.equalsIgnoreCase("plugin")) {
-            compile project(":api")
-            compileOnly "net.md-5:bungeecord-chat:1.16-R0.1"
-
-        } else if (!project.name.equalsIgnoreCase("api"))
-            compileOnly project(":plugin")
     }
 
     configurations {
         all*.exclude group: 'org.bukkit', module: 'bukkit'
     }
 
-    shadowJar {
-        destinationDir file('../archive')
-        archiveName project.name + ".jar"
-
-        //relocate("com.oop.orangeengine", "com.bgsoftware.superiorprison.engine")
-        relocate("com.oop.datamodule", "com.bgsoftware.superiorprison.datamodule")
-        relocate("io.papermc.lib", "com.bgsoftware.superiorprison.paper")
-    }
-
-    processResources {
-        setOnlyIf {true}
-        outputs.upToDateWhen {false}
-
-        eachFile { details ->
-            if (details.name.contentEquals('plugin.yml')) {
-                filter { String line ->
-                    line.replaceAll('\\$\\{project.version\\}', parent.version)
+    if (project.name.equalsIgnoreCase("api") || project.name.equalsIgnoreCase("plugin")) {
+        if (project.name.equalsIgnoreCase("plugin")) {
+            processResources {
+                outputs.upToDateWhen {false}
+                eachFile { details ->
+                    if (details.name.contentEquals('plugin.yml')) {
+                        filter { String line ->
+                            line.replaceAll('\\$\\{project.version\\}', parent.version)
+                        }
+                    }
                 }
             }
+
+            tasks.build.dependsOn tasks.processResources
         }
-    }
 
-    tasks.build.dependsOn tasks.processResources
-    tasks.build.dependsOn tasks.shadowJar
+        if (project.name.equalsIgnoreCase("api")) {
+            apply plugin: 'com.github.johnrengelman.shadow'
+            shadowJar {
+                archiveName = "api.jar"
+                destinationDir = file("../archive/")
+                duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+            }
 
-    if (project.name.equalsIgnoreCase("api")) {
-        task javaDocs(type: Javadoc) {
-            source = sourceSets.main.allJava
+            tasks.build.dependsOn tasks.shadowJar
         }
     }
 }
 
-subprojects.each { subproject -> evaluationDependsOn(subproject.path) }
+dependencies {
+    subprojects.forEach({
+        if (it.name.equalsIgnoreCase("vault")) return;
+        compile(it)
+    })
+}
 
 shadowJar {
-    archiveName = 'SuperiorPrison.jar'
-    destinationDir = file("D:\\Work\\Allatori\\SuperiorPrison")
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    archiveName = "SuperiorPrison.jar"
+    destinationDir = file("archive/")
+    from sourceSets.getByName("main").output
+    configurations = [project.configurations.getByName("runtimeClasspath")]
 
-    from fileTree(dir: "archive").collect {
-        zipTree(it)
+    relocate("com.oop.orangeengine", "com.bgsoftware.superiorprison.lib.engine")
+    relocate("com.oop.datamodule", "com.bgsoftware.superiorprison.lib.data")
+}
+
+task copyJarToServer() {
+    doLast {
+        copy {
+            from 'D:\\Work\\SuperiorPrison\\archive\\SuperiorPrison.jar'
+            into "G:\\Serrvers\\OOP\\1.12.2\\plugins"
+        }
     }
 }
 
-task buildJar(dependsOn: [build, shadowJar])
-shadowJar.dependsOn(subprojects.shadowJar)
+copyJarToServer.dependsOn(build)
+copyJarToServer.dependsOn(shadowJar)
+shadowJar.dependsOn(build)

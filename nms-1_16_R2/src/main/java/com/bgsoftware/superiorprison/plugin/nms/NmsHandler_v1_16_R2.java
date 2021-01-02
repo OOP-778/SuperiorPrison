@@ -10,16 +10,16 @@ import org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.shorts.ShortArraySet;
 import org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.shorts.ShortSet;
 import org.bukkit.craftbukkit.v1_16_R2.CraftChunk;
 import org.bukkit.craftbukkit.v1_16_R2.CraftWorld;
+import org.bukkit.craftbukkit.v1_16_R2.block.CraftBlock;
 import org.bukkit.craftbukkit.v1_16_R2.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_16_R2.util.CraftMagicNumbers;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.SimplePluginManager;
 
 import java.lang.reflect.Constructor;
 import java.util.*;
 
 public class NmsHandler_v1_16_R2 implements SuperiorNms {
-    private Map<OMaterial, IBlockData> dataMap = new HashMap<>();
+    private final Map<OMaterial, IBlockData> dataMap = new HashMap<>();
 
     private static Class<?> SHORT_ARRAY_SET_CLASS = null;
     private static Constructor<?> MULTI_BLOCK_CHANGE_CONSTRUCTOR = null;
@@ -27,12 +27,12 @@ public class NmsHandler_v1_16_R2 implements SuperiorNms {
     static {
         try {
             SHORT_ARRAY_SET_CLASS = Class.forName("it.unimi.dsi.fastutil.shorts.ShortArraySet");
-            Class<?> shortSetClass = Class.forName("it.unimi.dsi.fastutil.shorts.ShortSet");
-            for(Constructor<?> constructor : PacketPlayOutMultiBlockChange.class.getConstructors()){
-                if(constructor.getParameterCount() > 0)
+            for (Constructor<?> constructor : PacketPlayOutMultiBlockChange.class.getConstructors()) {
+                if (constructor.getParameterCount() > 0)
                     MULTI_BLOCK_CHANGE_CONSTRUCTOR = constructor;
             }
-        }catch (Exception ignored){}
+        } catch (Exception ignored) {
+        }
     }
 
     @Override
@@ -60,9 +60,10 @@ public class NmsHandler_v1_16_R2 implements SuperiorNms {
     public void refreshChunks(World world, Map<Chunk, Set<Location>> locations, Collection<Player> receivers) {
         List<Packet> packets = new ArrayList<>();
 
-        boolean usePacketChunk = locations.size() > 15;
         locations.forEach((chunk, locs) -> {
             Map<Integer, Set<Short>> blocks = new HashMap<>();
+
+            boolean usePacketChunk = locs.size() > 100;
 
             net.minecraft.server.v1_16_R2.Chunk nmsChunk = ((CraftChunk) chunk).getHandle();
             nmsChunk.markDirty();
@@ -92,20 +93,20 @@ public class NmsHandler_v1_16_R2 implements SuperiorNms {
         }
     }
 
-    private static Set<Short> createShortSet(){
-        if(SHORT_ARRAY_SET_CLASS == null)
+    private static Set<Short> createShortSet() {
+        if (SHORT_ARRAY_SET_CLASS == null)
             return new ShortArraySet();
 
-        try{
+        try {
             return (Set<Short>) SHORT_ARRAY_SET_CLASS.newInstance();
-        }catch (Throwable ex){
+        } catch (Throwable ex) {
             ex.printStackTrace();
             return null;
         }
     }
 
-    private static PacketPlayOutMultiBlockChange createMultiBlockChangePacket(SectionPosition sectionPosition, Set<Short> shortSet, ChunkSection chunkSection){
-        if(MULTI_BLOCK_CHANGE_CONSTRUCTOR == null){
+    private static PacketPlayOutMultiBlockChange createMultiBlockChangePacket(SectionPosition sectionPosition, Set<Short> shortSet, ChunkSection chunkSection) {
+        if (MULTI_BLOCK_CHANGE_CONSTRUCTOR == null) {
             return new PacketPlayOutMultiBlockChange(
                     sectionPosition,
                     (ShortSet) shortSet,
@@ -114,9 +115,9 @@ public class NmsHandler_v1_16_R2 implements SuperiorNms {
             );
         }
 
-        try{
+        try {
             return (PacketPlayOutMultiBlockChange) MULTI_BLOCK_CHANGE_CONSTRUCTOR.newInstance(sectionPosition, shortSet, chunkSection, true);
-        }catch (Throwable ex){
+        } catch (Throwable ex) {
             ex.printStackTrace();
             return null;
         }
@@ -128,7 +129,21 @@ public class NmsHandler_v1_16_R2 implements SuperiorNms {
 
         PacketPlayOutBlockChange packet = new PacketPlayOutBlockChange(((CraftWorld) location.getWorld()).getHandle(), new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ()));
         for (Player player : players)
-            ((CraftPlayer)player).getHandle().playerConnection.sendPacket(packet);
+            ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
     }
 
+    @Override
+    public OMaterial getBlockType(Chunk chunk, Location location) {
+        int indexY = location.getBlockY() >> 4;
+        net.minecraft.server.v1_16_R2.Chunk nmsChunk = ((CraftChunk) chunk).getHandle();
+        ChunkSection chunkSection = nmsChunk.getSections()[indexY];
+
+        if (chunkSection == null)
+            return null;
+
+        IBlockData type = chunkSection.getType(location.getBlockX() & 15, location.getBlockY() & 15, location.getBlockZ() & 15);
+        if (type == Blocks.AIR.getBlockData()) return null;
+
+        return OMaterial.byCombinedId(Block.getCombinedId(type));
+    }
 }

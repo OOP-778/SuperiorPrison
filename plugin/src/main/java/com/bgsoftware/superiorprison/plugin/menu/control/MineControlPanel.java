@@ -11,7 +11,7 @@ import com.bgsoftware.superiorprison.plugin.menu.reward.MineRewardsMenu;
 import com.bgsoftware.superiorprison.plugin.menu.settings.SettingsMenu;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
-import com.bgsoftware.superiorprison.plugin.util.chatCmds.ChatCommands;
+import com.bgsoftware.superiorprison.plugin.util.chatcmds.ChatCommands;
 import com.bgsoftware.superiorprison.plugin.util.menu.ButtonClickEvent;
 import com.bgsoftware.superiorprison.plugin.util.menu.OMenu;
 import com.bgsoftware.superiorprison.plugin.util.menu.OMenuButton;

@@ -142,3 +142,22 @@ disable interactable blocks:
   - "BREWING_STAND"
   - "ANVIL"
   - "ITEM_FRAME"
+
+# Suffixes for formatting numbers
+# Each value goes by +3 0's
+number formatter suffixes:
+  - ""
+  - "k"
+  - "m"
+  - "b"
+  - "T"
+  - "Q"
+  - "Qt"
+  - "S"
+  - "ST"
+  - "O"
+  - "N"
+  - "D"
+  - "UD"
+  - "DD"
+  - "Z"

@@ -6,6 +6,7 @@ import com.bgsoftware.superiorprison.plugin.object.mine.locks.SBLocksLock;
 import com.bgsoftware.superiorprison.plugin.util.Attachable;
 import com.oop.orangeengine.main.util.data.cache.OCache;
 import com.oop.orangeengine.main.util.data.pair.OPair;
+import com.oop.orangeengine.main.util.data.pair.OTriplePair;
 import com.oop.orangeengine.material.OMaterial;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,9 +21,8 @@ import java.util.concurrent.TimeUnit;
 
 public class SMineBlockData implements Attachable<SMineGenerator>, MineBlockData {
 
-    // Material, current value, starting value
     @Getter
-    private final HashMap<Location, OMaterial> locToMaterial = new HashMap<>();
+    private final Map<OTriplePair<Integer, Integer, Integer>, OMaterial> locToMaterial = new ConcurrentHashMap<>();
 
     @Getter
     private final Map<OMaterial, OPair<Long, Long>> materials = new ConcurrentHashMap<>();
@@ -43,10 +43,11 @@ public class SMineBlockData implements Attachable<SMineGenerator>, MineBlockData
     public void reset() {
         locToMaterial.clear();
         materials.clear();
+        lockedBlocks.clear();
     }
 
     public void set(Location location, OMaterial material) {
-        locToMaterial.put(location, material);
+        locToMaterial.put(locationToPair(location), material);
         OPair<Long, Long> data = materials
                 .computeIfAbsent(material, in -> new OPair<>(0L, 0L));
         data.set(data.getFirst() + 1, data.getSecond() + 1);
@@ -57,8 +58,11 @@ public class SMineBlockData implements Attachable<SMineGenerator>, MineBlockData
     }
 
     public void remove(Location location) {
-        OMaterial material = locToMaterial.get(location);
-        if (material == null) return;
+        OMaterial material = locToMaterial.get(locationToPair(location));
+        if (material == null) {
+            System.out.println("mat not found :)");
+            return;
+        }
 
         materials.merge(material, new OPair<>(1L, 0L), (f, s) -> f.setFirst(Math.max(f.getFirst() - s.getFirst(), 0L)));
         blocksLeft = Math.max(blocksLeft - 1, 0L);
@@ -66,7 +70,7 @@ public class SMineBlockData implements Attachable<SMineGenerator>, MineBlockData
 
     @Override
     public Optional<Material> getMaterialAt(Location location) {
-        return Optional.ofNullable(locToMaterial.get(location)).map(OMaterial::parseMaterial);
+        return Optional.ofNullable(locToMaterial.get(locationToPair(location))).map(OMaterial::parseMaterial);
     }
 
     @Override
@@ -75,7 +79,7 @@ public class SMineBlockData implements Attachable<SMineGenerator>, MineBlockData
     }
 
     public Optional<OMaterial> getOMaterialAt(Location location) {
-        return Optional.ofNullable(locToMaterial.get(location));
+        return Optional.ofNullable(locToMaterial.get(locationToPair(location)));
     }
 
     @Override
@@ -89,6 +93,7 @@ public class SMineBlockData implements Attachable<SMineGenerator>, MineBlockData
 
     @Override
     public int getPercentageLeft() {
+        System.out.println(blocksLeft);
         return (int) (blocksLeft * 100.0 / generator.getBlocksInRegion());
     }
 
@@ -107,6 +112,8 @@ public class SMineBlockData implements Attachable<SMineGenerator>, MineBlockData
     @Override
     public void unlock(Lock lock) {
         lockedBlocks.remove((SBLocksLock) lock);
+        for (Location lockedLocation : ((SBLocksLock) lock).lockedLocations)
+            remove(lockedLocation);
     }
 
     @Override
@@ -121,6 +128,10 @@ public class SMineBlockData implements Attachable<SMineGenerator>, MineBlockData
 
     @Override
     public boolean has(Location location) {
-        return locToMaterial.containsKey(location);
+        return locToMaterial.containsKey(locationToPair(location));
+    }
+
+    public OTriplePair<Integer, Integer, Integer> locationToPair(Location location) {
+        return new OTriplePair<>(location.getBlockX(), location.getBlockY(), location.getBlockZ());
     }
 }

@@ -1,4 +1,4 @@
-package com.bgsoftware.superiorprison.plugin.util.chatCmds;
+package com.bgsoftware.superiorprison.plugin.util.chatcmds;
 
 import com.bgsoftware.superiorprison.plugin.util.input.PlayerInput;
 import com.google.common.collect.Maps;

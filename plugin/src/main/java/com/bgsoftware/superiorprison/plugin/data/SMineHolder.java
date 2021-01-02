@@ -76,7 +76,6 @@ public class SMineHolder extends UniversalDataHolder<String, SNormalMine> implem
 
     @Override
     public Optional<SuperiorMine> getMineAt(Location location) {
-
         return stream()
                 .filter(mine -> mine.isInside(location))
                 .map(mine -> (SuperiorMine) mine)

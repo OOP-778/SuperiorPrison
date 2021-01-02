@@ -11,6 +11,7 @@ import com.oop.orangeengine.yaml.Config;
 import lombok.Getter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -44,7 +45,11 @@ public class MainConfig extends ConfigWrapper {
     private long updateBackpacksEvery;
     private boolean itemDropping = false;
 
+    private boolean useMineDataCache;
+    private int resetMineAtRestartAt;
     private boolean handleNamedItems;
+
+    private List<String> numberFormatterSuffixes;
 
     public MainConfig() {
         load();
@@ -83,6 +88,10 @@ public class MainConfig extends ConfigWrapper {
                 "Please be careful with this. As it can cause serious performance issues, test the values you set before using."
         );
 
+        useMineDataCache = configuration.getAs("use mine cache", boolean.class, () -> true, "Should we cache the mine data?", "Using cache more memory will be used", "Without using it will take longer to resets mines");
+
+        resetMineAtRestartAt = configuration.getAs("mine reset at load percentage", int.class, () -> 70, "To make the server load lighter", "From which percentage should mines auto reset?");
+
         disabledInteractableBlocks = (List<OMaterial>) configuration
                 .getAs("disabled interactable blocks", List.class, () -> Lists.newArrayList("CRAFTING_TABLE", "ANVIL", "CHEST", "ITEM_FRAME"), "Disable interactable blocks")
                 .stream()
@@ -95,6 +104,30 @@ public class MainConfig extends ConfigWrapper {
                 .toMillis(TimeUtil.toSeconds(configuration.getAs("update backpacks every", String.class, () -> "1s", "Update backpacks every")));
 
         handleNamedItems = configuration.getAs("handle named items", boolean.class, () -> false, "Handle items with name, lore, etc.", "In shops, auto sell, etc.");
+
+        this.numberFormatterSuffixes = configuration.getAs(
+                "number formatter suffixes",
+                List.class,
+                () -> Arrays.asList(
+                        "",
+                        "k",
+                        "m",
+                        "b",
+                        "T",
+                        "Q",
+                        "QT",
+                        "S",
+                        "ST",
+                        "O",
+                        "N",
+                        "D",
+                        "UD",
+                        "DD",
+                        "Z"
+                ),
+                "Suffixes for formatting numbers",
+                "Each value goes by +3 0's"
+        );
 
         SuperiorPrisonPlugin.getInstance().getOLogger().setDebugMode(configuration.getAs("debug", boolean.class, () -> false));
         SuperiorPrisonPlugin.getInstance().getResetQueueTask().setChunksPerTick(chunksPerTick);

@@ -40,33 +40,19 @@ public class NmsHandler_v1_16_R3 implements SuperiorNms {
         IBlockData data = dataMap.computeIfAbsent(material, key -> CraftMagicNumbers.getBlock(key.parseMaterial()).getBlockData());
         net.minecraft.server.v1_16_R3.Chunk nmsChunk = ((CraftChunk) chunk).getHandle();
 
-        int indexY = location.getBlockY() >> 4;
-        ChunkSection chunkSection = nmsChunk.getSections()[indexY];
-
-        if (chunkSection == null)
-            chunkSection = nmsChunk.getSections()[indexY] = new ChunkSection(indexY << 4);
-
-        chunkSection.setType(location.getBlockX() & 15, location.getBlockY() & 15, location.getBlockZ() & 15, data);
-
-        // Updating light
-        WorldServer world = ((CraftWorld) chunk.getWorld()).getHandle();
-
-        BlockPosition pos = new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ());
-        world.getChunkProvider().getLightEngine().a(pos);
-        world.getChunkProvider().flagDirty(pos);
+        BlockPosition blockPosition = new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ());
+        nmsChunk.setType(blockPosition, data, false, false);
     }
 
     @Override
     public void refreshChunks(World world, Map<Chunk, Set<Location>> locations, Collection<Player> receivers) {
         List<Packet> packets = new ArrayList<>();
 
-        boolean usePacketChunk = locations.size() > 15;
         locations.forEach((chunk, locs) -> {
             Map<Integer, Set<Short>> blocks = new HashMap<>();
+            boolean usePacketChunk = locs.size() > 100;
 
             net.minecraft.server.v1_16_R3.Chunk nmsChunk = ((CraftChunk) chunk).getHandle();
-            nmsChunk.markDirty();
-
             if (!usePacketChunk) {
                 for (Location location : locs)
                     blocks.computeIfAbsent(location.getBlockY() >> 4, key -> createShortSet())
@@ -80,8 +66,7 @@ public class NmsHandler_v1_16_R3 implements SuperiorNms {
                         )
                 ));
             } else {
-                packets.add(new PacketPlayOutMapChunk(((CraftChunk) chunk).getHandle(), 65280));
-                packets.add(new PacketPlayOutMapChunk(((CraftChunk) chunk).getHandle(), 255));
+                packets.add(new PacketPlayOutMapChunk(((CraftChunk) chunk).getHandle(), 65536));
             }
         });
 
@@ -131,4 +116,18 @@ public class NmsHandler_v1_16_R3 implements SuperiorNms {
             ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
     }
 
+    @Override
+    public OMaterial getBlockType(Chunk chunk, Location location) {
+        int indexY = location.getBlockY() >> 4;
+        net.minecraft.server.v1_16_R3.Chunk nmsChunk = ((CraftChunk) chunk).getHandle();
+        ChunkSection chunkSection = nmsChunk.getSections()[indexY];
+
+        if (chunkSection == null)
+            return null;
+
+        IBlockData type = chunkSection.getType(location.getBlockX() & 15, location.getBlockY() & 15, location.getBlockZ() & 15);
+        if (type == Blocks.AIR.getBlockData()) return null;
+
+        return OMaterial.byCombinedId(Block.getCombinedId(type));
+    }
 }

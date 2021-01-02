@@ -77,12 +77,7 @@ public class ResetQueueTask extends OTask {
                             if (bukkitChunk == null) {
                                 gettingChunk = true;
                                 Framework.FRAMEWORK.loadChunk(currentChunk.getWorld(), currentChunk.getX(), currentChunk.getZ(), chunk -> {
-                                    if (OVersion.isAfter(16)) {
-                                        chunk.addPluginChunkTicket(SuperiorPrisonPlugin.getInstance());
-                                        this.bukkitChunk = new OPair<>(chunk, true);
-                                    } else
-                                        this.bukkitChunk = new OPair<>(chunk, false);
-
+                                    this.bukkitChunk = new OPair<>(chunk, false);
                                     this.gettingChunk = false;
                                 });
                                 break;
@@ -95,9 +90,6 @@ public class ResetQueueTask extends OTask {
                             if (currentChunk != null && currentChunk.getData().isEmpty()) {
                                 proceedChunks++;
                                 currentChunk = SuperiorPrisonPlugin.getInstance().getMineController().getQueue().next();
-
-                                if (bukkitChunk.getValue())
-                                    bukkitChunk.getKey().removePluginChunkTicket(SuperiorPrisonPlugin.getInstance());
 
                                 bukkitChunk = null;
                                 if (proceedChunks == chunksPerTick)

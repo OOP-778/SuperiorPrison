@@ -4,8 +4,7 @@ import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.mine.reward.SMineReward;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
-import com.bgsoftware.superiorprison.plugin.util.chatCmds.ChatCommands;
-import com.bgsoftware.superiorprison.plugin.util.input.PlayerInput;
+import com.bgsoftware.superiorprison.plugin.util.chatcmds.ChatCommands;
 import com.bgsoftware.superiorprison.plugin.util.menu.OMenu;
 import com.bgsoftware.superiorprison.plugin.util.menu.OMenuButton;
 import com.bgsoftware.superiorprison.plugin.util.menu.OPagedMenu;
@@ -14,8 +13,6 @@ import org.bukkit.ChatColor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;

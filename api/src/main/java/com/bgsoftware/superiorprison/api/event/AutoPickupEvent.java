@@ -9,7 +9,6 @@ import org.bukkit.inventory.ItemStack;
 /*
 Called on each item when it's being picked up!
 */
-
 public class AutoPickupEvent extends PrisonerEvent implements Cancellable {
 
     @Getter @Setter

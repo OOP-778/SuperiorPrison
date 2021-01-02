@@ -1,6 +1,5 @@
 package com.bgsoftware.superiorprison.plugin.util.placeholders;
 
-import com.bgsoftware.superiorprison.api.SuperiorPrison;
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
 import com.bgsoftware.superiorprison.api.data.mine.settings.ResetSettings;
 import com.bgsoftware.superiorprison.api.data.player.Prestige;
@@ -22,6 +21,7 @@ import com.bgsoftware.superiorprison.plugin.util.placeholders.parser.ObjectCache
 import com.bgsoftware.superiorprison.plugin.util.placeholders.parser.Parser;
 import com.oop.orangeengine.main.Helper;
 import com.oop.orangeengine.material.OMaterial;
+import com.sun.corba.se.impl.orbutil.concurrent.Sync;
 import org.bukkit.Location;
 
 import java.time.ZonedDateTime;
@@ -49,6 +49,42 @@ public class PlaceholderParser {
             .parse("currentmine", prisoner -> prisoner.getCurrentMine().map(Pair::getKey).map(SuperiorMine::getName).orElse("none"))
             .parse("fortuneblocks", prisoner -> booleanToState(prisoner.isFortuneBlocks()))
             .parse("canenter", (prisoner, obj, crawler) -> canEnter(prisoner, crawler))
+            .parse("ladderreqs", (prisoner, obj, crawler) -> {
+                System.out.println(crawler.hasNext());
+                if (crawler.hasNext()) {
+                    String requirementType = crawler.next().toUpperCase();
+                    System.out.println(requirementType);
+                    Optional<LadderRank> nextLadderRank = prisoner.getCurrentLadderRank().getNext();
+                    if (!nextLadderRank.isPresent()) {
+                        SPrestige nextPrestige;
+                        if (prisoner.getCurrentPrestige().isPresent())
+                            nextPrestige = (SPrestige) prisoner.getCurrentPrestige().get().getNext().orElse(null);
+                        else
+                            nextPrestige = (SPrestige) SuperiorPrisonPlugin.getInstance().getPrestigeController().getPrestige(1).orElse(null);
+                        if (nextPrestige == null)
+                            return SuperiorPrisonPlugin.getInstance().getMainConfig().getPlaceholdersSection().getPrestigeNotFound();
+
+                        System.out.println("prestige heere");
+
+                        return nextPrestige.getRequirements().stream()
+                                .filter(req -> req.getType().equalsIgnoreCase(requirementType))
+                                .map(requirementData -> RequirementUtil.getRequired(requirementData, prisoner))
+                                .findFirst()
+                                .orElse(SuperiorPrisonPlugin.getInstance().getMainConfig().getPlaceholdersSection().getPrestigeNotFound());
+                    }
+
+                    System.out.println("here");
+
+                    SLadderRank next = (SLadderRank) nextLadderRank.get();
+                    return next
+                            .getRequirements().stream()
+                            .filter(req -> req.getType().equalsIgnoreCase(requirementType))
+                            .map(requirementData -> RequirementUtil.getRequired(requirementData, prisoner))
+                            .findFirst()
+                            .orElse(SuperiorPrisonPlugin.getInstance().getMainConfig().getPlaceholdersSection().getRankNotFound());
+                }
+                return "Invalid req";
+            })
             .parse("rankupscale", (prisoner, obj, crawler) -> {
                 Optional<LadderRank> nextLadderRank = prisoner.getCurrentLadderRank().getNext();
                 if (!nextLadderRank.isPresent()) {
@@ -57,7 +93,8 @@ public class PlaceholderParser {
                         nextPrestige = (SPrestige) prisoner.getCurrentPrestige().get().getNext().orElse(null);
                     else
                         nextPrestige = (SPrestige) SuperiorPrisonPlugin.getInstance().getPrestigeController().getPrestige(1).orElse(null);
-                    if (nextPrestige == null) return SuperiorPrisonPlugin.getInstance().getMainConfig().getPlaceholdersSection().getPrestigeNotFound();
+                    if (nextPrestige == null)
+                        return SuperiorPrisonPlugin.getInstance().getMainConfig().getPlaceholdersSection().getPrestigeNotFound();
 
                     return RequirementUtil.getProgressScale(prisoner, nextPrestige.getRequirements());
                 }
@@ -73,7 +110,8 @@ public class PlaceholderParser {
                         nextPrestige = (SPrestige) prisoner.getCurrentPrestige().get().getNext().orElse(null);
                     else
                         nextPrestige = (SPrestige) SuperiorPrisonPlugin.getInstance().getPrestigeController().getPrestige(1).orElse(null);
-                    if (nextPrestige == null) return SuperiorPrisonPlugin.getInstance().getMainConfig().getPlaceholdersSection().getPrestigeNotFound();
+                    if (nextPrestige == null)
+                        return SuperiorPrisonPlugin.getInstance().getMainConfig().getPlaceholdersSection().getPrestigeNotFound();
 
                     return RequirementUtil.getPercentageCompleted(nextPrestige.getRequirements(), prisoner);
                 }
@@ -205,7 +243,8 @@ public class PlaceholderParser {
     }
 
     private static String getFromAccess(Object object, String identifier, boolean rank) {
-        if (object == null) return !rank ? SuperiorPrisonPlugin.getInstance().getMainConfig().getPlaceholdersSection().getPrestigeNotFound() : SuperiorPrisonPlugin.getInstance().getMainConfig().getPlaceholdersSection().getRankNotFound();
+        if (object == null)
+            return !rank ? SuperiorPrisonPlugin.getInstance().getMainConfig().getPlaceholdersSection().getPrestigeNotFound() : SuperiorPrisonPlugin.getInstance().getMainConfig().getPlaceholdersSection().getRankNotFound();
         if (identifier == null)
             return object instanceof Rank ? ((Rank) object).getName() : ((Prestige) object).getName();
 

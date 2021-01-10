@@ -130,7 +130,7 @@ task copyJarToServer() {
     doLast {
         copy {
             from 'D:\\Work\\SuperiorPrison\\archive\\SuperiorPrison.jar'
-            into "G:\\Serrvers\\OOP\\1.12.2\\plugins"
+            into "G:\\Serrvers\\OOP\\1.16\\plugins"
         }
     }
 }

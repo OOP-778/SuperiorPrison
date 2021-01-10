@@ -81,8 +81,7 @@ public class NmsHandler_v1_16_R2 implements SuperiorNms {
                         )
                 ));
             } else {
-                packets.add(new PacketPlayOutMapChunk(((CraftChunk) chunk).getHandle(), 65280));
-                packets.add(new PacketPlayOutMapChunk(((CraftChunk) chunk).getHandle(), 255));
+                packets.add(new PacketPlayOutMapChunk(((CraftChunk) chunk).getHandle(), 65535));
             }
         });
 

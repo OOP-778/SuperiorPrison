@@ -4,7 +4,7 @@ import com.bgsoftware.superiorprison.api.data.mine.messages.MessageType;
 import com.bgsoftware.superiorprison.api.data.mine.messages.MineChatMessage;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.hook.impl.PapiHook;
-import com.oop.datamodule.SerializedData;
+import com.oop.datamodule.api.SerializedData;
 import com.oop.orangeengine.main.Helper;
 import lombok.Getter;
 import lombok.Setter;

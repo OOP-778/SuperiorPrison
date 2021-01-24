@@ -15,7 +15,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class PlayerInventory_v1_16_R3 extends CraftInventoryPlayer implements PatchedInventory {
     @Getter
     private SPlayerInventory owner;
-
     private AtomicBoolean calling = new AtomicBoolean(false);
 
     public PlayerInventory_v1_16_R3(PlayerInventory inventory, SPlayerInventory owner) {

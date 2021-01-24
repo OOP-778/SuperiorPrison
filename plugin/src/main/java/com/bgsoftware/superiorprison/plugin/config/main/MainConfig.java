@@ -25,7 +25,7 @@ public class MainConfig extends ConfigWrapper {
 
     private long cacheTime = TimeUnit.HOURS.toMillis(1);
     private long soldMessageInterval = TimeUnit.MINUTES.toMillis(3);
-    private DatabaseSection database;
+    private StorageSection storageSection;
     private MineDefaultsSection mineDefaults;
     private OItem areaSelectionTool;
 
@@ -63,8 +63,7 @@ public class MainConfig extends ConfigWrapper {
         // Set Locale
         configuration.ifValuePresent("locale", String.class, locale -> this.locale = locale);
 
-        // Load Database Section
-        this.database = addSection("database", new DatabaseSection());
+        storageSection = new StorageSection(configuration);
 
         // Load prisoner defaults
         this.prisonerDefaults = addSection("prisoner defaults", new PrisonerDefaults());
@@ -89,7 +88,6 @@ public class MainConfig extends ConfigWrapper {
         );
 
         useMineDataCache = configuration.getAs("use mine cache", boolean.class, () -> true, "Should we cache the mine data?", "Using cache more memory will be used", "Without using it will take longer to resets mines");
-
         resetMineAtRestartAt = configuration.getAs("mine reset at load percentage", int.class, () -> 70, "To make the server load lighter", "From which percentage should mines auto reset?");
 
         disabledInteractableBlocks = (List<OMaterial>) configuration

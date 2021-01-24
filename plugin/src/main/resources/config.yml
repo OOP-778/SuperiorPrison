@@ -4,19 +4,18 @@ locale: "en-us"
 # Enables or disables debug
 debug: false
 
-database:
-  # There's two database types
-  # SQLITE
-  # MYSQL
-  # FLAT
+# Storage options
+storage:
+  # There's 5 types of storages: sqlite, mongodb, json, mysql, postgresql
   type: sqlite
 
-  # <<< If you're using SQLITE you should ignore under >>>
-  database: "data"
-  hostname: 127.0.0.1
-  port: 3306
-  username: "root"
-  password: "ouf123"
+  # The values for sqlite is: database aka the name of the file
+  # The values for mongodb is
+  # Either connection uri: Which contains the whole connection url
+  # Or host, port, database, username, password
+  # For mysql & postgresql the values are: host, port, database, username, password
+  credentials:
+    database: "data"
 
 # Top systems configurations
 top systems:

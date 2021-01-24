@@ -27,16 +27,15 @@ import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.object.player.rank.SLadderRank;
 import com.bgsoftware.superiorprison.plugin.object.player.rank.SSpecialRank;
 import com.bgsoftware.superiorprison.plugin.util.AccessUtil;
-import com.bgsoftware.superiorprison.plugin.util.Removeable;
 import com.bgsoftware.superiorprison.plugin.util.SPLocation;
 import com.bgsoftware.superiorprison.plugin.util.frameworks.Framework;
 import com.google.common.collect.Maps;
-import com.oop.datamodule.SerializedData;
-import com.oop.datamodule.body.MultiTypeBody;
-import com.oop.datamodule.gson.JsonArray;
-import com.oop.datamodule.gson.JsonElement;
-import com.oop.datamodule.gson.JsonObject;
-import com.oop.datamodule.util.DataUtil;
+import com.oop.datamodule.api.SerializedData;
+import com.oop.datamodule.api.util.DataUtil;
+import com.oop.datamodule.lib.google.gson.JsonArray;
+import com.oop.datamodule.lib.google.gson.JsonElement;
+import com.oop.datamodule.lib.google.gson.JsonObject;
+import com.oop.datamodule.universal.model.UniversalBodyModel;
 import com.oop.orangeengine.item.ItemBuilder;
 import com.oop.orangeengine.main.Helper;
 import com.oop.orangeengine.main.task.StaticTask;
@@ -57,71 +56,53 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.type.NormalMine, Serializable, MultiTypeBody, Removeable {
+public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.type.NormalMine, Serializable, UniversalBodyModel {
     private final Set<Prisoner> prisoners = ConcurrentHashMap.newKeySet();
 
     private final Set<String> ranks = new OConcurrentSet<>();
 
     private final Set<String> prestiges = new OConcurrentSet<>();
-
+    private final Set<SpecialRank> specialRanks = new HashSet<>();
+    private final Map<String, LinkableObject> linkableObjectMap = new HashMap<>();
+    private final OCache<UUID, Boolean> canEnterCache = OCache
+            .builder()
+            .concurrencyLevel(1)
+            .expireAfter(5, TimeUnit.SECONDS)
+            .build();
     @Setter
     private String name;
-
     private MineEnum type = MineEnum.NORMAL_MINE;
-
     @Setter
     private SPLocation spawnPoint = null;
-
     private SMineGenerator generator;
-
     @Setter
     private SShop shop;
-
     @Getter
     @Setter
     private SMineSettings settings;
-
     @Setter
     private ItemStack icon;
-
     @Getter
     private Map<AreaEnum, SArea> areas = Maps.newConcurrentMap();
-
     @Getter
     private SMineEffects effects;
-
     @Getter
     private SMineMessages messages;
-
     private SPrestige highestPrestige;
-
     private SLadderRank highestRank;
-
     @Getter
     private SMineRewards rewards;
-
-    private final Set<SpecialRank> specialRanks = new HashSet<>();
-
     @Getter
     private ObjectLinker linker = new ObjectLinker();
-
-    private final Map<String, LinkableObject> linkableObjectMap = new HashMap<>();
-
     @Getter
     private OCache<Lock, Boolean> pendingTasks = OCache
             .builder()
             .concurrencyLevel(1)
             .expireAfter(5, TimeUnit.SECONDS)
             .build();
-
-    @Getter
-    @Setter
-    private boolean removed = false;
-    private final OCache<UUID, Boolean> canEnterCache = OCache
-            .builder()
-            .concurrencyLevel(1)
-            .expireAfter(5, TimeUnit.SECONDS)
-            .build();
+    public Map<String, LinkableObject> getLinkableObjects() {
+        return linkableObjectMap;
+    }
 
     private SNormalMine() {
     }
@@ -391,18 +372,8 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
     }
 
     @Override
-    public String getTable() {
-        return "mines";
-    }
-
-    @Override
     public String getKey() {
         return name;
-    }
-
-    @Override
-    public String getSerializedType() {
-        return "normalMine";
     }
 
     @Override
@@ -523,9 +494,7 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
         getLinkableObjects().put("rewards", rewards);
     }
 
-    @Override
     public void remove() {
-        removed = true;
         SuperiorPrisonPlugin.getInstance().getDatabaseController().getStorage(SMineHolder.class).remove(this);
     }
 
@@ -584,10 +553,6 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
         return prestiges.contains(name);
     }
 
-    public Map<String, LinkableObject> getLinkableObjects() {
-        return linkableObjectMap;
-    }
-
     @Override
     public boolean isReady() {
         return !generator.isCaching() && !generator.isResetting() && !generator.isWorldLoadWait();
@@ -616,5 +581,10 @@ public class SNormalMine implements com.bgsoftware.superiorprison.api.data.mine.
         location.setPitch(player.getEyeLocation().getPitch());
         location.setYaw(player.getEyeLocation().getYaw());
         setSpawnPoint(new SPLocation(location));
+    }
+
+    @Override
+    public String getIdentifierKey() {
+        return "name";
     }
 }

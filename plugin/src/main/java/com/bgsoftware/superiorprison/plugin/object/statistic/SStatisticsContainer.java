@@ -6,15 +6,15 @@ import com.bgsoftware.superiorprison.plugin.data.SStatisticHolder;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.util.Removeable;
 import com.google.common.collect.Sets;
-import com.oop.datamodule.SerializedData;
-import com.oop.datamodule.body.MultiTypeBody;
+import com.oop.datamodule.api.SerializedData;
+import com.oop.datamodule.universal.model.UniversalBodyModel;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Set;
 import java.util.UUID;
 
-public class SStatisticsContainer implements StatisticsContainer, MultiTypeBody, Removeable {
+public class SStatisticsContainer implements StatisticsContainer, UniversalBodyModel, Removeable {
 
     @Getter
     private UUID uuid;
@@ -49,18 +49,8 @@ public class SStatisticsContainer implements StatisticsContainer, MultiTypeBody,
     }
 
     @Override
-    public String getTable() {
-        return "statistics";
-    }
-
-    @Override
     public String getKey() {
         return uuid.toString();
-    }
-
-    @Override
-    public String getSerializedType() {
-        return "statisticsContainer";
     }
 
     @Override
@@ -71,7 +61,6 @@ public class SStatisticsContainer implements StatisticsContainer, MultiTypeBody,
         };
     }
 
-    @Override
     public void remove() {
         removed = true;
         SuperiorPrisonPlugin.getInstance().getDatabaseController().getStorage(SStatisticHolder.class).remove(this);
@@ -93,5 +82,10 @@ public class SStatisticsContainer implements StatisticsContainer, MultiTypeBody,
     @Override
     public void save(boolean b, Runnable runnable) {
         SuperiorPrisonPlugin.getInstance().getDatabaseController().getStorage(SStatisticHolder.class).save(this, b, runnable);
+    }
+
+    @Override
+    public String getIdentifierKey() {
+        return "uuid";
     }
 }

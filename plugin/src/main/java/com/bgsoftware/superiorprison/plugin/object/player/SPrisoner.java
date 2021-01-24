@@ -21,10 +21,10 @@ import com.bgsoftware.superiorprison.plugin.util.Removeable;
 import com.bgsoftware.superiorprison.plugin.util.SPair;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
-import com.oop.datamodule.SerializedData;
-import com.oop.datamodule.body.MultiTypeBody;
-import com.oop.datamodule.gson.JsonElement;
-import com.oop.datamodule.util.DataUtil;
+import com.oop.datamodule.api.SerializedData;
+import com.oop.datamodule.api.util.DataUtil;
+import com.oop.datamodule.lib.google.gson.JsonElement;
+import com.oop.datamodule.universal.model.UniversalBodyModel;
 import com.oop.orangeengine.main.util.OSimpleReflection;
 import com.oop.orangeengine.main.util.data.cache.OCache;
 import com.oop.orangeengine.main.util.data.pair.OPair;
@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
 
 import static com.bgsoftware.superiorprison.plugin.util.AccessUtil.findRank;
 
-public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.Prisoner, MultiTypeBody, Removeable {
+public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.Prisoner, UniversalBodyModel, Removeable {
     private static final String defaultHeadTexture = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYmM4ZWExZjUxZjI1M2ZmNTE0MmNhMTFhZTQ1MTkz\n" +
             "YTRhZDhjM2FiNWU5YzZlZWM4YmE3YTRmY2I3YmFjNDAifX19";
     private final Set<String> ranks = new OConcurrentSet<>();
@@ -349,11 +349,6 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
     }
 
     @Override
-    public String getTable() {
-        return "prisoners";
-    }
-
-    @Override
     public String getKey() {
         return uuid.toString();
     }
@@ -488,11 +483,6 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
         cachedPlayer = null;
     }
 
-    @Override
-    public String getSerializedType() {
-        return "prisoner";
-    }
-
     public String getTextureValue() {
         if (textureValue == null) return defaultHeadTexture;
         if (textureValue.contentEquals(defaultHeadTexture) && isOnline())
@@ -511,5 +501,10 @@ public class SPrisoner implements com.bgsoftware.superiorprison.api.data.player.
 
     public void lockBackpack(int slot, SBackPack backPack) {
         openedBackpack = new OPair<>(slot, backPack);
+    }
+
+    @Override
+    public String getIdentifierKey() {
+        return "uuid";
     }
 }

@@ -19,9 +19,11 @@ import com.bgsoftware.superiorprison.plugin.tasks.PlayerInventoryUpdateTask;
 import com.bgsoftware.superiorprison.plugin.tasks.ResetQueueTask;
 import com.bgsoftware.superiorprison.plugin.tasks.TasksStarter;
 import com.bgsoftware.superiorprison.plugin.util.menu.MenuListener;
+import com.oop.datamodule.api.StorageInitializer;
 import com.oop.orangeengine.main.Helper;
 import com.oop.orangeengine.main.plugin.EnginePlugin;
 import com.oop.orangeengine.main.task.ClassicTaskController;
+import com.oop.orangeengine.main.task.StaticTask;
 import com.oop.orangeengine.main.task.TaskController;
 import lombok.Getter;
 import lombok.Setter;
@@ -72,6 +74,11 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
                 return;
             }
 
+            StorageInitializer.initialize(
+                    StaticTask.getInstance()::async,
+                    StaticTask.getInstance()::sync
+            );
+
             new MenuListener();
 
             this.hookController = new HookController();
@@ -107,7 +114,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
                     .add(bombController, true)
                     .load();
 
-            this.databaseController = new DatabaseController(mainConfig);
+            this.databaseController = new DatabaseController();
             this.placeholderController = new PlaceholderController();
             this.topController = new STopController();
 
@@ -145,7 +152,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
 
     @Override
     public void disable() {
-        if (getDatabaseController() != null && getDatabaseController().getDatabase() != null)
+        if (getDatabaseController() != null)
             getDatabaseController().save(false);
 
         getHookController()

@@ -3,8 +3,8 @@ package com.bgsoftware.superiorprison.plugin.object.mine.reward;
 import com.bgsoftware.superiorprison.api.data.mine.reward.MineReward;
 import com.bgsoftware.superiorprison.api.data.mine.reward.MineRewards;
 import com.bgsoftware.superiorprison.plugin.object.mine.linkable.LinkableObject;
-import com.oop.datamodule.SerializableObject;
-import com.oop.datamodule.SerializedData;
+import com.oop.datamodule.api.SerializableObject;
+import com.oop.datamodule.api.SerializedData;
 
 import java.util.Collections;
 import java.util.LinkedList;

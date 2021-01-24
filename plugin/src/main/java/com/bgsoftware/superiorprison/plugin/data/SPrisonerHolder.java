@@ -1,75 +1,60 @@
 package com.bgsoftware.superiorprison.plugin.data;
 
 import com.bgsoftware.superiorprison.api.controller.PrisonerHolder;
-import com.bgsoftware.superiorprison.api.data.player.Prestige;
 import com.bgsoftware.superiorprison.api.data.player.Prisoner;
-import com.bgsoftware.superiorprison.api.data.player.rank.LadderRank;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.controller.DatabaseController;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import com.oop.datamodule.database.TableEditor;
+import com.oop.datamodule.api.storage.Storage;
+import com.oop.datamodule.commonsql.storage.SqlStorage;
+import com.oop.datamodule.commonsql.util.TableEditor;
+import com.oop.datamodule.universal.UniversalStorage;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
-import java.io.File;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-public class SPrisonerHolder extends UniversalDataHolder<UUID, SPrisoner> implements PrisonerHolder {
+public class SPrisonerHolder extends UniversalStorage<SPrisoner> implements PrisonerHolder {
+    private final Pattern uuidPattern = Pattern.compile("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[34][0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}");
 
     @Getter
     private final Map<String, UUID> usernameToUuidMap = Maps.newConcurrentMap();
 
+    @Getter
+    private final Map<UUID, SPrisoner> prisonerMap = new ConcurrentHashMap<>();
+
     public SPrisonerHolder(DatabaseController controller) {
-        super(controller, SPrisoner::getUUID);
+        super(controller);
+        addVariant("prisoners", SPrisoner.class);
 
-        String type = SuperiorPrisonPlugin.getInstance().getMainConfig().getDatabase().getType();
-        if (type.equalsIgnoreCase("flat")) {
-            currentHolder(
-                    DataSettings.builder(DataSettings.FlatStorageSettings.class, SPrisoner.class)
-                            .directory(new File(SuperiorPrisonPlugin.getInstance().getDataFolder() + "/prisoners"))
-                            .variants(ImmutableMap.of("prisoner", SPrisoner.class))
-            );
-        } else if (type.equalsIgnoreCase("sqlite") || type.equalsIgnoreCase("mysql")) {
-            currentHolder(
-                    DataSettings.builder(DataSettings.SQlSettings.class, SPrisoner.class)
-                            .databaseWrapper(controller.getDatabase())
-                            .variants(new Class[]{SPrisoner.class})
-            );
-        }
+        currentImplementation(
+                (Storage<SPrisoner>) SuperiorPrisonPlugin.getInstance().getMainConfig().getStorageSection().getStorageProvider().apply(this)
+        );
 
-        if (controller.getDatabase() != null) {
+        if (getCurrentImplementation() instanceof SqlStorage) {
             new TableEditor("prisoners")
                     .renameColumn("prestiges", "currentPrestige")
                     .addColumn("currentLadderRank", "TEXT")
-                    .edit(controller.getDatabase());
-
+                    .addDropColumn("ranks")
+                    .edit(((SqlStorage) getCurrentImplementation()).getDatabase());
         }
 
-        SuperiorPrisonPlugin.getInstance().getRankController().addLoadHook(c -> {
-            for (SPrisoner prisoner : getDataMap().values()) {
-                // Update the ladder rank
-                LadderRank currentLadderRank = prisoner.getCurrentLadderRank();
-                Optional<LadderRank> ladderRank = c.getLadderRank(currentLadderRank.getName());
-                ladderRank.ifPresent(rank -> prisoner.setLadderRank(rank, false));
-            }
-        });
-
-        SuperiorPrisonPlugin.getInstance().getPrestigeController().addLoadHook(c -> {
-            for (SPrisoner prisoner : getDataMap().values()) {
-                // Update the prestige
-                Optional<Prestige> currentPrestige = prisoner.getCurrentPrestige();
-                if (currentPrestige.isPresent()) {
-                    Optional<Prestige> prestige = c.getPrestige(currentPrestige.get().getOrder());
-                    prestige.ifPresent(p -> prisoner.setPrestige(p, false));
-                }
-            }
+        long start = System.currentTimeMillis();
+        onLoad(mine -> {
+            SuperiorPrisonPlugin.getInstance().getOLogger().print(
+                    "Loaded {} prisoners. Took ({}ms)",
+                    prisonerMap.size(),
+                    (System.currentTimeMillis() - start)
+            );
         });
     }
 
@@ -79,21 +64,29 @@ public class SPrisonerHolder extends UniversalDataHolder<UUID, SPrisoner> implem
 
     @Override
     public Optional<Prisoner> getPrisoner(UUID uuid) {
-        return Optional.ofNullable(getDataMap().get(uuid));
+        return Optional.ofNullable(getPrisonerMap().get(uuid));
+    }
+
+    @Override
+    protected void onAdd(SPrisoner prisoner) {
+        prisonerMap.put(prisoner.getUUID(), prisoner);
+    }
+
+    @Override
+    protected void onRemove(SPrisoner prisoner) {
+        prisonerMap.put(prisoner.getUUID(), prisoner);
     }
 
     @Override
     public Stream<SPrisoner> stream() {
-        return super
-                .stream()
-                .filter(prisoner -> !prisoner.isRemoved());
+        return prisonerMap.values().stream();
     }
 
     @Override
     public Optional<Prisoner> getPrisoner(String username) {
         UUID uuid = usernameToUuidMap.get(username);
         if (uuid == null) {
-            if (username.matches("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[34][0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}"))
+            if (uuidPattern.matcher(username).matches())
                 return getPrisoner(UUID.fromString(username));
 
             OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(username);
@@ -114,7 +107,6 @@ public class SPrisonerHolder extends UniversalDataHolder<UUID, SPrisoner> implem
         return prisoner;
     }
 
-
     public SPrisoner getInsertIfAbsent(UUID uuid) {
         Optional<Prisoner> optionalPrisoner = getPrisoner(uuid);
         return optionalPrisoner
@@ -128,10 +120,6 @@ public class SPrisonerHolder extends UniversalDataHolder<UUID, SPrisoner> implem
         }
     }
 
-    public Map<UUID, SPrisoner> getPrisonerMap() {
-        return dataMap;
-    }
-
     public void cleanInvalids() {
         long start = System.currentTimeMillis();
         long count = stream()
@@ -140,5 +128,10 @@ public class SPrisonerHolder extends UniversalDataHolder<UUID, SPrisoner> implem
                 .count();
 
         SuperiorPrisonPlugin.getInstance().getOLogger().print("Prisoner Invalidation DONE ({}) Took {}ms", count, (System.currentTimeMillis() - start));
+    }
+
+    @Override
+    public Iterator<SPrisoner> iterator() {
+        return prisonerMap.values().iterator();
     }
 }

@@ -1,8 +1,8 @@
 package com.bgsoftware.superiorprison.plugin.object.mine.effects;
 
 import com.bgsoftware.superiorprison.api.data.mine.effects.MineEffect;
-import com.oop.datamodule.SerializableObject;
-import com.oop.datamodule.SerializedData;
+import com.oop.datamodule.api.SerializableObject;
+import com.oop.datamodule.api.SerializedData;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;

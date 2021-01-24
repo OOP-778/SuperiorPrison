@@ -49,11 +49,9 @@ public class PlaceholderParser {
             .parse("currentmine", prisoner -> prisoner.getCurrentMine().map(Pair::getKey).map(SuperiorMine::getName).orElse("none"))
             .parse("fortuneblocks", prisoner -> booleanToState(prisoner.isFortuneBlocks()))
             .parse("canenter", (prisoner, obj, crawler) -> canEnter(prisoner, crawler))
-            .parse("ladderreqs", (prisoner, obj, crawler) -> {
-                System.out.println(crawler.hasNext());
+            .parse("nextladderrequirement", (prisoner, obj, crawler) -> {
                 if (crawler.hasNext()) {
                     String requirementType = crawler.next().toUpperCase();
-                    System.out.println(requirementType);
                     Optional<LadderRank> nextLadderRank = prisoner.getCurrentLadderRank().getNext();
                     if (!nextLadderRank.isPresent()) {
                         SPrestige nextPrestige;
@@ -64,16 +62,12 @@ public class PlaceholderParser {
                         if (nextPrestige == null)
                             return SuperiorPrisonPlugin.getInstance().getMainConfig().getPlaceholdersSection().getPrestigeNotFound();
 
-                        System.out.println("prestige heere");
-
                         return nextPrestige.getRequirements().stream()
                                 .filter(req -> req.getType().equalsIgnoreCase(requirementType))
                                 .map(requirementData -> RequirementUtil.getRequired(requirementData, prisoner))
                                 .findFirst()
                                 .orElse(SuperiorPrisonPlugin.getInstance().getMainConfig().getPlaceholdersSection().getPrestigeNotFound());
                     }
-
-                    System.out.println("here");
 
                     SLadderRank next = (SLadderRank) nextLadderRank.get();
                     return next

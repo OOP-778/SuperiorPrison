@@ -3,6 +3,7 @@ package com.bgsoftware.superiorprison.plugin.commands;
 import com.bgsoftware.superiorprison.plugin.commands.backpacks.CmdBackpacks;
 import com.bgsoftware.superiorprison.plugin.commands.bombs.CmdBombs;
 import com.bgsoftware.superiorprison.plugin.commands.mines.CmdMines;
+import com.bgsoftware.superiorprison.plugin.commands.mines.CmdReload;
 import com.bgsoftware.superiorprison.plugin.commands.prisoner.CmdPrisoner;
 import com.bgsoftware.superiorprison.plugin.commands.rankup.CmdMaxRankup;
 import com.bgsoftware.superiorprison.plugin.commands.rankup.CmdRankup;
@@ -11,10 +12,9 @@ import com.bgsoftware.superiorprison.plugin.commands.top.CmdTop;
 import com.oop.orangeengine.command.OCommand;
 
 public class MainCmd extends OCommand {
-
     public MainCmd() {
         label("superiorprison");
-        alias("sp");
+        alias("sp", "prison");
         permission("prison.cmds.admin.main");
 
         subCommand(new CmdMine());
@@ -26,5 +26,8 @@ public class MainCmd extends OCommand {
         subCommand(new CmdMines());
         subCommand(new CmdBombs());
         subCommand(new CmdBackpacks());
+        subCommand(new CmdReload());
+        subCommand(new CmdExport());
+        subCommand(new CmdImport());
     }
 }

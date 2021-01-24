@@ -2,8 +2,8 @@ package com.bgsoftware.superiorprison.plugin.object.player.booster;
 
 import com.bgsoftware.superiorprison.api.data.player.booster.Booster;
 import com.bgsoftware.superiorprison.api.data.player.booster.XPBooster;
-import com.oop.datamodule.SerializableObject;
-import com.oop.datamodule.SerializedData;
+import com.oop.datamodule.api.SerializableObject;
+import com.oop.datamodule.api.SerializedData;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

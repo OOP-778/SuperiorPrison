@@ -2,26 +2,31 @@ package com.bgsoftware.superiorprison.plugin.data;
 
 import com.bgsoftware.superiorprison.api.controller.MineHolder;
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
-import com.bgsoftware.superiorprison.api.data.mine.type.NormalMine;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.controller.DatabaseController;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.util.ChunkDataQueue;
 import com.bgsoftware.superiorprison.plugin.util.ChunkResetData;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
+import com.oop.datamodule.api.storage.Storage;
+import com.oop.datamodule.sqlite.SQLiteCredential;
+import com.oop.datamodule.universal.StorageProviders;
+import com.oop.datamodule.universal.UniversalStorage;
 import com.oop.orangeengine.main.util.data.cache.OCache;
 import com.oop.orangeengine.material.OMaterial;
 import lombok.Getter;
 import org.bukkit.Location;
 
-import java.io.File;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public class SMineHolder extends UniversalDataHolder<String, SNormalMine> implements MineHolder {
+public class SMineHolder extends UniversalStorage<SNormalMine> implements MineHolder {
+
+    private final Map<String, SNormalMine> mineMap = Maps.newConcurrentMap();
 
     @Getter
     private final ChunkDataQueue queue = new ChunkDataQueue();
@@ -33,22 +38,12 @@ public class SMineHolder extends UniversalDataHolder<String, SNormalMine> implem
             .build();
 
     public SMineHolder(DatabaseController controller) {
-        super(controller, SNormalMine::getKey);
+        super(controller);
 
-        String type = SuperiorPrisonPlugin.getInstance().getMainConfig().getDatabase().getType();
-        if (type.equalsIgnoreCase("flat")) {
-            currentHolder(
-                    DataSettings.builder(DataSettings.FlatStorageSettings.class, SNormalMine.class)
-                            .directory(new File(SuperiorPrisonPlugin.getInstance().getDataFolder() + "/mines"))
-                            .variants(ImmutableMap.of("normalMine", SNormalMine.class))
-            );
-        } else if (type.equalsIgnoreCase("sqlite") || type.equalsIgnoreCase("mysql")) {
-            currentHolder(
-                    DataSettings.builder(DataSettings.SQlSettings.class, SNormalMine.class)
-                            .databaseWrapper(controller.getDatabase())
-                            .variants(new Class[]{SNormalMine.class})
-            );
-        }
+        addVariant("mines", SNormalMine.class);
+        currentImplementation(
+                (Storage<SNormalMine>) SuperiorPrisonPlugin.getInstance().getMainConfig().getStorageSection().getStorageProvider().apply(this)
+        );
     }
 
     @Override
@@ -71,7 +66,7 @@ public class SMineHolder extends UniversalDataHolder<String, SNormalMine> implem
 
     @Override
     public Optional<SuperiorMine> getMine(String mineName) {
-        return Optional.ofNullable(getDataMap().get(mineName));
+        return Optional.ofNullable(mineMap.get(mineName));
     }
 
     @Override
@@ -121,9 +116,29 @@ public class SMineHolder extends UniversalDataHolder<String, SNormalMine> implem
 
     public void clear() {
         minesCache.clear();
-        for (SNormalMine value : dataMap.values())
+        for (SNormalMine value : mineMap.values())
             value.clean();
 
-        dataMap.clear();
+        mineMap.clear();
+    }
+
+    @Override
+    protected void onAdd(SNormalMine sNormalMine) {
+        mineMap.put(sNormalMine.getName(), sNormalMine);
+    }
+
+    @Override
+    protected void onRemove(SNormalMine sNormalMine) {
+        mineMap.remove(sNormalMine.getName());
+    }
+
+    @Override
+    public Stream<SNormalMine> stream() {
+        return mineMap.values().stream();
+    }
+
+    @Override
+    public Iterator<SNormalMine> iterator() {
+        return mineMap.values().iterator();
     }
 }

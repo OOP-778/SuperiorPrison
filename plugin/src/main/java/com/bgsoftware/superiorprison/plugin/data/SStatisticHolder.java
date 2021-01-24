@@ -4,39 +4,35 @@ import com.bgsoftware.superiorprison.api.controller.StatisticsController;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.controller.DatabaseController;
 import com.bgsoftware.superiorprison.plugin.object.statistic.SStatisticsContainer;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
+import com.oop.datamodule.api.storage.Storage;
+import com.oop.datamodule.universal.UniversalStorage;
 
-import java.io.File;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Stream;
 
-public class SStatisticHolder extends UniversalDataHolder<UUID, SStatisticsContainer> implements StatisticsController {
+public class SStatisticHolder extends UniversalStorage<SStatisticsContainer> implements StatisticsController {
+    private final Map<UUID, SStatisticsContainer> containerMap = Maps.newConcurrentMap();
 
     public SStatisticHolder(DatabaseController controller) {
-        super(controller, SStatisticsContainer::getUuid);
+        super(controller);
+        addVariant("statistics", SStatisticsContainer.class);
 
-        String type = SuperiorPrisonPlugin.getInstance().getMainConfig().getDatabase().getType();
-        if (type.equalsIgnoreCase("flat")) {
-            currentHolder(
-                    DataSettings.builder(DataSettings.FlatStorageSettings.class, SStatisticsContainer.class)
-                            .directory(new File(SuperiorPrisonPlugin.getInstance().getDataFolder() + "/statistics"))
-                            .variants(ImmutableMap.of("statisticsContainer", SStatisticsContainer.class))
-            );
-        } else if (type.equalsIgnoreCase("sqlite") || type.equalsIgnoreCase("mysql")) {
-            currentHolder(
-                    DataSettings.builder(DataSettings.SQlSettings.class, SStatisticsContainer.class)
-                            .databaseWrapper(controller.getDatabase())
-                            .variants(new Class[]{SStatisticsContainer.class})
-            );
-        }
+        currentImplementation(
+                (Storage<SStatisticsContainer>) SuperiorPrisonPlugin.getInstance().getMainConfig().getStorageSection().getStorageProvider().apply(this)
+        );
     }
 
     @Override
     public SStatisticsContainer getContainer(UUID uuid) {
-        SStatisticsContainer container = getDataMap().get(uuid);
+        SStatisticsContainer container = containerMap.get(uuid);
         if (container == null) {
             container = new SStatisticsContainer(uuid);
-            getDataMap().put(uuid, container);
+            containerMap.put(uuid, container);
+
             save(container, true);
         }
 
@@ -44,6 +40,26 @@ public class SStatisticHolder extends UniversalDataHolder<UUID, SStatisticsConta
     }
 
     public Optional<SStatisticsContainer> getIfFound(UUID uuid) {
-        return Optional.ofNullable(dataMap.get(uuid));
+        return Optional.ofNullable(containerMap.get(uuid));
+    }
+
+    @Override
+    protected void onAdd(SStatisticsContainer sStatisticsContainer) {
+        containerMap.put(sStatisticsContainer.getUuid(), sStatisticsContainer);
+    }
+
+    @Override
+    protected void onRemove(SStatisticsContainer sStatisticsContainer) {
+        containerMap.remove(sStatisticsContainer.getUuid());
+    }
+
+    @Override
+    public Stream<SStatisticsContainer> stream() {
+        return containerMap.values().stream();
+    }
+
+    @Override
+    public Iterator<SStatisticsContainer> iterator() {
+        return containerMap.values().iterator();
     }
 }

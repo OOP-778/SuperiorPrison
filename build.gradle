@@ -52,7 +52,7 @@ allprojects {
             // Dependencies
             compileOnly 'me.clip:placeholderapi:2.10.4'
 
-            compile "com.oop:data:1.5"
+            implementation("com.oop.datamodule:universal:2.0")
             compileOnly 'com.github.brcdev-minecraft:shopgui-api:1.5.0'
             compileOnly 'be.maximvdw:MVdWPlaceholderAPI:3.1.1-SNAPSHOT'
             compileOnly fileTree("../lib")
@@ -123,14 +123,14 @@ shadowJar {
     configurations = [project.configurations.getByName("runtimeClasspath")]
 
     relocate("com.oop.orangeengine", "com.bgsoftware.superiorprison.lib.engine")
-    relocate("com.oop.datamodule", "com.bgsoftware.superiorprison.lib.data")
+    //relocate("com.oop.datamodule", "com.bgsoftware.superiorprison.lib.data")
 }
 
 task copyJarToServer() {
     doLast {
         copy {
-            from 'D:\\Work\\SuperiorPrison\\archive\\SuperiorPrison.jar'
-            into "G:\\Serrvers\\OOP\\1.16\\plugins"
+            from 'archive/SuperiorPrison.jar'
+            into "/run/media/brian/BRABARAR/Serrvers/OOP/1.16/plugins/"
         }
     }
 }

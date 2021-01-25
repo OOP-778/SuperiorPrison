@@ -313,7 +313,23 @@ public enum LocaleEnum {
     ),
     EDIT_REWARD_ADDED_CMD("Successfully added &d{command} to the commands list"),
     EDIT_REWARD_CHANCE("Successfully set chance of the reward to {chance}"),
-    EDIT_REWARD_REMOVED_COMMAND("Successfully removed command at index {index}");
+    EDIT_REWARD_REMOVED_COMMAND("Successfully removed command at index {index}"),
+
+    MINE_INFO(
+            new OChatMessage()
+                    .append("&7&l-----------------")
+                    .append("")
+                    .append("   &d&lMINE INFORMATION")
+                    .append("   &7Name: &d{mine_name}")
+                    .append("   &7Icon: {mine_icon}")
+                    .append("   &7Prisoners: &d{mine_prisoners}")
+                    .append("")
+                    .append("   &5&l=> &d&lGenerator")
+                    .append("   &5&l* &7Blocks in mine: &d{mine_blocks}")
+                    .append("   &5&l* &7Materials&7: &d{mine_materials}")
+                    .append("")
+                    .append("&7&l-----------------")
+    );
 
     private final OMessage[] cache = new OMessage[2];
 

@@ -10,6 +10,7 @@ import org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.shorts.ShortArraySet;
 import org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.shorts.ShortSet;
 import org.bukkit.craftbukkit.v1_16_R3.CraftChunk;
 import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_16_R3.block.CraftBlock;
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_16_R3.util.CraftMagicNumbers;
@@ -128,6 +129,6 @@ public class NmsHandler_v1_16_R3 implements SuperiorNms {
         IBlockData type = chunkSection.getType(location.getBlockX() & 15, location.getBlockY() & 15, location.getBlockZ() & 15);
         if (type == Blocks.AIR.getBlockData()) return null;
 
-        return OMaterial.matchMaterial(CraftMagicNumbers.getMaterial(type).getItemType());
+        return OMaterial.matchMaterial(CraftMagicNumbers.getMaterial(type.getBlock()));
     }
 }

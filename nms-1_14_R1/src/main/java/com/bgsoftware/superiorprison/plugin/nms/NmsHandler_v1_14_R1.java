@@ -97,6 +97,6 @@ public class NmsHandler_v1_14_R1 implements SuperiorNms {
         IBlockData type = chunkSection.getType(location.getBlockX() & 15, location.getBlockY() & 15, location.getBlockZ() & 15);
         if (type == Blocks.AIR.getBlockData()) return null;
 
-        return OMaterial.byCombinedId(Block.getCombinedId(type));
+        return OMaterial.matchMaterial(CraftMagicNumbers.getMaterial(type).getItemType());
     }
 }

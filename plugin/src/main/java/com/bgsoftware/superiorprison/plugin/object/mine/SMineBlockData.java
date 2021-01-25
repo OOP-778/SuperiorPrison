@@ -60,7 +60,6 @@ public class SMineBlockData implements Attachable<SMineGenerator>, MineBlockData
     public void remove(Location location) {
         OMaterial material = locToMaterial.get(locationToPair(location));
         if (material == null) {
-            System.out.println("mat not found :)");
             return;
         }
 
@@ -93,7 +92,6 @@ public class SMineBlockData implements Attachable<SMineGenerator>, MineBlockData
 
     @Override
     public int getPercentageLeft() {
-        System.out.println(blocksLeft);
         return (int) (blocksLeft * 100.0 / generator.getBlocksInRegion());
     }
 

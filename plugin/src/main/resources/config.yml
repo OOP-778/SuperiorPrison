@@ -160,3 +160,6 @@ number formatter suffixes:
   - "UD"
   - "DD"
   - "Z"
+
+# Disable rankup message
+disable rankup message: false

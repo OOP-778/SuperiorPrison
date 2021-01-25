@@ -51,6 +51,8 @@ public class MainConfig extends ConfigWrapper {
 
     private List<String> numberFormatterSuffixes;
 
+    private boolean disableRankupMessage;
+
     public MainConfig() {
         load();
     }
@@ -86,6 +88,8 @@ public class MainConfig extends ConfigWrapper {
                 "How much chunks per tick should the block setting use",
                 "Please be careful with this. As it can cause serious performance issues, test the values you set before using."
         );
+
+        disableRankupMessage = configuration.getAs("disable rankup message", boolean.class, () -> false, "Disable rankup message");
 
         useMineDataCache = configuration.getAs("use mine cache", boolean.class, () -> true, "Should we cache the mine data?", "Using cache more memory will be used", "Without using it will take longer to resets mines");
         resetMineAtRestartAt = configuration.getAs("mine reset at load percentage", int.class, () -> 70, "To make the server load lighter", "From which percentage should mines auto reset?");

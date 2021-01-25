@@ -29,6 +29,8 @@ public class RankupTask extends OTask {
         repeat(true);
         runnable(() -> {
             if (SuperiorPrisonPlugin.disabling) return;
+            if (SuperiorPrisonPlugin.getInstance().getMainConfig().isDisableRankupMessage()) return;
+
             SuperiorPrisonPlugin.getInstance().getPrisonerController()
                     .streamOnline()
                     .filter(prisoner -> prisoner.getCurrentMine().isPresent())

@@ -66,11 +66,11 @@ public class CmdImport extends OCommand {
 
                             storage.add(body);
                             imported += 1;
-                            System.out.println(body.getKey());
                         }
                     }
 
                     command.getSender().sendMessage("Imported " + imported + " objects!");
+                    databaseController.save(true);
                 } catch (Throwable throwable) {
                     throw new IllegalStateException("Failed to import data", throwable);
                 }

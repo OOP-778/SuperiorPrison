@@ -6,6 +6,7 @@ import com.bgsoftware.superiorprison.plugin.commands.CommandsRegister;
 import com.bgsoftware.superiorprison.plugin.config.main.MainConfig;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.controller.*;
+import com.bgsoftware.superiorprison.plugin.data.LibLoader;
 import com.bgsoftware.superiorprison.plugin.data.SMineHolder;
 import com.bgsoftware.superiorprison.plugin.data.SPrisonerHolder;
 import com.bgsoftware.superiorprison.plugin.data.SStatisticHolder;
@@ -20,6 +21,10 @@ import com.bgsoftware.superiorprison.plugin.tasks.ResetQueueTask;
 import com.bgsoftware.superiorprison.plugin.tasks.TasksStarter;
 import com.bgsoftware.superiorprison.plugin.util.menu.MenuListener;
 import com.oop.datamodule.api.StorageInitializer;
+import com.oop.datamodule.mongodb.MongoDependencies;
+import com.oop.datamodule.mysql.MySqlDependencies;
+import com.oop.datamodule.postgresql.PostgreSqlDependencies;
+import com.oop.datamodule.sqlite.SqliteDependencies;
 import com.oop.orangeengine.main.Helper;
 import com.oop.orangeengine.main.plugin.EnginePlugin;
 import com.oop.orangeengine.main.task.ClassicTaskController;
@@ -76,7 +81,12 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
 
             StorageInitializer.initialize(
                     StaticTask.getInstance()::async,
-                    StaticTask.getInstance()::sync
+                    StaticTask.getInstance()::sync,
+                    new LibLoader(this),
+                    null,
+                    error -> getOLogger().error(error),
+                    new MySqlDependencies(), new MongoDependencies(),
+                    new SqliteDependencies(), new PostgreSqlDependencies()
             );
 
             new MenuListener();
@@ -152,8 +162,10 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
 
     @Override
     public void disable() {
-        if (getDatabaseController() != null)
+        if (getDatabaseController() != null) {
             getDatabaseController().save(false);
+            getDatabaseController().shutdown();
+        }
 
         getHookController()
                 .executeIfFound(() -> PapiHook.class, PapiHook::disable);

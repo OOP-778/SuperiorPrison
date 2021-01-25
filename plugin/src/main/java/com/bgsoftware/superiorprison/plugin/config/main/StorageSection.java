@@ -33,9 +33,9 @@ public class StorageSection {
             credentialsSection.getComments().addAll(Arrays.asList(
                     "The values for sqlite is: database aka the name of the file",
                     "The values for mongodb is",
-                    "Either connection uri: Which contains the whole connection url",
-                    "Or host, port, database, username, password",
-                    "For mysql & postgresql the values are: host, port, database, username, password",
+                    "Either connection uri & database",
+                    "Or host, database, username, password",
+                    "For mysql & postgresql the values are: host, database, username, password",
                     "For json it's path"
             ));
 
@@ -68,7 +68,6 @@ public class StorageSection {
         // For mysql & postgresql
         if (type.equalsIgnoreCase("mysql") || type.equalsIgnoreCase("postgresql")) {
             String host = credentialsSection.getAs("host");
-            int port = credentialsSection.getAs("port", int.class);
             String database = credentialsSection.getAs("database", String.class);
             String username = credentialsSection.getAs("username", String.class);
             String password = credentialsSection.getAs("password", String.class);
@@ -78,17 +77,17 @@ public class StorageSection {
                 credential = new MySQLCredential()
                         .database(database)
                         .hostname(host)
-                        .port(port)
                         .username(username)
                         .password(password);
+                credentialsSection.ifValuePresent("port", int.class, ((MySQLCredential) credential)::port);
 
             } else {
                 credential = new PostgreSQLCredential()
                         .database(database)
                         .hostname(host)
-                        .port(port)
                         .username(username)
                         .password(password);
+                credentialsSection.ifValuePresent("port", int.class, ((PostgreSQLCredential) credential)::port);
             }
 
             SuperiorPrisonPlugin.getInstance().getOLogger().printWarning("Testing database {} connection...", type);
@@ -129,12 +128,13 @@ public class StorageSection {
         if (type.equalsIgnoreCase("mongodb")) {
             MongoCredential credential;
             if (credentialsSection.isValuePresent("connection uri")) {
+                String database = credentialsSection.getAs("database", String.class);
                 credential = new MongoCredential()
-                        .connectionUri(credentialsSection.getAs("connection uri"));
+                        .connectionUri(credentialsSection.getAs("connection uri"))
+                        .database(database);
 
             } else {
                 String host = credentialsSection.getAs("host");
-                int port = credentialsSection.getAs("port", int.class);
                 String database = credentialsSection.getAs("database", String.class);
                 String username = credentialsSection.getAs("username", String.class);
                 String password = credentialsSection.getAs("password", String.class);
@@ -142,8 +142,9 @@ public class StorageSection {
                         .database(database)
                         .password(password)
                         .username(username)
-                        .hostname(host)
-                        .port(port);
+                        .hostname(host);
+
+                credentialsSection.ifValuePresent("port", int.class, credential::port);
             }
 
             SuperiorPrisonPlugin.getInstance().getOLogger().printWarning("Testing database {} connection...", type);
@@ -154,7 +155,7 @@ public class StorageSection {
                 throw new IllegalStateException("Database connection test failed...", throwable);
             }
 
-            storageProvider = (storage) -> StorageProviders.MONGO_DB.provide(storage.getLinker(), credential.build());
+            storageProvider = (storage) -> StorageProviders.MONGO_DB.provide(storage.getLinker(), credential);
         }
     }
 }

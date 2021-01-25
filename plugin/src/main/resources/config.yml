@@ -11,7 +11,7 @@ storage:
 
   # The values for sqlite is: database aka the name of the file
   # The values for mongodb is
-  # Either connection uri: Which contains the whole connection url
+  # Either connection uri which contains the whole connection uri and the database
   # Or host, port, database, username, password
   # For mysql & postgresql the values are: host, port, database, username, password
   credentials:

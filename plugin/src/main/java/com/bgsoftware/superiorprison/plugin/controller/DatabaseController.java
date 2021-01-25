@@ -78,23 +78,22 @@ public class DatabaseController extends StorageRegistry {
             }
         });
 
-        SuperiorPrisonPlugin.getInstance().getPluginComponentController()
-                .listenForReload(ConfigController.class, configController -> {
-                    StorageSection storageSection = SuperiorPrisonPlugin.getInstance().getMainConfig().getStorageSection();
-
-                    save(false, () -> {
-                        for (Storage<?> storage : getStorages()) {
-                            Storage currentImplementation = ((UniversalStorage) storage).getCurrentImplementation();
-                            Storage storageNew = storageSection.getStorageProvider().apply((UniversalStorage) storage);
-
-                            if (currentImplementation.getClass().equals(storageNew.getClass())) continue;
-
-                            System.out.println("changed database");
-                            ((UniversalStorage) storage).currentImplementation(storageNew);
-                            storage.save(true);
-                        }
-                    });
-                });
+//        SuperiorPrisonPlugin.getInstance().getPluginComponentController()
+//                .listenForReload(ConfigController.class, configController -> {
+//                    StorageSection storageSection = SuperiorPrisonPlugin.getInstance().getMainConfig().getStorageSection();
+//
+//                    save(false, () -> {
+//                        for (Storage<?> storage : getStorages()) {
+//                            Storage currentImplementation = ((UniversalStorage) storage).getCurrentImplementation();
+//                            Storage storageNew = storageSection.getStorageProvider().apply((UniversalStorage) storage);
+//
+//                            if (currentImplementation.getClass().equals(storageNew.getClass())) continue;
+//
+//                            ((UniversalStorage) storage).currentImplementation(storageNew);
+//                            storage.save(true);
+//                        }
+//                    });
+//                });
     }
 
     public ItemStack deserialize(String serializedItem) throws JsonParseException {

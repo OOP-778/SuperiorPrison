@@ -1,12 +1,15 @@
 package com.bgsoftware.superiorprison.plugin.commands;
 
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
+import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.oop.datamodule.api.converter.exporter.StorageExporter;
 import com.oop.orangeengine.command.OCommand;
 import com.oop.orangeengine.command.arg.arguments.StringArg;
 import com.oop.orangeengine.main.task.StaticTask;
 
 import java.io.File;
+
+import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
 
 public class CmdExport extends OCommand {
     public CmdExport() {
@@ -18,12 +21,14 @@ public class CmdExport extends OCommand {
             String name = command.getArgAsReq("name", String.class);
             File dataFolder = SuperiorPrisonPlugin.getInstance().getDataFolder();
 
-            command.getSender().sendMessage("Starting export...");
             StaticTask.getInstance().async(() -> {
-
-                new StorageExporter(SuperiorPrisonPlugin.getInstance().getDatabaseController())
+                long export = new StorageExporter(SuperiorPrisonPlugin.getInstance().getDatabaseController())
                         .export(dataFolder, name);
-                command.getSender().sendMessage("Export finished.");
+
+                messageBuilder(LocaleEnum.EXPORTED_DATA.getWithPrefix())
+                        .replace("{amount}", export)
+                        .replace("{file}", dataFolder.toPath().resolve(name + ".datapack"))
+                        .send(command.getSender());
             });
         });
     }

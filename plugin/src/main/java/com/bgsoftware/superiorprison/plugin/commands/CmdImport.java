@@ -2,6 +2,8 @@ package com.bgsoftware.superiorprison.plugin.commands;
 
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.commands.args.ConflictEnumArg;
+import com.bgsoftware.superiorprison.plugin.commands.args.FileArg;
+import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.controller.DatabaseController;
 import com.oop.datamodule.api.converter.importer.StorageImporter;
 import com.oop.datamodule.api.model.ModelBody;
@@ -15,28 +17,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
+
 public class CmdImport extends OCommand {
     public CmdImport() {
         label("import");
         description("Import data from datapack");
-        argument(new StringArg().setIdentity("name").setDescription("Name of the file").setRequired(true));
+        argument(new FileArg(SuperiorPrisonPlugin.getInstance().getDataFolder(), name -> name.endsWith(".datapack")).setRequired(true));
         argument(new ConflictEnumArg().setRequired(true));
         onCommand(command -> {
-            String name = command.getArgAsReq("name");
-            if (!name.endsWith(".datapack"))
-                name += ".datapack";
-
+            File file = command.getArgAsReq("file");
             ConflictEnum conflictEnum = command.getArgAsReq("conflict");
-
-            File file = new File(SuperiorPrisonPlugin.getInstance().getDataFolder(), name);
-            if (!file.exists()) {
-                command.getSender().sendMessage("File does not exist!");
-                return;
-            }
 
             DatabaseController databaseController = SuperiorPrisonPlugin.getInstance().getDatabaseController();
             StorageImporter importer = new StorageImporter(databaseController);
-            command.getSender().sendMessage("Starting import");
             StaticTask.getInstance().async(() -> {
                 try {
                     Map<String, List<ModelBody>> stringListMap = importer.importData(file);
@@ -69,7 +63,10 @@ public class CmdImport extends OCommand {
                         }
                     }
 
-                    command.getSender().sendMessage("Imported " + imported + " objects!");
+                    messageBuilder(LocaleEnum.IMPORTED_DATA.getWithPrefix())
+                            .replace("{amount}", imported)
+                            .replace("{file}", file.getPath())
+                            .send(command.getSender());
                     databaseController.save(true);
                 } catch (Throwable throwable) {
                     throw new IllegalStateException("Failed to import data", throwable);

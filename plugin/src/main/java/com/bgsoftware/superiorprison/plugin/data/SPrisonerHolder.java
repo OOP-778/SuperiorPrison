@@ -40,14 +40,6 @@ public class SPrisonerHolder extends UniversalStorage<SPrisoner> implements Pris
                 (Storage<SPrisoner>) SuperiorPrisonPlugin.getInstance().getMainConfig().getStorageSection().getStorageProvider().apply(this)
         );
 
-        if (getCurrentImplementation() instanceof SqlStorage) {
-            new TableEditor("prisoners")
-                    .renameColumn("prestiges", "currentPrestige")
-                    .addColumn("currentLadderRank", "TEXT")
-                    .addDropColumn("ranks")
-                    .edit(((SqlStorage) getCurrentImplementation()).getDatabase());
-        }
-
         long start = System.currentTimeMillis();
         onLoad(mine -> {
             SuperiorPrisonPlugin.getInstance().getOLogger().print(

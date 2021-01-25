@@ -1,9 +1,11 @@
+#<--------------->
 # Edit how commands look!
 # In order to change scheme for your wanted command
 # Just add "command label":
 
 # To use a template in scheme
 # Wrap your template in brackets like so {template}
+#<--------------->
 
 default:
   sub list:

@@ -327,9 +327,12 @@ public enum LocaleEnum {
                     .append("   &5&l=> &d&lGenerator")
                     .append("   &5&l* &7Blocks in mine: &d{mine_blocks}")
                     .append("   &5&l* &7Materials&7: &d{mine_materials}")
+                    .append("   &5&l* &7Percentage: &d{mine_blocks_percentage}")
                     .append("")
                     .append("&7&l-----------------")
-    );
+    ),
+    EXPORTED_DATA("Successfully exported &d{amount} &7objects to &d{file}"),
+    IMPORTED_DATA("Successfully imported &d{amount} &7objects from &d{file}");
 
     private final OMessage[] cache = new OMessage[2];
 

@@ -17,6 +17,6 @@ public class ConflictEnumArg extends CommandArgument<CmdImport.ConflictEnum> {
 
     @Override
     public void onAdd(OCommand command) {
-        command.nextTabComplete((previous, args) -> Arrays.stream(CmdImport.ConflictEnum.values()).map(Enum::name).collect(Collectors.toList()));
+        command.nextTabComplete((previous, args) -> Arrays.stream(CmdImport.ConflictEnum.values()).map(Enum::name).map(String::toLowerCase).collect(Collectors.toList()));
     }
 }

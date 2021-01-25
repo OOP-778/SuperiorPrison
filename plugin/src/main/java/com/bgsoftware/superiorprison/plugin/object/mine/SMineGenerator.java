@@ -240,18 +240,26 @@ public class SMineGenerator implements com.bgsoftware.superiorprison.api.data.mi
         } else {
             ClassDebugger.debug("Loading mine without reset {}, % left: {}", mine.getName(), lastRestartPercentage);
             initCache(() -> {
-                long blocksLeft = 0;
-                for (ChunkData value : cachedChunksData.values()) {
-                    for (Location location : value.getLocations()) {
-                        OMaterial blockType = SuperiorPrisonPlugin.getInstance().getNms().getBlockType(value.chunk, location);
-                        if (blockType == null) continue;
+                resetting = true;
+                StaticTask.getInstance().ensureSync(() -> {
+                    try {
+                        long blocksLeft = 0;
+                        for (ChunkData value : cachedChunksData.values()) {
+                            for (Location location : value.getLocations()) {
+                                OMaterial blockType = SuperiorPrisonPlugin.getInstance().getNms().getBlockType(value.chunk, location);
+                                if (blockType == null) continue;
 
-                        blocksLeft++;
-                        blockData.set(location, blockType);
+                                blocksLeft++;
+                                blockData.set(location, blockType);
+                            }
+                        }
+
+                        blockData.setBlocksLeft(blocksLeft);
+                    } catch (Throwable throwable) {
+                        throwable.printStackTrace();
                     }
-                }
-
-                blockData.setBlocksLeft(blocksLeft);
+                    resetting = false;
+                });
             });
         }
     }

@@ -27,6 +27,7 @@ public class CmdInfo extends OCommand {
             message.replace("{mine_name}", mine.getName());
             message.replace("{mine_prisoners}", mine.getPrisoners().size());
             message.replace("{mine_blocks}", mine.getGenerator().getBlocksInRegion());
+            message.replace("{mine_blocks_percentage}", mine.getGenerator().getBlockData().getPercentageLeft());
             message.replace(
                     "{mine_materials}",
                     mine.getGenerator().getGeneratorMaterials()

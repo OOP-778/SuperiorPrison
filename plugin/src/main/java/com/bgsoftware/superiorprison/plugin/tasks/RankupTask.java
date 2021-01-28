@@ -1,9 +1,5 @@
 package com.bgsoftware.superiorprison.plugin.tasks;
 
-import com.bgsoftware.superiorprison.api.SuperiorPrisonAPI;
-import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
-import com.bgsoftware.superiorprison.api.data.mine.area.AreaEnum;
-import com.bgsoftware.superiorprison.api.data.mine.flags.Flag;
 import com.bgsoftware.superiorprison.api.data.player.rank.LadderRank;
 import com.bgsoftware.superiorprison.api.requirement.Requirement;
 import com.bgsoftware.superiorprison.api.requirement.RequirementException;
@@ -15,7 +11,10 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableMap;
 import com.oop.orangeengine.main.task.OTask;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class RankupTask extends OTask {

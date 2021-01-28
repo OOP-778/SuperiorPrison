@@ -10,6 +10,7 @@ import com.bgsoftware.superiorprison.plugin.commands.rankup.CmdRankup;
 import com.bgsoftware.superiorprison.plugin.commands.sell.SellCommand;
 import com.bgsoftware.superiorprison.plugin.commands.top.CmdTop;
 import com.oop.orangeengine.command.CommandController;
+import com.oop.orangeengine.command.CommandsRegisterer;
 import com.oop.orangeengine.command.scheme.SchemeHolder;
 import com.oop.orangeengine.file.OFile;
 import com.oop.orangeengine.main.task.OTask;
@@ -26,37 +27,24 @@ public class CommandsRegister {
         SchemeHolder schemeHolder = new SchemeHolder(config);
         CommandController controller = new CommandController(schemeHolder);
 
-        // Mines
-        controller.register(new CmdMines());
+        MainCmd mainCmd = new MainCmd();
 
-        // Sell
-        controller.register(new SellCommand());
+        new CommandsRegisterer(controller)
+                .add(mainCmd)
+                .add(new CmdMines())
+                .add(new SellCommand())
+                .add(new CmdPrisoner())
+                .add(new CmdPrisonerCP())
+                .add(new CmdRankup())
+                .add(new CmdMaxRankup())
+                .add(new CmdBackpacks())
+                .add(new CmdTop())
+                .add(new CmdMine())
+                .add(new CmdBombs())
+                .remap()
+                .push();
 
-        // Prisoner
-        controller.register(new CmdPrisoner());
-
-        // Prisoner CP
-        controller.register(new CmdPrisonerCP());
-
-        // Rankup
-        controller.register(new CmdRankup());
-
-        // Max rankup cmd
-        controller.register(new CmdMaxRankup());
-
-        // Backpacks
-        controller.register(new CmdBackpacks());
-
-        controller.register(new CmdTop());
-
-        controller.register(new CmdMine());
-
-        new PermissionsInitializer(controller);
-
-        controller.register(new CmdBombs());
-
-        controller.register(new MainCmd());
-        //new CommandsPrinter(controller, new File(SuperiorPrisonPlugin.getInstance().getDataFolder(), "commands.txt"));
+        mainCmd.afterRegister(controller);
 
         // Unregister all similar commands from other plugins
         new OTask()

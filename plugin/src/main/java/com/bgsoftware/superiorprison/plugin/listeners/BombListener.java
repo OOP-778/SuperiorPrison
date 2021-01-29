@@ -15,12 +15,14 @@ import com.bgsoftware.superiorprison.plugin.util.*;
 import com.oop.orangeengine.main.events.SyncEvents;
 import com.oop.orangeengine.main.task.OTask;
 import com.oop.orangeengine.main.task.StaticTask;
+import com.oop.orangeengine.main.util.version.OVersion;
 import com.oop.orangeengine.material.OMaterial;
 import com.oop.orangeengine.particle.OParticle;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
@@ -41,8 +43,13 @@ public class BombListener {
         BombController controller = SuperiorPrisonPlugin.getInstance().getBombController();
 
         SyncEvents.listen(PlayerInteractEvent.class, event -> {
-            Optional<BombConfig> bombOf = controller.getBombOf(event.getPlayer().getItemInHand());
+            Optional<BombConfig> bombOf = controller.getBombOf(event.getItem());
             if (!bombOf.isPresent()) return;
+
+            if (OVersion.isOrAfter(12) && event.getHand() == EquipmentSlot.OFF_HAND) {
+                event.setCancelled(true);
+                return;
+            }
 
             if (event.getClickedBlock() != null) {
                 event.setCancelled(true);

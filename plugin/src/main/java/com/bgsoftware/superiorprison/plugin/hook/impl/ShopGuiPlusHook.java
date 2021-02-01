@@ -8,17 +8,17 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class ShopGuiPlusHook extends SHook {
-    public ShopGuiPlusHook(JavaPlugin plugin) {
-        super(plugin);
-    }
+  public ShopGuiPlusHook(JavaPlugin plugin) {
+    super(plugin);
+  }
 
-    @Override
-    public String getPluginName() {
-        return "ShopGuiPlus";
-    }
+  @Override
+  public String getPluginName() {
+    return "ShopGuiPlus";
+  }
 
-    @SneakyThrows
-    public double getPriceFor(ItemStack itemStack, Player player) {
-        return ShopGuiPlusApi.getItemStackPriceBuy(player, itemStack);
-    }
+  @SneakyThrows
+  public double getPriceFor(ItemStack itemStack, Player player) {
+    return ShopGuiPlusApi.getItemStackPriceBuy(player, itemStack);
+  }
 }

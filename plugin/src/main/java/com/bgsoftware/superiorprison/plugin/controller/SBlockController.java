@@ -16,13 +16,20 @@ import com.bgsoftware.superiorprison.plugin.hook.impl.VaultHook;
 import com.bgsoftware.superiorprison.plugin.object.mine.SMineBlockData;
 import com.bgsoftware.superiorprison.plugin.object.mine.locks.SBLocksLock;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
-import com.bgsoftware.superiorprison.plugin.util.DebuggableList;
 import com.bgsoftware.superiorprison.plugin.util.SPair;
 import com.bgsoftware.superiorprison.plugin.util.XPUtil;
 import com.google.common.base.Preconditions;
 import com.oop.orangeengine.item.custom.OItem;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.material.OMaterial;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -34,228 +41,262 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.math.BigDecimal;
-import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
-
 public class SBlockController implements BlockController {
-    @Override
-    public MultiBlockBreakEvent handleBlockBreak(Prisoner prisoner, SuperiorMine mine, ItemStack tool, Lock lock, Location... locations) {
-        boolean silkTouch = false;
-        boolean hasFortune = false;
-        int fortuneLevel = -1;
-        OItem item;
+  @Override
+  public MultiBlockBreakEvent handleBlockBreak(
+      Prisoner prisoner, SuperiorMine mine, ItemStack tool, Lock lock, Location... locations) {
+    boolean silkTouch = false;
+    boolean hasFortune = false;
+    int fortuneLevel = -1;
+    OItem item;
 
-        if (tool != null) {
-            item = new OItem(tool);
-            silkTouch = item.hasEnchant(Enchantment.SILK_TOUCH);
-            hasFortune = item.hasEnchant(Enchantment.LOOT_BONUS_BLOCKS);
-            fortuneLevel = item.getEnchantLevel(Enchantment.LOOT_BONUS_BLOCKS);
-        }
+    if (tool != null) {
+      item = new OItem(tool);
+      silkTouch = item.hasEnchant(Enchantment.SILK_TOUCH);
+      hasFortune = item.hasEnchant(Enchantment.LOOT_BONUS_BLOCKS);
+      fortuneLevel = item.getEnchantLevel(Enchantment.LOOT_BONUS_BLOCKS);
+    }
 
-        boolean addToLock = false;
-        if (lock == null) {
-            lock = mine.getGenerator().getBlockData().newBlockDataLock();
-            addToLock = true;
-        }
+    boolean addToLock = false;
+    if (lock == null) {
+      lock = mine.getGenerator().getBlockData().newBlockDataLock();
+      addToLock = true;
+    }
 
-        Set<DropsBooster> dropsBoosters = prisoner.getBoosters().findBoostersBy(DropsBooster.class);
-        double[] dropRate = new double[]{0};
-        dropsBoosters.forEach(booster -> dropRate[0] = dropRate[0] + booster.getRate());
+    Set<DropsBooster> dropsBoosters = prisoner.getBoosters().findBoostersBy(DropsBooster.class);
+    double[] dropRate = new double[] {0};
+    dropsBoosters.forEach(booster -> dropRate[0] = dropRate[0] + booster.getRate());
 
-        Set<XPBooster> xpBoosters = prisoner.getBoosters().findBoostersBy(XPBooster.class);
-        double[] xpRate = new double[]{0};
-        xpBoosters.forEach(booster -> xpRate[0] = xpRate[0] + booster.getRate());
+    Set<XPBooster> xpBoosters = prisoner.getBoosters().findBoostersBy(XPBooster.class);
+    double[] xpRate = new double[] {0};
+    xpBoosters.forEach(booster -> xpRate[0] = xpRate[0] + booster.getRate());
 
-        // Get the drops
-        Map<Location, Pair<Material, List<ItemStack>>> blockData = new HashMap<>();
+    // Get the drops
+    Map<Location, Pair<Material, List<ItemStack>>> blockData = new HashMap<>();
 
-        boolean finalSilkTouch = silkTouch;
-        boolean finalHasFortune = hasFortune;
-        int finalFortuneLevel = fortuneLevel;
-        int[] experience = new int[]{0};
+    boolean finalSilkTouch = silkTouch;
+    boolean finalHasFortune = hasFortune;
+    int finalFortuneLevel = fortuneLevel;
+    int[] experience = new int[] {0};
 
-        SMineBlockData mineBlockData = (SMineBlockData) mine.getGenerator().getBlockData();
-        Map<OMaterial, Integer> materialsAmount = new HashMap<>();
+    SMineBlockData mineBlockData = (SMineBlockData) mine.getGenerator().getBlockData();
+    Map<OMaterial, Integer> materialsAmount = new HashMap<>();
 
-        for (Location location : locations) {
-            if (addToLock)
-                if (mine.getGenerator().getBlockData().isLocked(location))
-                    continue;
-                else
-                    ((SBLocksLock) lock).getLockedLocations().add(location);
+    for (Location location : locations) {
+      if (addToLock)
+        if (mine.getGenerator().getBlockData().isLocked(location)) continue;
+        else ((SBLocksLock) lock).getLockedLocations().add(location);
 
-            mineBlockData
-                    .getOMaterialAt(location)
-                    .ifPresent(mat -> {
-                        List<ItemStack> drops = new ArrayList<>();
+      mineBlockData
+          .getOMaterialAt(location)
+          .ifPresent(
+              mat -> {
+                List<ItemStack> drops = new ArrayList<>();
 
-                        // Handle auto burn
-                        if (prisoner.isAutoBurn()) {
-                            if (mat == OMaterial.GOLD_ORE)
-                                drops.add(OMaterial.GOLD_INGOT.parseItem());
-                            else if (mat == OMaterial.IRON_ORE)
-                                drops.add(OMaterial.IRON_INGOT.parseItem());
-                            else
-                                drops.add(finalSilkTouch ? mat.parseItem() : DropsHandler.getDrop(mat));
-                        } else
-                            drops.add(finalSilkTouch ? mat.parseItem() : DropsHandler.getDrop(mat));
+                // Handle auto burn
+                if (prisoner.isAutoBurn()) {
+                  if (mat == OMaterial.GOLD_ORE) drops.add(OMaterial.GOLD_INGOT.parseItem());
+                  else if (mat == OMaterial.IRON_ORE) drops.add(OMaterial.IRON_INGOT.parseItem());
+                  else drops.add(finalSilkTouch ? mat.parseItem() : DropsHandler.getDrop(mat));
+                } else drops.add(finalSilkTouch ? mat.parseItem() : DropsHandler.getDrop(mat));
 
-                        // Handle fortune
-                        if (finalHasFortune)
-                            drops.forEach(itemStack -> {
-                                if ((itemStack.getType().isBlock() && prisoner.isFortuneBlocks()) || !itemStack.getType().isBlock())
-                                    itemStack.setAmount(getItemCountWithFortune(itemStack.getType(), finalFortuneLevel));
-                            });
+                // Handle fortune
+                if (finalHasFortune)
+                  drops.forEach(
+                      itemStack -> {
+                        if ((itemStack.getType().isBlock() && prisoner.isFortuneBlocks())
+                            || !itemStack.getType().isBlock())
+                          itemStack.setAmount(
+                              getItemCountWithFortune(itemStack.getType(), finalFortuneLevel));
+                      });
 
-                        // Handle dropsBooster
-                        if (dropRate[0] != 0)
-                            drops.forEach(itemStack -> itemStack.setAmount((int) Math.round(dropRate[0] * itemStack.getAmount())));
+                // Handle dropsBooster
+                if (dropRate[0] != 0)
+                  drops.forEach(
+                      itemStack ->
+                          itemStack.setAmount(
+                              (int) Math.round(dropRate[0] * itemStack.getAmount())));
 
-                        // Get the experience
-                        experience[0] = experience[0] + XpHandler.getEXP(mat, tool);
+                // Get the experience
+                experience[0] = experience[0] + XpHandler.getEXP(mat, tool);
 
-                        if (xpRate[0] != 0)
-                            experience[0] = (int) Math.ceil(experience[0] * xpRate[0]);
+                if (xpRate[0] != 0) experience[0] = (int) Math.ceil(experience[0] * xpRate[0]);
 
-                        blockData.put(location, new SPair<>(
-                                mat.parseMaterial(),
-                                drops));
+                blockData.put(location, new SPair<>(mat.parseMaterial(), drops));
 
-                        materialsAmount.merge(mat, 1, Integer::sum);
-                        mineBlockData.remove(location);
-                    });
-        }
+                materialsAmount.merge(mat, 1, Integer::sum);
+                mineBlockData.remove(location);
+              });
+    }
 
-        materialsAmount.forEach((mat, amount) -> SuperiorPrisonPlugin.getInstance().getStatisticsController().getContainer(prisoner.getUUID()).getBlocksStatistic().update(mat, amount));
+    materialsAmount.forEach(
+        (mat, amount) ->
+            SuperiorPrisonPlugin.getInstance()
+                .getStatisticsController()
+                .getContainer(prisoner.getUUID())
+                .getBlocksStatistic()
+                .update(mat, amount));
 
-        // Call block break event for the blocks
-        MultiBlockBreakEvent event = new MultiBlockBreakEvent(mine, prisoner, tool, blockData, lock, experience[0]);
-        Bukkit.getPluginManager().callEvent(event);
+    // Call block break event for the blocks
+    MultiBlockBreakEvent event =
+        new MultiBlockBreakEvent(mine, prisoner, tool, blockData, lock, experience[0]);
+    Bukkit.getPluginManager().callEvent(event);
 
-        // Handle auto selling
-        if (prisoner.isAutoSell()) {
-            BigDecimal[] deposit = new BigDecimal[]{new BigDecimal(0)};
+    // Handle auto selling
+    if (prisoner.isAutoSell()) {
+      BigDecimal[] deposit = new BigDecimal[] {new BigDecimal(0)};
 
-            // Get prices of the drops
-            blockData.values()
-                    .forEach(c -> {
-                        c.getValue().removeIf(itemStack -> {
-                            BigDecimal price = prisoner.getPrice(itemStack);
-                            if (price.doubleValue() == 0) return false;
+      // Get prices of the drops
+      blockData
+          .values()
+          .forEach(
+              c -> {
+                c.getValue()
+                    .removeIf(
+                        itemStack -> {
+                          BigDecimal price = prisoner.getPrice(itemStack);
+                          if (price.doubleValue() == 0) return false;
 
-                            deposit[0] = deposit[0].add(price);
-                            return true;
+                          deposit[0] = deposit[0].add(price);
+                          return true;
                         });
-                    });
+              });
 
-            // Apply money dropsBooster
-            prisoner.getBoosters()
-                    .findBoostersBy(MoneyBooster.class)
-                    .forEach(booster -> deposit[0] = deposit[0].multiply(BigDecimal.valueOf(booster.getRate())));
+      // Apply money dropsBooster
+      prisoner
+          .getBoosters()
+          .findBoostersBy(MoneyBooster.class)
+          .forEach(
+              booster -> deposit[0] = deposit[0].multiply(BigDecimal.valueOf(booster.getRate())));
 
-            // Finally deposit
-            SuperiorPrisonPlugin.getInstance().getHookController().executeIfFound(() -> VaultHook.class, hook -> hook.depositPlayer((SPrisoner) prisoner, deposit[0]));
-        }
-
-        // Handle auto pickup
-        if (prisoner.isAutoPickup()) {
-            blockData.values()
-                    .forEach(d -> {
-                        HashMap<Integer, ItemStack> left = prisoner.getPlayer().getInventory().addItem(d.getValue().toArray(new ItemStack[0]));
-                        d.getValue().clear();
-                        d.getValue().addAll(left.values());
-                    });
-
-            if (event.getExperience() >= 1)
-                XPUtil.setTotalExperience(prisoner.getPlayer(), XPUtil.getTotalExperience(prisoner.getPlayer()) + event.getExperience());
-
-            event.setExperience(0);
-        }
-
-        mine.getGenerator().getBlockData().unlock(lock);
-        return event;
+      // Finally deposit
+      SuperiorPrisonPlugin.getInstance()
+          .getHookController()
+          .executeIfFound(
+              () -> VaultHook.class, hook -> hook.depositPlayer((SPrisoner) prisoner, deposit[0]));
     }
 
-    @Override
-    public MultiBlockBreakEvent handleBlockBreak(Prisoner prisoner, SuperiorMine mine, BlockBreakEvent event) {
-        return handleBlockBreak(prisoner, mine, event.getPlayer().getItemInHand(), null, event.getBlock().getLocation());
+    // Handle auto pickup
+    if (prisoner.isAutoPickup()) {
+      blockData
+          .values()
+          .forEach(
+              d -> {
+                HashMap<Integer, ItemStack> left =
+                    prisoner
+                        .getPlayer()
+                        .getInventory()
+                        .addItem(d.getValue().toArray(new ItemStack[0]));
+                d.getValue().clear();
+                d.getValue().addAll(left.values());
+              });
+
+      if (event.getExperience() >= 1)
+        XPUtil.setTotalExperience(
+            prisoner.getPlayer(),
+            XPUtil.getTotalExperience(prisoner.getPlayer()) + event.getExperience());
+
+      event.setExperience(0);
     }
 
-    @Override
-    public MultiBlockBreakEvent breakBlock(Prisoner prisoner, SuperiorMine mine, ItemStack tool, Location... locations) {
-        Preconditions.checkArgument(Bukkit.isPrimaryThread(), "Cannot call break block in non main thread!");
+    mine.getGenerator().getBlockData().unlock(lock);
+    return event;
+  }
 
-        MultiBlockBreakEvent multiBlockBreakEvent = handleBlockBreak(prisoner, mine, tool, null, locations);
-        if (locations.length == 1)
-            SuperiorPrisonPlugin.getInstance().getNms().setBlockAndUpdate(locations[0].getChunk(), locations[0], OMaterial.AIR, mine.getWorld().getPlayers());
+  @Override
+  public MultiBlockBreakEvent handleBlockBreak(
+      Prisoner prisoner, SuperiorMine mine, BlockBreakEvent event) {
+    return handleBlockBreak(
+        prisoner, mine, event.getPlayer().getItemInHand(), null, event.getBlock().getLocation());
+  }
 
-        else {
-            Map<OPair<Integer, Integer>, Chunk> chunkMap = new HashMap<>();
-            for (Location location : locations) {
-                Chunk chunk = chunkMap.get(new OPair<>(location.getBlockX() >> 4, location.getBlockZ() >> 4));
-                if (chunk == null) {
-                    chunk = location.getChunk();
-                    chunkMap.put(new OPair<>(location.getBlockX() >> 4, location.getBlockZ() >> 4), chunk);
-                }
+  @Override
+  public MultiBlockBreakEvent breakBlock(
+      Prisoner prisoner, SuperiorMine mine, ItemStack tool, Location... locations) {
+    Preconditions.checkArgument(
+        Bukkit.isPrimaryThread(), "Cannot call break block in non main thread!");
 
-                SuperiorPrisonPlugin.getInstance().getNms().setBlock(chunk, location, OMaterial.AIR);
-            }
-
-            SuperiorPrisonPlugin.getInstance().getNms().refreshChunks(mine.getWorld(), Arrays.asList(locations), mine.getWorld().getPlayers());
+    MultiBlockBreakEvent multiBlockBreakEvent =
+        handleBlockBreak(prisoner, mine, tool, null, locations);
+    if (locations.length == 1)
+      SuperiorPrisonPlugin.getInstance()
+          .getNms()
+          .setBlockAndUpdate(
+              locations[0].getChunk(), locations[0], OMaterial.AIR, mine.getWorld().getPlayers());
+    else {
+      Map<OPair<Integer, Integer>, Chunk> chunkMap = new HashMap<>();
+      for (Location location : locations) {
+        Chunk chunk =
+            chunkMap.get(new OPair<>(location.getBlockX() >> 4, location.getBlockZ() >> 4));
+        if (chunk == null) {
+          chunk = location.getChunk();
+          chunkMap.put(new OPair<>(location.getBlockX() >> 4, location.getBlockZ() >> 4), chunk);
         }
 
-        if (tool != null) {
-            Player player = prisoner.getPlayer();
-            OItem item = new OItem(tool);
+        SuperiorPrisonPlugin.getInstance().getNms().setBlock(chunk, location, OMaterial.AIR);
+      }
 
-            if (!player.hasPermission("prison.prisoner.ignoredurability")) {
-                int enchantmentLevel = item.getEnchantLevel(Enchantment.DURABILITY);
-                if (enchantmentLevel != 0) {
-                    double chance = (100 / enchantmentLevel + 1);
-                    double generatedChance = ThreadLocalRandom.current().nextDouble(0, 100);
+      SuperiorPrisonPlugin.getInstance()
+          .getNms()
+          .refreshChunks(mine.getWorld(), Arrays.asList(locations), mine.getWorld().getPlayers());
+    }
 
-                    if (chance > generatedChance)
-                        tool.setDurability((short) (tool.getDurability() + 1));
-                } else
-                    tool.setDurability((short) (tool.getDurability() + 1));
+    if (tool != null) {
+      Player player = prisoner.getPlayer();
+      OItem item = new OItem(tool);
 
-                if (tool.getDurability() == item.getMaterial().getMaxDurability())
-                    player.setItemInHand(null);
+      if (!player.hasPermission("prison.prisoner.ignoredurability")) {
+        int enchantmentLevel = item.getEnchantLevel(Enchantment.DURABILITY);
+        if (enchantmentLevel != 0) {
+          double chance = (100 / enchantmentLevel + 1);
+          double generatedChance = ThreadLocalRandom.current().nextDouble(0, 100);
 
-            } else {
-                tool.setDurability((short) 0);
-            }
-            player.updateInventory();
-        }
+          if (chance > generatedChance) tool.setDurability((short) (tool.getDurability() + 1));
+        } else tool.setDurability((short) (tool.getDurability() + 1));
 
-        List<ItemStack> drop = new ArrayList<>();
-        multiBlockBreakEvent.getBlockData().forEach((location, data) -> {
-            if (data.getValue().isEmpty()) return;
+        if (tool.getDurability() == item.getMaterial().getMaxDurability())
+          player.setItemInHand(null);
 
-            drop.addAll(data.getValue());
-            data.getValue().clear();
+      } else {
+        tool.setDurability((short) 0);
+      }
+      player.updateInventory();
+    }
+
+    List<ItemStack> drop = new ArrayList<>();
+    multiBlockBreakEvent
+        .getBlockData()
+        .forEach(
+            (location, data) -> {
+              if (data.getValue().isEmpty()) return;
+
+              drop.addAll(data.getValue());
+              data.getValue().clear();
+            });
+
+    drop.forEach(
+        item -> {
+          Location location = locations[0].clone().add(0.5, 0.5, 0.5);
+          location.getWorld().dropItem(location, item);
         });
 
-        drop.forEach(item -> {
-            Location location = locations[0].clone().add(0.5, 0.5, 0.5);
-            location.getWorld().dropItem(location, item);
-        });
-
-        if (multiBlockBreakEvent.getExperience() != 0) {
-            ((ExperienceOrb) locations[0].getWorld().spawnEntity(locations[0], EntityType.EXPERIENCE_ORB)).setExperience(multiBlockBreakEvent.getExperience());
-            multiBlockBreakEvent.setExperience(0);
-        }
-
-        return multiBlockBreakEvent;
+    if (multiBlockBreakEvent.getExperience() != 0) {
+      ((ExperienceOrb) locations[0].getWorld().spawnEntity(locations[0], EntityType.EXPERIENCE_ORB))
+          .setExperience(multiBlockBreakEvent.getExperience());
+      multiBlockBreakEvent.setExperience(0);
     }
 
-    private int getItemCountWithFortune(Material material, int enchant_level) {
-        int drops = ThreadLocalRandom.current().nextInt(enchant_level + 2) - 1;
-        if (drops < 0)
-            drops = 0;
+    return multiBlockBreakEvent;
+  }
 
-        int i = material == Material.LAPIS_BLOCK ? 4 + ThreadLocalRandom.current().nextInt(5) : 1;
-        return i * (drops + 1);
-    }
+  private int getItemCountWithFortune(Material material, int enchant_level) {
+    int drops = ThreadLocalRandom.current().nextInt(enchant_level + 2) - 1;
+    if (drops < 0) drops = 0;
+
+    int i =
+        (material.name().contains("LAPIS") || material.name().contains("INK_SACK"))
+            ? 4 + ThreadLocalRandom.current().nextInt(5)
+            : 1;
+    return i * (drops + 1);
+  }
 }

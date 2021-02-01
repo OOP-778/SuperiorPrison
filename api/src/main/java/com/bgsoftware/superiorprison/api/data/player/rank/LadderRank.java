@@ -4,15 +4,15 @@ import java.util.List;
 import java.util.Optional;
 
 public interface LadderRank extends Rank {
-    int getOrder();
+  int getOrder();
 
-    Optional<LadderRank> getNext();
+  Optional<LadderRank> getNext();
 
-    Optional<LadderRank> getPrevious();
+  Optional<LadderRank> getPrevious();
 
-    List<LadderRank> getAllPrevious();
+  List<LadderRank> getAllPrevious();
 
-    default boolean isDefault() {
-        return getOrder() == 1;
-    }
+  default boolean isDefault() {
+    return getOrder() == 1;
+  }
 }

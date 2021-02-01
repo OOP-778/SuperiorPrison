@@ -7,17 +7,24 @@ import com.bgsoftware.superiorprison.plugin.util.placeholders.PlaceholderParser;
 import com.bgsoftware.superiorprison.plugin.util.placeholders.parser.ObjectCache;
 
 public class MVDWPapi extends SHook {
-    public MVDWPapi() {
-        super(null);
-        PlaceholderAPI.registerPlaceholder(SuperiorPrisonPlugin.getInstance(), "prison_*", e -> {
-            ObjectCache cache = new ObjectCache();
-            SuperiorPrisonPlugin.getInstance().getPrisonerController().getPrisoner(e.getViewingPlayer().getUniqueId()).ifPresent(cache::add);
-            return PlaceholderParser.parse(e.getPlaceholder().replace("prison_", "").split("_"), cache);
+  public MVDWPapi() {
+    super(null);
+    PlaceholderAPI.registerPlaceholder(
+        SuperiorPrisonPlugin.getInstance(),
+        "prison_*",
+        e -> {
+          ObjectCache cache = new ObjectCache();
+          SuperiorPrisonPlugin.getInstance()
+              .getPrisonerController()
+              .getPrisoner(e.getViewingPlayer().getUniqueId())
+              .ifPresent(cache::add);
+          return PlaceholderParser.parse(
+              e.getPlaceholder().replace("prison_", "").split("_"), cache);
         });
-    }
+  }
 
-    @Override
-    public String getPluginName() {
-        return "MVdWPlaceholderAPI";
-    }
+  @Override
+  public String getPluginName() {
+    return "MVdWPlaceholderAPI";
+  }
 }

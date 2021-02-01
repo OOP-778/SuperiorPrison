@@ -4,39 +4,38 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 public interface NumberWrapper extends Comparable<NumberWrapper> {
-    long toLong();
+  long toLong();
 
-    double toDouble();
+  double toDouble();
 
-    int toInt();
+  int toInt();
 
-    BigInteger toBigInt();
+  BigInteger toBigInt();
 
-    BigDecimal toBigDecimal();
+  BigDecimal toBigDecimal();
 
-    boolean isInt();
+  boolean isInt();
 
-    boolean isLong();
+  boolean isLong();
 
-    boolean isDouble();
+  boolean isDouble();
 
-    boolean isBigInt();
+  boolean isBigInt();
 
-    boolean isBigDecimal();
+  boolean isBigDecimal();
 
-    Class<? extends Number> getType();
+  Class<? extends Number> getType();
 
-    /**
-     *
-     * @param withSuffixes = should the number be formatted with suffixes or just with commas
-     * @return a formatted number
-     */
-    String formatted(boolean withSuffixes);
+  /**
+   * @param withSuffixes = should the number be formatted with suffixes or just with commas
+   * @return a formatted number
+   */
+  String formatted(boolean withSuffixes);
 
-    int compareTo(Number number);
+  int compareTo(Number number);
 
-    // Normalizes number and returns new object
-    // Exmaple if we've got BigInt, but the lenght of it is equal to int
-    // It will normalize it to int instead
-    NumberWrapper normalize();
+  // Normalizes number and returns new object
+  // Exmaple if we've got BigInt, but the lenght of it is equal to int
+  // It will normalize it to int instead
+  NumberWrapper normalize();
 }

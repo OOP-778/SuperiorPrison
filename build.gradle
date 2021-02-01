@@ -13,7 +13,7 @@ apply plugin: 'maven'
 apply plugin: 'base'
 apply plugin: 'com.github.johnrengelman.shadow'
 
-version = "0.2.3-BETA"
+version = "0.2.5-BETA"
 
 allprojects {
     apply plugin: 'java'
@@ -36,15 +36,15 @@ allprojects {
         annotationProcessor 'org.projectlombok:lombok:1.18.8'
 
         if (project.name.equalsIgnoreCase("plugin")) {
-            compile "com.oop.orangeengine:file:5.0"
-            compile "com.oop.orangeengine:item:5.0"
-            compile "com.oop.orangeengine:engine:5.0"
-            compile "com.oop.orangeengine:particle:5.0"
-            compile "com.oop.orangeengine:inventory:5.0"
-            compile "com.oop.orangeengine:command:5.0"
-            compile "com.oop.orangeengine:eventssubscription:5.0"
-            compile "com.oop.orangeengine:message:5.0"
-            compile "com.oop.orangeengine:sound:5.0"
+            compile "com.oop.orangeengine:file:5.2"
+            compile "com.oop.orangeengine:item:5.2"
+            compile "com.oop.orangeengine:engine:5.2"
+            compile "com.oop.orangeengine:particle:5.2"
+            compile "com.oop.orangeengine:inventory:5.2"
+            compile "com.oop.orangeengine:command:5.2"
+            compile "com.oop.orangeengine:eventssubscription:5.2"
+            compile "com.oop.orangeengine:message:5.2"
+            compile "com.oop.orangeengine:sound:5.2"
             compile "io.papermc:paperlib:1.0.4"
 
             compileOnly(project(":api"))
@@ -53,7 +53,7 @@ allprojects {
             compileOnly 'me.clip:placeholderapi:2.10.4'
 
             implementation("com.oop.datamodule:universal:2.0")
-            compileOnly 'com.github.brcdev-minecraft:shopgui-api:1.5.0'
+            compileOnly 'com.github.brcdev-minecraft:shopgui-api:2.1.1'
             compileOnly 'be.maximvdw:MVdWPlaceholderAPI:3.1.1-SNAPSHOT'
             compileOnly fileTree("../lib")
 
@@ -61,15 +61,15 @@ allprojects {
             compileOnly "net.md-5:bungeecord-chat:1.16-R0.1"
 
         } else {
-            compileOnly "com.oop.orangeengine:file:5.0"
-            compileOnly "com.oop.orangeengine:item:5.0"
-            compileOnly "com.oop.orangeengine:engine:5.0"
-            compileOnly "com.oop.orangeengine:particle:5.0"
-            compileOnly "com.oop.orangeengine:inventory:5.0"
-            compileOnly "com.oop.orangeengine:command:5.0"
-            compileOnly "com.oop.orangeengine:database:5.0"
-            compileOnly "com.oop.orangeengine:eventssubscription:5.0"
-            compileOnly "com.oop.orangeengine:message:5.0"
+            compileOnly "com.oop.orangeengine:file:5.2"
+            compileOnly "com.oop.orangeengine:item:5.2"
+            compileOnly "com.oop.orangeengine:engine:5.2"
+            compileOnly "com.oop.orangeengine:particle:5.2"
+            compileOnly "com.oop.orangeengine:inventory:5.2"
+            compileOnly "com.oop.orangeengine:command:5.2"
+            compileOnly "com.oop.orangeengine:database:5.2"
+            compileOnly "com.oop.orangeengine:eventssubscription:5.2"
+            compileOnly "com.oop.orangeengine:message:5.2"
 
             if (!project.name.equalsIgnoreCase("api") && !project.name.equalsIgnoreCase("vault"))
                 compileOnly project(":plugin")
@@ -122,7 +122,7 @@ shadowJar {
     from sourceSets.getByName("main").output
     configurations = [project.configurations.getByName("runtimeClasspath")]
 
-    relocate("com.oop.orangeengine", "com.bgsoftware.superiorprison.lib.engine")
+    //relocate("com.oop.orangeengine", "com.bgsoftware.superiorprison.lib.engine")
     relocate("com.oop.datamodule", "com.bgsoftware.superiorprison.lib.data")
 }
 

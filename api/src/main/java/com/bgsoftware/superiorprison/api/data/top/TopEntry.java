@@ -1,7 +1,7 @@
 package com.bgsoftware.superiorprison.api.data.top;
 
 public interface TopEntry<T> {
-    T getObject();
+  T getObject();
 
-    int getPosition();
+  int getPosition();
 }

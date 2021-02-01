@@ -8,67 +8,69 @@ import com.bgsoftware.superiorprison.plugin.util.menu.OMenu;
 import com.bgsoftware.superiorprison.plugin.util.menu.OMenuButton;
 import com.bgsoftware.superiorprison.plugin.util.menu.OPagedMenu;
 import com.oop.orangeengine.item.custom.OSkull;
+import java.util.List;
 import org.bukkit.inventory.Inventory;
 
-import java.util.List;
-
 public class TopMenu extends OPagedMenu<STopEntry> implements OMenu.Templateable {
-    private final STopSystem system;
-    private final TopTypeArg.TopType type;
+  private final STopSystem system;
+  private final TopTypeArg.TopType type;
 
-    public TopMenu(SPrisoner viewer, TopTypeArg.TopType type, STopSystem system) {
-        super("topMenu", viewer);
-        this.system = system;
-        this.type = type;
-    }
+  public TopMenu(SPrisoner viewer, TopTypeArg.TopType type, STopSystem system) {
+    super("topMenu", viewer);
+    this.system = system;
+    this.type = type;
+  }
 
-    @Override
-    public Inventory getInventory() {
-        Inventory inventory = super.getInventory();
+  @Override
+  public Inventory getInventory() {
+    Inventory inventory = super.getInventory();
 
-        getTemplateButtonFromTemplate("no entry").ifPresent(button -> {
-            for (Integer emptySlot : getEmptySlots()) {
+    getTemplateButtonFromTemplate("no entry")
+        .ifPresent(
+            button -> {
+              for (Integer emptySlot : getEmptySlots()) {
                 inventory.setItem(emptySlot, button.getDefaultStateItem().getItemStack().clone());
-            }
-        });
+              }
+            });
 
-        return inventory;
+    return inventory;
+  }
+
+  @Override
+  public Object[] getBuildPlaceholders() {
+    return new Object[] {system, type};
+  }
+
+  @Override
+  public List<STopEntry> requestObjects() {
+    return system.getEntries();
+  }
+
+  @Override
+  public OMenuButton toButton(STopEntry obj) {
+    OMenuButton.ButtonItemBuilder builder = null;
+    OMenuButton button = getTemplateButtonFromTemplate("entry").get().clone();
+
+    switch (type) {
+      case BLOCKS:
+        builder = button.getStateItem("blocks entry");
+        break;
+      case PRESTIGE:
+        builder = button.getStateItem("prestige entry");
+        break;
     }
 
-    @Override
-    public Object[] getBuildPlaceholders() {
-        return new Object[]{system, type};
+    if (builder.itemBuilder() instanceof OSkull) {
+      if (((OSkull) builder.itemBuilder()).texture().equalsIgnoreCase("{entry_texture}"))
+        ((OSkull) builder.itemBuilder()).texture(obj.getPrisoner().getTextureValue());
     }
 
-    @Override
-    public List<STopEntry> requestObjects() {
-        return system.getEntries();
-    }
+    return button.currentItem(
+        builder.getItemStackWithPlaceholdersMulti(obj, obj.getObject(), obj.getPrisoner()));
+  }
 
-    @Override
-    public OMenuButton toButton(STopEntry obj) {
-        OMenuButton.ButtonItemBuilder builder = null;
-        OMenuButton button = getTemplateButtonFromTemplate("entry").get().clone();
-
-        switch (type) {
-            case BLOCKS:
-                builder = button.getStateItem("blocks entry");
-                break;
-            case PRESTIGE:
-                builder = button.getStateItem("prestige entry");
-                break;
-        }
-
-        if (builder.itemBuilder() instanceof OSkull) {
-            if (((OSkull) builder.itemBuilder()).texture().equalsIgnoreCase("{entry_texture}"))
-                ((OSkull) builder.itemBuilder()).texture(obj.getPrisoner().getTextureValue());
-        }
-
-        return button.currentItem(builder.getItemStackWithPlaceholdersMulti(obj, obj.getObject(), obj.getPrisoner()));
-    }
-
-    @Override
-    public OMenu getMenu() {
-        return this;
-    }
+  @Override
+  public OMenu getMenu() {
+    return this;
+  }
 }

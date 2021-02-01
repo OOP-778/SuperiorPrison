@@ -11,27 +11,25 @@ Called on every item that's being auto sold!
 */
 public class AutoSellEvent extends PrisonerEvent implements Cancellable {
 
-    @Getter
-    private ItemStack itemStack;
+  @Getter private ItemStack itemStack;
 
-    @Getter
-    private ShopItemMutable shopItem;
+  @Getter private ShopItemMutable shopItem;
 
-    private boolean cancelled = false;
+  private boolean cancelled = false;
 
-    public AutoSellEvent(Prisoner prisoner, ItemStack itemStack, ShopItemMutable shopItem) {
-        super(prisoner);
-        this.itemStack = itemStack;
-        this.shopItem = shopItem;
-    }
+  public AutoSellEvent(Prisoner prisoner, ItemStack itemStack, ShopItemMutable shopItem) {
+    super(prisoner);
+    this.itemStack = itemStack;
+    this.shopItem = shopItem;
+  }
 
-    @Override
-    public boolean isCancelled() {
-        return cancelled;
-    }
+  @Override
+  public boolean isCancelled() {
+    return cancelled;
+  }
 
-    @Override
-    public void setCancelled(boolean b) {
-        this.cancelled = b;
-    }
+  @Override
+  public void setCancelled(boolean b) {
+    this.cancelled = b;
+  }
 }

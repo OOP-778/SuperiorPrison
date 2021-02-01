@@ -1,10 +1,9 @@
 package com.bgsoftware.superiorprison.plugin.object.inventory;
 
 public interface PatchedInventory {
-    void setOwnerCalling();
+  void setOwnerCalling();
 
-    boolean isOwnerCalling();
+  boolean isOwnerCalling();
 
-    SPlayerInventory getOwner();
-
+  SPlayerInventory getOwner();
 }

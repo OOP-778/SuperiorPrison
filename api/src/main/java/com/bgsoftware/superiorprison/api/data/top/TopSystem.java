@@ -3,9 +3,9 @@ package com.bgsoftware.superiorprison.api.data.top;
 import java.util.List;
 
 public interface TopSystem<T extends TopEntry> {
-    String getName();
+  String getName();
 
-    List<T> getEntries();
+  List<T> getEntries();
 
-    void update(int entriesLimit);
+  void update(int entriesLimit);
 }

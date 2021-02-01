@@ -4,11 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public enum AreaEnum {
+  REGION,
+  MINE;
 
-    REGION,
-    MINE;
-
-    public int getOrder() {
-        return new ArrayList<>(Arrays.asList(values())).indexOf(this);
-    }
+  public int getOrder() {
+    return new ArrayList<>(Arrays.asList(values())).indexOf(this);
+  }
 }

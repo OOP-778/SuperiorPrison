@@ -9,14 +9,14 @@ import lombok.Setter;
 @Setter
 @Getter
 public class SPair<K, V> implements Pair<K, V> {
-    private K key;
-    private V value;
+  private K key;
+  private V value;
 
-    public <T> T getKey(Class<T> clazz) {
-        return (T) key;
-    }
+  public <T> T getKey(Class<T> clazz) {
+    return (T) key;
+  }
 
-    public <T> T getValue(Class<T> clazz) {
-        return (T) value;
-    }
+  public <T> T getValue(Class<T> clazz) {
+    return (T) value;
+  }
 }

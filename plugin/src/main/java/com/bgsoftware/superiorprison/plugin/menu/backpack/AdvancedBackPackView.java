@@ -5,9 +5,18 @@ import com.bgsoftware.superiorprison.plugin.config.backpack.AdvancedBackPackConf
 import com.bgsoftware.superiorprison.plugin.controller.ConfigController;
 import com.bgsoftware.superiorprison.plugin.object.backpack.SBackPack;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
-import com.bgsoftware.superiorprison.plugin.util.menu.*;
+import com.bgsoftware.superiorprison.plugin.util.menu.ButtonClickEvent;
+import com.bgsoftware.superiorprison.plugin.util.menu.ClickHandler;
+import com.bgsoftware.superiorprison.plugin.util.menu.MenuLoader;
+import com.bgsoftware.superiorprison.plugin.util.menu.OMenuButton;
+import com.bgsoftware.superiorprison.plugin.util.menu.OPagedMenu;
 import com.google.common.base.Preconditions;
 import com.oop.orangeengine.yaml.Config;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Function;
 import lombok.Getter;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -16,177 +25,171 @@ import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.function.Function;
-
 @Getter
 public class AdvancedBackPackView extends OPagedMenu<ItemStack> implements BackpackLockable {
 
-    private final OMenuButton[] top = new OMenuButton[9];
-    private final OMenuButton[] bottom = new OMenuButton[9];
-    private final SBackPack backPack;
+  private final OMenuButton[] top = new OMenuButton[9];
+  private final OMenuButton[] bottom = new OMenuButton[9];
+  private final SBackPack backPack;
 
-    public AdvancedBackPackView(SPrisoner viewer, SBackPack backPack) {
-        super("backpackview", viewer);
-        Preconditions.checkArgument(backPack.getConfig() instanceof AdvancedBackPackConfig, "This menu only works on AdvancedBackPack!");
+  public AdvancedBackPackView(SPrisoner viewer, SBackPack backPack) {
+    super("backpackview", viewer);
+    Preconditions.checkArgument(
+        backPack.getConfig() instanceof AdvancedBackPackConfig,
+        "This menu only works on AdvancedBackPack!");
 
-        this.backPack = backPack;
-        backPack.setCurrentView(this);
+    this.backPack = backPack;
+    backPack.setCurrentView(this);
 
-        getStateRequester()
-                .registerRequest("sellContentsFlag", button -> getToggleableState(button, backPack.getData().isSell()));
+    getStateRequester()
+        .registerRequest(
+            "sellContentsFlag", button -> getToggleableState(button, backPack.getData().isSell()));
 
-        clickHandler("upgrade")
-                .handle(event -> move(new BackPackUpgradeMenu(getViewer(), backPack)));
+    clickHandler("upgrade").handle(event -> move(new BackPackUpgradeMenu(getViewer(), backPack)));
 
-        clickHandler("sellContentsFlag")
-                .handle(event -> {
-                    backPack.getData().setSell(!backPack.getData().isSell());
-                    refresh();
-                });
+    clickHandler("sellContentsFlag")
+        .handle(
+            event -> {
+              backPack.getData().setSell(!backPack.getData().isSell());
+              refresh();
+            });
 
-        ConfigController cc = SuperiorPrisonPlugin.getInstance().getConfigController();
-        Config configuration = cc.getMenus().get(getIdentifier().toLowerCase());
+    ConfigController cc = SuperiorPrisonPlugin.getInstance().getConfigController();
+    Config configuration = cc.getMenus().get(getIdentifier().toLowerCase());
 
-        MenuLoader.loadBackPackMenu(Objects.requireNonNull(configuration, "Failed to find configuration for menu " + getIdentifier()), this);
+    MenuLoader.loadBackPackMenu(
+        Objects.requireNonNull(
+            configuration, "Failed to find configuration for menu " + getIdentifier()),
+        this);
 
-        initializeBackpack();
+    initializeBackpack();
+  }
+
+  void initializeBackpack() {
+    int plus =
+        (isEmpty(top) ? 0 : 1)
+            + (isEmpty(bottom) ? 0 : 1)
+            + ((AdvancedBackPackConfig) backPack.getConfig()).getRows();
+    setMenuRows(Math.min(plus, 6));
+
+    getItems().clear();
+    getFillerItems().clear();
+    getEmptySlots().clear();
+
+    for (int i = 0; i < 2; i++) {
+      int startSlot = i == 0 ? 0 : (getMenuRows() * 9) - 9;
+      int endSlot = i == 0 ? 9 : getMenuRows() * 9;
+
+      int finalI = i;
+      Function<Integer, OMenuButton> getter = index -> (finalI == 0 ? top : bottom)[index];
+
+      int index = 0;
+      for (int slot = startSlot; i < endSlot; slot++) {
+        if (index == 9) break;
+        getFillerItems().put(slot, getter.apply(index).slot(slot));
+        index++;
+      }
+    }
+  }
+
+  public void onUpgrade() {
+    initializeBackpack();
+  }
+
+  public void onUpdate() {
+    refresh();
+  }
+
+  void updatePage(int page, Inventory inventory) {
+    ItemStack[] contents = inventory.getContents();
+
+    if (!isEmpty(top)) contents = Arrays.copyOfRange(contents, 9, contents.length);
+
+    if (!isEmpty(bottom)) contents = Arrays.copyOfRange(contents, 0, contents.length - 9);
+
+    int startingIndex = page == 1 ? 0 : (page * contents.length) - contents.length;
+    for (int i = 0; i < contents.length; i++) {
+      backPack.getData().setItem(startingIndex, contents[i]);
+      startingIndex++;
+    }
+  }
+
+  @Override
+  public void closeInventory(InventoryCloseEvent event) {
+    super.closeInventory(event);
+
+    // If action is null, save the inventory page
+    if (getCurrentAction() != null) {
+      if (getSwitchAction() != null) {
+        int updatingPage =
+            getSwitchAction() == SwitchEnum.NEXT ? getCurrentPage() - 1 : getCurrentPage() + 1;
+        updatePage(updatingPage, event.getInventory());
+        return;
+      }
+
+      updatePage(getCurrentPage(), event.getInventory());
+      return;
     }
 
-    void initializeBackpack() {
-        int plus = (isEmpty(top) ? 0 : 1) + (isEmpty(bottom) ? 0 : 1) + ((AdvancedBackPackConfig) backPack.getConfig()).getRows();
-        setMenuRows(Math.min(plus, 6));
+    updatePage(getCurrentPage(), event.getInventory());
+    backPack.setCurrentView(null);
 
-        getItems().clear();
-        getFillerItems().clear();
-        getEmptySlots().clear();
+    updateBackpackAndUnlock();
+  }
 
-        for (int i = 0; i < 2; i++) {
-            int startSlot = i == 0 ? 0 : (getMenuRows() * 9) - 9;
-            int endSlot = i == 0 ? 9 : getMenuRows() * 9;
+  @Override
+  public void handleClick(InventoryClickEvent event) {
+    if (event.getCurrentItem() != null) {
+      Optional<OMenuButton> menuButton =
+          getButtons().stream().filter(button -> button.slot() == event.getRawSlot()).findFirst();
+      if (!menuButton.isPresent()) return;
 
-            int finalI = i;
-            Function<Integer, OMenuButton> getter = index ->
-                    (finalI == 0 ? top : bottom)[index];
+      ButtonClickEvent buttonClickEvent = new ButtonClickEvent(event, menuButton.get());
+      Optional<ClickHandler> clickHandler = clickHandlerFor(buttonClickEvent);
+      if (!clickHandler.isPresent()) {
+        if (!buttonClickEvent.getButton().action().contentEquals("backpack-item"))
+          event.setCancelled(true);
 
-            int index = 0;
-            for (int slot = startSlot; i < endSlot; slot++) {
-                if (index == 9) break;
-                getFillerItems().put(slot, getter.apply(index).slot(slot));
-                index++;
-            }
-        }
+        return;
+      }
+
+      event.setCancelled(true);
+      clickHandler.get().handle(buttonClickEvent);
     }
+  }
 
-    public void onUpgrade() {
-        initializeBackpack();
+  @Override
+  public void handleBottomClick(InventoryClickEvent event) {
+    event.setCancelled(false);
+  }
+
+  @Override
+  public List<ItemStack> requestObjects() {
+    return backPack.getStored();
+  }
+
+  @Override
+  public OMenuButton toButton(ItemStack obj) {
+    return new OMenuButton('+')
+        .currentItem(obj == null ? new ItemStack(Material.AIR) : obj)
+        .action("backpack-item");
+  }
+
+  @Override
+  protected void _init() {}
+
+  private boolean isEmpty(OMenuButton[] array) {
+    for (OMenuButton oMenuButton : array) {
+      if (oMenuButton != null) return false;
     }
+    return true;
+  }
 
-    public void onUpdate() {
-        refresh();
-    }
+  @Override
+  public void handleDrag(InventoryDragEvent event) {}
 
-    void updatePage(int page, Inventory inventory) {
-        ItemStack[] contents = inventory.getContents();
-
-        if (!isEmpty(top))
-            contents = Arrays.copyOfRange(contents, 9, contents.length);
-
-        if (!isEmpty(bottom))
-            contents = Arrays.copyOfRange(contents, 0, contents.length - 9);
-
-        int startingIndex = page == 1 ? 0 : (page * contents.length) - contents.length;
-        for (int i = 0; i < contents.length; i++) {
-            backPack.getData().setItem(startingIndex, contents[i]);
-            startingIndex++;
-        }
-    }
-
-    @Override
-    public void closeInventory(InventoryCloseEvent event) {
-        super.closeInventory(event);
-
-        // If action is null, save the inventory page
-        if (getCurrentAction() != null) {
-            if (getSwitchAction() != null) {
-                int updatingPage = getSwitchAction() == SwitchEnum.NEXT ? getCurrentPage() - 1 : getCurrentPage() + 1;
-                updatePage(updatingPage, event.getInventory());
-                return;
-            }
-
-            updatePage(getCurrentPage(), event.getInventory());
-            return;
-        }
-
-        updatePage(getCurrentPage(), event.getInventory());
-        backPack.setCurrentView(null);
-
-        updateBackpackAndUnlock();
-    }
-
-    @Override
-    public void handleClick(InventoryClickEvent event) {
-        if (event.getCurrentItem() != null) {
-            Optional<OMenuButton> menuButton = getButtons()
-                    .stream()
-                    .filter(button -> button.slot() == event.getRawSlot())
-                    .findFirst();
-            if (!menuButton.isPresent()) return;
-
-            ButtonClickEvent buttonClickEvent = new ButtonClickEvent(event, menuButton.get());
-            Optional<ClickHandler> clickHandler = clickHandlerFor(buttonClickEvent);
-            if (!clickHandler.isPresent()) {
-                if (!buttonClickEvent.getButton().action().contentEquals("backpack-item"))
-                    event.setCancelled(true);
-
-                return;
-            }
-
-            event.setCancelled(true);
-            clickHandler.get().handle(buttonClickEvent);
-        }
-    }
-
-    @Override
-    public void handleBottomClick(InventoryClickEvent event) {
-        event.setCancelled(false);
-    }
-
-    @Override
-    public List<ItemStack> requestObjects() {
-        return backPack.getStored();
-    }
-
-    @Override
-    public OMenuButton toButton(ItemStack obj) {
-        return new OMenuButton('+')
-                .currentItem(obj == null ? new ItemStack(Material.AIR) : obj)
-                .action("backpack-item");
-    }
-
-    @Override
-    protected void _init() {
-    }
-
-    private boolean isEmpty(OMenuButton[] array) {
-        for (OMenuButton oMenuButton : array) {
-            if (oMenuButton != null) return false;
-        }
-        return true;
-    }
-
-    @Override
-    public void handleDrag(InventoryDragEvent event) {
-    }
-
-    private OMenuButton.ButtonItemBuilder getToggleableState(OMenuButton button, boolean state) {
-        if (state)
-            return button.getStateItem("enabled");
-
-        else
-            return button.getStateItem("disabled");
-    }
+  private OMenuButton.ButtonItemBuilder getToggleableState(OMenuButton button, boolean state) {
+    if (state) return button.getStateItem("enabled");
+    else return button.getStateItem("disabled");
+  }
 }

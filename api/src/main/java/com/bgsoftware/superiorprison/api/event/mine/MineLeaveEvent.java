@@ -11,16 +11,15 @@ import org.bukkit.event.Cancellable;
 @Getter
 public class MineLeaveEvent extends MineEvent implements Cancellable {
 
-    private Prisoner prisoner;
+  private Prisoner prisoner;
 
-    private Area area;
+  private Area area;
 
-    @Setter
-    private boolean cancelled = false;
+  @Setter private boolean cancelled = false;
 
-    public MineLeaveEvent(SuperiorMine mine, Prisoner prisoner, Area area) {
-        super(mine);
-        this.prisoner = prisoner;
-        this.area = area;
-    }
+  public MineLeaveEvent(SuperiorMine mine, Prisoner prisoner, Area area) {
+    super(mine);
+    this.prisoner = prisoner;
+    this.area = area;
+  }
 }

@@ -5,7 +5,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 
 public class MutliVerUtil {
-    public static boolean isPrimaryHand(PlayerInteractEvent event) {
-        return OVersion.isBefore(9) || event.getHand() != EquipmentSlot.OFF_HAND;
-    }
+  public static boolean isPrimaryHand(PlayerInteractEvent event) {
+    return OVersion.isBefore(9) || event.getHand() != EquipmentSlot.OFF_HAND;
+  }
 }

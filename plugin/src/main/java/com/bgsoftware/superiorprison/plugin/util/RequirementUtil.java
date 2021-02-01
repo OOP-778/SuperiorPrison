@@ -6,67 +6,89 @@ import com.bgsoftware.superiorprison.api.requirement.RequirementException;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.config.main.ProgressionScaleSection;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
 public class RequirementUtil {
-    public static List<RequirementException> test(Collection<RequirementData> reqColl, SPrisoner prisoner) {
-        List<RequirementException> failed = new ArrayList<>();
-        reqColl.forEach(data -> {
-            Optional<Requirement> requirement = SuperiorPrisonPlugin.getInstance().getRequirementController().findRequirement(data.getType());
-            if (!requirement.isPresent()) return;
-            try {
-                requirement.get().getHandler().testIO(prisoner, data);
-            } catch (RequirementException ex) {
-                failed.add(ex);
-            }
+  public static List<RequirementException> test(
+      Collection<RequirementData> reqColl, SPrisoner prisoner) {
+    List<RequirementException> failed = new ArrayList<>();
+    reqColl.forEach(
+        data -> {
+          Optional<Requirement> requirement =
+              SuperiorPrisonPlugin.getInstance()
+                  .getRequirementController()
+                  .findRequirement(data.getType());
+          if (!requirement.isPresent()) return;
+          try {
+            requirement.get().getHandler().testIO(prisoner, data);
+          } catch (RequirementException ex) {
+            failed.add(ex);
+          }
         });
-        return failed;
-    }
+    return failed;
+  }
 
-    public static void take(Collection<RequirementData> reqColl, SPrisoner prisoner) {
-        reqColl.forEach(data -> {
-            Optional<Requirement> requirement = SuperiorPrisonPlugin.getInstance().getRequirementController().findRequirement(data.getType());
-            if (!requirement.isPresent()) return;
-            if (!data.isTake()) return;
+  public static void take(Collection<RequirementData> reqColl, SPrisoner prisoner) {
+    reqColl.forEach(
+        data -> {
+          Optional<Requirement> requirement =
+              SuperiorPrisonPlugin.getInstance()
+                  .getRequirementController()
+                  .findRequirement(data.getType());
+          if (!requirement.isPresent()) return;
+          if (!data.isTake()) return;
 
-            requirement.get().getHandler().take(prisoner, data);
+          requirement.get().getHandler().take(prisoner, data);
         });
-    }
+  }
 
-    public static int getPercentageCompleted(Collection<RequirementData> reqColl, SPrisoner prisoner) {
-        double allReqsPercentage = reqColl.stream().mapToDouble(data -> {
-            Optional<Requirement> requirement = SuperiorPrisonPlugin.getInstance().getRequirementController().findRequirement(data.getType());
-            if (!requirement.isPresent()) return 0d;
-            return Math.min(requirement.get().getHandler().getPercentage(prisoner, data), 100);
-        }).sum();
+  public static int getPercentageCompleted(
+      Collection<RequirementData> reqColl, SPrisoner prisoner) {
+    double allReqsPercentage =
+        reqColl.stream()
+            .mapToDouble(
+                data -> {
+                  Optional<Requirement> requirement =
+                      SuperiorPrisonPlugin.getInstance()
+                          .getRequirementController()
+                          .findRequirement(data.getType());
+                  if (!requirement.isPresent()) return 0d;
+                  return Math.min(
+                      requirement.get().getHandler().getPercentage(prisoner, data), 100);
+                })
+            .sum();
 
-        return Math.min((int) Math.round(allReqsPercentage / reqColl.size()), 100);
-    }
+    return Math.min((int) Math.round(allReqsPercentage / reqColl.size()), 100);
+  }
 
-    public static String getProgressScale(SPrisoner prisoner, Collection<RequirementData> reqList) {
-        ProgressionScaleSection section = SuperiorPrisonPlugin.getInstance().getMainConfig().getScaleSection();
-        StringBuilder scaleBuilder = new StringBuilder(section.getCompletedColor());
+  public static String getProgressScale(SPrisoner prisoner, Collection<RequirementData> reqList) {
+    ProgressionScaleSection section =
+        SuperiorPrisonPlugin.getInstance().getMainConfig().getScaleSection();
+    StringBuilder scaleBuilder = new StringBuilder(section.getCompletedColor());
 
-        char symbol = section.getSymbols().toCharArray()[0];
-        int amountShouldBeColored = getPercentageCompleted(reqList, prisoner) / section.getSymbols().toCharArray().length;
-        for (int i = 0; i < amountShouldBeColored; i++)
-            scaleBuilder.append(symbol);
+    char symbol = section.getSymbols().toCharArray()[0];
+    int amountShouldBeColored =
+        getPercentageCompleted(reqList, prisoner) / section.getSymbols().toCharArray().length;
+    for (int i = 0; i < amountShouldBeColored; i++) scaleBuilder.append(symbol);
 
-        scaleBuilder.append(section.getColor());
-        for (int i = 0; i < (section.getSymbols().toCharArray().length - amountShouldBeColored); i++)
-            scaleBuilder.append(symbol);
+    scaleBuilder.append(section.getColor());
+    for (int i = 0; i < (section.getSymbols().toCharArray().length - amountShouldBeColored); i++)
+      scaleBuilder.append(symbol);
 
-        return scaleBuilder.toString();
-    }
+    return scaleBuilder.toString();
+  }
 
-    public static String getRequired(RequirementData requirementData, SPrisoner prisoner) {
-        Optional<Requirement> requirement = SuperiorPrisonPlugin.getInstance().getRequirementController().findRequirement(requirementData.getType());
-        if (!requirement.isPresent()) return "invalid req";
+  public static String getRequired(RequirementData requirementData, SPrisoner prisoner) {
+    Optional<Requirement> requirement =
+        SuperiorPrisonPlugin.getInstance()
+            .getRequirementController()
+            .findRequirement(requirementData.getType());
+    if (!requirement.isPresent()) return "invalid req";
 
-        return TextUtil.beautifyNumber(requirement.get().getHandler().getCurrent(prisoner, requirementData));
-    }
+    return TextUtil.beautifyNumber(
+        requirement.get().getHandler().getCurrent(prisoner, requirementData));
+  }
 }

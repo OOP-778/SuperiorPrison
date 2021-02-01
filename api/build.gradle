@@ -26,6 +26,6 @@ dependencies {
 orchid {
     theme = "BsDoc"
     version = "1.0.0"
-    srcDir  = "docs/resources"
+    srcDir = "docs/resources"
     destDir = "docs"
 }

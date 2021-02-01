@@ -10,15 +10,15 @@ import lombok.Getter;
 @Getter
 public class MineAreaEnterEvent extends MineEvent {
 
-    private Prisoner prisoner;
-    private Area area;
-    private AreaEnum areaEnum;
+  private Prisoner prisoner;
+  private Area area;
+  private AreaEnum areaEnum;
 
-    public MineAreaEnterEvent(Prisoner prisoner, Area area, AreaEnum areaEnum, SuperiorMine mine) {
-        super(mine);
+  public MineAreaEnterEvent(Prisoner prisoner, Area area, AreaEnum areaEnum, SuperiorMine mine) {
+    super(mine);
 
-        this.prisoner = prisoner;
-        this.area = area;
-        this.areaEnum = areaEnum;
-    }
+    this.prisoner = prisoner;
+    this.area = area;
+    this.areaEnum = areaEnum;
+  }
 }

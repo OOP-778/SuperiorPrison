@@ -7,20 +7,21 @@ import org.bukkit.Bukkit;
 
 public class CmdReload extends OCommand {
 
-    public CmdReload() {
-        label("reload");
-        description("reload the plugin");
-        permission("superiorprison.reload");
+  public CmdReload() {
+    label("reload");
+    description("reload the plugin");
+    permission("superiorprison.reload");
 
-        onCommand(command -> {
-            try {
-                SuperiorPrisonPlugin.getInstance().getPluginComponentController().reload();
-                LocaleEnum.PLUGIN_RELOADED.getWithPrefix().send(command.getSender());
-            } catch (Throwable thrw) {
-                LocaleEnum.PLUGIN_FAILED_RELOAD.getWithErrorPrefix().send(command.getSender());
-                Bukkit.getPluginManager().disablePlugin(SuperiorPrisonPlugin.getInstance());
-                throw new IllegalStateException("Failed to reload SuperiorPrison", thrw);
-            }
+    onCommand(
+        command -> {
+          try {
+            SuperiorPrisonPlugin.getInstance().getPluginComponentController().reload();
+            LocaleEnum.PLUGIN_RELOADED.getWithPrefix().send(command.getSender());
+          } catch (Throwable thrw) {
+            LocaleEnum.PLUGIN_FAILED_RELOAD.getWithErrorPrefix().send(command.getSender());
+            Bukkit.getPluginManager().disablePlugin(SuperiorPrisonPlugin.getInstance());
+            throw new IllegalStateException("Failed to reload SuperiorPrison", thrw);
+          }
         });
-    }
+  }
 }

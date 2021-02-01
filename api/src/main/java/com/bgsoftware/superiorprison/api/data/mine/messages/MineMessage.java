@@ -4,18 +4,18 @@ import org.bukkit.command.CommandSender;
 
 public interface MineMessage {
 
-    // Get message type
-    MessageType getType();
+  // Get message type
+  MessageType getType();
 
-    // Get interval in seconds
-    long getInterval();
+  // Get interval in seconds
+  long getInterval();
 
-    // Get id of the message
-    int getId();
+  // Set interval (seconds)
+  void setInterval(long every);
 
-    // Set interval (seconds)
-    void setInterval(long every);
+  // Get id of the message
+  int getId();
 
-    // Send the message to someone
-    void send(CommandSender sender);
+  // Send the message to someone
+  void send(CommandSender sender);
 }

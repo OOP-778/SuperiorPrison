@@ -1,36 +1,35 @@
 package com.bgsoftware.superiorprison.api.data.mine.effects;
 
-import org.bukkit.potion.PotionEffectType;
-
 import java.util.Optional;
 import java.util.Set;
+import org.bukkit.potion.PotionEffectType;
 
 public interface MineEffects {
 
-    // Get specific potion effect if available
-    Optional<MineEffect> get(PotionEffectType type);
+  // Get specific potion effect if available
+  Optional<MineEffect> get(PotionEffectType type);
 
-    // Remove mine effect
-    void remove(MineEffect effect);
+  // Remove mine effect
+  void remove(MineEffect effect);
 
-    // Remove potion effect
-    void remove(PotionEffectType type);
+  // Remove potion effect
+  void remove(PotionEffectType type);
 
-    // Add potion effect
-    MineEffect add(PotionEffectType type, int amplifier);
+  // Add potion effect
+  MineEffect add(PotionEffectType type, int amplifier);
 
-    // Check if has an potion effect
-    boolean has(PotionEffectType type);
+  // Check if has an potion effect
+  boolean has(PotionEffectType type);
 
-    // Get set of effects
-    Set<MineEffect> get();
+  // Get set of effects
+  Set<MineEffect> get();
 
-    // Clear all the effects
-    void clear();
+  // Clear all the effects
+  void clear();
 
-    // Reapply all effects
-    void reapplyEffects();
+  // Reapply all effects
+  void reapplyEffects();
 
-    // Clear all the effects from the prisoner
-    void clearEffects();
+  // Clear all the effects from the prisoner
+  void clearEffects();
 }

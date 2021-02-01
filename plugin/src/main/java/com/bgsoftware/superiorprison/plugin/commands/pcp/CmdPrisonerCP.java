@@ -8,16 +8,21 @@ import org.bukkit.entity.Player;
 
 public class CmdPrisonerCP extends OCommand {
 
-    public CmdPrisonerCP() {
-        label("pcp");
-        alias("prisonercp");
+  public CmdPrisonerCP() {
+    label("pcp");
+    alias("prisonercp");
 
-        onCommand(command -> {
-            Player senderAsPlayer = command.getSenderAsPlayer();
-            PrisonerControlPanel prisonerControlPanel = new PrisonerControlPanel(SuperiorPrisonPlugin.getInstance().getPrisonerController().getInsertIfAbsent(senderAsPlayer));
-            senderAsPlayer.openInventory(prisonerControlPanel.getInventory());
+    onCommand(
+        command -> {
+          Player senderAsPlayer = command.getSenderAsPlayer();
+          PrisonerControlPanel prisonerControlPanel =
+              new PrisonerControlPanel(
+                  SuperiorPrisonPlugin.getInstance()
+                      .getPrisonerController()
+                      .getInsertIfAbsent(senderAsPlayer));
+          senderAsPlayer.openInventory(prisonerControlPanel.getInventory());
         });
 
-        PermissionsInitializer.registerPrisonerCommand(this);
-    }
+    PermissionsInitializer.registerPrisonerCommand(this);
+  }
 }

@@ -9,13 +9,20 @@ import com.oop.orangeengine.material.OMaterial;
 import org.bukkit.event.EventPriority;
 
 public class StatisticsListener {
-    public StatisticsListener() {
-        DatabaseController databaseController = SuperiorPrisonPlugin.getInstance().getDatabaseController();
-        SyncEvents.listen(MineBlockBreakEvent.class, EventPriority.LOWEST, event -> {
-            if (event.isCancelled()) return;
+  public StatisticsListener() {
+    DatabaseController databaseController =
+        SuperiorPrisonPlugin.getInstance().getDatabaseController();
+    SyncEvents.listen(
+        MineBlockBreakEvent.class,
+        EventPriority.LOWEST,
+        event -> {
+          if (event.isCancelled()) return;
 
-            SStatisticsContainer statisticsContainer = databaseController.getStatisticHolder().getContainer(event.getPrisoner().getUUID());
-            statisticsContainer.getBlocksStatistic().update(OMaterial.matchMaterial(event.getBlock()), 1);
+          SStatisticsContainer statisticsContainer =
+              databaseController.getStatisticHolder().getContainer(event.getPrisoner().getUUID());
+          statisticsContainer
+              .getBlocksStatistic()
+              .update(OMaterial.matchMaterial(event.getBlock()), 1);
         });
-    }
+  }
 }

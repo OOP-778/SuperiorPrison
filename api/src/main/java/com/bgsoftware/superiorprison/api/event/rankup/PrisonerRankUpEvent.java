@@ -8,12 +8,12 @@ import lombok.Getter;
 @Getter
 public class PrisonerRankUpEvent extends PrisonerEvent {
 
-    private LadderRank previousRank;
-    private LadderRank newRank;
+  private LadderRank previousRank;
+  private LadderRank newRank;
 
-    public PrisonerRankUpEvent(Prisoner prisoner, LadderRank previousRank, LadderRank newRank) {
-        super(prisoner);
-        this.previousRank = previousRank;
-        this.newRank = newRank;
-    }
+  public PrisonerRankUpEvent(Prisoner prisoner, LadderRank previousRank, LadderRank newRank) {
+    super(prisoner);
+    this.previousRank = previousRank;
+    this.newRank = newRank;
+  }
 }

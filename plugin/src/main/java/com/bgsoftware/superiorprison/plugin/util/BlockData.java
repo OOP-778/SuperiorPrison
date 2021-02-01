@@ -1,17 +1,16 @@
 package com.bgsoftware.superiorprison.plugin.util;
 
 import com.oop.orangeengine.material.OMaterial;
+import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.List;
-
 interface BlockData {
-    Location getLocation();
+  Location getLocation();
 
-    OMaterial getMaterial();
+  OMaterial getMaterial();
 
-    int getAmount();
+  int getAmount();
 
-    List<ItemStack> getCustomDrops();
+  List<ItemStack> getCustomDrops();
 }

@@ -6,70 +6,69 @@ import com.bgsoftware.superiorprison.api.data.player.booster.Boosters;
 import com.bgsoftware.superiorprison.api.data.player.rank.LadderRank;
 import com.bgsoftware.superiorprison.api.data.player.rank.Rank;
 import com.bgsoftware.superiorprison.api.util.Pair;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 public interface Prisoner {
-    UUID getUUID();
+  UUID getUUID();
 
-    boolean isAutoSell();
+  boolean isAutoSell();
 
-    Boosters getBoosters();
+  Boosters getBoosters();
 
-    String getLogoutMine();
+  String getLogoutMine();
 
-    boolean isLoggedOutInMine();
+  boolean isLoggedOutInMine();
 
-    boolean isOnline();
+  boolean isOnline();
 
-    OfflinePlayer getOfflinePlayer();
+  OfflinePlayer getOfflinePlayer();
 
-    Player getPlayer();
+  Player getPlayer();
 
-    Optional<Pair<SuperiorMine, AreaEnum>> getCurrentMine();
+  Optional<Pair<SuperiorMine, AreaEnum>> getCurrentMine();
 
-    boolean isAutoPickup();
+  boolean isAutoPickup();
 
-    boolean isAutoBurn();
+  boolean isAutoBurn();
 
-    boolean isFortuneBlocks();
+  boolean isFortuneBlocks();
 
-    List<Rank> getSpecialRanks();
+  List<Rank> getSpecialRanks();
 
-    LadderRank getCurrentLadderRank();
+  LadderRank getCurrentLadderRank();
 
-    void remove();
+  void remove();
 
-    void save(boolean async);
+  void save(boolean async);
 
-    BigDecimal getPrice(ItemStack itemStack);
+  BigDecimal getPrice(ItemStack itemStack);
 
-    Set<SuperiorMine> getMines();
+  Set<SuperiorMine> getMines();
 
-    void addRank(Rank ...rank);
+  void addRank(Rank... rank);
 
-    void addRank(String ...rank);
+  void addRank(String... rank);
 
-    void removeRank(Rank ...rank);
+  void removeRank(Rank... rank);
 
-    void removeRank(String ...rank);
+  void removeRank(String... rank);
 
-    boolean hasRank(String name);
+  boolean hasRank(String name);
 
-    boolean hasPrestige(Prestige prestige);
+  boolean hasPrestige(Prestige prestige);
 
-    void setPrestige(Prestige prestige, boolean applyOnAdd);
+  void setPrestige(Prestige prestige, boolean applyOnAdd);
 
-    void setLadderRank(LadderRank rank, boolean applyOnAdd);
+  void setLadderRank(LadderRank rank, boolean applyOnAdd);
 
-    Optional<Prestige> getCurrentPrestige();
+  Optional<Prestige> getCurrentPrestige();
 
-    SuperiorMine getHighestMine();
+  SuperiorMine getHighestMine();
 }

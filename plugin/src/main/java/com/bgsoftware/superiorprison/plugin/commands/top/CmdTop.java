@@ -8,17 +8,27 @@ import com.oop.orangeengine.command.OCommand;
 import org.bukkit.entity.Player;
 
 public class CmdTop extends OCommand {
-    public CmdTop() {
-        label("top");
-        argument(new TopTypeArg().setRequired(true));
-        ableToExecute(Player.class);
-        onCommand(command -> {
-            TopTypeArg.TopType topType = command.getArgAsReq("type");
-            STopSystem system = (STopSystem) SuperiorPrisonPlugin.getInstance().getTopController()
-                    .getSystem(topType.getClazz());
+  public CmdTop() {
+    label("top");
+    argument(new TopTypeArg().setRequired(true));
+    ableToExecute(Player.class);
+    onCommand(
+        command -> {
+          TopTypeArg.TopType topType = command.getArgAsReq("type");
+          STopSystem system =
+              (STopSystem)
+                  SuperiorPrisonPlugin.getInstance()
+                      .getTopController()
+                      .getSystem(topType.getClazz());
 
-            TopMenu topMenu = new TopMenu(SuperiorPrisonPlugin.getInstance().getPrisonerController().getInsertIfAbsent(command.getSenderAsPlayer()), topType, system);
-            command.getSenderAsPlayer().openInventory(topMenu.getInventory());
+          TopMenu topMenu =
+              new TopMenu(
+                  SuperiorPrisonPlugin.getInstance()
+                      .getPrisonerController()
+                      .getInsertIfAbsent(command.getSenderAsPlayer()),
+                  topType,
+                  system);
+          command.getSenderAsPlayer().openInventory(topMenu.getInventory());
         });
-    }
+  }
 }

@@ -14,13 +14,12 @@ import org.bukkit.World;
 @EqualsAndHashCode
 public class ChunkResetData {
 
-    private final World world;
-    private final int x, z;
-    private final OQueue<ListenablePair<Location, OMaterial>> data = new OQueue<>();
-    @Setter
-    private boolean ready = false;
+  private final World world;
+  private final int x, z;
+  private final OQueue<ListenablePair<Location, OMaterial>> data = new OQueue<>();
+  @Setter private boolean ready = false;
 
-    public void add(Location location, OMaterial material, Runnable onComplete) {
-        data.add(new ListenablePair<>(location, material).onComplete(onComplete));
-    }
+  public void add(Location location, OMaterial material, Runnable onComplete) {
+    data.add(new ListenablePair<>(location, material).onComplete(onComplete));
+  }
 }

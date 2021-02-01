@@ -8,19 +8,19 @@ import lombok.Getter;
 @Getter
 public class ChatFormat {
 
-    private OMessage format;
-    private int order = -1;
-    private String permission = null;
+  private OMessage format;
+  private int order = -1;
+  private String permission = null;
 
-    private ChatFormat() {
-    }
+  private ChatFormat() {}
 
-    public static ChatFormat of(ConfigSection section) {
-        ChatFormat format = new ChatFormat();
-        format.format = YamlMessage.load(section.getSection("format").get());
+  public static ChatFormat of(ConfigSection section) {
+    ChatFormat format = new ChatFormat();
+    format.format = YamlMessage.load(section.getSection("format").get());
 
-        section.ifValuePresent("order", int.class, order -> format.order = order);
-        section.ifValuePresent("permission", String.class, permission -> format.permission = permission);
-        return format;
-    }
+    section.ifValuePresent("order", int.class, order -> format.order = order);
+    section.ifValuePresent(
+        "permission", String.class, permission -> format.permission = permission);
+    return format;
+  }
 }

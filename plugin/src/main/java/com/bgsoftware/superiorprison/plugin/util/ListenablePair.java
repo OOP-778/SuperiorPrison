@@ -6,16 +6,15 @@ import lombok.experimental.Accessors;
 
 public class ListenablePair<F, S> extends OPair<F, S> {
 
-    @Setter
-    @Accessors(chain = true, fluent = true)
-    private Runnable onComplete;
+  @Setter
+  @Accessors(chain = true, fluent = true)
+  private Runnable onComplete;
 
-    public ListenablePair(F first, S second) {
-        super(first, second);
-    }
+  public ListenablePair(F first, S second) {
+    super(first, second);
+  }
 
-    public void complete() {
-        if (onComplete != null)
-            onComplete.run();
-    }
+  public void complete() {
+    if (onComplete != null) onComplete.run();
+  }
 }

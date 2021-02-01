@@ -3,33 +3,33 @@ package com.bgsoftware.superiorprison.api.data.mine.messages;
 import java.util.Optional;
 
 public interface MineTitleMessage extends MineMessage {
-    // Get fade in of title message
-    int getFadeIn();
+  // Get fade in of title message
+  int getFadeIn();
 
-    // Get stay of title message
-    int getStay();
+  // Set fade in (in ticks)
+  void setFadeIn(int fadeIn);
 
-    // Get fade out of title message
-    int getFadeOut();
+  // Get stay of title message
+  int getStay();
 
-    // Get title of the title message
-    String getTitle();
+  // Set stay (in ticks)
+  void setStay(int stay);
 
-    // Get sub title of the title message
-    Optional<String> getSubTitle();
+  // Get fade out of title message
+  int getFadeOut();
 
-    // Set fade in (in ticks)
-    void setFadeIn(int fadeIn);
+  // Set fade out (in ticks)
+  void setFadeOut(int fadeOut);
 
-    // Set stay (in ticks)
-    void setStay(int stay);
+  // Get title of the title message
+  String getTitle();
 
-    // Set fade out (in ticks)
-    void setFadeOut(int fadeOut);
+  // Set title
+  void setTitle(String title);
 
-    // Set title
-    void setTitle(String title);
+  // Get sub title of the title message
+  Optional<String> getSubTitle();
 
-    // Set sub title
-    void setSubTitle(String subTitle);
+  // Set sub title
+  void setSubTitle(String subTitle);
 }

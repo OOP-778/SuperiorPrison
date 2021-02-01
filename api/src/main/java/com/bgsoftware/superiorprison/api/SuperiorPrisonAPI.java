@@ -2,21 +2,21 @@ package com.bgsoftware.superiorprison.api;
 
 public class SuperiorPrisonAPI {
 
-    private static SuperiorPrison plugin;
+  private static SuperiorPrison plugin;
 
-    public SuperiorPrisonAPI(SuperiorPrison prisonPlugin) {
-        plugin = prisonPlugin;
-    }
+  public SuperiorPrisonAPI(SuperiorPrison prisonPlugin) {
+    plugin = prisonPlugin;
+  }
 
-    public static boolean isEnabled() {
-        return plugin != null;
-    }
+  public static boolean isEnabled() {
+    return plugin != null;
+  }
 
-    public static SuperiorPrison getPlugin() {
-        return plugin;
-    }
+  public static SuperiorPrison getPlugin() {
+    return plugin;
+  }
 
-    public static void onDisable() {
-        plugin = null;
-    }
+  public static void onDisable() {
+    plugin = null;
+  }
 }

@@ -8,12 +8,13 @@ import lombok.Getter;
 @Getter
 public class PrisonerPrestigeUpEvent extends PrisonerEvent {
 
-    private Prestige previousPrestige;
-    private Prestige newPrestige;
+  private Prestige previousPrestige;
+  private Prestige newPrestige;
 
-    public PrisonerPrestigeUpEvent(Prisoner prisoner, Prestige previousPrestige, Prestige newPrestige) {
-        super(prisoner);
-        this.previousPrestige = previousPrestige;
-        this.newPrestige = newPrestige;
-    }
+  public PrisonerPrestigeUpEvent(
+      Prisoner prisoner, Prestige previousPrestige, Prestige newPrestige) {
+    super(prisoner);
+    this.previousPrestige = previousPrestige;
+    this.newPrestige = newPrestige;
+  }
 }

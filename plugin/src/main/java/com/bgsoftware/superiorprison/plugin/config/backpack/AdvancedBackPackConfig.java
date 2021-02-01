@@ -4,36 +4,39 @@ import com.oop.orangeengine.yaml.ConfigSection;
 import lombok.Getter;
 import lombok.SneakyThrows;
 
-public class AdvancedBackPackConfig extends BackPackConfig<AdvancedBackPackConfig> implements Cloneable {
-    static {
-        registerUpgrade("rows", AdvancedBackPackConfig.class, int.class, (backpack, rows) -> backpack.rows = rows);
-        registerUpgrade("pages", AdvancedBackPackConfig.class, int.class, (backpack, pages) -> backpack.pages = pages);
-    }
+public class AdvancedBackPackConfig extends BackPackConfig<AdvancedBackPackConfig>
+    implements Cloneable {
+  static {
+    registerUpgrade(
+        "rows", AdvancedBackPackConfig.class, int.class, (backpack, rows) -> backpack.rows = rows);
+    registerUpgrade(
+        "pages",
+        AdvancedBackPackConfig.class,
+        int.class,
+        (backpack, pages) -> backpack.pages = pages);
+  }
 
-    @Getter
-    private int rows;
+  @Getter private int rows;
 
-    @Getter
-    private int pages;
+  @Getter private int pages;
 
-    public AdvancedBackPackConfig(ConfigSection section) {
-        super(section);
-    }
+  public AdvancedBackPackConfig(ConfigSection section) {
+    super(section);
+  }
 
-    public AdvancedBackPackConfig() {
-    }
+  public AdvancedBackPackConfig() {}
 
-    @SneakyThrows
-    public AdvancedBackPackConfig clone() {
-        AdvancedBackPackConfig clone = new AdvancedBackPackConfig();
-        superClone(clone);
-        clone.pages = pages;
-        clone.rows = rows;
-        return clone;
-    }
+  @SneakyThrows
+  public AdvancedBackPackConfig clone() {
+    AdvancedBackPackConfig clone = new AdvancedBackPackConfig();
+    superClone(clone);
+    clone.pages = pages;
+    clone.rows = rows;
+    return clone;
+  }
 
-    @Override
-    public int getCapacity() {
-        return rows * 9 * pages * 64;
-    }
+  @Override
+  public int getCapacity() {
+    return rows * 9 * pages * 64;
+  }
 }

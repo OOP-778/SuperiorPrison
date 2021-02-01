@@ -7,32 +7,33 @@ import com.bgsoftware.superiorprison.plugin.object.mine.settings.SResetSettings;
 import com.bgsoftware.superiorprison.plugin.util.TimeUtil;
 
 public class ResetValueSetting extends SettingsObject<Long> {
-    public ResetValueSetting(SMineSettings settings) {
-        super(Long.class, settings.getResetSettings().getValue());
-        id(settings.getResetSettings().isTimed() ? "interval" : "percentage");
+  public ResetValueSetting(SMineSettings settings) {
+    super(Long.class, settings.getResetSettings().getValue());
+    id(settings.getResetSettings().isTimed() ? "interval" : "percentage");
 
-        if (settings.getResetSettings().isTimed())
-            mapper(TimeUtil::toSeconds);
-
-        else
-            mapper(string -> {
-                try {
-                    return Long.parseLong(string);
-                } catch (Throwable throwable) {
-                    throw new IllegalStateException("Invalid number: " + string);
-                }
-            });
-
-        requestMessage(LocaleEnum.EDIT_SETTINGS_VALUE.getWithPrefix());
-        completeMessage(LocaleEnum.EDIT_SETTINGS_VALUE_SUCCESS.getWithPrefix());
-        onComplete(value -> {
-            settings.getResetSettings().setValue(value);
-            settings.getMine().save(true);
-            if (settings.getResetSettings().isTimed()) {
-                SResetSettings.STimed timed = (SResetSettings.STimed) settings.getResetSettings().asTimed();
-                timed.setResetDate(null);
+    if (settings.getResetSettings().isTimed()) mapper(TimeUtil::toSeconds);
+    else
+      mapper(
+          string -> {
+            try {
+              return Long.parseLong(string);
+            } catch (Throwable throwable) {
+              throw new IllegalStateException("Invalid number: " + string);
             }
-            settings.getMine().getLinker().call(settings);
+          });
+
+    requestMessage(LocaleEnum.EDIT_SETTINGS_VALUE.getWithPrefix());
+    completeMessage(LocaleEnum.EDIT_SETTINGS_VALUE_SUCCESS.getWithPrefix());
+    onComplete(
+        value -> {
+          settings.getResetSettings().setValue(value);
+          settings.getMine().save(true);
+          if (settings.getResetSettings().isTimed()) {
+            SResetSettings.STimed timed =
+                (SResetSettings.STimed) settings.getResetSettings().asTimed();
+            timed.setResetDate(null);
+          }
+          settings.getMine().getLinker().call(settings);
         });
-    }
+  }
 }

@@ -2,10 +2,11 @@ package com.bgsoftware.superiorprison.api.data.backpack;
 
 import java.util.List;
 import java.util.Map;
-import org.bukkit.entity.Player;
+
+import com.bgsoftware.superiorprison.api.data.tool.Tool;
 import org.bukkit.inventory.ItemStack;
 
-public interface BackPack {
+public interface BackPack extends Tool {
   // Get the capacity of the backpack
   int getCapacity();
 
@@ -24,15 +25,6 @@ public interface BackPack {
   // Get configuration id of the backpack
   String getId();
 
-  // Get the backpack item
-  ItemStack getItem();
-
-  // Get the owner of the backpack
-  Player getOwner();
-
-  // Save the changes made to the backpack
-  void save();
-
   /*
   Adds itemstacks to the backpack
   Returns an map of items that were added or not
@@ -48,17 +40,8 @@ public interface BackPack {
   */
   Map<ItemStack, Integer> remove(ItemStack... itemStacks);
 
-  /*
-  Update the backpack in the player inventory
-  Also if the player is currently viewing the backpack it will also update the menu
-  */
-  void update();
-
   // Upgrade the backpack to the specified level
   void upgrade(int level);
-
-  // Check if backpack was modified
-  boolean isModified();
 
   // Check if backpack is full
   boolean isFull();

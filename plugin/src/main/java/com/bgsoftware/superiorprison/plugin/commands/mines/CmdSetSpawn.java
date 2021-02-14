@@ -2,7 +2,7 @@ package com.bgsoftware.superiorprison.plugin.commands.mines;
 
 import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
 
-import com.bgsoftware.superiorprison.plugin.commands.args.MinesArg;
+import com.bgsoftware.superiorprison.plugin.commands.args.MineArg;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.oop.orangeengine.command.OCommand;
@@ -12,7 +12,7 @@ public class CmdSetSpawn extends OCommand {
   public CmdSetSpawn() {
     label("setspawn");
     description("Set spawn location of a mine");
-    argument(new MinesArg().setRequired(true));
+    argument(new MineArg().setRequired(true));
     ableToExecute(Player.class);
 
     onCommand(

@@ -52,7 +52,7 @@ public class SBackPack implements BackPack {
   @Getter private BackPackData data;
   private NBTItem nbtItem;
   private ItemStack itemStack;
-  @Getter private Player owner;
+  @Getter private Player holder;
   private JsonObject oldData;
   @Setter @Getter private AdvancedBackPackView currentView;
   private int hashcode;
@@ -67,7 +67,7 @@ public class SBackPack implements BackPack {
 
   @SneakyThrows
   public SBackPack(@Nonnull ItemStack itemStack, Player player) {
-    this.owner = player;
+    this.holder = player;
     this.itemStack = itemStack;
     this.nbtItem = new NBTItem(itemStack);
 
@@ -139,7 +139,7 @@ public class SBackPack implements BackPack {
     backPack.data.setSell(config.isSellByDefault());
     backPack.data.setLevel(1);
     backPack.data.setConfigId(config.getId());
-    backPack.owner = player;
+    backPack.holder = player;
     backPack.itemStack = config.getItem().getItemStack().clone();
     backPack.nbtItem = new NBTItem(backPack.itemStack);
     backPack.uuid = UUID.randomUUID();
@@ -198,8 +198,7 @@ public class SBackPack implements BackPack {
     }
 
     bos.close();
-    byte[] output = bos.toByteArray();
-    return new String(output);
+    return bos.toString();
   }
 
   public static String encodeBase64(byte[] bytes) {
@@ -316,8 +315,8 @@ public class SBackPack implements BackPack {
     data.serialize(serializedData);
 
     if (SuperiorPrisonPlugin.getInstance().getBackPackController().isPlayerBound()) {
-      oldData.remove(owner.getUniqueId().toString());
-      oldData.add(owner.getUniqueId().toString(), serializedData.getJsonElement());
+      oldData.remove(holder.getUniqueId().toString());
+      oldData.add(holder.getUniqueId().toString(), serializedData.getJsonElement());
 
     } else {
       oldData.remove("global");
@@ -452,7 +451,6 @@ public class SBackPack implements BackPack {
     }
 
     if (currentView != null) currentView.onUpdate();
-
     return removedItems;
   }
 
@@ -462,15 +460,14 @@ public class SBackPack implements BackPack {
 
     // Update the inventory
     if (currentSlot != -1)
-      if (owner.getInventory() instanceof PatchedInventory) {
-        ((PatchedInventory) this.owner.getInventory()).setOwnerCalling();
-        this.owner.getInventory().setItem(currentSlot, newItem);
+      if (holder.getInventory() instanceof PatchedInventory) {
+        ((PatchedInventory) this.holder.getInventory()).setOwnerCalling();
+        this.holder.getInventory().setItem(currentSlot, newItem);
 
-      } else owner.getInventory().setItem(currentSlot, newItem);
+      } else holder.getInventory().setItem(currentSlot, newItem);
 
     // Update the menu
     if (currentView != null) currentView.refresh();
-
     lastUpdated = System.currentTimeMillis();
   }
 

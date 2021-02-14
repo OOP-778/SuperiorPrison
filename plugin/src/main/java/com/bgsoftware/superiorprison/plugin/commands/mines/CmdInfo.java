@@ -1,6 +1,6 @@
 package com.bgsoftware.superiorprison.plugin.commands.mines;
 
-import com.bgsoftware.superiorprison.plugin.commands.args.MinesArg;
+import com.bgsoftware.superiorprison.plugin.commands.args.MineArg;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.oop.orangeengine.command.OCommand;
@@ -14,7 +14,7 @@ public class CmdInfo extends OCommand {
   public CmdInfo() {
     label("info");
     description("Get information about mine");
-    argument(new MinesArg().setRequired(true));
+    argument(new MineArg().setRequired(true));
     onCommand(
         command -> {
           SNormalMine mine = command.getArgAsReq("mine");

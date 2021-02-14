@@ -134,7 +134,7 @@ public class SNormalMine
     defaults
         .getShopPrices()
         .forEach(item -> shop.addItem(item.getFirst().parseItem(), item.getSecond()));
-    StaticTask.getInstance().async(() -> generator.initCache(() -> generator.generate()));
+    StaticTask.getInstance().async(() -> generator.initCache(() -> generator.generate(null)));
     settings.setPlayerLimit(defaults.getLimit());
 
     effects = new SMineEffects();

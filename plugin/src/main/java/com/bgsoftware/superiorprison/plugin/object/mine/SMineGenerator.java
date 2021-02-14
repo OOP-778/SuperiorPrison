@@ -8,10 +8,10 @@ import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.object.mine.area.SArea;
 import com.bgsoftware.superiorprison.plugin.object.mine.linkable.LinkableObject;
 import com.bgsoftware.superiorprison.plugin.util.Attachable;
-import com.bgsoftware.superiorprison.plugin.util.ChunkResetData;
 import com.bgsoftware.superiorprison.plugin.util.ClassDebugger;
 import com.bgsoftware.superiorprison.plugin.util.Cuboid;
 import com.bgsoftware.superiorprison.plugin.util.frameworks.Framework;
+import com.bgsoftware.superiorprison.plugin.util.reset.ResetEntry;
 import com.oop.datamodule.api.SerializableObject;
 import com.oop.datamodule.api.SerializedData;
 import com.oop.datamodule.api.util.DataUtil;
@@ -91,10 +91,11 @@ public class SMineGenerator
     worldLoadWait = false;
     materialsChanged = false;
     cachedMaterials = new OMaterial[] {};
+    cachedMaterials = new OMaterial[] {};
     blockData.attach(this);
   }
 
-  public void generate() {
+  public void generate(Runnable callback) {
     if (cachedChunksData.isEmpty() || resetting || caching) return;
     if (SuperiorPrisonPlugin.getInstance() == null) return;
 
@@ -111,8 +112,6 @@ public class SMineGenerator
           shuffleArray(cachedMaterials);
 
           World world = getMine().getWorld();
-          long start = System.currentTimeMillis();
-          Set<ChunkResetData> data = new HashSet<>();
 
           Queue<Location> locationQueue =
               cachedChunksData.values().stream()
@@ -122,6 +121,34 @@ public class SMineGenerator
           Map<Chunk, Set<Location>> locations = new HashMap<>();
           cachedChunksData.values().forEach(c -> locations.put(c.chunk, c.locations));
 
+          ResetEntry resetEntry =
+              new ResetEntry(
+                  mine,
+                  entry -> {
+                    ClassDebugger.debug(
+                        "Finished mine resetting. Prisoners count: " + mine.getPrisoners().size());
+                    SuperiorPrisonPlugin.getInstance()
+                        .getNms()
+                        .refreshChunks(
+                            world, locations, mine.getSpawnPoint().getWorld().getPlayers());
+                    blocksRegenerated.set(0);
+
+                    SuperiorPrisonPlugin.getInstance()
+                        .getOLogger()
+                        .printDebug(
+                            "Finished mine {} reset. Took {}ms",
+                            mine.getName(),
+                            (entry.getEnd() - entry.getStart()));
+                    resetting = false;
+
+                    if (callback != null) callback.run();
+
+                    if (!SuperiorPrisonPlugin.getInstance().getMainConfig().isUseMineDataCache()) {
+                      cachedChunksData.clear();
+                      cachedMaterials = new OMaterial[0];
+                    }
+                  });
+
           blockData.reset();
           for (int index = 0; index < blocksInRegion; index++) {
             Location location = locationQueue.poll();
@@ -130,57 +157,39 @@ public class SMineGenerator
             OMaterial material = cachedMaterials[index];
 
             blockData.set(location, material);
-            ChunkResetData chunkResetData =
-                SuperiorPrisonPlugin.getInstance()
-                    .getMineController()
-                    .addResetBlock(
-                        location.clone(),
-                        material,
-                        () -> {
-                          long l = blocksRegenerated.incrementAndGet();
-                          if (l >= blocksInRegion) {
-                            ClassDebugger.debug(
-                                "Finished mine resetting. Prisoners count: "
-                                    + mine.getPrisoners().size());
-                            SuperiorPrisonPlugin.getInstance()
-                                .getNms()
-                                .refreshChunks(
-                                    world, locations, mine.getSpawnPoint().getWorld().getPlayers());
-                            blocksRegenerated.set(0);
-
-                            SuperiorPrisonPlugin.getInstance()
-                                .getOLogger()
-                                .printDebug(
-                                    "Finished mine {} reset. Took {}ms",
-                                    mine.getName(),
-                                    (System.currentTimeMillis() - start));
-                            resetting = false;
-                            data.clear();
-
-                            if (!SuperiorPrisonPlugin.getInstance()
-                                .getMainConfig()
-                                .isUseMineDataCache()) {
-                              cachedChunksData.clear();
-                              cachedMaterials = new OMaterial[0];
-                            }
-                          }
-                        });
-            data.add(chunkResetData);
+            resetEntry.addResetBlock(location.clone(), material);
           }
 
+          SuperiorPrisonPlugin.getInstance().getMineController().getQueue().add(resetEntry);
           blockData.setBlocksLeft(blocksInRegion);
-          data.forEach(chunkData -> chunkData.setReady(true));
         };
 
     if (!mine.getPendingTasks().keySet().isEmpty()) {
       new OTask()
           .stopIf(task -> mine.getPendingTasks().keySet().isEmpty())
-          .whenFinished(executeGenerate)
+          .whenFinished(() -> StaticTask.getInstance().async(executeGenerate))
           .repeat(true)
           .delay(200)
           .execute();
 
-    } else executeGenerate.run();
+    } else StaticTask.getInstance().async(executeGenerate);
+  }
+
+  public void reset(Runnable callback) {
+    if (resetting || caching) return;
+
+    lastReset = getDate().toInstant();
+    mine.onReset(
+        () -> {
+          // Check for cache
+          StaticTask.getInstance()
+              .async(
+                  () -> {
+                    if (blocksInRegion == -1 || cachedChunksData.isEmpty())
+                      initCache(() -> reset(callback));
+                    else generate(callback);
+                  });
+        });
   }
 
   @Override
@@ -195,7 +204,7 @@ public class SMineGenerator
               .async(
                   () -> {
                     if (blocksInRegion == -1 || cachedChunksData.isEmpty()) initCache(this::reset);
-                    else generate();
+                    else generate(null);
                   });
         });
   }

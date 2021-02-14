@@ -24,6 +24,7 @@ public class CommandsRegister {
     OFile schemesFile =
         new OFile(getEngine().getOwning().getDataFolder(), "commandScheme.yml")
             .createIfNotExists(true);
+
     Config config = new Config(schemesFile);
     SchemeHolder schemeHolder = new SchemeHolder(config);
     CommandController controller = new CommandController(schemeHolder);
@@ -48,6 +49,6 @@ public class CommandsRegister {
     mainCmd.afterRegister(controller);
 
     // Unregister all similar commands from other plugins
-    new OTask().delay(TimeUnit.SECONDS, 1).runnable(controller::unregisterSimilar).execute();
+    //new OTask().delay(TimeUnit.SECONDS, 1).runnable(controller::unregisterSimilar).execute();
   }
 }

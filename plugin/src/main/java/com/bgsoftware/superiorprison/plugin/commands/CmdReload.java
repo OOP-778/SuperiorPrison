@@ -1,4 +1,4 @@
-package com.bgsoftware.superiorprison.plugin.commands.mines;
+package com.bgsoftware.superiorprison.plugin.commands;
 
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;

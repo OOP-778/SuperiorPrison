@@ -110,6 +110,7 @@ public class SPrisonerHolder extends UniversalStorage<SPrisoner> implements Pris
 
   public void initializeCache() {
     for (SPrisoner prisoner : this) {
+      if (prisoner.getOfflinePlayer() == null || prisoner.getOfflinePlayer().getName() == null) return;
       usernameToUuidMap.put(prisoner.getOfflinePlayer().getName(), prisoner.getUUID());
     }
   }

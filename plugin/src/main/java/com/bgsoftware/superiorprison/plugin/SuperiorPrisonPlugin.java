@@ -17,6 +17,7 @@ import com.bgsoftware.superiorprison.plugin.controller.RequirementController;
 import com.bgsoftware.superiorprison.plugin.controller.SBackPackController;
 import com.bgsoftware.superiorprison.plugin.controller.SBlockController;
 import com.bgsoftware.superiorprison.plugin.controller.STopController;
+import com.bgsoftware.superiorprison.plugin.controller.TpsController;
 import com.bgsoftware.superiorprison.plugin.data.LibLoader;
 import com.bgsoftware.superiorprison.plugin.data.SMineHolder;
 import com.bgsoftware.superiorprison.plugin.data.SPrisonerHolder;
@@ -37,11 +38,13 @@ import com.bgsoftware.superiorprison.plugin.metrics.Metrics;
 import com.bgsoftware.superiorprison.plugin.nms.SuperiorNms;
 import com.bgsoftware.superiorprison.plugin.object.inventory.PatchedInventory;
 import com.bgsoftware.superiorprison.plugin.requirement.RequirementRegisterer;
+import com.bgsoftware.superiorprison.plugin.tasks.NewMineResetTask;
 import com.bgsoftware.superiorprison.plugin.tasks.PlayerInventoryUpdateTask;
 import com.bgsoftware.superiorprison.plugin.tasks.ResetQueueTask;
 import com.bgsoftware.superiorprison.plugin.tasks.TasksStarter;
 import com.bgsoftware.superiorprison.plugin.util.menu.MenuListener;
 import com.oop.datamodule.api.StorageInitializer;
+import com.oop.datamodule.h2.H2Dependencies;
 import com.oop.datamodule.mongodb.MongoDependencies;
 import com.oop.datamodule.mysql.MySqlDependencies;
 import com.oop.datamodule.postgresql.PostgreSqlDependencies;
@@ -75,8 +78,8 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
   private STopController topController;
   private BombController bombController;
   private SuperiorNms nms;
-  private ResetQueueTask resetQueueTask;
   private PlayerInventoryUpdateTask inventoryUpdateTask;
+  private TpsController tpsController;
 
   public static SuperiorPrisonPlugin getInstance() {
     return instance;
@@ -87,7 +90,6 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
     instance = this;
 
     getOLogger().setMainColor("&d");
-
     getOLogger().setSecondaryColor("&5");
 
     try {
@@ -106,7 +108,9 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
           new MySqlDependencies(),
           new MongoDependencies(),
           new SqliteDependencies(),
-          new PostgreSqlDependencies());
+          new PostgreSqlDependencies(),
+          new H2Dependencies()
+      );
 
       new MenuListener();
 
@@ -127,9 +131,9 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
       this.requirementController = new RequirementController();
       new RequirementRegisterer();
 
-      resetQueueTask = new ResetQueueTask();
       inventoryUpdateTask = new PlayerInventoryUpdateTask();
 
+      this.tpsController = new TpsController();
       this.configController = new ConfigController();
       this.chatController = new ChatController();
       this.backPackController = new SBackPackController();
@@ -175,7 +179,7 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
       }
 
       new Metrics(this);
-      resetQueueTask.execute();
+      new NewMineResetTask();
       inventoryUpdateTask.execute();
     } catch (Throwable thrw) {
       Bukkit.getPluginManager().disablePlugin(this);

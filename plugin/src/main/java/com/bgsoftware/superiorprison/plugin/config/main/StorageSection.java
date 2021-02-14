@@ -2,17 +2,25 @@ package com.bgsoftware.superiorprison.plugin.config.main;
 
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.oop.datamodule.api.storage.Storage;
+import com.oop.datamodule.commonsql.database.SQLDatabase;
 import com.oop.datamodule.commonsql.database.SqlCredential;
+import com.oop.datamodule.h2.H2Credential;
+import com.oop.datamodule.h2.H2Database;
 import com.oop.datamodule.mongodb.MongoCredential;
 import com.oop.datamodule.mysql.MySQLCredential;
+import com.oop.datamodule.mysql.MySQLDatabase;
+import com.oop.datamodule.postgresql.PostgreDatabase;
 import com.oop.datamodule.postgresql.PostgreSQLCredential;
 import com.oop.datamodule.sqlite.SQLiteCredential;
+import com.oop.datamodule.sqlite.SQLiteDatabase;
 import com.oop.datamodule.universal.StorageProviders;
 import com.oop.datamodule.universal.UniversalStorage;
 import com.oop.datamodule.universal.model.UniversalBodyModel;
 import com.oop.orangeengine.yaml.Config;
 import com.oop.orangeengine.yaml.ConfigSection;
 import java.io.File;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.util.Arrays;
 import java.util.function.Function;
 import lombok.Getter;
@@ -33,7 +41,7 @@ public class StorageSection {
           .getComments()
           .addAll(
               Arrays.asList(
-                  "The values for sqlite is: database aka the name of the file",
+                  "The values for sqlite or h2 is: database aka the name of the file",
                   "The values for mongodb is",
                   "Either connection uri & database",
                   "Or host, database, username, password",
@@ -75,6 +83,7 @@ public class StorageSection {
       String username = credentialsSection.getAs("username", String.class);
       String password = credentialsSection.getAs("password", String.class);
 
+      SQLDatabase sqlDatabase;
       SqlCredential credential;
       if (type.equalsIgnoreCase("mysql")) {
         credential =
@@ -96,11 +105,13 @@ public class StorageSection {
             "port", int.class, ((PostgreSQLCredential) credential)::port);
       }
 
+      sqlDatabase = credential.build();
+
       SuperiorPrisonPlugin.getInstance()
           .getOLogger()
           .printWarning("Testing database {} connection...", type);
       try {
-        credential.test();
+        sqlDatabase.getConnection().use(conn -> {});
         SuperiorPrisonPlugin.getInstance()
             .getOLogger()
             .print("Database connection test successful!");
@@ -108,14 +119,15 @@ public class StorageSection {
         throw new IllegalStateException("Database connection test failed...", throwable);
       }
 
+      SQLDatabase finalSqlDatabase = sqlDatabase;
       storageProvider =
           (storage) -> {
             if (credential instanceof MySQLCredential)
               return StorageProviders.MYSQL.provide(
-                  storage.getLinker(), (MySQLCredential) credential);
+                  storage.getLinker(), (MySQLDatabase) finalSqlDatabase);
             else
               return StorageProviders.POSTGRE.provide(
-                  storage.getLinker(), (PostgreSQLCredential) credential);
+                  storage.getLinker(), (PostgreDatabase) finalSqlDatabase);
           };
     }
 
@@ -127,8 +139,22 @@ public class StorageSection {
               .database(database)
               .folder(SuperiorPrisonPlugin.getInstance().getDataFolder());
 
+      SQLiteDatabase sqLiteDatabase = credential.build();
       storageProvider =
-          (storage) -> StorageProviders.SQLITE.provide(storage.getLinker(), credential);
+          (storage) -> StorageProviders.SQLITE.provide(storage.getLinker(), sqLiteDatabase);
+    }
+
+    // For h2
+    if (type.equalsIgnoreCase("h2")) {
+      String database = credentialsSection.getAs("database", String.class);
+      H2Credential credential =
+          new H2Credential()
+              .database(database)
+              .folder(SuperiorPrisonPlugin.getInstance().getDataFolder());
+
+      H2Database h2Database = credential.build();
+      storageProvider =
+          (storage) -> StorageProviders.H2.provide(storage.getLinker(), h2Database);
     }
 
     // Json

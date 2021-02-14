@@ -182,7 +182,6 @@ public class MainConfig extends ConfigWrapper {
     SuperiorPrisonPlugin.getInstance()
         .getOLogger()
         .setDebugMode(configuration.getAs("debug", boolean.class, () -> false));
-    SuperiorPrisonPlugin.getInstance().getResetQueueTask().setChunksPerTick(chunksPerTick);
     SuperiorPrisonPlugin.getInstance()
         .getInventoryUpdateTask()
         .setUpdateEvery(updateBackpacksEvery);

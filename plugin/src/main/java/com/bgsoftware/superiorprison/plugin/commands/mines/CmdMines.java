@@ -4,7 +4,7 @@ import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messag
 
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.commands.PermissionsInitializer;
-import com.bgsoftware.superiorprison.plugin.commands.args.MinesArg;
+import com.bgsoftware.superiorprison.plugin.commands.args.MineArg;
 import com.bgsoftware.superiorprison.plugin.commands.mines.link.CmdLink;
 import com.bgsoftware.superiorprison.plugin.commands.mines.link.CmdUnlink;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
@@ -17,7 +17,7 @@ import java.util.Optional;
 public class CmdMines extends OCommand {
   public CmdMines() {
     label("mines");
-    argument(new MinesArg());
+    argument(new MineArg());
     onCommand(
         command -> {
           Optional<SNormalMine> optionalMine = command.getArg("mine", SNormalMine.class);

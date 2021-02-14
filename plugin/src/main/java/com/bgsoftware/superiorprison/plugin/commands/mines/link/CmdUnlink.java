@@ -2,7 +2,7 @@ package com.bgsoftware.superiorprison.plugin.commands.mines.link;
 
 import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
 
-import com.bgsoftware.superiorprison.plugin.commands.args.MinesArg;
+import com.bgsoftware.superiorprison.plugin.commands.args.MineArg;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.mine.linkable.LinkableObject;
@@ -14,8 +14,8 @@ public class CmdUnlink extends OCommand {
   public CmdUnlink() {
     label("unlink");
     description("Unlink settings of other mine");
-    argument(new MinesArg().setIdentity("what").setRequired(true));
-    argument(new MinesArg().setIdentity("from").setRequired(true));
+    argument(new MineArg().setIdentity("what").setRequired(true));
+    argument(new MineArg().setIdentity("from").setRequired(true));
     argument(new OptionArg().setRequired(true));
     onCommand(
         command -> {

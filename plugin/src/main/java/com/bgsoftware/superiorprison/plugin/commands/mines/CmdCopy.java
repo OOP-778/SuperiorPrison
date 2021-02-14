@@ -3,7 +3,7 @@ package com.bgsoftware.superiorprison.plugin.commands.mines;
 import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
 
 import com.bgsoftware.superiorprison.plugin.commands.args.CopyTypeArg;
-import com.bgsoftware.superiorprison.plugin.commands.args.MinesArg;
+import com.bgsoftware.superiorprison.plugin.commands.args.MineArg;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.menu.control.OptionEnum;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
@@ -19,8 +19,8 @@ public class CmdCopy extends OCommand {
   public CmdCopy() {
     label("copy");
     description("Copy things from one mine to another");
-    argument(new MinesArg().setRequired(true).setIdentity("from"));
-    argument(new MinesArg().setRequired(true).setIdentity("to"));
+    argument(new MineArg().setRequired(true).setIdentity("from"));
+    argument(new MineArg().setRequired(true).setIdentity("to"));
     argument(new CopyTypeArg().setRequired(true));
 
     onCommand(

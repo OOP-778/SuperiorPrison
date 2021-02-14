@@ -13,7 +13,7 @@ public class Updater {
   private Updater() {}
 
   public static boolean isOutdated() {
-    return !getPlugin().getDescription().getVersion().equals(latestVersion);
+    return false;
   }
 
   public static String getLatestVersion() {
@@ -59,7 +59,7 @@ public class Updater {
     //            else
     //                latestVersion = getPlugin().getDescription().getVersion();
     //        }
-    latestVersion = getPlugin().getDescription().getVersion();
+    //latestVersion = getPlugin().getDescription().getVersion();
   }
 
   public static SuperiorPrisonPlugin getPlugin() {

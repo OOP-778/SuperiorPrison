@@ -2,7 +2,7 @@ package com.bgsoftware.superiorprison.plugin.commands.prisoner;
 
 import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
 
-import com.bgsoftware.superiorprison.plugin.commands.args.MinesArg;
+import com.bgsoftware.superiorprison.plugin.commands.args.MineArg;
 import com.bgsoftware.superiorprison.plugin.commands.args.PrisonerArg;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
@@ -18,7 +18,7 @@ public class CmdTeleport extends OCommand {
     description("teleport a prisoner into mine");
 
     argument(new PrisonerArg(false));
-    argument(new MinesArg().setRequired(true));
+    argument(new MineArg().setRequired(true));
 
     onCommand(
         command -> {

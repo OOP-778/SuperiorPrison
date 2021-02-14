@@ -6,7 +6,7 @@ import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.controller.DatabaseController;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
-import com.bgsoftware.superiorprison.plugin.util.ChunkDataQueue;
+import com.bgsoftware.superiorprison.plugin.util.reset.MineResetQueue;
 import com.bgsoftware.superiorprison.plugin.util.ChunkResetData;
 import com.google.common.collect.Maps;
 import com.oop.datamodule.api.storage.Storage;
@@ -31,7 +31,8 @@ public class SMineHolder extends UniversalStorage<SNormalMine> implements MineHo
 
   private final Map<String, SNormalMine> mineMap = Maps.newConcurrentMap();
 
-  @Getter private final ChunkDataQueue queue = new ChunkDataQueue();
+  @Getter private final MineResetQueue queue = new MineResetQueue();
+
   private final OCache<UUID, List<SNormalMine>> minesCache =
       OCache.builder()
           .concurrencyLevel(1)
@@ -95,31 +96,6 @@ public class SMineHolder extends UniversalStorage<SNormalMine> implements MineHo
             .collect(Collectors.toList());
     minesCache.put(prisoner.getUUID(), mines);
     return mines;
-  }
-
-  public ChunkResetData addResetBlock(Location location, OMaterial material, Runnable onComplete) {
-    int chunkX, chunkZ;
-    chunkX = location.getBlockX() >> 4;
-    chunkZ = location.getBlockZ() >> 4;
-
-    Optional<ChunkResetData> matchedChunk =
-        queue.stream()
-            .filter(chunk -> chunk.getX() == chunkX && chunk.getZ() == chunkZ)
-            .findFirst();
-
-    ChunkResetData data;
-
-    if (matchedChunk.isPresent()) {
-      data = matchedChunk.get();
-      data.add(location, material, onComplete);
-
-    } else {
-      data = new ChunkResetData(location.getWorld(), chunkX, chunkZ);
-      data.add(location, material, onComplete);
-      queue.add(data);
-    }
-
-    return data;
   }
 
   public void clear() {

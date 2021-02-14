@@ -1,8 +1,5 @@
 package com.bgsoftware.superiorprison.plugin.listeners;
 
-import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
-import static com.oop.orangeengine.main.events.AsyncEvents.async;
-
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
 import com.bgsoftware.superiorprison.api.data.mine.area.Area;
 import com.bgsoftware.superiorprison.api.data.mine.area.AreaEnum;
@@ -14,7 +11,6 @@ import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.controller.BombController;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
-import com.bgsoftware.superiorprison.plugin.util.ChunkResetData;
 import com.bgsoftware.superiorprison.plugin.util.ClassDebugger;
 import com.bgsoftware.superiorprison.plugin.util.Directional;
 import com.bgsoftware.superiorprison.plugin.util.TimeUtil;
@@ -22,43 +18,37 @@ import com.oop.orangeengine.main.events.SyncEvents;
 import com.oop.orangeengine.main.task.OTask;
 import com.oop.orangeengine.main.task.StaticTask;
 import com.oop.orangeengine.main.util.version.OVersion;
-import com.oop.orangeengine.material.OMaterial;
 import com.oop.orangeengine.particle.OParticle;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.BlockFace;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Vector;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
-import org.bukkit.Location;
-import org.bukkit.block.BlockFace;
-import org.bukkit.entity.ArmorStand;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.util.Vector;
+
+import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
 
 public class BombListener {
+  private final BombController controller = SuperiorPrisonPlugin.getInstance().getBombController();
   public BombListener() {
-    BombController controller = SuperiorPrisonPlugin.getInstance().getBombController();
-
     SyncEvents.listen(
         PlayerInteractEvent.class,
         event -> {
+          if (event.getItem() == null || event.getItem().getType() == Material.AIR) return;
+
           Optional<BombConfig> bombOf = controller.getBombOf(event.getItem());
           if (!bombOf.isPresent()) return;
-
-          if (OVersion.isOrAfter(12) && event.getHand() == EquipmentSlot.OFF_HAND) {
-            event.setCancelled(true);
-            return;
-          }
-
-          if (event.getClickedBlock() != null) {
-            event.setCancelled(true);
-            return;
-          }
+          event.setCancelled(true);
 
           SPrisoner insertIfAbsent =
               SuperiorPrisonPlugin.getInstance()
@@ -82,9 +72,7 @@ public class BombListener {
             return;
           }
 
-          BlockFace direction = Directional.getDirection(event.getPlayer());
           BombConfig bomb = bombOf.get();
-
           long cooldown = controller.getCooldown(event.getPlayer(), bomb);
           if (cooldown != -1) {
             if (cooldown > System.currentTimeMillis()) {
@@ -98,7 +86,28 @@ public class BombListener {
             }
             controller.removeCooldown(event.getPlayer(), bomb);
           }
-          ItemStack clone = event.getPlayer().getItemInHand().clone();
+
+          if (event.getClickedBlock() != null) {
+            if (!mine.getKey()
+                .getArea(AreaEnum.MINE)
+                .isInsideWithoutY(event.getClickedBlock().getLocation())) {
+              return;
+            }
+
+            ItemStack clone = event.getItem().clone();
+            clone.setAmount(1);
+
+            event.getPlayer().getInventory().removeItem(clone);
+            boomAt(
+                (SNormalMine) mine.getKey(),
+                event.getPlayer(),
+                event.getClickedBlock().getLocation(),
+                bomb);
+            return;
+          }
+
+          BlockFace direction = Directional.getDirection(event.getPlayer());
+          ItemStack clone = event.getItem().clone();
           clone.setAmount(1);
 
           event.getPlayer().getInventory().removeItem(clone);
@@ -153,79 +162,7 @@ public class BombListener {
                         return;
                       }
 
-                      controller.putCooldown(event.getPlayer(), bomb);
-
-                      SNormalMine key = (SNormalMine) mine.getKey();
-                      Lock lock = mine.getKey().newLock();
-                      try {
-                        List<Location> sphereAt =
-                            key.getGenerator()
-                                .getCuboid()
-                                .getSphereAt(checkLocation, bomb.getRadius());
-
-                        AtomicInteger counter = new AtomicInteger();
-                        Set<ChunkResetData> data = new HashSet<>();
-
-                        ThreadLocalRandom random = ThreadLocalRandom.current();
-                        Consumer<Location> particleExecution =
-                            loc -> {
-                              if (bomb.getExplosionParticle() == null) return;
-
-                              if (bomb.getParticleShownAt() == -1)
-                                OParticle.getProvider()
-                                    .display(bomb.getExplosionParticle(), loc, 1);
-                              else if (random.nextDouble(1) < (bomb.getParticleShownAt() / 100.0)) {
-                                OParticle.getProvider()
-                                    .display(bomb.getExplosionParticle(), loc, 1);
-                              }
-                            };
-
-                        long dropStart = System.currentTimeMillis();
-                        SuperiorPrisonPlugin.getInstance()
-                            .getBlockController()
-                            .handleBlockBreak(
-                                SuperiorPrisonPlugin.getInstance()
-                                    .getPrisonerController()
-                                    .getInsertIfAbsent(event.getPlayer()),
-                                mine.getKey(),
-                                null,
-                                null,
-                                sphereAt.toArray(new Location[0]));
-                        ClassDebugger.debug("Took {}ms", (System.currentTimeMillis() - dropStart));
-
-                        int[] amount = new int[] {0};
-
-                        for (Location location : sphereAt) {
-                          if (!mine.getKey().getGenerator().getBlockData().has(location)) continue;
-
-                          amount[0] = amount[0] + 1;
-                          data.add(
-                              SuperiorPrisonPlugin.getInstance()
-                                  .getMineController()
-                                  .addResetBlock(
-                                      location,
-                                      OMaterial.AIR,
-                                      () -> {
-                                        particleExecution.accept(location);
-                                        if (counter.incrementAndGet() == amount[0]) {
-                                          async(
-                                              () ->
-                                                  SuperiorPrisonPlugin.getInstance()
-                                                      .getNms()
-                                                      .refreshChunks(
-                                                          checkLocation.getWorld(),
-                                                          sphereAt,
-                                                          checkLocation.getWorld().getPlayers()));
-                                          key.unlock(lock);
-                                        }
-                                      }));
-                        }
-
-                        for (ChunkResetData datum : data) datum.setReady(true);
-                      } catch (Exception ex) {
-                        key.unlock(lock);
-                        ex.printStackTrace();
-                      }
+                      boomAt((SNormalMine) mine.getKey(), event.getPlayer(), checkLocation, bomb);
                     } else if (bomb.getTrailParticle() != null)
                       OParticle.getProvider()
                           .display(
@@ -233,5 +170,58 @@ public class BombListener {
                   })
               .execute();
         });
+  }
+
+  public void boomAt(SNormalMine mine, Player player, Location boomAt, BombConfig bomb) {
+    controller.putCooldown(player, bomb);
+
+    Lock lock = mine.newLock();
+    try {
+      List<Location> sphereAt =
+          mine.getGenerator().getCuboid().getSphereAt(boomAt, bomb.getRadius());
+
+      ThreadLocalRandom random = ThreadLocalRandom.current();
+      Consumer<Location> particleExecution =
+          loc -> {
+            if (bomb.getExplosionParticle() == null) return;
+
+            if (bomb.getParticleShownAt() == -1)
+              OParticle.getProvider().display(bomb.getExplosionParticle(), loc, 1);
+            else if (random.nextDouble(1) < (bomb.getParticleShownAt() / 100.0)) {
+              OParticle.getProvider().display(bomb.getExplosionParticle(), loc, 1);
+            }
+          };
+
+      long boomStart = System.currentTimeMillis();
+      StaticTask.getInstance()
+          .ensureSync(
+              () -> {
+                SuperiorPrisonPlugin.getInstance()
+                    .getBlockController()
+                    .breakBlock(
+                        SuperiorPrisonPlugin.getInstance()
+                            .getPrisonerController()
+                            .getInsertIfAbsent(player),
+                        mine,
+                        null,
+                        sphereAt.toArray(new Location[0]));
+              });
+      ClassDebugger.debug("Bomb Execution Took {}ms", (System.currentTimeMillis() - boomStart));
+
+      StaticTask.getInstance()
+          .async(
+              () -> {
+                for (Location location : sphereAt) {
+                  if (!mine.getGenerator().getBlockData().has(location)) continue;
+
+                  particleExecution.accept(location);
+                }
+              });
+
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    } finally {
+      mine.unlock(lock);
+    }
   }
 }

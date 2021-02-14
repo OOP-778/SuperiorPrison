@@ -62,6 +62,7 @@ public class BombController implements OComponent<SuperiorPrisonPlugin> {
   @Override
   public boolean load() {
     bombs.clear();
+    cooldown.clear();
     Config bombsConfig = getPlugin().getConfigController().getBombsConfig();
 
     for (ConfigSection value : bombsConfig.getSections().values())

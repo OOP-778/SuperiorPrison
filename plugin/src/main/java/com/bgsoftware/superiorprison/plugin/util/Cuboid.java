@@ -216,8 +216,8 @@ public class Cuboid {
     return future;
   }
 
-  public List<Location> getSphereAt(Location location, int radius) {
-    List<Location> locations = new ArrayList<>();
+  public Set<Location> getSphereAt(Location location, int radius) {
+    Set<Location> locations = new HashSet<>();
 
     int X = location.getBlockX();
     int Y = location.getBlockY();
@@ -235,6 +235,8 @@ public class Cuboid {
     for (int x = minX; x <= maxX; x++) {
       int diffXSqr = (X - x) * (X - x);
       for (int y = minY; y <= maxY; y++) {
+        if (y > getUpperY()) break;
+
         int diffYSqr = (Y - y) * (Y - y);
         for (int z = minZ; z <= maxZ; z++) {
           int diffZSqr = (Z - z) * (Z - z);

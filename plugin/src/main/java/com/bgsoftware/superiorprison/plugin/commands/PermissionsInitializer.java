@@ -11,27 +11,8 @@ import java.util.List;
 public class PermissionsInitializer {
 
   private static final List<String> prisonerCommands = new ArrayList<>();
-  private final String prisonerBase = "prison.prisoner.cmds";
-  private final String adminBase = "prison.admin.cmds";
-
-  public PermissionsInitializer(CommandController controller) {
-    // Config config = new Config(new OFile(SuperiorPrisonPlugin.getInstance().getDataFolder(),
-    // "cmdsDump.yml").createIfNotExists());
-
-    for (OCommand value : controller.getRegisteredCommands().values()) {
-      initPermissions("", value);
-    }
-
-    //        for (OCommand value : controller.getRegisteredCommands().values()) {
-    //            dump(config, value);
-    //        }
-    //
-    //        for (OCommand value : controller.getRegisteredCommands().values()) {
-    //            dumpPluginYml(config, value);
-    //        }
-
-    // config.save();
-  }
+  private static final String prisonerBase = "prison.prisoner.cmds";
+  private static final String adminBase = "prison.admin.cmds";
 
   public static void registerPrisonerCommand(OCommand command) {
     prisonerCommands.add(command.getLabelWithParents());
@@ -53,7 +34,7 @@ public class PermissionsInitializer {
     }
   }
 
-  public void initPermissions(String base, OCommand command) {
+  public static void initPermissions(String base, OCommand command) {
     base = base + "." + command.getLabel();
     if (prisonerCommands.contains(command.getLabelWithParents())) {
       command.permission(prisonerBase + base);

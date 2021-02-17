@@ -17,7 +17,7 @@ import com.bgsoftware.superiorprison.plugin.util.TimeUtil;
 import com.oop.orangeengine.main.events.SyncEvents;
 import com.oop.orangeengine.main.task.OTask;
 import com.oop.orangeengine.main.task.StaticTask;
-import com.oop.orangeengine.main.util.version.OVersion;
+import com.oop.orangeengine.main.util.data.cache.OCache;
 import com.oop.orangeengine.particle.OParticle;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -28,8 +28,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
-import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
@@ -39,12 +37,17 @@ import java.util.function.Consumer;
 import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
 
 public class BombListener {
+  private final OCache<String, Boolean> handledEventCache =
+      OCache.builder().concurrencyLevel(1).expireAfter(300).build();
+
   private final BombController controller = SuperiorPrisonPlugin.getInstance().getBombController();
+
   public BombListener() {
     SyncEvents.listen(
         PlayerInteractEvent.class,
         event -> {
           if (event.getItem() == null || event.getItem().getType() == Material.AIR) return;
+          if (handledEventCache.get(event.getPlayer().getName()) != null) return;
 
           Optional<BombConfig> bombOf = controller.getBombOf(event.getItem());
           if (!bombOf.isPresent()) return;
@@ -87,6 +90,7 @@ public class BombListener {
             controller.removeCooldown(event.getPlayer(), bomb);
           }
 
+          handledEventCache.put(event.getPlayer().getName(), true);
           if (event.getClickedBlock() != null) {
             if (!mine.getKey()
                 .getArea(AreaEnum.MINE)
@@ -177,7 +181,7 @@ public class BombListener {
 
     Lock lock = mine.newLock();
     try {
-      List<Location> sphereAt =
+      Set<Location> sphereAt =
           mine.getGenerator().getCuboid().getSphereAt(boomAt, bomb.getRadius());
 
       ThreadLocalRandom random = ThreadLocalRandom.current();

@@ -11,6 +11,7 @@ public class CmdPrisonerCP extends OCommand {
   public CmdPrisonerCP() {
     label("pcp");
     alias("prisonercp");
+    ableToExecute(Player.class);
 
     onCommand(
         command -> {

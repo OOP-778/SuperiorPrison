@@ -1,12 +1,6 @@
 package com.bgsoftware.superiorprison.api;
 
-import com.bgsoftware.superiorprison.api.controller.BackPackController;
-import com.bgsoftware.superiorprison.api.controller.MineHolder;
-import com.bgsoftware.superiorprison.api.controller.PrisonerHolder;
-import com.bgsoftware.superiorprison.api.controller.RankController;
-import com.bgsoftware.superiorprison.api.controller.RequirementController;
-import com.bgsoftware.superiorprison.api.controller.StatisticsController;
-import com.bgsoftware.superiorprison.api.controller.TopController;
+import com.bgsoftware.superiorprison.api.controller.*;
 
 public interface SuperiorPrison {
   MineHolder getMineController();
@@ -14,6 +8,8 @@ public interface SuperiorPrison {
   PrisonerHolder getPrisonerController();
 
   RankController getRankController();
+
+  PrestigeController getPrestigeController();
 
   RequirementController getRequirementController();
 

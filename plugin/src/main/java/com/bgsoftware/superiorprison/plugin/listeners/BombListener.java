@@ -184,14 +184,17 @@ public class BombListener {
       Set<Location> sphereAt =
           mine.getGenerator().getCuboid().getSphereAt(boomAt, bomb.getRadius());
 
+      double reqChance = bomb.getParticleShownAt() / 100.0;
       ThreadLocalRandom random = ThreadLocalRandom.current();
       Consumer<Location> particleExecution =
           loc -> {
             if (bomb.getExplosionParticle() == null) return;
 
+            double chance = random.nextDouble();
+
             if (bomb.getParticleShownAt() == -1)
               OParticle.getProvider().display(bomb.getExplosionParticle(), loc, 1);
-            else if (random.nextDouble(1) < (bomb.getParticleShownAt() / 100.0)) {
+            else if (reqChance > chance) {
               OParticle.getProvider().display(bomb.getExplosionParticle(), loc, 1);
             }
           };

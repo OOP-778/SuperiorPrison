@@ -6,10 +6,10 @@ debug: false
 
 # Storage options
 storage:
-  # There's 5 types of storages: sqlite, mongodb, json, mysql, postgresql
+  # There's 6 types of storages: sqlite, mongodb, json, mysql, postgresql, h2
   type: sqlite
 
-  # The values for sqlite is: database aka the name of the file
+  # The values for sqlite & h2 is: database aka the name of the file
   # The values for mongodb is
   # Either connection uri which contains the whole connection uri and the database
   # Or host, port, database, username, password
@@ -163,3 +163,6 @@ number formatter suffixes:
 
 # Disable rankup message
 disable rankup message: false
+
+# Should drop items when inv full?
+drop items when full inv: true

@@ -48,6 +48,8 @@ public class MainConfig extends ConfigWrapper {
   private int resetMineAtRestartAt;
   private boolean handleNamedItems;
 
+  private boolean dropItemsWhenFull;
+
   private List<String> numberFormatterSuffixes;
 
   private boolean disableRankupMessage;
@@ -118,6 +120,14 @@ public class MainConfig extends ConfigWrapper {
             () -> 4,
             "How much chunks per tick should the block setting use",
             "Please be careful with this. As it can cause serious performance issues, test the values you set before using.");
+
+    dropItemsWhenFull =
+            configuration.getAs(
+                    "drop items when full inv",
+                    boolean.class,
+                    () -> true,
+                    "Should drop items when inv full?"
+            );
 
     disableRankupMessage =
         configuration.getAs(

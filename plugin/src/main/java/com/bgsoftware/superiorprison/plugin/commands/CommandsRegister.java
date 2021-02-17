@@ -1,5 +1,6 @@
 package com.bgsoftware.superiorprison.plugin.commands;
 
+import static com.bgsoftware.superiorprison.plugin.commands.PermissionsInitializer.initPermissions;
 import static com.oop.orangeengine.main.Engine.getEngine;
 
 import com.bgsoftware.superiorprison.plugin.commands.backpacks.CmdBackpacks;
@@ -13,6 +14,7 @@ import com.bgsoftware.superiorprison.plugin.commands.sell.SellCommand;
 import com.bgsoftware.superiorprison.plugin.commands.top.CmdTop;
 import com.oop.orangeengine.command.CommandController;
 import com.oop.orangeengine.command.CommandsRegisterer;
+import com.oop.orangeengine.command.OCommand;
 import com.oop.orangeengine.command.scheme.SchemeHolder;
 import com.oop.orangeengine.file.OFile;
 import com.oop.orangeengine.main.task.OTask;
@@ -43,6 +45,12 @@ public class CommandsRegister {
         .add(new CmdTop())
         .add(new CmdMine())
         .add(new CmdBombs())
+        .use(
+            cmds -> {
+              for (OCommand cmd : cmds) {
+                initPermissions("", cmd);
+              }
+            })
         .remap()
         .push();
 

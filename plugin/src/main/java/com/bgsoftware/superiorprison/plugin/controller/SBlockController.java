@@ -22,14 +22,6 @@ import com.google.common.base.Preconditions;
 import com.oop.orangeengine.item.custom.OItem;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.material.OMaterial;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ThreadLocalRandom;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -40,6 +32,10 @@ import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
+
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class SBlockController implements BlockController {
   @Override
@@ -157,7 +153,7 @@ public class SBlockController implements BlockController {
                           BigDecimal price = prisoner.getPrice(itemStack);
                           if (price.doubleValue() == 0) return false;
 
-                          deposit[0] = deposit[0].add(price);
+                          deposit[0] = deposit[0].add(price.multiply(new BigDecimal(itemStack.getAmount())));
                           return true;
                         });
               });
@@ -191,12 +187,12 @@ public class SBlockController implements BlockController {
                 d.getValue().addAll(left.values());
               });
 
-      if (event.getExperience() >= 1)
+      if (event.getExperience() >= 0) {
         XPUtil.setTotalExperience(
             prisoner.getPlayer(),
             XPUtil.getTotalExperience(prisoner.getPlayer()) + event.getExperience());
-
-      event.setExperience(0);
+        event.setExperience(0);
+      }
     }
 
     mine.getGenerator().getBlockData().unlock(lock);
@@ -257,28 +253,29 @@ public class SBlockController implements BlockController {
         if (tool.getDurability() == item.getMaterial().getMaxDurability())
           player.setItemInHand(null);
 
-      } else {
-        tool.setDurability((short) 0);
-      }
+      } else tool.setDurability((short) 0);
+
       player.updateInventory();
     }
 
-    List<ItemStack> drop = new ArrayList<>();
-    multiBlockBreakEvent
-        .getBlockData()
-        .forEach(
-            (location, data) -> {
-              if (data.getValue().isEmpty()) return;
+    if (SuperiorPrisonPlugin.getInstance().getMainConfig().isDropItemsWhenFull()) {
+        List<ItemStack> drop = new ArrayList<>();
+        multiBlockBreakEvent
+                .getBlockData()
+                .forEach(
+                        (location, data) -> {
+                            if (data.getValue().isEmpty()) return;
 
-              drop.addAll(data.getValue());
-              data.getValue().clear();
-            });
+                            drop.addAll(data.getValue());
+                            data.getValue().clear();
+                        });
 
-    drop.forEach(
-        item -> {
-          Location location = locations[0].clone().add(0.5, 0.5, 0.5);
-          location.getWorld().dropItem(location, item);
-        });
+        drop.forEach(
+                item -> {
+                    Location location = locations[0].clone().add(0.5, 0.5, 0.5);
+                    location.getWorld().dropItem(location, item);
+                });
+    }
 
     if (multiBlockBreakEvent.getExperience() != 0) {
       ((ExperienceOrb) locations[0].getWorld().spawnEntity(locations[0], EntityType.EXPERIENCE_ORB))

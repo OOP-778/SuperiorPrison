@@ -7,7 +7,6 @@ import com.oop.orangeengine.command.OCommand;
 import org.bukkit.entity.Player;
 
 public class CmdPrisonerCP extends OCommand {
-
   public CmdPrisonerCP() {
     label("pcp");
     alias("prisonercp");

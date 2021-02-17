@@ -122,7 +122,7 @@ shadowJar {
     from sourceSets.getByName("main").output
     configurations = [project.configurations.getByName("runtimeClasspath")]
 
-    //relocate("com.oop.orangeengine", "com.bgsoftware.superiorprison.lib.engine")
+    relocate("com.oop.orangeengine", "com.bgsoftware.superiorprison.lib.engine")
     relocate("com.oop.datamodule", "com.bgsoftware.superiorprison.lib.data")
 }
 

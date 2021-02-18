@@ -12,6 +12,7 @@ import com.bgsoftware.superiorprison.api.util.Pair;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.block.DropsHandler;
 import com.bgsoftware.superiorprison.plugin.block.XpHandler;
+import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.hook.impl.VaultHook;
 import com.bgsoftware.superiorprison.plugin.object.mine.SMineBlockData;
 import com.bgsoftware.superiorprison.plugin.object.mine.locks.SBLocksLock;
@@ -275,6 +276,12 @@ public class SBlockController implements BlockController {
                     Location location = locations[0].clone().add(0.5, 0.5, 0.5);
                     location.getWorld().dropItem(location, item);
                 });
+
+    } else {
+        LocaleEnum
+                .PRISONER_INVENTORY_FULL
+                .getMessage()
+                .send(prisoner.getPlayer());
     }
 
     if (multiBlockBreakEvent.getExperience() != 0) {

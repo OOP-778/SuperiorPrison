@@ -13,6 +13,7 @@ public class CmdSet extends OCommand {
   public CmdSet() {
     label("setladder");
     description("Set ladder rank of the prisoner");
+
     argument(new PrisonerArg(true).setRequired(true));
     argument(new RanksArg(true, false).setRequired(true));
 

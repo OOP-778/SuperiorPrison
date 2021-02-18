@@ -94,8 +94,8 @@ public class TextUtil {
         if (c != '0')
           return NumberFormat.getNumberInstance(Locale.US).format(Double.valueOf(stringD));
 
-      return NumberFormat.getNumberInstance(Locale.US).format(Integer.valueOf(split[0]));
+      return NumberFormat.getNumberInstance(Locale.US).format(Long.valueOf(split[0]));
     }
-    return NumberFormat.getNumberInstance(Locale.US).format(Integer.valueOf(stringD));
+    return NumberFormat.getNumberInstance(Locale.US).format(Long.valueOf(stringD));
   }
 }

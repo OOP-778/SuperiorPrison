@@ -14,5 +14,6 @@ public class CmdPrisoner extends OCommand {
     subCommand(new CmdBoosters());
     subCommand(new CmdRanks());
     subCommand(new CmdPrestiges());
+    subCommand(new CmdToggleFeature());
   }
 }

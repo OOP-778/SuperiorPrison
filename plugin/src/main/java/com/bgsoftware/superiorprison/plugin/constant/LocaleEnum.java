@@ -243,7 +243,7 @@ public enum LocaleEnum {
   MINE_LINK_SUCCESS("Linked {option} of {what} to {to}"),
   MINE_UNLINK_SUCCESS("Unlinked {option} of {what} from {from}"),
 
-  AUTO_PICKUP_PRISONER_INVENTORY_FULL("Your inventory is full!"),
+  PRISONER_INVENTORY_FULL("Your inventory is full!"),
   CANNOT_ENTER_MINE_MISSING_RANK("You cannot enter the mine! You're missing at least {rank}"),
   CANNOT_ENTER_MINE_MINE_NOT_READY(
       "Cannot enter the mine! It's either resetting or initializing..."),
@@ -344,7 +344,9 @@ public enum LocaleEnum {
           .append("")
           .append("&7&l-----------------")),
   EXPORTED_DATA("Successfully exported &d{amount} &7objects to &d{file}"),
-  IMPORTED_DATA("Successfully imported &d{amount} &7objects from &d{file}");
+  IMPORTED_DATA("Successfully imported &d{amount} &7objects from &d{file}"),
+
+  TOGGLED_PRISONER_FEATURE("You've &d{state} {feature} &7for &d{prisoner}");
 
   private final OMessage[] cache = new OMessage[2];
 

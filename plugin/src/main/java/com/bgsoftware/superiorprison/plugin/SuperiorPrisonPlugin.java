@@ -170,13 +170,13 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
       // Register commands
       CommandsRegister.register();
 
-      Updater.setPlugin(this);
-      if (Updater.isOutdated()) {
-        getOLogger().printWarning("");
-        getOLogger().printWarning("A new version is available {}!", Updater.getLatestVersion());
-        getOLogger().printWarning("Version's Description: {}", Updater.getVersionDescription());
-        getOLogger().printWarning("");
-      }
+//      Updater.setPlugin(this);
+//      if (Updater.isOutdated()) {
+//        getOLogger().printWarning("");
+//        getOLogger().printWarning("A new version is available {}!", Updater.getLatestVersion());
+//        getOLogger().printWarning("Version's Description: {}", Updater.getVersionDescription());
+//        getOLogger().printWarning("");
+//      }
 
       new Metrics(this);
       new NewMineResetTask();
@@ -214,7 +214,6 @@ public class SuperiorPrisonPlugin extends EnginePlugin implements SuperiorPrison
             });
 
     instance = null;
-    Updater.setPlugin(null);
     SuperiorPrisonAPI.onDisable();
 
     if (databaseController != null) databaseController.getMineHolder().clear();

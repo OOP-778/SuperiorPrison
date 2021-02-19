@@ -9,7 +9,6 @@ import com.bgsoftware.superiorprison.api.event.mine.MultiBlockBreakEvent;
 import com.bgsoftware.superiorprison.api.event.mine.area.MineAreaChangeEvent;
 import com.bgsoftware.superiorprison.api.util.Pair;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
-import com.bgsoftware.superiorprison.plugin.Updater;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.hook.impl.PapiHook;
 import com.bgsoftware.superiorprison.plugin.object.chat.ChatFormat;
@@ -78,26 +77,26 @@ public class PrisonerListener {
                           .execute();
                     }
 
-                    // Check for OP
-                    if ((event.getPlayer().isOp()
-                            || event.getPlayer().hasPermission("prison.admin.updates"))
-                        && Updater.isOutdated()) {
-                      event.getPlayer().sendMessage(" ");
-                      event
-                          .getPlayer()
-                          .sendMessage(
-                              Helper.color("&dA new update for SuperiorPrison is available!"));
-                      event
-                          .getPlayer()
-                          .sendMessage(
-                              Helper.color("&d&l* &7Version: &d" + Updater.getLatestVersion()));
-                      event
-                          .getPlayer()
-                          .sendMessage(
-                              Helper.color(
-                                  "&d&l* &7Description: &d" + Updater.getVersionDescription()));
-                      event.getPlayer().sendMessage(" ");
-                    }
+//                    // Check for OP
+//                    if ((event.getPlayer().isOp()
+//                            || event.getPlayer().hasPermission("prison.admin.updates"))
+//                        && Updater.isOutdated()) {
+//                      event.getPlayer().sendMessage(" ");
+//                      event
+//                          .getPlayer()
+//                          .sendMessage(
+//                              Helper.color("&dA new update for SuperiorPrison is available!"));
+//                      event
+//                          .getPlayer()
+//                          .sendMessage(
+//                              Helper.color("&d&l* &7Version: &d" + Updater.getLatestVersion()));
+//                      event
+//                          .getPlayer()
+//                          .sendMessage(
+//                              Helper.color(
+//                                  "&d&l* &7Description: &d" + Updater.getVersionDescription()));
+//                      event.getPlayer().sendMessage(" ");
+//                    }
 
                     // Check for big boys
                     if (event

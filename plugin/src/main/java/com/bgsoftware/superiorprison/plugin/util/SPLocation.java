@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -18,7 +20,6 @@ import org.bukkit.util.Vector;
 @Setter
 @Accessors(fluent = true, chain = true)
 @AllArgsConstructor
-@EqualsAndHashCode
 public class SPLocation implements Cloneable, SerializableObject {
   private double x;
   private double y;
@@ -70,6 +71,21 @@ public class SPLocation implements Cloneable, SerializableObject {
   @Override
   public String toString() {
     return "(world: " + worldName + ", x: " + x + ", y: " + y + ", z: " + z + ")";
+  }
+
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    SPLocation that = (SPLocation) o;
+    return new EqualsBuilder().append(xBlock(), that.xBlock()).append(yBlock(), that.yBlock()).append(zBlock(), that.zBlock()).append(worldName, that.worldName).isEquals();
+  }
+
+  @Override
+  public int hashCode() {
+    return new HashCodeBuilder(17, 37).append(xBlock()).append(yBlock()).append(zBlock()).append(worldName).toHashCode();
   }
 
   @Override

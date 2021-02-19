@@ -146,8 +146,8 @@ public class Cuboid {
     return world;
   }
 
-  public CompletableFuture<Map<OPair<Integer, Integer>, Set<Location>>> getFutureArrayWithChunks() {
-    CompletableFuture<Map<OPair<Integer, Integer>, Set<Location>>> future =
+  public CompletableFuture<Map<OPair<Integer, Integer>, Set<SPLocation>>> getFutureArrayWithChunks() {
+    CompletableFuture<Map<OPair<Integer, Integer>, Set<SPLocation>>> future =
         new CompletableFuture<>();
 
     // Here we gather all the blocks within mine in an async task
@@ -155,7 +155,7 @@ public class Cuboid {
         .sync(false)
         .runnable(
             () -> {
-              Map<OPair<Integer, Integer>, Set<Location>> map = new HashMap<>();
+              Map<OPair<Integer, Integer>, Set<SPLocation>> map = new HashMap<>();
 
               World world = this.getWorld();
               if (world != null) {
@@ -172,7 +172,7 @@ public class Cuboid {
                       int chunkZ = z >> 4;
 
                       map.computeIfAbsent(new OPair<>(chunkX, chunkZ), pair -> new HashSet<>())
-                          .add(new Location(world, x, y, z));
+                          .add(new SPLocation(world.getName(), x, y, z));
                     }
                   }
                 }

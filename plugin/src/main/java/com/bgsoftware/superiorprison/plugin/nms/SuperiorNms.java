@@ -1,13 +1,13 @@
 package com.bgsoftware.superiorprison.plugin.nms;
 
+import com.bgsoftware.superiorprison.plugin.util.SPLocation;
 import com.oop.orangeengine.main.task.StaticTask;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.material.OMaterial;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -39,5 +39,14 @@ public interface SuperiorNms {
 
   default OMaterial getBlockType(Chunk chunk, Location location) {
     return null;
+  }
+
+  default void refreshChunks(World world, Map<Chunk, Set<SPLocation>> locations, List<Player> players) {
+    Map<Chunk, Set<Location>> convertedIntoBukkit = new HashMap<>();
+    locations.forEach((chunk, spLocations) -> {
+      convertedIntoBukkit.put(chunk, spLocations.stream().map(loc -> loc.toBukkit(world)).collect(Collectors.toSet()));
+    });
+
+    refreshChunks(world, convertedIntoBukkit, players);
   }
 }

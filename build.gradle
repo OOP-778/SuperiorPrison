@@ -13,7 +13,7 @@ apply plugin: 'maven'
 apply plugin: 'base'
 apply plugin: 'com.github.johnrengelman.shadow'
 
-version = "0.2.5-BETA"
+version = "0.2.6-BETA"
 
 allprojects {
     apply plugin: 'java'

@@ -10,6 +10,7 @@ import com.bgsoftware.superiorprison.plugin.object.mine.linkable.LinkableObject;
 import com.bgsoftware.superiorprison.plugin.util.Attachable;
 import com.bgsoftware.superiorprison.plugin.util.ClassDebugger;
 import com.bgsoftware.superiorprison.plugin.util.Cuboid;
+import com.bgsoftware.superiorprison.plugin.util.SPLocation;
 import com.bgsoftware.superiorprison.plugin.util.frameworks.Framework;
 import com.bgsoftware.superiorprison.plugin.util.reset.ResetEntry;
 import com.oop.datamodule.api.SerializableObject;
@@ -113,12 +114,12 @@ public class SMineGenerator
 
           World world = getMine().getWorld();
 
-          Queue<Location> locationQueue =
+          Queue<SPLocation> locationQueue =
               cachedChunksData.values().stream()
                   .flatMap(c -> c.getLocations().stream())
                   .collect(Collectors.toCollection(LinkedList::new));
 
-          Map<Chunk, Set<Location>> locations = new HashMap<>();
+          Map<Chunk, Set<SPLocation>> locations = new HashMap<>();
           cachedChunksData.values().forEach(c -> locations.put(c.chunk, c.locations));
 
           ResetEntry resetEntry =
@@ -151,13 +152,14 @@ public class SMineGenerator
 
           blockData.reset();
           for (int index = 0; index < blocksInRegion; index++) {
-            Location location = locationQueue.poll();
+            SPLocation location = locationQueue.poll();
             if (location == null) continue;
 
+            Location bukkitLocation = location.toBukkit(world);
             OMaterial material = cachedMaterials[index];
 
-            blockData.set(location, material);
-            resetEntry.addResetBlock(location.clone(), material);
+            blockData.set(bukkitLocation, material);
+            resetEntry.addResetBlock(bukkitLocation, material);
           }
 
           SuperiorPrisonPlugin.getInstance().getMineController().getQueue().add(resetEntry);
@@ -254,7 +256,7 @@ public class SMineGenerator
               int required = locations.keySet().size();
 
               for (OPair<Integer, Integer> chunkPair : locations.keySet()) {
-                Set<Location> pairLocations = locations.get(chunkPair);
+                Set<SPLocation> pairLocations = locations.get(chunkPair);
 
                 Framework.FRAMEWORK.loadChunk(
                     world,
@@ -307,17 +309,19 @@ public class SMineGenerator
                 .ensureSync(
                     () -> {
                       try {
+                          World world = mine.getWorld();
                         long blocksLeft = 0;
                         for (ChunkData value : cachedChunksData.values()) {
-                          for (Location location : value.getLocations()) {
+                          for (SPLocation location : value.getLocations()) {
+                              Location bukkitLocation = location.toBukkit(world);
                             OMaterial blockType =
                                 SuperiorPrisonPlugin.getInstance()
                                     .getNms()
-                                    .getBlockType(value.chunk, location);
+                                    .getBlockType(value.chunk, bukkitLocation);
                             if (blockType == null) continue;
 
                             blocksLeft++;
-                            blockData.set(location, blockType);
+                            blockData.set(bukkitLocation, blockType);
                           }
                         }
 
@@ -424,6 +428,6 @@ public class SMineGenerator
   @AllArgsConstructor
   private class ChunkData {
     private final Chunk chunk;
-    private final Set<Location> locations;
+    private final Set<SPLocation> locations;
   }
 }

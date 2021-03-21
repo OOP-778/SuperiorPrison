@@ -5,7 +5,6 @@ import com.bgsoftware.superiorprison.api.data.mine.area.AreaEnum;
 import com.bgsoftware.superiorprison.api.data.mine.settings.ResetSettings;
 import com.bgsoftware.superiorprison.api.event.mine.MineEnterEvent;
 import com.bgsoftware.superiorprison.api.event.mine.MineLeaveEvent;
-import com.bgsoftware.superiorprison.api.event.mine.MultiBlockBreakEvent;
 import com.bgsoftware.superiorprison.api.event.mine.area.MineAreaChangeEvent;
 import com.bgsoftware.superiorprison.api.util.Pair;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
@@ -25,9 +24,6 @@ import com.oop.orangeengine.main.task.StaticTask;
 import com.oop.orangeengine.main.util.data.cache.OCache;
 import com.oop.orangeengine.material.OMaterial;
 import com.oop.orangeengine.message.OMessage;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -39,6 +35,10 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 public class PrisonerListener {
   public static OCache<BlockBreakEvent, Boolean> ignoreEvents =
@@ -77,26 +77,30 @@ public class PrisonerListener {
                           .execute();
                     }
 
-//                    // Check for OP
-//                    if ((event.getPlayer().isOp()
-//                            || event.getPlayer().hasPermission("prison.admin.updates"))
-//                        && Updater.isOutdated()) {
-//                      event.getPlayer().sendMessage(" ");
-//                      event
-//                          .getPlayer()
-//                          .sendMessage(
-//                              Helper.color("&dA new update for SuperiorPrison is available!"));
-//                      event
-//                          .getPlayer()
-//                          .sendMessage(
-//                              Helper.color("&d&l* &7Version: &d" + Updater.getLatestVersion()));
-//                      event
-//                          .getPlayer()
-//                          .sendMessage(
-//                              Helper.color(
-//                                  "&d&l* &7Description: &d" + Updater.getVersionDescription()));
-//                      event.getPlayer().sendMessage(" ");
-//                    }
+                    //                    // Check for OP
+                    //                    if ((event.getPlayer().isOp()
+                    //                            ||
+                    // event.getPlayer().hasPermission("prison.admin.updates"))
+                    //                        && Updater.isOutdated()) {
+                    //                      event.getPlayer().sendMessage(" ");
+                    //                      event
+                    //                          .getPlayer()
+                    //                          .sendMessage(
+                    //                              Helper.color("&dA new update for SuperiorPrison
+                    // is available!"));
+                    //                      event
+                    //                          .getPlayer()
+                    //                          .sendMessage(
+                    //                              Helper.color("&d&l* &7Version: &d" +
+                    // Updater.getLatestVersion()));
+                    //                      event
+                    //                          .getPlayer()
+                    //                          .sendMessage(
+                    //                              Helper.color(
+                    //                                  "&d&l* &7Description: &d" +
+                    // Updater.getVersionDescription()));
+                    //                      event.getPlayer().sendMessage(" ");
+                    //                    }
 
                     // Check for big boys
                     if (event
@@ -257,14 +261,15 @@ public class PrisonerListener {
             return;
           }
 
-          MultiBlockBreakEvent multiBlockBreakEvent =
-              SuperiorPrisonPlugin.getInstance()
-                  .getBlockController()
-                  .breakBlock(
-                      prisoner,
-                      minePair.getKey(),
-                      event.getPlayer().getItemInHand(),
-                      event.getBlock().getLocation());
+          event.setCancelled(true);
+          SuperiorPrisonPlugin.getInstance()
+              .getBlockController()
+              .breakBlock(
+                  prisoner,
+                  minePair.getKey(),
+                  event.getPlayer().getItemInHand(),
+                  true,
+                  event.getBlock().getLocation());
         });
 
     SyncEvents.listen(
@@ -281,6 +286,10 @@ public class PrisonerListener {
               .map(SMineEffect::create)
               .forEach(effect -> event.getPrisoner().getPlayer().addPotionEffect(effect, false));
           ((SPrisoner) event.getPrisoner()).setLogoutMine(event.getMine().getName());
+
+          if (event.getMine().getSettings().isFly() && !event.getPrisoner().getPlayer().getAllowFlight()) {
+              event.getPrisoner().getPlayer().setAllowFlight(true);
+          }
         });
 
     SyncEvents.listen(

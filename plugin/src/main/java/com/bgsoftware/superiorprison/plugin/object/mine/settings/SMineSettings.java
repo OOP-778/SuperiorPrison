@@ -4,13 +4,7 @@ import com.bgsoftware.superiorprison.api.data.mine.settings.ResetSettings;
 import com.bgsoftware.superiorprison.api.data.mine.settings.ResetType;
 import com.bgsoftware.superiorprison.plugin.config.main.MineDefaultsSection;
 import com.bgsoftware.superiorprison.plugin.menu.settings.SettingsObject;
-import com.bgsoftware.superiorprison.plugin.menu.settings.impl.DisableAnimalSpawnSetting;
-import com.bgsoftware.superiorprison.plugin.menu.settings.impl.DisableEnderPearlsSetting;
-import com.bgsoftware.superiorprison.plugin.menu.settings.impl.DisableMonsterSpawnSetting;
-import com.bgsoftware.superiorprison.plugin.menu.settings.impl.MineTeleporationSetting;
-import com.bgsoftware.superiorprison.plugin.menu.settings.impl.PlayerLimitSetting;
-import com.bgsoftware.superiorprison.plugin.menu.settings.impl.ResetTypeSetting;
-import com.bgsoftware.superiorprison.plugin.menu.settings.impl.ResetValueSetting;
+import com.bgsoftware.superiorprison.plugin.menu.settings.impl.*;
 import com.bgsoftware.superiorprison.plugin.object.mine.SNormalMine;
 import com.bgsoftware.superiorprison.plugin.object.mine.linkable.LinkableObject;
 import com.bgsoftware.superiorprison.plugin.util.Attachable;
@@ -40,6 +34,7 @@ public class SMineSettings
   private boolean disableEnderPearls = false;
   private boolean disableMonsterSpawn = false;
   private boolean disableAnimalSpawn = false;
+  private boolean fly = false;
 
   SMineSettings() {}
 
@@ -56,6 +51,9 @@ public class SMineSettings
     settings.setResetSettings(SResetSettings.from(from.getResetSettings()));
     settings.teleportation = from.teleportation;
     settings.disableEnderPearls = from.disableEnderPearls;
+    settings.fly = from.fly;
+    settings.disableAnimalSpawn = from.disableAnimalSpawn;
+    settings.disableMonsterSpawn = from.disableMonsterSpawn;
     return settings;
   }
 
@@ -78,6 +76,7 @@ public class SMineSettings
     data.write("disableEnderPearls", disableEnderPearls);
     data.write("disableAnimalSpawn", disableAnimalSpawn);
     data.write("disableMonsterSpawn", disableMonsterSpawn);
+    data.write("fly", fly);
   }
 
   @Override
@@ -93,6 +92,9 @@ public class SMineSettings
 
     this.disableAnimalSpawn =
         data.getChildren("disableAnimalSpawn").map(sd -> sd.applyAs(boolean.class)).orElse(false);
+
+    this.fly =
+            data.getChildren("fly").map(sd -> sd.applyAs(boolean.class)).orElse(false);
   }
 
   public List<SettingsObject> getSettingObjects() {
@@ -104,6 +106,7 @@ public class SMineSettings
     objects.add(new DisableEnderPearlsSetting(this));
     objects.add(new DisableAnimalSpawnSetting(this));
     objects.add(new DisableMonsterSpawnSetting(this));
+    objects.add(new FlySetting(this));
     return objects;
   }
 

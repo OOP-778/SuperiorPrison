@@ -49,10 +49,10 @@ public class MainConfig extends ConfigWrapper {
   private boolean handleNamedItems;
 
   private boolean dropItemsWhenFull;
-
   private List<String> numberFormatterSuffixes;
-
   private boolean disableRankupMessage;
+
+  private long maxWithdrawInBackpacks = 100;
 
   public MainConfig() {
     load();
@@ -187,7 +187,16 @@ public class MainConfig extends ConfigWrapper {
                 Arrays.asList(
                     "", "k", "m", "b", "T", "Q", "QT", "S", "ST", "O", "N", "D", "UD", "DD", "Z"),
             "Suffixes for formatting numbers",
-            "Each value goes by +3 0's");
+            "Each value goes by +3 0's"
+        );
+
+    this.maxWithdrawInBackpacks =
+            configuration.getAs(
+                    "max withdraw in backpacks",
+                    long.class,
+                    () -> 1000L,
+                    "Max withdraw amount in backpacks"
+            );
 
     SuperiorPrisonPlugin.getInstance()
         .getOLogger()

@@ -38,6 +38,7 @@ public class TokenEnchantHook extends SHook {
                   prisoner,
                   mineAt.get(),
                   event.getItemStack(),
+                  true,
                   event.blockList().stream()
                       .map(Block::getLocation)
                       .filter(location -> area.isInsideWithY(new SPLocation(location), true))

@@ -166,3 +166,6 @@ disable rankup message: false
 
 # Should drop items when inv full?
 drop items when full inv: true
+
+# Max withdraw amount in backpacks
+max withdraw in backpacks: 1000

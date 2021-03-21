@@ -16,12 +16,8 @@ global options:
       - "&d* &l&5Contents"
       - "{item_template} &d{item_type} x {item_amount}"
 
-  # How much rows the backpack has?
-  # The rows + menu design cannot exceed the minecraft limit of inventory size!
-  rows: 2
-
-  # How many pages will the backpack have?
-  pages: 1
+  # How much items it can hold?
+  capacity: 500
 
   # If the backpack should be sellable by default
   sellable: true
@@ -47,36 +43,3 @@ global options:
 
       description:
         - "&cGain +1 page"
-
-"simpleBackPack":
-  type: simple
-  item:
-    material: chest
-    display name: "&cSimple Backpack ({backpack_level})"
-    lore:
-      - "&5Store your mined blocks"
-      - "&d&l* &7Capacity: &d{backpack_capacity}"
-      - "&d&l* &7Used: &d{backpack_used}"
-      - ""
-      - "&d* &l&5Contents"
-      - "{item_template} &d{item_type} x {item_amount}"
-
-  capacity: 200
-  upgrades:
-    "2":
-      capacity: 500
-
-      requirements:
-        - "{ECO} 1000"
-
-      description:
-        - "&cGain +300 capacity"
-
-    "3":
-      capacity: 700
-
-      requirements:
-        - "{ECO} 2000"
-
-      description:
-        - "&cGain +200 capacity"

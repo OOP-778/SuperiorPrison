@@ -81,7 +81,7 @@ public class OMenuButton implements Cloneable {
 
   public static class ButtonItemBuilder {
 
-    @Getter private ItemBuilder itemBuilder;
+    @Getter private ItemBuilder<?> itemBuilder;
 
     public ButtonItemBuilder(@NonNull ItemBuilder itemBuilder) {
       this.itemBuilder = itemBuilder;
@@ -154,6 +154,7 @@ public class OMenuButton implements Cloneable {
 
     @Override
     public ButtonItemBuilder clone() {
+      itemBuilder.setItemStack(itemBuilder.getItemStack().clone());
       return new ButtonItemBuilder(itemBuilder.clone());
     }
 

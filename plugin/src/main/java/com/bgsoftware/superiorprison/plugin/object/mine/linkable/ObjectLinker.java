@@ -44,6 +44,15 @@ public class ObjectLinker implements Attachable<SNormalMine>, SerializableObject
           boolean remove = object.to.contentEquals(mineName);
 
           if (remove) {
+            if (object.cache == null) {
+              object.cache =
+                  (SNormalMine)
+                      SuperiorPrisonPlugin.getInstance()
+                          .getMineController()
+                          .getMine(mineName)
+                          .orElse(null);
+            }
+
             if (object.cache != null) {
               object.cache.getLinker().linkedTo.remove(linkId, mine.getName());
               object.cache.save(true);

@@ -12,12 +12,12 @@ import java.util.List;
 import lombok.Getter;
 
 @Getter
-public class BackPackUpgrade<T extends BackPackConfig<T>> {
+public class BackPackUpgrade {
   private final List<RequirementData> requirements = new ArrayList<>();
-  private final T config;
+  private final BackPackConfig config;
   private List<String> description = new ArrayList<>();
 
-  public BackPackUpgrade(ConfigSection section, T config) {
+  public BackPackUpgrade(ConfigSection section, BackPackConfig config) {
     this.config = config;
 
     section.ifValuePresent("description", List.class, desc -> this.description = desc);

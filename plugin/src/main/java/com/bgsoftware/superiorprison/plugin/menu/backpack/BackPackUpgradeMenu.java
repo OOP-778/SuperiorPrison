@@ -29,7 +29,7 @@ public class BackPackUpgradeMenu extends OMenu implements BackpackLockable {
             event -> {
               if (!backPack.getConfig().hasUpgrade()) return;
 
-              BackPackUpgrade<?> nextUpgrade =
+              BackPackUpgrade nextUpgrade =
                   backPack.getConfig().getUpgrade(backPack.getCurrentLevel() + 1);
               List<RequirementException> failed = new ArrayList<>();
               nextUpgrade
@@ -71,7 +71,7 @@ public class BackPackUpgradeMenu extends OMenu implements BackpackLockable {
                       });
 
               backPack.upgrade(backPack.getCurrentLevel() + 1);
-              executeAction(MenuAction.RETURN);
+              executeAction(MenuAction.REFRESH);
             });
 
     getStateRequester().registerRequest("info", this::request);
@@ -86,7 +86,7 @@ public class BackPackUpgradeMenu extends OMenu implements BackpackLockable {
   }
 
   public OMenuButton.ButtonItemBuilder parseInfoButton(OMenuButton.ButtonItemBuilder item) {
-    BackPackUpgrade<?> nextUpgrade =
+    BackPackUpgrade nextUpgrade =
         backPack.getConfig().getUpgrade(backPack.getCurrentLevel() + 1);
 
     List<String> newLore = new ArrayList<>();

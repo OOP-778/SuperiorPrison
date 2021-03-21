@@ -24,12 +24,12 @@ public class CmdGive extends OCommand {
     onCommand(
         command -> {
           Player receiver = command.getArgAsReq("player");
-          BackPackConfig<?> backPackConfig = command.getArgAsReq("backpack");
+          BackPackConfig backPackConfig = command.getArgAsReq("backpack");
           int amount = command.getArg("amount").map(object -> (Integer) object).orElse(1);
           int level = command.getArg("level").map(object -> (Integer) object).orElse(1);
 
           backPackConfig = backPackConfig.getByLevel(level);
-          BackPackConfig<?> finalBackPackConfig = backPackConfig;
+          BackPackConfig finalBackPackConfig = backPackConfig;
           StaticTask.getInstance()
               .ensureSync(
                   () -> {

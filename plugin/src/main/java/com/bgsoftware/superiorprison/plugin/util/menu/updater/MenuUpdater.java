@@ -5,16 +5,17 @@ import com.oop.orangeengine.main.Engine;
 import com.oop.orangeengine.main.util.JarUtil;
 import com.oop.orangeengine.yaml.Config;
 import com.oop.orangeengine.yaml.ConfigSection;
+import lombok.SneakyThrows;
+
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
-import lombok.SneakyThrows;
 
 public class MenuUpdater {
-  private static Map<String, BiFunction<ConfigSection, ConfigSection, Integer>> updateMap =
+  private static final Map<String, BiFunction<ConfigSection, ConfigSection, Integer>> updateMap =
       new HashMap<>();
 
   static {
@@ -64,12 +65,16 @@ public class MenuUpdater {
 
     for (File file : menusFolder.listFiles(file -> file.getName().endsWith("yml"))) {
       // Copy the file from source
-      JarUtil.copyFileFromJar(
-          folderName + "/" + file.getName(),
-          tempFolder,
-          JarUtil.CopyOption.REPLACE_IF_EXIST,
-          file.getName(),
-          SuperiorPrisonPlugin.class);
+      try {
+        JarUtil.copyFileFromJar(
+            folderName + "/" + file.getName(),
+            tempFolder,
+            JarUtil.CopyOption.REPLACE_IF_EXIST,
+            file.getName(),
+            SuperiorPrisonPlugin.class);
+      } catch (Throwable ignored) {
+          continue;
+      }
 
       // Get the copied file
       File tempFile = new File(tempFolder, file.getName());

@@ -22,8 +22,10 @@ import com.oop.orangeengine.particle.OParticle;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
+import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftInventory;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
@@ -48,6 +50,7 @@ public class BombListener {
         event -> {
           if (event.getItem() == null || event.getItem().getType() == Material.AIR) return;
           if (handledEventCache.get(event.getPlayer().getName()) != null) return;
+          if (!(event.getAction().name().contains("LEFT") || event.getAction().name().contains("RIGHT"))) return;
 
           Optional<BombConfig> bombOf = controller.getBombOf(event.getItem());
           if (!bombOf.isPresent()) return;
@@ -120,13 +123,13 @@ public class BombListener {
               event
                   .getPlayer()
                   .getWorld()
-                  .spawn(event.getPlayer().getEyeLocation().add(0, -1, 0), ArmorStand.class);
-
-          a.setGravity(true);
-          a.setVelocity(event.getPlayer().getLocation().getDirection().multiply(2.8));
-          a.setVisible(false);
-          a.setSmall(true);
-          a.setHelmet(bomb.getItem());
+                  .spawn(event.getPlayer().getEyeLocation().add(0, -1, 0), ArmorStand.class, aa -> {
+                      aa.setGravity(true);
+                      aa.setVelocity(event.getPlayer().getLocation().getDirection().multiply(2.8));
+                      aa.setVisible(false);
+                      aa.setSmall(true);
+                      aa.setHelmet(bomb.getItem());
+                  });
 
           new OTask()
               .sync(false)
@@ -200,20 +203,16 @@ public class BombListener {
           };
 
       long boomStart = System.currentTimeMillis();
-      StaticTask.getInstance()
-          .ensureSync(
-              () -> {
-                SuperiorPrisonPlugin.getInstance()
-                    .getBlockController()
-                    .breakBlock(
+        SuperiorPrisonPlugin.getInstance()
+                .getBlockController()
+                .breakBlock(
                         SuperiorPrisonPlugin.getInstance()
-                            .getPrisonerController()
-                            .getInsertIfAbsent(player),
+                                .getPrisonerController()
+                                .getInsertIfAbsent(player),
                         mine,
                         null,
-                        sphereAt.toArray(new Location[0]));
-              });
-      ClassDebugger.debug("Bomb Execution Took {}ms", (System.currentTimeMillis() - boomStart));
+                        true,
+                        sphereAt.toArray(new Location[0])).whenComplete((me, t) -> ClassDebugger.debug("Bomb Execution Took {}ms", (System.currentTimeMillis() - boomStart)));
 
       StaticTask.getInstance()
           .async(

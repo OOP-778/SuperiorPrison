@@ -40,6 +40,7 @@ public class CmdUnlink extends OCommand {
               linkableObject != null, "Linking mine option is not available!");
 
           from.getLinker().unlink(linkableObject.getLinkId(), what.getName());
+
           messageBuilder(LocaleEnum.MINE_UNLINK_SUCCESS.getWithPrefix())
               .replace("{what}", what.getName())
               .replace("{from}", from.getName())

@@ -348,7 +348,7 @@ public class SNormalMine
     Arrays.stream(prestige).map(Prestige::getName).forEach(prestiges::add);
   }
 
-  public void onReset(Runnable callback) {
+  protected void onReset(Runnable callback) {
     getPrisoners()
         .removeIf(
             prisoner -> {
@@ -366,13 +366,15 @@ public class SNormalMine
             () -> {
               getPrisoners().stream()
                   .filter(prisoner -> prisoner.getCurrentMine().get().getValue() == AreaEnum.MINE)
+                  .filter(prisoner -> prisoner.getPlayer().getLocation().getY() < getArea(AreaEnum.MINE).getHighPoint().getY())
                   .forEach(
                       prisoner -> {
                         Framework.FRAMEWORK.teleport(prisoner.getPlayer(), getSpawnPoint());
                         LocaleEnum.MINE_RESETTING.getWithPrefix().send(prisoner.getPlayer());
                       });
 
-              callback.run();
+              if (callback != null)
+                callback.run();
             });
   }
 

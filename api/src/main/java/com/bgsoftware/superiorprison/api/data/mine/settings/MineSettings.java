@@ -23,4 +23,7 @@ public interface MineSettings {
 
   // Check if monster spawn is disabled
   boolean isDisableMonsterSpawn();
+
+  // Check if fly is toggled
+  boolean isFly();
 }

@@ -36,15 +36,15 @@ allprojects {
         annotationProcessor 'org.projectlombok:lombok:1.18.8'
 
         if (project.name.equalsIgnoreCase("plugin")) {
-            compile "com.oop.orangeengine:file:5.3"
-            compile "com.oop.orangeengine:item:5.3"
-            compile "com.oop.orangeengine:engine:5.3"
-            compile "com.oop.orangeengine:particle:5.3"
-            compile "com.oop.orangeengine:inventory:5.3"
-            compile "com.oop.orangeengine:command:5.3"
-            compile "com.oop.orangeengine:eventssubscription:5.3"
-            compile "com.oop.orangeengine:message:5.3"
-            compile "com.oop.orangeengine:sound:5.3"
+            compile "com.oop.orangeengine:file:5.4"
+            compile "com.oop.orangeengine:item:5.4"
+            compile "com.oop.orangeengine:engine:5.4"
+            compile "com.oop.orangeengine:particle:5.4"
+            compile "com.oop.orangeengine:inventory:5.4"
+            compile "com.oop.orangeengine:command:5.4"
+            compile "com.oop.orangeengine:eventssubscription:5.4"
+            compile "com.oop.orangeengine:message:5.4"
+            compile "com.oop.orangeengine:sound:5.4"
             compile "io.papermc:paperlib:1.0.4"
 
             compileOnly(project(":api"))
@@ -61,15 +61,15 @@ allprojects {
             compileOnly "net.md-5:bungeecord-chat:1.16-R0.1"
 
         } else {
-            compileOnly "com.oop.orangeengine:file:5.3"
-            compileOnly "com.oop.orangeengine:item:5.3"
-            compileOnly "com.oop.orangeengine:engine:5.3"
-            compileOnly "com.oop.orangeengine:particle:5.3"
-            compileOnly "com.oop.orangeengine:inventory:5.3"
-            compileOnly "com.oop.orangeengine:command:5.3"
-            compileOnly "com.oop.orangeengine:database:5.3"
-            compileOnly "com.oop.orangeengine:eventssubscription:5.3"
-            compileOnly "com.oop.orangeengine:message:5.3"
+            compileOnly "com.oop.orangeengine:file:5.4"
+            compileOnly "com.oop.orangeengine:item:5.4"
+            compileOnly "com.oop.orangeengine:engine:5.4"
+            compileOnly "com.oop.orangeengine:particle:5.4"
+            compileOnly "com.oop.orangeengine:inventory:5.4"
+            compileOnly "com.oop.orangeengine:command:5.4"
+            compileOnly "com.oop.orangeengine:database:5.4"
+            compileOnly "com.oop.orangeengine:eventssubscription:5.4"
+            compileOnly "com.oop.orangeengine:message:5.4"
 
             if (!project.name.equalsIgnoreCase("api") && !project.name.equalsIgnoreCase("vault"))
                 compileOnly project(":plugin")

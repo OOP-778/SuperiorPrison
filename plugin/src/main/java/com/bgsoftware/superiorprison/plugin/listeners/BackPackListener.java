@@ -1,8 +1,8 @@
 package com.bgsoftware.superiorprison.plugin.listeners;
 
+import com.bgsoftware.superiorprison.api.data.backpack.BackPackType;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
-import com.bgsoftware.superiorprison.plugin.config.backpack.SimpleBackPackConfig;
-import com.bgsoftware.superiorprison.plugin.menu.backpack.AdvancedBackPackView;
+import com.bgsoftware.superiorprison.plugin.menu.backpack.AdvancedPackPackView;
 import com.bgsoftware.superiorprison.plugin.menu.backpack.BackpackLockable;
 import com.bgsoftware.superiorprison.plugin.menu.backpack.SimpleBackPackView;
 import com.bgsoftware.superiorprison.plugin.object.backpack.SBackPack;
@@ -53,30 +53,6 @@ public class BackPackListener {
                   });
         });
 
-    // Listen for backpack click event (Backpack slot lock)
-    SyncEvents.listen(
-        InventoryClickEvent.class,
-        EventPriority.LOWEST,
-        event -> {
-          if (event.getClickedInventory() == null) return;
-          if (event.getWhoClicked().getOpenInventory().getTopInventory() == null) return;
-          if (!(event.getWhoClicked().getOpenInventory().getTopInventory().getHolder()
-              instanceof AdvancedBackPackView)) return;
-
-          new OTask()
-              .delay(100)
-              .runnable(
-                  () ->
-                      ((AdvancedBackPackView)
-                              event
-                                  .getWhoClicked()
-                                  .getOpenInventory()
-                                  .getTopInventory()
-                                  .getHolder())
-                          .onUpdate())
-              .execute();
-        });
-
     // Listen for menu
     SyncEvents.listen(
         PlayerInteractEvent.class,
@@ -116,12 +92,7 @@ public class BackPackListener {
           }
 
           prisoner.lockBackpack(event.getPlayer().getInventory().first(event.getItem()), backPack);
-          if (backPack.getConfig() instanceof SimpleBackPackConfig) {
-            new SimpleBackPackView(prisoner, backPack).open();
-            return;
-          }
-
-          new AdvancedBackPackView(prisoner, backPack).open();
+          new AdvancedPackPackView(prisoner, backPack).open();
         });
 
     // Patch Player inventory

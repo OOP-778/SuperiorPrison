@@ -16,7 +16,9 @@ import com.bgsoftware.superiorprison.plugin.object.player.SPrestige;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.object.player.rank.SLadderRank;
 import com.bgsoftware.superiorprison.plugin.object.statistic.SBlocksStatistic;
+import com.bgsoftware.superiorprison.plugin.util.NumberUtil;
 import com.bgsoftware.superiorprison.plugin.util.RequirementUtil;
+import com.bgsoftware.superiorprison.plugin.util.TextUtil;
 import com.bgsoftware.superiorprison.plugin.util.TimeUtil;
 import com.bgsoftware.superiorprison.plugin.util.placeholders.parser.ArgsCrawler;
 import com.bgsoftware.superiorprison.plugin.util.placeholders.parser.ObjectCache;
@@ -94,7 +96,7 @@ public class PlaceholderParser {
                         .filter(req -> req.getType().equalsIgnoreCase(requirementType))
                         .map(
                             requirementData ->
-                                RequirementUtil.getRequired(requirementData, prisoner))
+                                    TextUtil.beautifyNumber(requirementData.getValue()))
                         .findFirst()
                         .orElse(
                             SuperiorPrisonPlugin.getInstance()
@@ -107,7 +109,7 @@ public class PlaceholderParser {
                   return next.getRequirements().stream()
                       .filter(req -> req.getType().equalsIgnoreCase(requirementType))
                       .map(
-                          requirementData -> RequirementUtil.getRequired(requirementData, prisoner))
+                          requirementData -> TextUtil.beautifyNumber(requirementData.getValue()))
                       .findFirst()
                       .orElse(
                           SuperiorPrisonPlugin.getInstance()

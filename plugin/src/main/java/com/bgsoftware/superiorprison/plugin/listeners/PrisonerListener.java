@@ -287,8 +287,10 @@ public class PrisonerListener {
               .forEach(effect -> event.getPrisoner().getPlayer().addPotionEffect(effect, false));
           ((SPrisoner) event.getPrisoner()).setLogoutMine(event.getMine().getName());
 
-          if (event.getMine().getSettings().isFly() && !event.getPrisoner().getPlayer().getAllowFlight()) {
-              event.getPrisoner().getPlayer().setAllowFlight(true);
+          if (event.getMine().getSettings().isFly()
+              && !event.getPrisoner().getPlayer().getAllowFlight()) {
+            event.getPrisoner().getPlayer().setAllowFlight(true);
+            event.getPrisoner().getPlayer().setFlying(true);
           }
         });
 
@@ -310,11 +312,16 @@ public class PrisonerListener {
         event -> {
           ((SPrisoner) event.getPrisoner()).setLogoutMine(null);
           event.getPrisoner().save(true);
+
+          if (event.getMine().getSettings().isFly()) {
+            event.getPrisoner().getPlayer().setAllowFlight(false);
+            event.getPrisoner().getPlayer().setFlying(false);
+          }
         });
 
     SyncEvents.listen(
         AsyncPlayerChatEvent.class,
-        EventPriority.HIGHEST,
+        EventPriority.HIGH,
         event -> {
           if (!SuperiorPrisonPlugin.getInstance().getChatController().isEnabled()) return;
           if (event.isCancelled()) return;

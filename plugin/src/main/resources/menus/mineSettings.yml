@@ -103,3 +103,10 @@ buttons:
       lore:
         - "&d&l* &7Click to change"
         - "&d&l* &7Current: &d{setting_value}"
+
+    fly:
+      material: feather
+      display name: "&dToggle flight"
+      lore:
+        - "&d&l* &7Click to change"
+        - "&d&l* &7Current: &d{setting_value}"

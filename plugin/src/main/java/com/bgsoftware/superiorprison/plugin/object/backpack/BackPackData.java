@@ -1,11 +1,5 @@
 package com.bgsoftware.superiorprison.plugin.object.backpack;
 
-import static com.bgsoftware.superiorprison.plugin.util.ItemStackUtil.isNamed;
-
-import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
-import com.bgsoftware.superiorprison.plugin.config.backpack.BackPackConfig;
-import com.bgsoftware.superiorprison.plugin.config.backpack.SimpleBackPackConfig;
-import com.google.common.base.Preconditions;
 import com.oop.datamodule.api.SerializableObject;
 import com.oop.datamodule.api.SerializedData;
 import com.oop.datamodule.api.util.DataUtil;
@@ -13,32 +7,29 @@ import com.oop.datamodule.lib.google.gson.JsonArray;
 import com.oop.datamodule.lib.google.gson.JsonElement;
 import com.oop.datamodule.lib.google.gson.JsonObject;
 import com.oop.datamodule.lib.google.gson.JsonPrimitive;
-import com.oop.orangeengine.item.ItemStackUtil;
-import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.material.OMaterial;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.function.Predicate;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
-import org.bukkit.Material;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.bukkit.inventory.ItemStack;
+
+import java.math.BigInteger;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static com.bgsoftware.superiorprison.plugin.util.ItemStackUtil.isNamed;
 
 @Getter
 public class BackPackData implements SerializableObject {
 
+  private final Map<BackPackItem, BigInteger> items = new ConcurrentHashMap<>();
   private @NonNull final SBackPack holder;
   @Setter private int level;
   @Setter private @NonNull String configId;
   @Setter private boolean sell = false;
-
-  private ItemStack[] stored = new ItemStack[0];
 
   public BackPackData(SBackPack backPack) {
     this.holder = backPack;
@@ -54,9 +45,7 @@ public class BackPackData implements SerializableObject {
 
   private static JsonElement wrap(ItemStack itemStack) {
     if (isNamed(itemStack)) return DataUtil.wrap(itemStack);
-    else
-      return new JsonPrimitive(
-          OMaterial.matchMaterial(itemStack).name() + "-" + itemStack.getAmount());
+    else return new JsonPrimitive(OMaterial.matchMaterial(itemStack).name());
   }
 
   private static ItemStack unwrap(JsonElement element) {
@@ -67,82 +56,9 @@ public class BackPackData implements SerializableObject {
         unparsedString = unparsedString.substring(0, unparsedString.length() - 1);
 
       String[] split = unparsedString.split("-");
-      return OMaterial.matchMaterial(split[0]).parseItem(Integer.parseInt(split[1]));
+      if (split.length == 1) return OMaterial.matchMaterial(split[0]).parseItem();
+      else return OMaterial.matchMaterial(split[0]).parseItem(Integer.parseInt(split[1]));
     } else return DataUtil.fromElement(element, ItemStack.class);
-  }
-
-  public Optional<OPair<Integer, ItemStack>> first(Predicate<ItemStack> filter) {
-    for (int i = 0; i < stored.length; i++) {
-      ItemStack itemStack = stored[i];
-      if (filter.test(itemStack)) return Optional.of(new OPair<>(i, itemStack));
-    }
-
-    return Optional.empty();
-  }
-
-  public Optional<OPair<Integer, ItemStack>> firstNonNull() {
-    return first(Objects::nonNull);
-  }
-
-  public Optional<OPair<Integer, ItemStack>> firstNull() {
-    return first(Objects::isNull);
-  }
-
-  public void setItem(int index, ItemStack itemStack) {
-    Preconditions.checkArgument(
-        !(index >= stored.length), "index is too big! (" + index + "/" + stored.length + ")");
-    stored[index] = itemStack;
-  }
-
-  public void updateData() {
-    if (stored.length == holder.getSlots()) return;
-  }
-
-  public void updateDataAdvanced(int oldRows, int newRows, int oldPages, int newPages) {
-    if (stored.length == 0) {
-      stored = new ItemStack[newRows * newPages * 9];
-      return;
-    }
-
-    if (oldRows == newRows && newPages == oldPages) return;
-
-    ItemStack[][] pagedData = new ItemStack[oldPages][oldRows * 9];
-    ItemStack[] oldData = stored;
-
-    stored = new ItemStack[newRows * 9 * newPages];
-
-    // Old Data Splitting begin
-    int slot = 0;
-    int page = 0;
-    for (int i = 0; i < oldData.length; i++) {
-      // If it reaches the page limit, increase the page and reset slot
-      if (slot == oldRows * 9) {
-        page++;
-        slot = 0;
-      }
-
-      ItemStack oldDatum = oldData[i];
-      if (oldDatum != null) pagedData[page][slot] = oldDatum;
-
-      slot++;
-    }
-    // Old data splitting end
-
-    // Data Migration begin
-    slot = 0;
-    page = 0;
-    for (int i = 0; i < stored.length; i++) {
-      // If it reaches the page limit, increase the page and reset slot
-      if (slot == oldRows * 9) {
-        page++;
-        slot = 0;
-      }
-
-      if (pagedData.length > page && pagedData[page].length > slot)
-        stored[i] = pagedData[page][slot];
-
-      slot++;
-    }
   }
 
   @Override
@@ -156,19 +72,17 @@ public class BackPackData implements SerializableObject {
     // Is sell
     serializedData.write("sell", sell);
 
+    JsonArray array = new JsonArray();
+
     // Items
-    JsonArray dataArray = new JsonArray();
-    for (int i = 0; i < stored.length; i++) {
-      ItemStack item = stored[i];
-      if (item != null && item.getType() != Material.AIR) {
-        JsonArray itemArray = new JsonArray();
-        itemArray.add(i);
-        itemArray.add(wrap(item));
-        dataArray.add(itemArray);
-      }
+    for (Map.Entry<BackPackItem, BigInteger> itemEntry : items.entrySet()) {
+      JsonObject object = new JsonObject();
+      object.add("item", wrap(itemEntry.getKey().getItemStack()));
+      object.addProperty("amount", itemEntry.getValue());
+      array.add(object);
     }
 
-    serializedData.getJsonElement().getAsJsonObject().add("items", dataArray);
+    serializedData.write("items2", array);
   }
 
   @Override
@@ -177,106 +91,50 @@ public class BackPackData implements SerializableObject {
     this.configId = serializedData.applyAs("configId", String.class);
     this.sell = serializedData.applyAs("sell", boolean.class, () -> false);
 
-    JsonArray itemsArray =
-        serializedData.getJsonElement().getAsJsonObject().getAsJsonArray("items");
-    if (itemsArray.size() == 0) return;
+    // Old Method Big Chungus
+    if (serializedData.has("items")) {
+      for (JsonElement element :
+          serializedData.getJsonElement().getAsJsonObject().getAsJsonArray("items")) {
+        JsonArray itemArray = element.getAsJsonArray();
+        ItemStack unwrap = unwrap(itemArray.get(1));
+        if (unwrap == null) continue;
 
-    boolean isNewMethod = !itemsArray.get(0).isJsonObject();
-    if (!isNewMethod) {
-      int page = 1;
-      Map<Integer, ItemStack[]> halfConvertedData = new HashMap<>();
-      int pageSize = 0;
-
-      // Converting data into easier use
-      for (JsonElement element : itemsArray) {
-        JsonObject itemsData = element.getAsJsonObject();
-
-        if (pageSize == 0) pageSize = itemsData.entrySet().size();
-
-        ItemStack[] arrayPageData = new ItemStack[pageSize];
-        for (int i = 0; i < arrayPageData.length; i++)
-          arrayPageData[i] = unwrap(itemsData.get("" + i++));
-
-        halfConvertedData.put(page, arrayPageData);
-        page++;
+        items.merge(
+            BackPackItem.wrap(unwrap), BigInteger.valueOf(unwrap.getAmount()), BigInteger::add);
       }
+      return;
+    }
 
-      // Migrating data
-      stored = new ItemStack[pageSize * halfConvertedData.size()];
-      page = 1;
-      int slot = 0;
-      for (int i = 0; i < stored.length; i++) {
-        if (slot == pageSize) {
-          slot = 0;
-          page++;
-        }
+    if (serializedData.has("items2")) {
+      for (JsonElement element :
+          serializedData.getJsonElement().getAsJsonObject().getAsJsonArray("items2")) {
+        JsonObject elementObject = element.getAsJsonObject();
 
-        stored[i] = halfConvertedData.get(page)[slot];
-        slot++;
-      }
-    } else {
-      BackPackConfig<?> config =
-          SuperiorPrisonPlugin.getInstance()
-              .getBackPackController()
-              .getConfig(configId)
-              .orElseThrow(
-                  () ->
-                      new IllegalStateException(
-                          "Failed to find backPack by id " + configId + " level " + level))
-              .getByLevel(level);
-      if (config instanceof SimpleBackPackConfig) {
-        List<ItemStack> list = new ArrayList<>();
-        for (JsonElement element : itemsArray) {
-          JsonArray itemArray = element.getAsJsonArray();
-          list.add(unwrap(itemArray.get(1)));
-        }
-
-        stored = list.toArray(new ItemStack[0]);
-      } else {
-        stored = new ItemStack[config.getCapacity() / 64];
-        for (JsonElement element : itemsArray) {
-          JsonArray itemArray = element.getAsJsonArray();
-          int index = itemArray.get(0).getAsInt();
-          ItemStack itemStack = unwrap(itemArray.get(1));
-          stored[index] = itemStack;
-        }
+        ItemStack item = unwrap(elementObject.get("item"));
+        BigInteger amount = elementObject.get("amount").getAsBigInteger();
+        items.merge(BackPackItem.wrap(item), amount, BigInteger::add);
       }
     }
   }
 
-  public int allocateMore() {
-    stored = Arrays.copyOfRange(stored, 0, stored.length + 1);
-    return stored.length - 1;
-  }
-
-  public Optional<OPair<Integer, ItemStack>> findSimilar(ItemStack to, boolean amountCheck) {
-    for (int i = 0; i < stored.length; i++) {
-      ItemStack item = stored[i];
-      if (item != null) {
-        if (ItemStackUtil.isSimilar(item, to)
-            && (!amountCheck || item.getAmount() != item.getMaxStackSize()))
-          return Optional.of(new OPair<>(i, item));
-      }
-    }
-
-    return Optional.empty();
+  public BigInteger sumAllItems() {
+    return items.values()
+            .stream()
+            .reduce(BigInteger::add)
+            .orElse(BigInteger.ZERO);
   }
 
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
+
     BackPackData that = (BackPackData) o;
-    return level == that.level
-        && sell == that.sell
-        && Objects.equals(configId, that.configId)
-        && Arrays.equals(stored, that.stored);
+    return new EqualsBuilder().append(level, that.level).append(sell, that.sell).append(sumAllItems(), that.sumAllItems()).isEquals();
   }
 
   @Override
   public int hashCode() {
-    int result = Objects.hash(level, configId, sell);
-    result = 31 * result + Arrays.hashCode(stored);
-    return result;
+    return new HashCodeBuilder(17, 37).append(sumAllItems()).append(level).append(sell).toHashCode();
   }
 }

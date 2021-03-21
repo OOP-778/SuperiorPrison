@@ -3,8 +3,11 @@ package com.bgsoftware.superiorprison.plugin.config.backpack;
 import com.bgsoftware.superiorprison.plugin.object.backpack.BackPackData;
 import com.bgsoftware.superiorprison.plugin.object.backpack.SBackPack;
 import com.oop.orangeengine.item.ItemBuilder;
+import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.yaml.ConfigSection;
 import com.oop.orangeengine.yaml.ConfigValue;
+
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -13,8 +16,8 @@ import java.util.function.BiConsumer;
 import lombok.Getter;
 import org.bukkit.entity.Player;
 
-public abstract class BackPackConfig<T extends BackPackConfig<T>> {
-  protected static Map<String, BiConsumer<BackPackConfig, Object>> upgradeHandlers =
+public class BackPackConfig {
+  protected static Map<OPair<String, Class<?>>, BiConsumer<BackPackConfig, Object>> upgradeHandlers =
       new HashMap<>();
 
   static {
@@ -23,12 +26,22 @@ public abstract class BackPackConfig<T extends BackPackConfig<T>> {
         BackPackConfig.class,
         ConfigSection.class,
         (backpack, section) -> backpack.item = ItemBuilder.fromConfiguration(section));
+
+    registerUpgrade(
+            "capacity",
+            BackPackConfig.class,
+            String.class,
+            (back, i) -> {
+              back.capacity = new BigInteger(i);
+            });
   }
 
-  private Map<Integer, BackPackUpgrade<T>> upgrades = new HashMap<>();
+  private Map<Integer, BackPackUpgrade> upgrades = new HashMap<>();
   @Getter private ItemBuilder item;
   @Getter private String id;
   @Getter private int level = 1;
+  @Getter private BigInteger capacity;
+  @Getter private String type;
 
   @Getter private boolean sellByDefault = false;
 
@@ -38,63 +51,83 @@ public abstract class BackPackConfig<T extends BackPackConfig<T>> {
     this.id = section.getKey();
     applyUpgrades(section);
 
+    // Make sure values are migrated
+    if (section.getAs("type", String.class).equalsIgnoreCase("advanced")) {
+      for (ConfigSection value : section.getHierarchySections().values()) {
+        migrateAdvancedBackPackSection(value);
+      }
+    } else
+      section.set("type", "advanced");
+
+    this.type = section.getAs("type");
+
     section.ifValuePresent("sellable", boolean.class, b -> this.sellByDefault = b);
 
     section
         .getSection("upgrades")
         .ifPresent(
             upgradesSection -> {
-              T lastClone = clone();
+              BackPackConfig lastClone = clone();
               for (ConfigSection upgradeSection : upgradesSection.getSections().values()) {
-                T clone = lastClone.clone();
+                BackPackConfig clone = lastClone.clone();
                 clone.applyUpgrades(upgradeSection);
 
-                ((BackPackConfig) clone).level = Integer.parseInt(upgradeSection.getKey());
+                clone.level = Integer.parseInt(upgradeSection.getKey());
                 upgrades.put(
-                    ((BackPackConfig) clone).level, new BackPackUpgrade<>(upgradeSection, clone));
+                    clone.level, new BackPackUpgrade(upgradeSection, clone));
 
                 lastClone = clone;
               }
             });
   }
 
-  protected static <B extends BackPackConfig, T extends Object> void registerUpgrade(
-      String path, Class<B> backpackClass, Class<T> type, BiConsumer<B, T> consumer) {
-    upgradeHandlers.put(path, (BiConsumer<BackPackConfig, Object>) consumer);
+  protected void migrateAdvancedBackPackSection(ConfigSection section) {
+    if (!section.isValuePresent("pages") || !section.isValuePresent("rows")) return;
+
+    int pages = section.getAs("pages", int.class);
+    int rows = section.getAs("rows", int.class);
+    section.getValues().remove("pages");
+    section.getValues().remove("rows");
+
+    section.set("capacity", rows * 9 * pages * 64);
   }
 
-  public abstract T clone();
+  protected static <B extends BackPackConfig, T extends Object> void registerUpgrade(
+      String path, Class<B> backpackClass, Class<T> type, BiConsumer<B, T> consumer) {
+    upgradeHandlers.put(new OPair<>(path, type), (BiConsumer<BackPackConfig, Object>) consumer);
+  }
+
 
   protected void applyUpgrades(ConfigSection section) {
     upgradeHandlers.forEach(
         (key, consumer) -> {
-          Optional<ConfigSection> optSection = section.getSection(key);
-          Optional<ConfigValue> optValue = section.get(key);
+          Optional<ConfigSection> optSection = section.getSection(key.getKey());
+          Optional<?> optValue = section.get(key.getKey(), key.getValue());
 
           if (optSection.isPresent()) {
             consumer.accept(this, optSection.get());
-          } else optValue.ifPresent(configValue -> consumer.accept(this, configValue.getObject()));
+          } else optValue.ifPresent(configValue -> consumer.accept(this, optValue.get()));
         });
   }
 
-  public BackPackUpgrade<T> getUpgrade(int level) {
+  public BackPackUpgrade getUpgrade(int level) {
     return level == 1
         ? null
         : Objects.requireNonNull(
             upgrades.get(level), "Failed to find BackPack " + id + " level by " + level);
   }
 
-  public T getByLevel(int level) {
+  public BackPackConfig getByLevel(int level) {
     return level == 1
-        ? (T) this
+        ? this
         : Objects.requireNonNull(
                 upgrades.get(level), "Failed to find BackPack " + id + " level by " + level)
             .getConfig();
   }
 
-  public T getByData(BackPackData data) {
+  public BackPackConfig getByData(BackPackData data) {
     return data.getLevel() == 1
-        ? (T) this
+        ? this
         : Objects.requireNonNull(
                 upgrades.get(data.getLevel()),
                 "Failed to find BackPack " + id + " level by " + data.getLevel())
@@ -113,12 +146,15 @@ public abstract class BackPackConfig<T extends BackPackConfig<T>> {
     return upgrades.containsKey(level + 1);
   }
 
-  public abstract int getCapacity();
-
-  protected void superClone(BackPackConfig backPackConfig) {
-    backPackConfig.id = id;
-    backPackConfig.item = item;
-    backPackConfig.level = level;
-    backPackConfig.upgrades = upgrades;
+  @Override
+  protected BackPackConfig clone() {
+    BackPackConfig clone = new BackPackConfig();
+    clone.id = id;
+    clone.item = item;
+    clone.level = level;
+    clone.capacity = capacity;
+    clone.upgrades = upgrades;
+    clone.type = type;
+    return clone;
   }
 }

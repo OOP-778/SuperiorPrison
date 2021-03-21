@@ -13,6 +13,7 @@ import com.oop.orangeengine.nbt.NBTItem;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
@@ -126,7 +127,7 @@ public class SPlayerInventory {
       if (backpack.isFull()) continue;
 
       // Try to add the items
-      Map<ItemStack, Integer> add = backpack.add(itemStacks1);
+      Map<ItemStack, BigInteger> add = backpack.add(itemStacks1);
       SuperiorPrisonPlugin.getInstance()
           .getOLogger()
           .printDebug(

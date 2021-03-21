@@ -3,9 +3,7 @@ package com.bgsoftware.superiorprison.plugin.controller;
 import com.bgsoftware.superiorprison.api.controller.BackPackController;
 import com.bgsoftware.superiorprison.api.data.backpack.BackPack;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
-import com.bgsoftware.superiorprison.plugin.config.backpack.AdvancedBackPackConfig;
 import com.bgsoftware.superiorprison.plugin.config.backpack.BackPackConfig;
-import com.bgsoftware.superiorprison.plugin.config.backpack.SimpleBackPackConfig;
 import com.bgsoftware.superiorprison.plugin.object.backpack.SBackPack;
 import com.bgsoftware.superiorprison.plugin.object.inventory.PatchedInventory;
 import com.bgsoftware.superiorprison.plugin.object.inventory.SPlayerInventory;
@@ -14,23 +12,19 @@ import com.oop.orangeengine.main.plugin.OComponent;
 import com.oop.orangeengine.nbt.NBTItem;
 import com.oop.orangeengine.yaml.Config;
 import com.oop.orangeengine.yaml.ConfigSection;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
 import lombok.NonNull;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.*;
 
 public class SBackPackController implements BackPackController, OComponent<SuperiorPrisonPlugin> {
 
   public static final String NBT_KEY = "BACKPACK_DATA";
   public static final String UUID_KEY = "BACKPACK_UUID";
 
-  private final Map<String, BackPackConfig<?>> backpackConfigs = new HashMap<>();
+  private final Map<String, BackPackConfig> backpackConfigs = new HashMap<>();
   private boolean playerBound = false;
 
   @Override
@@ -72,7 +66,7 @@ public class SBackPackController implements BackPackController, OComponent<Super
     return owner.getBackPackMap().get(slot);
   }
 
-  public Optional<BackPackConfig<?>> getConfig(String name) {
+  public Optional<BackPackConfig> getConfig(String name) {
     return Optional.ofNullable(backpackConfigs.get(name));
   }
 
@@ -104,13 +98,7 @@ public class SBackPackController implements BackPackController, OComponent<Super
       }
 
       try {
-        if (section
-            .get("type")
-            .map(o -> o.getAs(String.class))
-            .orElse("advanced")
-            .equalsIgnoreCase("advanced"))
-          backpackConfigs.put(section.getKey(), new AdvancedBackPackConfig(section));
-        else backpackConfigs.put(section.getKey(), new SimpleBackPackConfig(section));
+        backpackConfigs.put(section.getKey(), new BackPackConfig(section));
       } catch (Throwable throwable) {
         throwable.printStackTrace();
         getEngine()
@@ -121,10 +109,11 @@ public class SBackPackController implements BackPackController, OComponent<Super
     }
 
     Engine.getInstance().getLogger().print("Loaded {} backpacks", backpackConfigs.size());
+    backPacksConfig.save();
     return true;
   }
 
-  public Map<String, BackPackConfig<?>> getConfigs() {
+  public Map<String, BackPackConfig> getConfigs() {
     return backpackConfigs;
   }
 

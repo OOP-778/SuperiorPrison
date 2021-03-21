@@ -1,6 +1,5 @@
 package com.bgsoftware.superiorprison.plugin.util.menu;
 
-import com.bgsoftware.superiorprison.plugin.menu.backpack.AdvancedBackPackView;
 import com.google.common.collect.Maps;
 import com.oop.orangeengine.item.ItemBuilder;
 import com.oop.orangeengine.yaml.Config;
@@ -114,88 +113,5 @@ public class MenuLoader {
     }
 
     return button;
-  }
-
-  public static void loadBackPackMenu(Config config, AdvancedBackPackView menu) {
-    menu.setTitle(ChatColor.translateAlternateColorCodes('&', config.getAs("title")));
-
-    List<String> layout = config.getAs("layout", List.class);
-    menu.setMenuRows(layout.size());
-
-    Map<Character, String> charToActionMap = Maps.newHashMap();
-    if (config.isValuePresent("actions")) {
-      for (String action : (List<String>) config.getAs("actions")) {
-        String[] split = action.split(":");
-        charToActionMap.put(split[1].charAt(0), split[0]);
-      }
-    }
-
-    if (menu instanceof OMenu.Placeholderable)
-      ((OMenu.Placeholderable) menu).initPlaceholderable(config);
-
-    if (menu instanceof OMenu.Templateable) ((OMenu.Templateable) menu).initTemplateable(config);
-
-    ConfigSection buttonsSection = config.getSection("buttons").get();
-    for (String layoutRow : layout) {
-      boolean isBottom = false;
-      if (layoutRow.toLowerCase().startsWith("bottom:")) {
-        isBottom = true;
-        layoutRow = layoutRow.substring(7);
-      } else layoutRow = layoutRow.substring(4);
-
-      boolean finalIsBottom = isBottom;
-      BiConsumer<Integer, OMenuButton> setter =
-          (index, button) ->
-              Objects.requireNonNull(
-                      (finalIsBottom ? menu.getBottom() : menu.getTop()), "Array is null")[index] =
-                  button == null
-                      ? new OMenuButton('+').currentItem(new ItemStack(Material.AIR))
-                      : button;
-
-      int index = 0;
-      for (char c : layoutRow.toCharArray()) {
-        if (c == ' ') continue;
-
-        Optional<ConfigSection> optSection = buttonsSection.getSection(c + "");
-        if (!optSection.isPresent()) {
-          setter.accept(index, null);
-          index++;
-          continue;
-        }
-
-        ConfigSection section = optSection.get();
-
-        OMenuButton button = initButton(section);
-        String action = charToActionMap.get(c);
-        if (action != null) button.action(action);
-
-        setter.accept(index, button);
-        index++;
-      }
-    }
-
-    // For templates
-    for (ConfigSection buttonSection : buttonsSection.getSections().values()) {
-      Character ch = buttonSection.getKey().charAt(0);
-      if (menu instanceof OMenu.Templateable
-          && ((OMenu.Templateable) menu).containsTemplate(ch + "")) {
-        OMenuButton button = initButton(buttonSection);
-        String action = charToActionMap.get(ch);
-        if (action != null) button.action(action);
-
-        ((OMenu.Templateable) menu).getTemplateButtonMap().put(ch + "", button);
-      }
-    }
-
-    Optional<ConfigSection> actions = config.getSection("actions");
-    if (!actions.isPresent()) return;
-
-    actions
-        .get()
-        .getValues()
-        .forEach(
-            (k, v) ->
-                menu.buttonOfChar(v.getAs(String.class).charAt(0))
-                    .ifPresent(button -> button.action(v.getKey())));
   }
 }

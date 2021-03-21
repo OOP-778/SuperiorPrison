@@ -19,8 +19,8 @@ import com.bgsoftware.superiorprison.plugin.object.mine.locks.SBLocksLock;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
 import com.bgsoftware.superiorprison.plugin.util.SPair;
 import com.bgsoftware.superiorprison.plugin.util.XPUtil;
-import com.google.common.base.Preconditions;
 import com.oop.orangeengine.item.custom.OItem;
+import com.oop.orangeengine.main.task.StaticTask;
 import com.oop.orangeengine.main.util.data.pair.OPair;
 import com.oop.orangeengine.material.OMaterial;
 import org.bukkit.Bukkit;
@@ -36,7 +36,9 @@ import org.bukkit.inventory.ItemStack;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Consumer;
 
 public class SBlockController implements BlockController {
   @Override
@@ -154,7 +156,8 @@ public class SBlockController implements BlockController {
                           BigDecimal price = prisoner.getPrice(itemStack);
                           if (price.doubleValue() == 0) return false;
 
-                          deposit[0] = deposit[0].add(price.multiply(new BigDecimal(itemStack.getAmount())));
+                          deposit[0] =
+                              deposit[0].add(price.multiply(new BigDecimal(itemStack.getAmount())));
                           return true;
                         });
               });
@@ -208,89 +211,117 @@ public class SBlockController implements BlockController {
   }
 
   @Override
-  public MultiBlockBreakEvent breakBlock(
-      Prisoner prisoner, SuperiorMine mine, ItemStack tool, Location... locations) {
-    Preconditions.checkArgument(
-        Bukkit.isPrimaryThread(), "Cannot call break block in non main thread!");
+  public CompletableFuture<MultiBlockBreakEvent> breakBlock(
+      Prisoner prisoner, SuperiorMine mine, ItemStack tool, boolean async, Location... locations) {
+    CompletableFuture<MultiBlockBreakEvent> future = new CompletableFuture<>();
 
-    MultiBlockBreakEvent multiBlockBreakEvent =
-        handleBlockBreak(prisoner, mine, tool, null, locations);
-    if (locations.length == 1)
-      SuperiorPrisonPlugin.getInstance()
-          .getNms()
-          .setBlockAndUpdate(
-              locations[0].getChunk(), locations[0], OMaterial.AIR, mine.getWorld().getPlayers());
-    else {
-      Map<OPair<Integer, Integer>, Chunk> chunkMap = new HashMap<>();
-      for (Location location : locations) {
-        Chunk chunk =
-            chunkMap.get(new OPair<>(location.getBlockX() >> 4, location.getBlockZ() >> 4));
-        if (chunk == null) {
-          chunk = location.getChunk();
-          chunkMap.put(new OPair<>(location.getBlockX() >> 4, location.getBlockZ() >> 4), chunk);
-        }
+    Consumer<MultiBlockBreakEvent> settingBlocks =
+        (multiBlockBreakEvent) -> {
+          if (locations.length == 1)
+            SuperiorPrisonPlugin.getInstance()
+                .getNms()
+                .setBlockAndUpdate(
+                    locations[0].getChunk(),
+                    locations[0],
+                    OMaterial.AIR,
+                    mine.getWorld().getPlayers());
+          else {
+            Map<OPair<Integer, Integer>, Chunk> chunkMap = new HashMap<>();
+            for (Location location : locations) {
+              Chunk chunk =
+                  chunkMap.get(new OPair<>(location.getBlockX() >> 4, location.getBlockZ() >> 4));
+              if (chunk == null) {
+                chunk = location.getChunk();
+                chunkMap.put(
+                    new OPair<>(location.getBlockX() >> 4, location.getBlockZ() >> 4), chunk);
+              }
 
-        SuperiorPrisonPlugin.getInstance().getNms().setBlock(chunk, location, OMaterial.AIR);
-      }
+              SuperiorPrisonPlugin.getInstance().getNms().setBlock(chunk, location, OMaterial.AIR);
+            }
 
-      SuperiorPrisonPlugin.getInstance()
-          .getNms()
-          .refreshChunks(mine.getWorld(), Arrays.asList(locations), mine.getWorld().getPlayers());
-    }
+            SuperiorPrisonPlugin.getInstance()
+                .getNms()
+                .refreshChunks(
+                    mine.getWorld(), Arrays.asList(locations), mine.getWorld().getPlayers());
+          }
 
-    if (tool != null) {
-      Player player = prisoner.getPlayer();
-      OItem item = new OItem(tool);
+          if (tool != null) {
+            Player player = prisoner.getPlayer();
+            OItem item = new OItem(tool);
 
-      if (!player.hasPermission("prison.prisoner.ignoredurability")) {
-        int enchantmentLevel = item.getEnchantLevel(Enchantment.DURABILITY);
-        if (enchantmentLevel != 0) {
-          double chance = (100 / enchantmentLevel + 1);
-          double generatedChance = ThreadLocalRandom.current().nextDouble(0, 100);
+            if (!player.hasPermission("prison.prisoner.ignoredurability")) {
+              int enchantmentLevel = item.getEnchantLevel(Enchantment.DURABILITY);
+              if (enchantmentLevel != 0) {
+                double chance = (100 / enchantmentLevel + 1);
+                double generatedChance = ThreadLocalRandom.current().nextDouble(0, 100);
 
-          if (chance > generatedChance) tool.setDurability((short) (tool.getDurability() + 1));
-        } else tool.setDurability((short) (tool.getDurability() + 1));
+                if (chance > generatedChance)
+                  tool.setDurability((short) (tool.getDurability() + 1));
+              } else tool.setDurability((short) (tool.getDurability() + 1));
 
-        if (tool.getDurability() == item.getMaterial().getMaxDurability())
-          player.setItemInHand(null);
+              if (tool.getDurability() == item.getMaterial().getMaxDurability())
+                player.setItemInHand(null);
 
-      } else tool.setDurability((short) 0);
+            } else tool.setDurability((short) 0);
 
-      player.updateInventory();
-    }
+            player.updateInventory();
+          }
 
-    if (SuperiorPrisonPlugin.getInstance().getMainConfig().isDropItemsWhenFull()) {
-        List<ItemStack> drop = new ArrayList<>();
-        multiBlockBreakEvent
-                .getBlockData()
-                .forEach(
-                        (location, data) -> {
-                            if (data.getValue().isEmpty()) return;
+          List<ItemStack> drop = new ArrayList<>();
+          multiBlockBreakEvent
+              .getBlockData()
+              .forEach(
+                  (location, data) -> {
+                    if (data.getValue().isEmpty()) return;
 
-                            drop.addAll(data.getValue());
-                            data.getValue().clear();
-                        });
-
-        drop.forEach(
+                    drop.addAll(data.getValue());
+                    data.getValue().clear();
+                  });
+          if (!prisoner.isAutoPickup()
+              || SuperiorPrisonPlugin.getInstance().getMainConfig().isDropItemsWhenFull()) {
+            drop.forEach(
                 item -> {
-                    Location location = locations[0].clone().add(0.5, 0.5, 0.5);
-                    location.getWorld().dropItem(location, item);
+                  Location location = locations[0].clone().add(0.5, 0.5, 0.5);
+                  location.getWorld().dropItem(location, item);
                 });
 
+          } else if (!drop.isEmpty()) {
+            LocaleEnum.PRISONER_INVENTORY_FULL.getWithErrorPrefix().send(prisoner.getPlayer());
+          }
+
+          if (multiBlockBreakEvent.getExperience() != 0) {
+            ((ExperienceOrb)
+                    locations[0].getWorld().spawnEntity(locations[0], EntityType.EXPERIENCE_ORB))
+                .setExperience(multiBlockBreakEvent.getExperience());
+            multiBlockBreakEvent.setExperience(0);
+          }
+
+          future.complete(multiBlockBreakEvent);
+        };
+
+    if (async) {
+      StaticTask.getInstance()
+          .ensureAsync(
+              () -> {
+                MultiBlockBreakEvent multiBlockBreakEvent =
+                    handleBlockBreak(prisoner, mine, tool, null, locations);
+                StaticTask.getInstance()
+                    .ensureSync(
+                        () -> {
+                          settingBlocks.accept(multiBlockBreakEvent);
+                        });
+              });
     } else {
-        LocaleEnum
-                .PRISONER_INVENTORY_FULL
-                .getMessage()
-                .send(prisoner.getPlayer());
+      StaticTask.getInstance()
+          .ensureSync(
+              () -> {
+                MultiBlockBreakEvent multiBlockBreakEvent =
+                    handleBlockBreak(prisoner, mine, tool, null, locations);
+                settingBlocks.accept(multiBlockBreakEvent);
+              });
     }
 
-    if (multiBlockBreakEvent.getExperience() != 0) {
-      ((ExperienceOrb) locations[0].getWorld().spawnEntity(locations[0], EntityType.EXPERIENCE_ORB))
-          .setExperience(multiBlockBreakEvent.getExperience());
-      multiBlockBreakEvent.setExperience(0);
-    }
-
-    return multiBlockBreakEvent;
+    return future;
   }
 
   private int getItemCountWithFortune(Material material, int enchant_level) {

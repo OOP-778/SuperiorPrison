@@ -1,16 +1,11 @@
 package com.bgsoftware.superiorprison.plugin.object.mine;
 
-import static com.bgsoftware.superiorprison.plugin.util.TimeUtil.getDate;
-
 import com.bgsoftware.superiorprison.api.data.mine.SuperiorMine;
 import com.bgsoftware.superiorprison.api.data.mine.area.AreaEnum;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.object.mine.area.SArea;
 import com.bgsoftware.superiorprison.plugin.object.mine.linkable.LinkableObject;
-import com.bgsoftware.superiorprison.plugin.util.Attachable;
-import com.bgsoftware.superiorprison.plugin.util.ClassDebugger;
-import com.bgsoftware.superiorprison.plugin.util.Cuboid;
-import com.bgsoftware.superiorprison.plugin.util.SPLocation;
+import com.bgsoftware.superiorprison.plugin.util.*;
 import com.bgsoftware.superiorprison.plugin.util.frameworks.Framework;
 import com.bgsoftware.superiorprison.plugin.util.reset.ResetEntry;
 import com.oop.datamodule.api.SerializableObject;
@@ -24,25 +19,8 @@ import com.oop.orangeengine.eventssubscription.SubscriptionProperties;
 import com.oop.orangeengine.main.task.OTask;
 import com.oop.orangeengine.main.task.StaticTask;
 import com.oop.orangeengine.main.util.data.pair.OPair;
+import com.oop.orangeengine.main.util.version.OVersion;
 import com.oop.orangeengine.material.OMaterial;
-import java.time.Instant;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Queue;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -51,6 +29,18 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.event.world.WorldLoadEvent;
+
+import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
+
+import static com.bgsoftware.superiorprison.plugin.util.TimeUtil.getDate;
 
 @Setter
 @Getter
@@ -96,6 +86,10 @@ public class SMineGenerator
     blockData.attach(this);
   }
 
+  public static int getDiff(int v1, int v2) {
+    return v1 > v2 ? v1 - v2 : v2 - v1;
+  }
+
   public void generate(Runnable callback) {
     if (cachedChunksData.isEmpty() || resetting || caching) return;
     if (SuperiorPrisonPlugin.getInstance() == null) return;
@@ -111,7 +105,6 @@ public class SMineGenerator
           }
 
           shuffleArray(cachedMaterials);
-
           World world = getMine().getWorld();
 
           Queue<SPLocation> locationQueue =
@@ -181,34 +174,22 @@ public class SMineGenerator
     if (resetting || caching) return;
 
     lastReset = getDate().toInstant();
-    mine.onReset(
-        () -> {
-          // Check for cache
-          StaticTask.getInstance()
-              .async(
-                  () -> {
-                    if (blocksInRegion == -1 || cachedChunksData.isEmpty())
-                      initCache(() -> reset(callback));
-                    else generate(callback);
-                  });
-        });
+    StaticTask.getInstance()
+        .async(
+            () -> {
+              if (blocksInRegion == -1 || cachedChunksData.isEmpty())
+                initCache(() -> reset(callback));
+              else
+                generate(
+                    () -> {
+                      mine.onReset(callback);
+                    });
+            });
   }
 
   @Override
   public void reset() {
-    if (resetting || caching) return;
-
-    lastReset = getDate().toInstant();
-    mine.onReset(
-        () -> {
-          // Check for cache
-          StaticTask.getInstance()
-              .async(
-                  () -> {
-                    if (blocksInRegion == -1 || cachedChunksData.isEmpty()) initCache(this::reset);
-                    else generate(null);
-                  });
-        });
+    reset(null);
   }
 
   @Override
@@ -218,7 +199,6 @@ public class SMineGenerator
 
   public void initCache(Runnable whenFinished) {
     if (isCaching() || isWorldLoadWait()) return;
-
     if (mineArea == null) mineArea = mine.getArea(AreaEnum.MINE);
 
     if (mineArea.getWorld() == null) {
@@ -308,28 +288,63 @@ public class SMineGenerator
             StaticTask.getInstance()
                 .ensureSync(
                     () -> {
-                      try {
-                          World world = mine.getWorld();
-                        long blocksLeft = 0;
-                        for (ChunkData value : cachedChunksData.values()) {
-                          for (SPLocation location : value.getLocations()) {
-                              Location bukkitLocation = location.toBukkit(world);
-                            OMaterial blockType =
-                                SuperiorPrisonPlugin.getInstance()
-                                    .getNms()
-                                    .getBlockType(value.chunk, bukkitLocation);
-                            if (blockType == null) continue;
+                      BenchmarkUtil.benchmark(
+                          "init-blocks-" + mine.getName(),
+                          () -> {
+                            try {
+                              AtomicLong left = new AtomicLong(cachedChunksData.values().size());
+                              AtomicLong blocksLeft = new AtomicLong(0);
+                              cachedChunksData.values().stream()
+                                  .map(
+                                      chunkData ->
+                                          new OPair<>(
+                                              chunkData.getChunk(), chunkData.getLocations()))
+                                  .map(
+                                      pair ->
+                                          new OPair<>(
+                                              pair.getKey().getChunkSnapshot(), pair.getValue()))
+                                  .parallel()
+                                  .forEach(
+                                      pair -> {
+                                        SPLocation worldChunkCenterLocation =
+                                            new SPLocation(
+                                                pair.getKey().getWorldName(),
+                                                pair.getKey().getX() << 4,
+                                                100,
+                                                pair.getKey().getZ() << 4);
 
-                            blocksLeft++;
-                            blockData.set(bukkitLocation, blockType);
-                          }
-                        }
+                                        for (SPLocation spLocation : pair.getValue()) {
+                                          OMaterial type;
+                                          if (!OVersion.isOrAfter(13)) {
+                                            type =
+                                                OMaterial.byCombinedId(
+                                                    pair.getKey()
+                                                        .getBlockTypeId(
+                                                            getDiff(worldChunkCenterLocation.xBlock(), spLocation.xBlock()), spLocation.yBlock(), getDiff(worldChunkCenterLocation.zBlock(), spLocation.zBlock())));
+                                          } else {
+                                            type =
+                                                OMaterial.matchMaterial(
+                                                    pair.getKey()
+                                                        .getBlockType(
+                                                                getDiff(worldChunkCenterLocation.xBlock(), spLocation.xBlock()), spLocation.yBlock(), getDiff(worldChunkCenterLocation.zBlock(), spLocation.zBlock())));
+                                          }
+                                          if (type == OMaterial.AIR) continue;
 
-                        blockData.setBlocksLeft(blocksLeft);
-                      } catch (Throwable throwable) {
-                        throwable.printStackTrace();
-                      }
-                      resetting = false;
+                                          blocksLeft.incrementAndGet();
+                                          blockData.set(spLocation.toBukkit(), type);
+                                        }
+
+                                        left.decrementAndGet();
+                                      });
+
+                              // Very big Brain
+                              while (left.get() != 0) {}
+                              blockData.setBlocksLeft(blocksLeft.get());
+                            } catch (Throwable throwable) {
+                              throwable.printStackTrace();
+                            }
+                            resetting = false;
+                          });
                     });
           });
     }

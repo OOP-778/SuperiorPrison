@@ -8,6 +8,8 @@ import org.bukkit.Location;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.concurrent.CompletableFuture;
+
 public interface BlockController {
   /**
    * Handles the block break of provided blocks Calls MultiBlockBreakEvent
@@ -32,8 +34,9 @@ public interface BlockController {
    * @param locations the locations involved in the block breaking
    * @param mine where it's happening at
    * @param tool the tool that was used to break the blocks
+   * @param async if the drops handling should be async
    * @return the event caused by the block break
    */
-  MultiBlockBreakEvent breakBlock(
-      Prisoner prisoner, SuperiorMine mine, ItemStack tool, Location... locations);
+  CompletableFuture<MultiBlockBreakEvent> breakBlock(
+      Prisoner prisoner, SuperiorMine mine, ItemStack tool, boolean async, Location... locations);
 }

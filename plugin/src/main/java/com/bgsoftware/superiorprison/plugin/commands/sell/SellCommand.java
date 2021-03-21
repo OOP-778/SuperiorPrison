@@ -1,31 +1,32 @@
 package com.bgsoftware.superiorprison.plugin.commands.sell;
 
-import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
-
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
 import com.bgsoftware.superiorprison.plugin.commands.PermissionsInitializer;
 import com.bgsoftware.superiorprison.plugin.constant.LocaleEnum;
 import com.bgsoftware.superiorprison.plugin.hook.impl.VaultHook;
 import com.bgsoftware.superiorprison.plugin.menu.SellMenu;
+import com.bgsoftware.superiorprison.plugin.object.backpack.BackPackItem;
 import com.bgsoftware.superiorprison.plugin.object.backpack.SBackPack;
 import com.bgsoftware.superiorprison.plugin.object.inventory.PatchedInventory;
 import com.bgsoftware.superiorprison.plugin.object.player.SPrisoner;
+import com.bgsoftware.superiorprison.plugin.util.NumberUtil;
 import com.bgsoftware.superiorprison.plugin.util.TextUtil;
 import com.google.common.collect.Sets;
 import com.oop.orangeengine.command.OCommand;
 import com.oop.orangeengine.command.WrappedCommand;
 import com.oop.orangeengine.command.arg.arguments.PlayerArg;
-import com.oop.orangeengine.main.util.data.pair.OPair;
-import java.math.BigDecimal;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
+import com.oop.orangeengine.main.util.data.pair.OTriplePair;
 import org.bukkit.Material;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static com.bgsoftware.superiorprison.plugin.commands.CommandHelper.messageBuilder;
 
 public class SellCommand extends OCommand {
   public SellCommand() {
@@ -67,13 +68,22 @@ public class SellCommand extends OCommand {
                     if (!backPack.getData().isSell()) return;
 
                     handleSell(
-                        backPack.getStored().stream()
+                        backPack.getData().getItems().entrySet().stream()
                             .map(
-                                item ->
-                                    new OPair<ItemStack, Runnable>(
-                                        item, () -> backPack.remove(item)))
+                                pair ->
+                                    new OTriplePair<ItemStack, BigInteger, Runnable>(
+                                        pair.getKey().getItemStack(),
+                                        pair.getValue(),
+                                        () -> {
+                                          ItemStack itemStack =
+                                              pair.getKey().getItemStack().clone();
+                                          itemStack.setAmount(pair.getValue().intValue());
+
+                                          backPack.remove(itemStack);
+                                        }))
                             .collect(Collectors.toSet()),
                         prisoner);
+
                     if (backPack.isModified()) {
                       backPack.save();
                       backPack.update();
@@ -82,7 +92,11 @@ public class SellCommand extends OCommand {
                   }
 
                   handleSell(
-                      Sets.newHashSet(new OPair<>(hand, () -> player.getInventory().remove(hand))),
+                      Sets.newHashSet(
+                          new OTriplePair<>(
+                              hand,
+                              BigInteger.valueOf(hand.getAmount()),
+                              () -> player.getInventory().remove(hand))),
                       prisoner);
                 }));
 
@@ -100,7 +114,7 @@ public class SellCommand extends OCommand {
                           .getPrisonerController()
                           .getInsertIfAbsent(player);
 
-                  Set<OPair<ItemStack, Runnable>> items = new HashSet<>();
+                  Set<OTriplePair<ItemStack, BigInteger, Runnable>> toSell = new LinkedHashSet<>();
                   ItemStack[] contents = player.getInventory().getContents();
 
                   Collection<SBackPack> backpacks =
@@ -108,33 +122,61 @@ public class SellCommand extends OCommand {
                           .getOwner()
                           .getBackPackMap()
                           .values();
+
                   backpacks.stream()
                       .filter(backpack -> backpack.getData().isSell())
                       .forEach(
                           backpack ->
                               backpack
-                                  .getStored()
+                                  .getData()
+                                  .getItems()
                                   .forEach(
-                                      itemStack ->
-                                          items.add(
-                                              new OPair<>(
-                                                  itemStack, () -> backpack.remove(itemStack)))));
+                                      (item, amount) ->
+                                          toSell.add(
+                                              new OTriplePair<>(
+                                                  item.getItemStack(),
+                                                  amount,
+                                                  () -> {
+                                                    ItemStack itemStack =
+                                                        item.getItemStack().clone();
+                                                    itemStack.setAmount(amount.intValue());
 
-                  for (int i = 0; i < contents.length; i++) {
-                    ItemStack itemStack = contents[i];
+                                                    backpack.remove(itemStack);
+                                                  }))));
+
+                  Map<BackPackItem, BigInteger> items = new HashMap<>();
+                  for (ItemStack itemStack : contents) {
                     if (itemStack == null || itemStack.getType() == Material.AIR) continue;
 
-                    int finalI = i;
-                    items.add(
-                        new OPair<>(itemStack, () -> player.getInventory().setItem(finalI, null)));
+                    items.merge(
+                        BackPackItem.wrap(itemStack),
+                        BigInteger.valueOf(itemStack.getAmount()),
+                        BigInteger::add);
                   }
 
-                  handleSell(items, prisoner);
+                  for (Map.Entry<BackPackItem, BigInteger> itemEntry : items.entrySet()) {
+                    toSell.add(
+                        new OTriplePair<>(
+                            itemEntry.getKey().getItemStack(),
+                            itemEntry.getValue(),
+                            () -> {
+                              ItemStack itemStack = itemEntry.getKey().getItemStack();
+                              player
+                                  .getInventory()
+                                  .removeItem(
+                                      createItems(itemStack, itemEntry.getValue())
+                                          .toArray(new ItemStack[0]));
+                            }));
+                  }
+
+                  handleSell(toSell, prisoner);
 
                   backpacks.forEach(
                       backpack -> {
-                        backpack.save();
-                        backpack.update();
+                        if (backpack.isModified()) {
+                          backpack.save();
+                          backpack.update();
+                        }
                       });
                 }));
 
@@ -159,16 +201,17 @@ public class SellCommand extends OCommand {
     getSubCommands().values().forEach(PermissionsInitializer::registerPrisonerCommand);
   }
 
-  public void handleSell(Set<OPair<ItemStack, Runnable>> items, SPrisoner prisoner) {
+  public void handleSell(
+      Set<OTriplePair<ItemStack, BigInteger, Runnable>> items, SPrisoner prisoner) {
     BigDecimal total = new BigDecimal(0);
-    for (OPair<ItemStack, Runnable> content : items) {
+    for (OTriplePair<ItemStack, BigInteger, Runnable> content : items) {
       if (content.getFirst() == null || content.getFirst().getType() == Material.AIR) continue;
 
       BigDecimal price = prisoner.getPrice(content.getFirst());
       if (price.doubleValue() == 0) continue;
 
-      total = total.add(price.multiply(new BigDecimal(content.getFirst().getAmount())));
-      content.getSecond().run();
+      total = total.add(price.multiply(new BigDecimal(content.getSecond())));
+      content.getThird().run();
     }
 
     if (total.doubleValue() > 0) {
@@ -203,5 +246,24 @@ public class SellCommand extends OCommand {
                         .getListener()
                         .accept(
                             new WrappedCommand(command.getArgAsReq("player"), new HashMap<>()))));
+  }
+
+  private List<ItemStack> createItems(ItemStack item, BigInteger amount) {
+    BigInteger NUM_64 = BigInteger.valueOf(64);
+    List<ItemStack> converted = new ArrayList<>();
+
+    while (!NumberUtil.equals(amount, BigInteger.ZERO)) {
+      ItemStack clone = item.clone();
+      if (NumberUtil.isMoreThan(amount, NUM_64)) {
+        clone.setAmount(64);
+        amount = amount.subtract(NUM_64);
+      } else {
+          clone.setAmount(amount.intValue());
+          amount = BigInteger.ZERO;
+      }
+      converted.add(clone);
+    }
+
+    return converted;
   }
 }

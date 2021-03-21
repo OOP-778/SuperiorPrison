@@ -1,15 +1,11 @@
 package com.bgsoftware.superiorprison.plugin.object.backpack;
 
-import static com.bgsoftware.superiorprison.plugin.controller.SBackPackController.NBT_KEY;
-import static com.bgsoftware.superiorprison.plugin.controller.SBackPackController.UUID_KEY;
-
 import com.bgsoftware.superiorprison.api.data.backpack.BackPack;
+import com.bgsoftware.superiorprison.api.data.backpack.BackPackType;
 import com.bgsoftware.superiorprison.plugin.SuperiorPrisonPlugin;
-import com.bgsoftware.superiorprison.plugin.config.backpack.AdvancedBackPackConfig;
 import com.bgsoftware.superiorprison.plugin.config.backpack.BackPackConfig;
-import com.bgsoftware.superiorprison.plugin.config.backpack.SimpleBackPackConfig;
-import com.bgsoftware.superiorprison.plugin.menu.backpack.AdvancedBackPackView;
 import com.bgsoftware.superiorprison.plugin.object.inventory.PatchedInventory;
+import com.bgsoftware.superiorprison.plugin.util.NumberUtil;
 import com.bgsoftware.superiorprison.plugin.util.TextUtil;
 import com.google.common.base.Preconditions;
 import com.oop.datamodule.api.SerializedData;
@@ -17,51 +13,46 @@ import com.oop.datamodule.api.StorageInitializer;
 import com.oop.datamodule.lib.google.gson.JsonObject;
 import com.oop.orangeengine.item.ItemBuilder;
 import com.oop.orangeengine.main.util.data.pair.OPair;
-import com.oop.orangeengine.material.OMaterial;
 import com.oop.orangeengine.nbt.NBTItem;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.SneakyThrows;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+
+import javax.annotation.Nonnull;
 import java.io.ByteArrayOutputStream;
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
-import javax.annotation.Nonnull;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.SneakyThrows;
-import org.bukkit.Material;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
+
+import static com.bgsoftware.superiorprison.plugin.controller.SBackPackController.NBT_KEY;
+import static com.bgsoftware.superiorprison.plugin.controller.SBackPackController.UUID_KEY;
 
 @AllArgsConstructor
 public class SBackPack implements BackPack {
 
-  private static Pattern BACKPACK_DATA_PATTERN = Pattern.compile(NBT_KEY + "_([0-9]+)");
+  private static final Pattern BACKPACK_DATA_PATTERN = Pattern.compile(NBT_KEY + "_([0-9]+)");
   private final Object lock = false;
   @Getter private BackPackData data;
   private NBTItem nbtItem;
   private ItemStack itemStack;
   @Getter private Player holder;
   private JsonObject oldData;
-  @Setter @Getter private AdvancedBackPackView currentView;
+  // @Setter @Getter private AdvancedBackPackView currentView;
   private int hashcode;
   @Getter @Setter private long lastUpdated = -1;
-  // Advanced Backpack Data
-  private int lastRows = -1;
-  private int lastPages = -1;
-  @Setter @Getter private int currentSlot = -1;
   @Getter private UUID uuid;
+  @Getter private BackPackType type;
+  @Getter @Setter private BigInteger used = BigInteger.ZERO;
+  @Setter @Getter private int currentSlot = -1;
 
   private SBackPack() {}
 
@@ -71,7 +62,6 @@ public class SBackPack implements BackPack {
     this.itemStack = itemStack;
     this.nbtItem = new NBTItem(itemStack);
 
-    this.currentSlot = player.getInventory().first(itemStack);
     Preconditions.checkArgument(
         nbtItem.getKeys().stream().anyMatch(in -> in.startsWith(NBT_KEY)),
         "The given item is not an backpack");
@@ -103,8 +93,11 @@ public class SBackPack implements BackPack {
 
     data = new BackPackData(this);
     if (localData != null) data.deserialize(new SerializedData(localData));
+    this.used = data.sumAllItems();
 
-    BackPackConfig<?> config =
+    currentSlot = player.getInventory().first(itemStack);
+
+    BackPackConfig config =
         SuperiorPrisonPlugin.getInstance()
             .getBackPackController()
             .getConfig(data.getConfigId())
@@ -116,23 +109,15 @@ public class SBackPack implements BackPack {
                             + " level "
                             + data.getLevel()))
             .getByLevel(data.getLevel());
-    if (config instanceof AdvancedBackPackConfig) {
-      data.updateDataAdvanced(
-          ((AdvancedBackPackConfig) config).getRows(),
-          ((AdvancedBackPackConfig) config).getRows(),
-          ((AdvancedBackPackConfig) config).getPages(),
-          ((AdvancedBackPackConfig) config).getPages());
-      lastPages = ((AdvancedBackPackConfig) config).getPages();
-      lastRows = ((AdvancedBackPackConfig) config).getRows();
 
-    } else data.updateData();
-
+    this.type =
+        config.getType().equalsIgnoreCase("advanced") ? BackPackType.ADVANCED : BackPackType.SIMPLE;
     updateHash();
     save();
     update();
   }
 
-  public static SBackPack of(BackPackConfig<?> config, Player player) {
+  public static SBackPack of(BackPackConfig config, Player player) {
     SBackPack backPack = new SBackPack();
     backPack.oldData = new JsonObject();
     backPack.data = new BackPackData(backPack);
@@ -143,11 +128,6 @@ public class SBackPack implements BackPack {
     backPack.itemStack = config.getItem().getItemStack().clone();
     backPack.nbtItem = new NBTItem(backPack.itemStack);
     backPack.uuid = UUID.randomUUID();
-
-    if (config instanceof AdvancedBackPackConfig) {
-      backPack.lastRows = ((AdvancedBackPackConfig) config).getRows();
-      backPack.lastPages = ((AdvancedBackPackConfig) config).getPages();
-    }
 
     backPack.save();
     backPack.updateHash();
@@ -214,12 +194,8 @@ public class SBackPack implements BackPack {
   }
 
   @Override
-  public int getCapacity() {
+  public BigInteger getCapacity() {
     return getConfig().getCapacity();
-  }
-
-  public int getSlots() {
-    return getConfig().getCapacity() / 64;
   }
 
   @Override
@@ -228,21 +204,12 @@ public class SBackPack implements BackPack {
   }
 
   @Override
-  public int getUsed() {
-    int used = 0;
-    for (int i = 0; i < data.getStored().length; i++) {
-      ItemStack itemStack = data.getStored()[i];
-      if (itemStack == null) continue;
-
-      used += itemStack.getAmount();
-    }
-
-    return used;
-  }
-
-  @Override
-  public List<ItemStack> getStored() {
-    return Arrays.asList(data.getStored());
+  public Map<ItemStack, BigInteger> getStored() {
+    return data.getItems()
+            .entrySet()
+            .stream()
+            .map(entry -> new OPair<>(entry.getKey().getItemStack(), entry.getValue()))
+            .collect(Collectors.toMap(OPair::getKey, OPair::getValue));
   }
 
   @Override
@@ -258,22 +225,14 @@ public class SBackPack implements BackPack {
     for (String line : oldLore) {
       if (line.startsWith("{item_template}")) {
         line = line.replace("{item_template}", "");
-        Map<OMaterial, Integer> contents = new HashMap<>();
-        for (ItemStack stack : data.getStored()) {
-          if (stack == null || stack.getType() == Material.AIR) continue;
-
-          OMaterial oMaterial = OMaterial.matchMaterial(stack);
-          contents.putIfAbsent(oMaterial, 0);
-          contents.computeIfPresent(
-              oMaterial, (oldValue, newValue) -> newValue + stack.getAmount());
-        }
+        Map<BackPackItem, BigInteger> contents = data.getItems();
 
         String finalLine = line;
         contents.forEach(
-            (material, amount) -> {
+            (item, amount) -> {
               newLore.add(
                   finalLine
-                      .replace("{item_type}", TextUtil.beautify(material.name()))
+                      .replace("{item_type}", TextUtil.beautify(item.getMaterial()))
                       .replace("{item_amount}", amount + ""));
             });
       } else newLore.add(line);
@@ -291,7 +250,7 @@ public class SBackPack implements BackPack {
     return nbtItem.getItem();
   }
 
-  public BackPackConfig<?> getConfig() {
+  public BackPackConfig getConfig() {
     return SuperiorPrisonPlugin.getInstance()
         .getBackPackController()
         .getConfig(data.getConfigId())
@@ -339,119 +298,105 @@ public class SBackPack implements BackPack {
   }
 
   @Override
-  public Map<ItemStack, Integer> add(ItemStack... itemStacks) {
-    Map<ItemStack, Integer> addedItems = new HashMap<>();
+  public Map<ItemStack, BigInteger> add(ItemStack... itemStacks) {
+    Map<BackPackItem, BigInteger> notAddedItems = new HashMap<>();
+
+    for (ItemStack stack : itemStacks)
+      notAddedItems.merge(
+          BackPackItem.wrap(stack), BigInteger.valueOf(stack.getAmount()), BigInteger::add);
+
+    Supplier<Map<ItemStack, BigInteger>> convertBackPackPackItems =
+        () ->
+            notAddedItems.entrySet().stream()
+                .map(entry -> new OPair<>(entry.getKey().getItemStack(), entry.getValue()))
+                .collect(Collectors.toMap(OPair::getKey, OPair::getValue));
+
     synchronized (lock) {
-      Optional<OPair<Integer, ItemStack>> firstNonNull = data.firstNonNull();
-      if (!firstNonNull.isPresent() && getCapacity() == getUsed())
-        return Arrays.stream(itemStacks).collect(Collectors.toMap(item -> item, item -> 0));
+      for (ItemStack stack : itemStacks) {
+        // Make sure we don't exceed the limit
+        if (isFull()) return convertBackPackPackItems.get();
 
-      for (ItemStack itemStack : itemStacks) {
-        if (itemStack == null) continue;
-        int startingAmount = itemStack.getAmount();
-        int added = 0;
+        BackPackItem wrappedItem = BackPackItem.wrap(stack);
+        boolean mapContains = data.getItems().containsKey(wrappedItem);
 
-        while (itemStack.getAmount() != 0) {
-          Optional<OPair<Integer, ItemStack>> similar = data.findSimilar(itemStack, true);
-          if (similar.isPresent()) {
-            // We have to check if backpack can fit more :)
-            int backpackCanAdd = getCapacity() - getUsed();
-            if (backpackCanAdd <= 0) break;
+        BigInteger stackAmount = BigInteger.valueOf(stack.getAmount());
+        BigInteger canStore = getCapacity().subtract(getUsed());
+        BigInteger toAdd = canStore.min(stackAmount);
+        if (NumberUtil.equals(toAdd, BigInteger.ZERO)) continue;
 
-            ItemStack itemClone = itemStack.clone();
-            if (backpackCanAdd < itemStack.getAmount()) itemClone.setAmount(backpackCanAdd);
+        this.used = used.add(toAdd);
 
-            ItemStack slotItem = similar.get().getSecond();
+        if (mapContains)
+          data.getItems().merge(wrappedItem, toAdd, BigInteger::add);
+        else
+          data.getItems().put(wrappedItem, toAdd);
 
-            int currentAmount = slotItem.getAmount();
-            int canAdd = slotItem.getMaxStackSize() - currentAmount;
-
-            int adding = Math.min(canAdd, itemClone.getAmount());
-            slotItem.setAmount(slotItem.getAmount() + adding);
-            itemStack.setAmount(itemStack.getAmount() - adding);
-            added += adding;
-
-          } else {
-            Optional<OPair<Integer, ItemStack>> firstNull = data.firstNull();
-            if (!firstNull.isPresent()) {
-              if (!(getConfig() instanceof SimpleBackPackConfig)) break;
-
-              // Check how much we can still add
-              int canFit = getCapacity() - getUsed();
-              if (canFit <= 0) break;
-
-              int i = data.allocateMore();
-              if (canFit > itemStack.getAmount()) {
-                added += itemStack.getAmount();
-                data.setItem(i, itemStack.clone());
-                itemStack.setAmount(0);
-
-              } else {
-                int adding = itemStack.getAmount() - canFit;
-                ItemStack sloItem = itemStack.clone();
-                sloItem.setAmount(adding);
-                data.setItem(i, sloItem);
-
-                itemStack.setAmount(itemStack.getAmount() - adding);
-                added += adding;
-              }
-            } else {
-              added += itemStack.getAmount();
-              data.setItem(firstNull.get().getFirst(), itemStack.clone());
-              itemStack.setAmount(0);
-            }
-          }
+        BigInteger merge = notAddedItems.merge(wrappedItem, toAdd, BigInteger::subtract);
+        if (NumberUtil.equals(merge, BigInteger.ZERO)) {
+          notAddedItems.remove(wrappedItem);
         }
-
-        if (added != startingAmount) addedItems.put(itemStack, added);
       }
     }
 
-    if (currentView != null) currentView.onUpdate();
-
-    return addedItems;
+    // if (currentView != null) currentView.onUpdate();
+    return convertBackPackPackItems.get();
   }
 
   @Override
-  public Map<ItemStack, Integer> remove(ItemStack... itemStacks) {
-    Map<ItemStack, Integer> removedItems = new HashMap<>();
+  public Map<ItemStack, BigInteger> remove(ItemStack... itemStacks) {
+    Map<BackPackItem, BigInteger> notRemovedItems = new HashMap<>();
+    for (ItemStack stack : itemStacks)
+      notRemovedItems.merge(
+          BackPackItem.wrap(stack), BigInteger.valueOf(stack.getAmount()), BigInteger::add);
+
+    Supplier<Map<ItemStack, BigInteger>> convertBackPackPackItems =
+        () ->
+            notRemovedItems.entrySet().stream()
+                .map(entry -> new OPair<>(entry.getKey().getItemStack(), entry.getValue()))
+                .collect(Collectors.toMap(OPair::getKey, OPair::getValue));
     synchronized (lock) {
-      if (getUsed() == 0)
-        return Arrays.stream(itemStacks).collect(Collectors.toMap(item -> item, item -> 0));
+      if (NumberUtil.equals(getUsed(), BigInteger.ZERO)) return convertBackPackPackItems.get();
 
-      for (ItemStack itemStack : itemStacks) {
-        int startingAmount = itemStack.getAmount();
-        int removed = 0;
+      for (ItemStack stack : itemStacks) {
+        BackPackItem wrappedItem = BackPackItem.wrap(stack);
+        BigInteger amount = BigInteger.valueOf(stack.getAmount());
 
-        while (itemStack.getAmount() > 0) {
-          Optional<OPair<Integer, ItemStack>> similar = data.findSimilar(itemStack, false);
-          if (!similar.isPresent()) break;
+        boolean mapContains = data.getItems().containsKey(wrappedItem);
+        if (mapContains) {
+          BigInteger merged =
+              data.getItems()
+                  .merge(
+                      wrappedItem,
+                      amount,
+                      (current, remove) -> {
+                        if (NumberUtil.isMoreOrEquals(current, remove))
+                          return current.subtract(remove);
 
-          ItemStack slotItem = similar.get().getSecond();
-          if (slotItem.getAmount() == itemStack.getAmount()) {
-            removed += itemStack.getAmount();
-            itemStack.setAmount(0);
-            data.setItem(similar.get().getFirst(), null);
+                        return current.negate();
+                      });
 
-          } else if (slotItem.getAmount() > itemStack.getAmount()) {
-            int removing = slotItem.getAmount() - itemStack.getAmount();
-            removed = itemStack.getAmount();
-            slotItem.setAmount(removing);
-            itemStack.setAmount(0);
+          // If remove was bigger than the amount
+          if (NumberUtil.isLessThan(merged, BigInteger.ZERO)) {
+            merged = notRemovedItems.merge(wrappedItem, merged, BigInteger::add);
+            this.used = used.add(merged);
 
-          } else if (slotItem.getAmount() < itemStack.getAmount()) {
-            int canRemove = itemStack.getAmount() - slotItem.getAmount();
-            data.setItem(similar.get().getFirst(), null);
+          } else {
+            merged = BigInteger.ZERO;
+            data.getItems().remove(wrappedItem);
 
-            itemStack.setAmount(canRemove);
+            this.used = used.subtract(amount);
+          }
+
+          // If it removed everything
+          if (NumberUtil.equals(merged, BigInteger.ZERO)) {
+            notRemovedItems.remove(wrappedItem);
           }
         }
-        if (startingAmount != removed) removedItems.put(itemStack, removed);
       }
     }
 
-    if (currentView != null) currentView.onUpdate();
-    return removedItems;
+    // if (currentView != null) currentView.onUpdate();
+    return convertBackPackPackItems.get();
   }
 
   @Override
@@ -467,7 +412,7 @@ public class SBackPack implements BackPack {
       } else holder.getInventory().setItem(currentSlot, newItem);
 
     // Update the menu
-    if (currentView != null) currentView.refresh();
+    // if (currentView != null) currentView.refresh();
     lastUpdated = System.currentTimeMillis();
   }
 
@@ -477,21 +422,9 @@ public class SBackPack implements BackPack {
 
   @Override
   public void upgrade(int level) {
-    BackPackConfig<?> config = getConfig().getByLevel(level);
     data.setLevel(level);
 
-    if (config instanceof AdvancedBackPackConfig) {
-      data.updateDataAdvanced(
-          lastRows,
-          ((AdvancedBackPackConfig) config).getRows(),
-          lastPages,
-          ((AdvancedBackPackConfig) config).getPages());
-      lastPages = ((AdvancedBackPackConfig) config).getPages();
-      lastRows = ((AdvancedBackPackConfig) config).getRows();
-
-    } else data.updateData();
-
-    if (currentView != null) currentView.onUpgrade();
+    // if (currentView != null) currentView.onUpgrade();
   }
 
   @Override
@@ -512,7 +445,7 @@ public class SBackPack implements BackPack {
 
   @Override
   public boolean isFull() {
-    return getCapacity() == getUsed();
+    return NumberUtil.equals(getCapacity(), getUsed());
   }
 
   private String uncoverData(NBTItem nbtItem) {

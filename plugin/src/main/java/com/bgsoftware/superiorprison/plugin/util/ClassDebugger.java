@@ -7,7 +7,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class ClassDebugger {
-
   public static void debug(Object text, Object... placeholders) {
     Class<?> clazz = null;
     String methodName = null;

@@ -3,10 +3,12 @@ package com.bgsoftware.superiorprison.plugin.object.backpack;
 import com.oop.orangeengine.material.OMaterial;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.ToString;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.bukkit.inventory.ItemStack;
 
 @Getter
+@ToString
 public class BackPackItem {
     private final ItemStack itemStack;
     private final OMaterial material;

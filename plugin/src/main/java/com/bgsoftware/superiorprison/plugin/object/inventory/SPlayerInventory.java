@@ -99,6 +99,10 @@ public class SPlayerInventory {
     // If prisoner is not in a mine return
     if (!prisoner.getCurrentMine().isPresent()) return itemStacks;
 
+    itemStacks = Arrays.stream(itemStacks)
+            .filter(itemStack -> itemStack != null && itemStack.getType() != Material.AIR)
+            .toArray(ItemStack[]::new);
+
     ItemStack[] itemStacks1 = Arrays.copyOfRange(itemStacks, 0, itemStacks.length);
     // Clean out named items if config says so
     if (!SuperiorPrisonPlugin.getInstance().getMainConfig().isHandleNamedItems()) {

@@ -27,6 +27,7 @@ allprojects {
         maven { url 'http://repo.extendedclip.com/content/repositories/placeholderapi/' }
         maven { url 'https://papermc.io/repo/repository/maven-public' }
         maven { url 'http://repo.mvdw-software.be/content/groups/public/' }
+        maven { url 'https://raw.githubusercontent.com/TeamVK/maven-repository/master/release/' }
     }
 
     dependencies {
@@ -55,7 +56,7 @@ allprojects {
             implementation("com.oop.datamodule:universal:2.0")
             compileOnly 'com.github.brcdev-minecraft:shopgui-api:2.1.1'
             compileOnly 'be.maximvdw:MVdWPlaceholderAPI:3.1.1-SNAPSHOT'
-            compileOnly fileTree("../lib")
+            compileOnly 'com.vk2gpz.tokenenchant:TokenEnchantAPI:18.18.1'
 
             compileOnly("com.github.MilkBowl:VaultAPI:1.7")
             compileOnly "net.md-5:bungeecord-chat:1.16-R0.1"
@@ -100,7 +101,7 @@ allprojects {
             apply plugin: 'com.github.johnrengelman.shadow'
             shadowJar {
                 archiveName = "api.jar"
-                destinationDir = file("../archive/")
+                destinationDir = file("../target")
                 duplicatesStrategy = DuplicatesStrategy.EXCLUDE
             }
 
@@ -126,15 +127,4 @@ shadowJar {
     relocate("com.oop.datamodule", "com.bgsoftware.superiorprison.lib.data")
 }
 
-task copyJarToServer() {
-    doLast {
-        copy {
-            from 'archive/SuperiorPrison.jar'
-            into "/run/media/oop-778/BRABARAR/Serrvers/OOP/1.16/plugins/"
-        }
-    }
-}
-
-copyJarToServer.dependsOn(build)
-copyJarToServer.dependsOn(shadowJar)
 shadowJar.dependsOn(build)
